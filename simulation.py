@@ -5,9 +5,10 @@ import dynetworkx as dx
 import time
 import math
 import random
-
+import json
 import kcore
 from graphclasses import *
+from networkx.readwrite import json_graph
 
 #Some constants
 starttime = time.time()
@@ -44,7 +45,7 @@ def create_story(user):
   e = Edge()
   story = Story()
   G.add_node(story)
-  nx.set_node_attributes(G,{story: {'type': 'story','title':str(story),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
+  nx.set_node_attributes(G,{story: {'type': 'story','title':unicode(str(story)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
   G.nodes[story]['spells'] = [(cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month))]
   G.nodes[story]['size'] = [(5,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.oneyear))]
   G.add_edge(user,story,impact=[],read=[],comment=[],share=[],create=[],talk=[],give=[])
@@ -216,7 +217,8 @@ while counter < cf.DAYS:
             create_story(cf.colluding_nodes[i])
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
- 
+  G = nx.convert_node_labels_to_integers(G)
+
   #print 'curdate is ',cf.utmillis(cur_date)  
   if counter % 60 == 0:
     pos = nx.spring_layout(G)
@@ -224,6 +226,10 @@ while counter < cf.DAYS:
     filename = "test"+str(counter)+".gexf"
     print 'filename is ',filename
     nx.write_gexf(G, filename)
+    data = json_graph.node_link_data(G)
+    with open('data'+str(counter)+'.json', 'w') as outfile:
+        #print data 
+        outfile.write(json.dumps(data))
 print 'let us get the k core'
 kcore.calculate(G)
 print 'now let us plot the graph'
