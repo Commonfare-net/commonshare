@@ -5,10 +5,8 @@ import dynetworkx as dx
 import time
 import math
 import random
-import json
 import kcore
 from graphclasses import *
-from networkx.readwrite import json_graph
 
 #Some constants
 starttime = time.time()
@@ -226,10 +224,7 @@ while counter < cf.DAYS:
     filename = "test"+str(counter)+".gexf"
     print 'filename is ',filename
     nx.write_gexf(G, filename)
-    data = json_graph.node_link_data(G)
-    with open('data'+str(counter)+'.json', 'w') as outfile:
-        #print data 
-        outfile.write(json.dumps(data))
+
 print 'let us get the k core'
 kcore.calculate(G)
 print 'now let us plot the graph'

@@ -10,6 +10,8 @@ import datetime
 from config import *
 from datetime import datetime
 from plotly import tools
+import json
+from networkx.readwrite import json_graph
 
 plotly.tools.set_credentials_file(username='DJR53', api_key='2WZTNjaJOyOoxGeTcIq4')
 from collections import Counter
@@ -292,6 +294,10 @@ def plotgraph(G):
         windowstart = windowend
         windowend = windowend + month_in_s
         loopcount = loopcount + 1
+        data = json_graph.node_link_data(GCopy)
+        with open('data'+str(loopcount)+'.json', 'w') as outfile:
+            #print data 
+            outfile.write(json.dumps(data))
     
     '''
     updatemenus = list([
