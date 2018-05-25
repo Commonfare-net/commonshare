@@ -32,7 +32,7 @@ d3.json("data120.json", function(error, graph) {
   if (error) throw error;
 
   var link = svg.append("g")
-      .attr("class", "links")
+      .attr("class", "edges")
     .selectAll("line")
     .data(graph.edges)
     .enter().append("line")
@@ -58,7 +58,7 @@ d3.json("data120.json", function(error, graph) {
       .on("tick", ticked);
 
   simulation.force("link")
-      .links(graph.links);
+      .links(graph.edges);
 
   function ticked() {
     link
