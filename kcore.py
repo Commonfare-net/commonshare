@@ -201,13 +201,22 @@ def plotgraph(G):
             if edgeexists == False:
                 ebunch.append((u,v,c))
         GCopy.remove_edges_from(ebunch)
+        
+        nbunch = []
+        nodeiter = GCopy.nodes(data=True)
+        for (n,c) in nodeiter:
+            for intervals in c['spells']:
+                if datetime.strptime(intervals[0],"%d/%m/%y") < windowend:
+                    break
+                else:
+                    nbunch.append(n)
+        GCopy.remove_nodes_from(nbunch)
         #This uses a modified core_number algorithm that takes the weights of each node's edges into account
         #Trying it for both standard undirected graphs and my 'directed' equivalent
         #detect_collusion(GCopy,windowstart,windowend)
         #C= dx.core_number_weighted(GCopy,windowstart,windowend,False,False)
         (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
         #E= dx.core_number_weighted(GCopy,windowstart,windowend,True,True)
-
         #c1 = Counter(C.values())
         d1 = Counter(D.values())
         #e1 = Counter(E.values())
