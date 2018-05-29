@@ -6,9 +6,8 @@ import random
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
-import datetime
-from config import *
 from datetime import datetime
+import config as cf
 from plotly import tools
 import json
 from networkx.readwrite import json_graph
@@ -21,19 +20,18 @@ from networkx.algorithms.approximation import clique
 hourinms = 3600000
 threehoursinms = 10800000
 twohoursinms = 7200000
-today = time.time()
 day_in_s = 3600*24
 week_in_s = 3600*24*7
 month_in_s = 30*3600*24
 year_in_s = week_in_s*52
-end_of_time = today + (day_in_s*DAYS)
+end_of_time = datetime.now() + cf.one_year
 cliquelist = []
 cliqueids = []
 
 def calculate(G):
     global cliquelist
-    windowstart = today
-    windowend = today + month_in_s
+    windowstart = datetime.now()
+    windowend = windowstart + cf.one_month
     C=nx.core_number(G)
     #D= dx.core_number_weighted(G,windowstart,windowend,False)
     #E= dx.core_number_weighted(G,windowstart,windowend,True)
@@ -58,35 +56,35 @@ def getNodeStats(G,node_id,starttime,endtime):
     
     for (u,v,c) in edges:
         for createactions in c['create']:
-            if (starttime < createactions[1] < endtime) or (starttime < createactions[2] < endtime):
+            if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(createactions[2],"%d/%m/%y") < endtime):
                 if str(createactions[0]) == str(node_id):
                     stories_created = stories_created + 1     
         for readactions in c['read']:
-            if (starttime < readactions[1] < endtime) or (starttime < readactions[2] < endtime):
+            if (starttime < datetime.strptime(readactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(readactions[2],"%d/%m/%y") < endtime):
                 if str(readactions[0]) == str(node_id):
                     stories_read = stories_read + 1
                 else:
                     read_by_others = read_by_others + 1
         for commentactions in c['comment']:
-            if (starttime < commentactions[1] < endtime) or (starttime < commentactions[2] < endtime):
+            if (starttime < datetime.strptime(commentactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(commentactions[2],"%d/%m/%y") < endtime):
                 if str(commentactions[0]) == str(node_id):
                     stories_commented = stories_commented + 1
                 else:
                     commented_by_others = commented_by_others + 1
         for shareactions in c['share']:
-            if (starttime < shareactions[1] < endtime) or (starttime < shareactions[2] < endtime):
+            if (starttime < datetime.strptime(shareactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(shareactions[2],"%d/%m/%y") < endtime):
                 if str(shareactions[0]) == str(node_id):
                     stories_shared = stories_shared + 1
                 else:
                     shared_by_others = shared_by_others + 1
         for talkactions in c['talk']:
-            if (starttime < talkactions[1] < endtime) or (starttime < talkactions[2] < endtime):
+            if (starttime < datetime.strptime(talkactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(talkactions[2],"%d/%m/%y") < endtime):
                 if str(talkactions[0]) == str(node_id):
                     talks_started = talks_started + 1
                 else:
                     talks_received = talks_received + 1
         for giveactions in c['give']:
-            if (starttime < giveactions[1] < endtime) or (starttime < giveactions[2] < endtime):
+            if (starttime < datetime.strptime(giveactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(giveactions[2],"%d/%m/%y") < endtime):
                 if str(giveactions[0]) == str(node_id):
                     givings = givings + 1
                 else:
@@ -130,8 +128,8 @@ def plotgraph(G):
         cliquelist = random.sample(G.nodes, 100)
         
         
-    windowstart = today
-    windowend = today + month_in_s
+    windowstart = datetime.now()
+    windowend = windowstart + cf.one_month
 
     bubbletimes = []
     d_bubbletimes = []
@@ -197,7 +195,7 @@ def plotgraph(G):
                 #Cumulative                 
                 #if windowend > intervals[0]:
                 #Non-cumulative
-                if (windowstart < intervals[0] < windowend) or (windowstart < intervals[1] < windowend):
+                if (windowstart < datetime.strptime(intervals[0],"%d/%m/%y") < windowend) or (windowstart < datetime.strptime(intervals[1],"%d/%m/%y") < windowend):
                     edgeexists = True
                     break
             if edgeexists == False:
@@ -207,16 +205,16 @@ def plotgraph(G):
         #Trying it for both standard undirected graphs and my 'directed' equivalent
         #detect_collusion(GCopy,windowstart,windowend)
         #C= dx.core_number_weighted(GCopy,windowstart,windowend,False,False)
-        D= dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
-        E= dx.core_number_weighted(GCopy,windowstart,windowend,True,True)
+        (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
+        #E= dx.core_number_weighted(GCopy,windowstart,windowend,True,True)
 
         #c1 = Counter(C.values())
         d1 = Counter(D.values())
-        e1 = Counter(E.values())
-        enddate = datetime.utcfromtimestamp(windowend)
+        #e1 = Counter(E.values())
+        #enddate = datetime.utcfromtimestamp(windowend)
 
         print 'Done the core stuff'
-        usertimes.append(enddate)
+        usertimes.append(windowend)
         for id in cliqueids:
           #  cliquevals[id].append(C[id])
             d_cliquevals[id].append(D[id])
@@ -224,22 +222,22 @@ def plotgraph(G):
                 max_y_axis = D[id]
           #  if C[id] > max_y_axis:
           #      max_y_axis = C[id]
-            e_cliquevals[id].append(E[id])
-            if E[id] > max_y_axis:
-                max_y_axis = E[id]
+         #   e_cliquevals[id].append(E[id])
+          #  if E[id] > max_y_axis:
+           #     max_y_axis = E[id]
             #Exponential smoothing s(t) = ax(t) + (1-a)s(t-1)
             if loopcount > 0:
           #      smoothed = (alpha * C[id]) + (1-alpha)*cliquesmoothed[id][-1]
                 d_smoothed = (alpha * D[id]) + (1-alpha)*d_cliquesmoothed[id][-1]
-                e_smoothed = (alpha * E[id]) + (1-alpha)*e_cliquesmoothed[id][-1]
+           #     e_smoothed = (alpha * E[id]) + (1-alpha)*e_cliquesmoothed[id][-1]
             else:
          #       smoothed = C[id]
                 d_smoothed = D[id]
-                e_smoothed = E[id]
+            #    e_smoothed = E[id]
                 
       #      cliquesmoothed[id].append(smoothed)
             d_cliquesmoothed[id].append(d_smoothed)
-            e_cliquesmoothed[id].append(e_smoothed)
+            #e_cliquesmoothed[id].append(e_smoothed)
             stats = getNodeStats(GCopy,id,windowstart,windowend)
             cliquestats[id].append(str(stats))
             storiescreated[id].append(stats['sc'])
@@ -272,12 +270,12 @@ def plotgraph(G):
                 continue
             d_keysum = d_keysum + (k * v)
             d_numvalues = d_numvalues + v
-            d_bubbletimes.append(enddate)
+            d_bubbletimes.append(windowend)
             d_keys.append(k)
             d_values.append(v)
         d_avg = d_keysum / d_numvalues
         d_avgs.append(d_avg)
- 
+        '''
         e_keysum = 0
         e_numvalues = 0
         for k, v in e1.items():
@@ -290,11 +288,11 @@ def plotgraph(G):
             e_values.append(v)
         e_avg = e_keysum / e_numvalues
         e_avgs.append(e_avg)
-        
+        '''    
         windowstart = windowend
-        windowend = windowend + month_in_s
+        windowend = windowend + cf.one_month
         loopcount = loopcount + 1
-        data = json_graph.node_link_data(GCopy)
+        data = json_graph.node_link_data(ReducedGraph)
         with open('data'+str(loopcount)+'.json', 'w') as outfile:
             #print data 
             outfile.write(json.dumps(data))
@@ -351,9 +349,10 @@ def plotgraph(G):
     
     for id in range(len(cliqueids)):
         directed_data = plot(cliqueids[id],cliquestats,d_cliquevals[cliqueids[id]],d_avgs,'x','y')
-        directed_data_ignoring = plot(cliqueids[id],cliquestats,e_cliquevals[cliqueids[id]],e_avgs,'x2','y2')
+       # directed_data_ignoring = plot(cliqueids[id],cliquestats,e_cliquevals[cliqueids[id]],e_avgs,'x2','y2')
         bardata = makebargraph(cliqueids[id],'x3','y3',greens)
-        data = data + directed_data + directed_data_ignoring + bardata
+        data = data + directed_data + bardata 
+        '''directed_data_ignoring + '''
         button = {'label':'User '+str(cliqueids[id]),'method':'update','args':[{'visible':visibility_indices[cliqueids[id]]},{'title': 'User ' + str(cliqueids[id])}]}
         mybuttons.append(button)
     

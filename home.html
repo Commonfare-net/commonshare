@@ -13,10 +13,23 @@
 }
 
 </style>
+<body>
+    <form>
+        <label for="year">Please select a month: </label>
+        <input type="month" id="month" name="themonth" value="2018-05" min="2018-05" max="2019-05">
+        <!--<input type="range" min=2009 max=2014 step=1 id="year" value=2014 oninput="selected_year.value = year.value"> 
+        <output name="selected_year" id="selected_year">2014</output>-->
+    </form>
+    <div id="vis">
+    </div>
+</body>
 <svg width="960" height="600"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
+var data = {};
 
+//Temporary hack because I know the month names
+var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04','2019-05']
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
@@ -24,42 +37,91 @@ var svg = d3.select("svg"),
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-    .force("charge", d3.forceManyBody())
-    .force("center", d3.forceCenter(width / 2, height / 2));
+    .force("link", d3.forceLink())
+    .force("charge", d3.forceManyBody().distanceMax(50));
+    //.force("center", d3.forceCenter(width / 2, height / 2))
+    //.force('collide', d3.forceCollide().radius(function(d) {
+   // return d.radius*3
+  //}))
+var g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"),
+    link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
+    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 
-d3.json("data1.json", function(error, graph) {
+var q = d3.queue();
+for (var i = 1; i < 13; i++) {
+  q.defer(d3.json, 'data'+i+'.json');
+}
+q.awaitAll(function(error,results) {
   if (error) throw error;
+  else{
+    for(var i = 0; i < results.length; i++){
+        data[months[i]] = results[i]
+    }
+    draw('2018-06');
+  }
+});
 
-  var link = svg.append("g")
-      .attr("class", "links")
-    .selectAll("line")
-    .data(graph.links)
-    .enter().append("line")
-      .attr("stroke-width", function(d) { return 1; });
+function draw(month){
+    graph = data[month]
+  //   var link = svg.append("g")
+  //    .attr("class", "links")
+  //  .selectAll("line")
+  //  .data(graph.links)
+  //  .enter().append("line")
+  //    .attr("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-  var node = svg.append("g")
-      .attr("class", "nodes")
-    .selectAll("circle")
-    .data(graph.nodes)
-    .enter().append("circle")
+  //var node = svg.append("g")
+  //    .attr("class", "nodes")
+  //  .selectAll("circle")
+  //  .data(graph.nodes)
+    
+
+ // node.append("title")
+  //    .text(function(d) { return d.id; });
+
+
+   restart();   
+    function restart() {
+
+      // Apply the general update pattern to the nodes.
+      node = node.data(graph.nodes, function(d) { return d.id;});
+  //    node.attr("fx", function(d){ return d.x;});
+  //    node.attr("fy", function(d){ return d.y;});
+      node.exit().transition()
+      .attr("r", 0)
+      .remove();
+      node = node.enter().append("circle")
       .attr("r", 5)
-      .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red");})
+      .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
-          .on("end", dragended));
+          .on("end", dragended))
+      .call(function(node) { node.transition().attr("r", 8); })
+      .merge(node);
 
-  node.append("title")
-      .text(function(d) { return d.id; });
+      // Apply the general update pattern to the links.
+      link = link.data(graph.links, function(d) { return d.source.id + "-" + d.target.id; });
+      link.exit().transition()
+      .attr("stroke-opacity", 0)
+      .attrTween("x1", function(d) { return function() { return d.source.x; }; })
+      .attrTween("x2", function(d) { return function() { return d.target.x; }; })
+      .attrTween("y1", function(d) { return function() { return d.source.y; }; })
+      .attrTween("y2", function(d) { return function() { return d.target.y; }; })
+      .remove();
+      link = link.enter().append("line")
+      .call(function(link) { link.transition().attr("stroke-opacity", 1); })
+      .merge(link);
 
-  simulation
+      // Update and restart the simulation.
+      simulation
       .nodes(graph.nodes)
       .on("tick", ticked);
 
   simulation.force("link")
       .links(graph.links);
-
+      simulation.alpha(1).restart();
+    }
   function ticked() {
     link
         .attr("x1", function(d) { return d.source.x; })
@@ -71,7 +133,7 @@ d3.json("data1.json", function(error, graph) {
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
   }
-});
+}
 
 function dragstarted(d) {
   if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -89,6 +151,11 @@ function dragended(d) {
   d.fx = null;
   d.fy = null;
 }
+var monthpicker = d3.select('#month');
+monthpicker.on('change', function() {
+    draw(this.value);
+});
 
 </script>
-<iframe width="900" height="800" frameborder="0" scrolling="no" src="//plot.ly/~DJR53/2.embed?logo=false&modebar=false&link=false"></iframe>
+
+<!--<iframe width="900" height="800" frameborder="0" scrolling="no" src="//plot.ly/~DJR53/2.embed?logo=false&modebar=false&link=false"></iframe>-->

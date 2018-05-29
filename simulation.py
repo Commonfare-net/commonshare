@@ -44,22 +44,22 @@ def create_story(user):
   story = Story()
   G.add_node(story)
   nx.set_node_attributes(G,{story: {'type': 'story','title':unicode(str(story)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
-  G.nodes[story]['spells'] = [(cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month))]
-  G.nodes[story]['size'] = [(5,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.oneyear))]
-  G.add_edge(user,story,impact=[],read=[],comment=[],share=[],create=[],talk=[],give=[])
+  G.nodes[story]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.one_month).strftime("%d/%m/%y"))]
+  #G.nodes[story]['size'] = [(5,cur_date,(cur_date+cf.oneyear))]
+  G.add_edge(user,story,read=[],comment=[],share=[],create=[],talk=[],give=[])
   
-  last_creator = G.nodes[user]['size'][-1]
-  last_size = last_creator[0]
-  updated_last_creator = (last_size,last_creator[1],cf.utmillis(cur_date))
-  G.nodes[user]['size'][-1] = updated_last_creator
-  G.nodes[user]['size'].append((last_size+10,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.oneyear)))
-  G.nodes[user]['create'].append((str(user),cf.utmillis(cur_date),cf.utmillis(cur_date)))    
+  #last_creator = G.nodes[user]['size'][-1]
+  #last_size = last_creator[0]
+  #updated_last_creator = (last_size,last_creator[1],cur_date)
+  #G.nodes[user]['size'][-1] = updated_last_creator
+  #G.nodes[user]['size'].append((last_size+10,cur_date,(cur_date+cf.oneyear)))
+  G.nodes[user]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
     
   #G[user][story]['created'] = []
   #G[user][story]['edited'] = []
-  G[user][story]['impact'] = []
-  G[user][story]['spells'] = [(cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month))]
-  G[user][story]['create'].append((str(user),cf.utmillis(cur_date),cf.utmillis(cur_date) ))
+  #G[user][story]['impact'] = []
+  G[user][story]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.one_month).strftime("%d/%m/%y"))]
+  G[user][story]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
   G.nodes[story]['viz'] = {}
   G.nodes[story]['viz']['color'] = {'r' : 254, 'g' : 0, 'b' : 0, 'a':1.0}
 # print user,'created story',story
@@ -74,9 +74,9 @@ def edit_story():
         print user, 'edited story', story
         if len(G[user][story]['edited']) > 0:
           last_edit = G[user][story]['edited'][-1]
-          updated_last_edit = (last_edit[0],last_edit[1],cf.utmillis(cur_date) )
+          updated_last_edit = (last_edit[0],last_edit[1],cur_date )
           G[user][story]['edited'][-1] = updated_last_edit
-        G[user][story]['edited'].append(('10',cf.utmillis(cur_date) ,(cf.utmillis(cur_date)+oneyear) ))
+        G[user][story]['edited'].append(('10',cur_date ,(cur_date+oneyear) ))
         returnp
  # print 'User',user,'has no story to edit'	  
   
@@ -89,8 +89,8 @@ def delete_story():
       #Set spell end of edge and noode to now
       edgespelltuple = G[user][story]['spells'][-1]
       nodespelltuple = G.nodes[story]['spells'][-1]
-      updated_edge_spell = (edgespelltuple[0],cf.utmillis(cur_date))
-      updated_node_spell = (nodespelltuple[0],cf.utmillis(cur_date))
+      updated_edge_spell = (edgespelltuple[0],cur_date)
+      updated_node_spell = (nodespelltuple[0],cur_date)
       G[user][story]['spells'][-1] = updated_edge_spell
       G.nodes[story]['spells'][-1] = updated_node_spell
       return
@@ -104,10 +104,10 @@ def user_interact(interaction):
   target = pair[1]
  # print source,'started talking to',target
   if G.has_edge(source,target) == False:
-    G.add_edge(source,target,impact=[],read=[],comment=[],share=[],create=[],talk=[],give=[])
+    G.add_edge(source,target,read=[],comment=[],share=[],create=[],talk=[],give=[])
     G[source][target]['spells'] = []
   #Add the spells
-  G[source][target]['spells'].append((cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month)))
+  G[source][target]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.one_month).strftime("%d/%m/%y")))
   update_links(source,target,interaction)
   update_nodes(source,target,interaction)
   
@@ -124,16 +124,16 @@ def story_interact(interaction):
     #  print source,'read story',story,'of user',target
       #Is this the first time source user has interacted with this story?
       if G.has_edge(source,story) == False:
-        G.add_edge(source,story,impact=[],read=[],comment=[],share=[],create=[],talk=[],give=[])
+        G.add_edge(source,story,read=[],comment=[],share=[],create=[],talk=[],give=[])
         G[source][story]['spells'] = []
       #Is this the first time source user has interacted with the target user?
       if G.has_edge(source,target) == False:
-        G.add_edge(source,target,impact=[],read=[],comment=[],share=[],create=[],talk=[],give=[])
+        G.add_edge(source,target,read=[],comment=[],share=[],create=[],talk=[],give=[])
         G[source][target]['spells'] = []
     #add the spells
         
-      G[source][target]['spells'].append((cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.two_weeks)))
-      G[source][story]['spells'].append((cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.two_weeks)))
+      G[source][target]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
+      G[source][story]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
       
       update_links(source,story,interaction)
       update_links(source,target,interaction)
@@ -146,35 +146,35 @@ def update_links(source,target,interaction):
     source_weight = w[0]
     target_weight = w[1]
    #Update the strength of the links between source user, target user, and story
-    last_impact = G[source][target]['impact'][-1:]
-    if len(last_impact) > 0:
-        #last_impact = last_impact[0]
-        last = last_impact[0]
-        last_impact = last[0]
-        updated_last_impact = (last_impact,last[1],cf.utmillis(cur_date))
-        G[source][target]['impact'][-1] = updated_last_impact
-        G[source][target]['impact'].append((last_impact+source_weight,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month)))
-    else:
-        G[source][target]['impact'].append((source_weight,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month)))
-    G[source][target][interaction].append((str(source),cf.utmillis(cur_date),cf.utmillis(cur_date)))
+    #last_impact = G[source][target]['impact'][-1:]
+    #if len(last_impact) > 0:
+    #    #last_impact = last_impact[0]
+    ##    last = last_impact[0]
+     #   last_impact = last[0]
+     #   updated_last_impact = (last_impact,last[1],cur_date)
+        #G[source][target]['impact'][-1] = updated_last_impact
+        #G[source][target]['impact'].append((last_impact+source_weight,cur_date,(cur_date+cf.one_month)))
+    #else:
+    #    G[source][target]['impact'].append((source_weight,cur_date,(cur_date+cf.one_month)))
+    G[source][target][interaction].append((str(source),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))
 
 def update_nodes(source,target,interaction):
     w = cf.weights.get(interaction)
     source_weight = w[0]
     target_weight = w[1]
-    last_source = G.nodes[source]['size'][-1]
-    last_size = last_source[0]
-    updated_last_source = (last_size,last_source[1],cf.utmillis(cur_date))
-    G.nodes[source]['size'][-1] = updated_last_source
-    G.nodes[source]['size'].append((last_size+source_weight,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month)))
-    G.nodes[source][interaction].append((str(source),cf.utmillis(cur_date),cf.utmillis(cur_date)))    
+#    last_source = G.nodes[source]['size'][-1]
+#    last_size = last_source[0]
+#    updated_last_source = (last_size,last_source[1],cur_date)
+    #G.nodes[source]['size'][-1] = updated_last_source
+    #G.nodes[source]['size'].append((last_size+source_weight,cur_date,(cur_date+cf.one_month)))
+    G.nodes[source][interaction].append((str(source),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
     
-    last_target = G.nodes[target]['size'][-1]
-    last_size = last_target[0]
-    updated_last_target = (last_size,last_target[1],cf.utmillis(cur_date))
-    G.nodes[target]['size'][-1] = updated_last_target
-    G.nodes[target]['size'].append((last_size+target_weight,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.one_month)))  
-    G.nodes[target][interaction].append((str(source),cf.utmillis(cur_date),cf.utmillis(cur_date)))    
+    #last_target = G.nodes[target]['size'][-1]
+ #   last_size = last_target[0]
+ #   updated_last_target = (last_size,last_target[1],cur_date)
+    #G.nodes[target]['size'][-1] = updated_last_target
+    #G.nodes[target]['size'].append((last_size+target_weight,cur_date,(cur_date+cf.one_month)))  
+    G.nodes[target][interaction].append((str(source),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
 
   
 def do_random_thing():
@@ -201,9 +201,9 @@ while counter < cf.DAYS:
   while len(G.nodes()) < cf.USERS:
     user = User()
     G.add_node(user)
-    nx.set_node_attributes(G,{user: {'type': 'user','name': str(user),'size':[(1,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.oneyear))],'read':[],'comment':[],'share':[],'create':[],'talk':[],'give':[]}})
-    G.nodes[user]['spells'] = [(cf.utmillis(cur_date),None)]
-    G.nodes[user]['size'] = [(5,cf.utmillis(cur_date),(cf.utmillis(cur_date)+cf.oneyear))]
+    nx.set_node_attributes(G,{user: {'type': 'user','name': str(user),'read':[],'comment':[],'share':[],'create':[],'talk':[],'give':[]}})
+    G.nodes[user]['spells'] = [(cur_date.strftime("%d/%m/%y"),None)]
+   # G.nodes[user]['size'] = [(5,cur_date,(cur_date+cf.oneyear))]
     G.nodes[user]['viz'] = {}
     G.nodes[user]['viz']['color'] = {'r' : 0, 'g' : 0, 'b' : 254, 'a':1.0}
     G = nx.convert_node_labels_to_integers(G)
@@ -217,7 +217,7 @@ while counter < cf.DAYS:
     do_random_thing()
   G = nx.convert_node_labels_to_integers(G)
 
-  #print 'curdate is ',cf.utmillis(cur_date)  
+  #print 'curdate is ',cur_date  
   if counter % 60 == 0:
     pos = nx.spring_layout(G)
     edge_labels = {}

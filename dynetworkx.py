@@ -1,6 +1,6 @@
 import math
 import config as cf
-
+from datetime import datetime
 
 def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if G.has_edge(n1,n2) == False:
@@ -10,7 +10,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     frequency = 0
     for action_key in cf.interaction_keys:
         for action in edge[action_key]:
-            if (starttime < action[1] < endtime) or (starttime < action[2] < endtime):
+            if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(action[2],"%d/%m/%y") < endtime):
                 #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
                 if str(action[0]) == str(n1):
                     edgeweight = edgeweight + cf.weights[action_key][0]
@@ -19,6 +19,8 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if frequency > cf.FREQUENCY_THRESHOLD and ((edgeweight/n2_weight)*100) > cf.PERCENTAGE_THRESHOLD:
         return True
     return False
+
+''' Not  using these ones right now
     
 def nodeweight_directed_depreciating(G,node_id,starttime,endtime):
     #Here finds the weight corresponding to the interactions at the particular point in time
@@ -89,7 +91,9 @@ def nodeweight_directed_ignore_indirect_links(G,node_id,starttime,endtime):
     norm = [(float(i)/mean)/(float(min(edgeweights))/mean) for i in edgeweights]
     #print 'sum of norm ',sum(norm)
     return sum(norm)
-        
+
+'''    
+#DJR modified this again to return the graph with the unnecessary bits removed        
 def nodeweight_directed(G,node_id,starttime,endtime):
     #Here finds the weight corresponding to the interactions at the particular point in time
     edges = G.edges(node_id,data=True)
@@ -99,25 +103,27 @@ def nodeweight_directed(G,node_id,starttime,endtime):
         for action_key in cf.interaction_keys:
             #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them. Impact will have to be for vis purposes in Gephi only
             for action in c[action_key]:
-                if (starttime < action[1] < endtime) or (starttime < action[2] < endtime):
+                if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(action[2],"%d/%m/%y") < endtime):
                     #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
                     if str(action[0]) == str(node_id):
                         #print 'yes node',node_id,'created this'
                         overallweight = overallweight + cf.weights[action_key][0]     
                     else:
                         overallweight = overallweight + cf.weights[action_key][1]
+                else:
+                    c[action_key].remove(action) #Hopefully this gets rid of it
         if overallweight > 0:
             edgeweights.append(int(overallweight))
     if len(edgeweights) == 0:
-        return 1
+        return (G,1)
     mean = sum(edgeweights)/len(edgeweights)
     if node_id == cf.colluding_nodes[0] or node_id == cf.colluding_nodes[1]:
         print 'weights are ',edgeweights
     #normalize weights to mean
     norm = [(float(i)/mean)/(float(min(edgeweights))/mean) for i in edgeweights]
     #print 'sum of norm ',sum(norm)
-    return sum(norm)
-
+    return (G,sum(norm))
+'''
 def nodeweight_undirected(G,node_id,starttime,endtime):
     #Here finds the weight corresponding to the interactions at the particular point in time
     edges = G.edges(node_id,data=True)
@@ -138,7 +144,8 @@ def nodeweight_undirected(G,node_id,starttime,endtime):
     norm = [(float(i)/mean)/(float(min(edgeweights))/mean) for i in edgeweights]
     #print 'sum of norm ',sum(norm)
     return sum(norm)    
-    
+'''    
+#DJR Modified this method to return the modified graph for spitting out JSON
 def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
 
     if G.is_multigraph():
@@ -168,7 +175,7 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
               
         else:
             for k,v in degrees.items():
-                directed_weight = nodeweight_directed(G,k,starttime,endtime)
+                (G,directed_weight) = nodeweight_directed(G,k,starttime,endtime)
                 degrees[k] = int(math.sqrt(math.ceil(int(v) * directed_weight)))
                # print 'directed weight of',k,'is',directed_weight
                 if directed_weight > cf.REPUTATION_THRESHOLD:
@@ -205,7 +212,7 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 nodes[bin_start],nodes[pos]=nodes[pos],nodes[bin_start]
                 bin_boundaries[core[u]]+=1
                 core[u]-=1
-    return core
+    return (G,core)
     
 # Copyright (C) 2013-2018 by
 #

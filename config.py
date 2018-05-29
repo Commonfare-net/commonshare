@@ -2,21 +2,22 @@ import datetime
 
 DAYS = 365
 USERS = 100
-ACTIONS_PER_DAY = 20
+ACTIONS_PER_DAY = 5
 
 #Collusion things
 
-SHOULD_COLLUDE = True
+SHOULD_COLLUDE = False
 NUM_COLLUDERS = 4
 FREQUENCY_THRESHOLD = 5
 REPUTATION_THRESHOLD = 30
 PERCENTAGE_THRESHOLD = 36
 defaultexpiry = 3600*24*365
 oneyear = 365*24*3600
-two_weeks = 14 * 24 * 3600
+two_weeks = datetime.timedelta(days=14)
 tenyears = oneyear*10
 one_day = datetime.timedelta(days=1)
-one_month = 30*24 * 3600 
+one_month = datetime.timedelta(days=30)
+one_year = datetime.timedelta(days=365)
 epoch = datetime.datetime.utcfromtimestamp(0)
 
 DEPRECIATION = 2.5
