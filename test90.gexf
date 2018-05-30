@@ -55,8 +55,22 @@
           <attvalue end="24/07/18" for="0" start="10/07/18" value="0" />
           <attvalue end="24/07/18" for="0" start="10/07/18" value="3" />
           <attvalue end="08/08/18" for="0" start="25/07/18" value="1" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="0" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="0" />
+          <attvalue end="23/08/18" for="0" start="09/08/18" value="1" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="0" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="0" />
+          <attvalue end="01/09/18" for="0" start="18/08/18" value="4" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="0" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
           <attvalue for="1" value="Ruby Navarro" />
           <attvalue end="14/06/18" for="2" start="31/05/18" value="3" />
+          <attvalue end="05/09/18" for="2" start="22/08/18" value="0" />
           <attvalue end="18/06/18" for="3" start="04/06/18" value="0" />
           <attvalue end="18/06/18" for="3" start="04/06/18" value="0" />
           <attvalue end="23/06/18" for="3" start="09/06/18" value="0" />
@@ -74,8 +88,15 @@
           <attvalue end="09/08/18" for="3" start="26/07/18" value="3" />
           <attvalue end="27/06/18" for="4" start="27/06/18" value="0" />
           <attvalue end="07/07/18" for="4" start="07/07/18" value="0" />
+          <attvalue end="06/08/18" for="4" start="06/08/18" value="0" />
+          <attvalue end="19/08/18" for="4" start="19/08/18" value="0" />
           <attvalue end="27/06/18" for="5" start="13/06/18" value="3" />
           <attvalue end="04/08/18" for="5" start="21/07/18" value="1" />
+          <attvalue end="21/08/18" for="5" start="07/08/18" value="4" />
+          <attvalue end="25/08/18" for="5" start="11/08/18" value="4" />
+          <attvalue end="26/08/18" for="5" start="12/08/18" value="4" />
+          <attvalue end="04/09/18" for="5" start="21/08/18" value="4" />
+          <attvalue end="06/09/18" for="5" start="23/08/18" value="4" />
           <attvalue for="6" value="user" />
           <attvalue end="23/06/18" for="7" start="09/06/18" value="3" />
           <attvalue end="25/06/18" for="7" start="11/06/18" value="0" />
@@ -84,6 +105,13 @@
           <attvalue end="23/07/18" for="7" start="09/07/18" value="0" />
           <attvalue end="27/07/18" for="7" start="13/07/18" value="1" />
           <attvalue end="05/08/18" for="7" start="22/07/18" value="2" />
+          <attvalue end="14/08/18" for="7" start="31/07/18" value="4" />
+          <attvalue end="22/08/18" for="7" start="08/08/18" value="0" />
+          <attvalue end="24/08/18" for="7" start="10/08/18" value="1" />
+          <attvalue end="25/08/18" for="7" start="11/08/18" value="2" />
+          <attvalue end="06/09/18" for="7" start="23/08/18" value="0" />
+          <attvalue end="09/09/18" for="7" start="26/08/18" value="2" />
+          <attvalue end="11/09/18" for="7" start="28/08/18" value="0" />
         </attvalues>
       </node>
       <node id="1" label="1">
@@ -109,12 +137,28 @@
           <attvalue end="08/08/18" for="0" start="25/07/18" value="1" />
           <attvalue end="08/08/18" for="0" start="25/07/18" value="1" />
           <attvalue end="12/08/18" for="0" start="29/07/18" value="2" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="15/08/18" for="0" start="01/08/18" value="1" />
+          <attvalue end="15/08/18" for="0" start="01/08/18" value="1" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="0" />
+          <attvalue end="23/08/18" for="0" start="09/08/18" value="1" />
+          <attvalue end="23/08/18" for="0" start="09/08/18" value="1" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="3" />
           <attvalue for="1" value="Joseph Bose" />
           <attvalue end="27/06/18" for="2" start="13/06/18" value="2" />
           <attvalue end="28/07/18" for="2" start="14/07/18" value="1" />
           <attvalue end="31/07/18" for="2" start="17/07/18" value="3" />
           <attvalue end="02/08/18" for="2" start="19/07/18" value="3" />
           <attvalue end="11/08/18" for="2" start="28/07/18" value="1" />
+          <attvalue end="23/08/18" for="2" start="09/08/18" value="4" />
+          <attvalue end="24/08/18" for="2" start="10/08/18" value="1" />
           <attvalue end="20/06/18" for="3" start="06/06/18" value="1" />
           <attvalue end="20/06/18" for="3" start="06/06/18" value="1" />
           <attvalue end="02/07/18" for="3" start="18/06/18" value="3" />
@@ -124,6 +168,16 @@
           <attvalue end="09/08/18" for="3" start="26/07/18" value="1" />
           <attvalue end="12/08/18" for="3" start="29/07/18" value="1" />
           <attvalue end="12/08/18" for="3" start="29/07/18" value="1" />
+          <attvalue end="17/08/18" for="3" start="03/08/18" value="1" />
+          <attvalue end="17/08/18" for="3" start="03/08/18" value="1" />
+          <attvalue end="19/08/18" for="3" start="05/08/18" value="4" />
+          <attvalue end="22/08/18" for="3" start="08/08/18" value="1" />
+          <attvalue end="22/08/18" for="3" start="08/08/18" value="1" />
+          <attvalue end="26/08/18" for="3" start="12/08/18" value="3" />
+          <attvalue end="31/08/18" for="3" start="17/08/18" value="4" />
+          <attvalue end="03/09/18" for="3" start="20/08/18" value="4" />
+          <attvalue end="04/09/18" for="3" start="21/08/18" value="1" />
+          <attvalue end="04/09/18" for="3" start="21/08/18" value="1" />
           <attvalue end="02/06/18" for="4" start="02/06/18" value="1" />
           <attvalue end="10/06/18" for="4" start="10/06/18" value="1" />
           <attvalue end="11/06/18" for="4" start="11/06/18" value="1" />
@@ -132,6 +186,8 @@
           <attvalue end="05/07/18" for="4" start="05/07/18" value="1" />
           <attvalue end="22/07/18" for="4" start="22/07/18" value="1" />
           <attvalue end="27/07/18" for="4" start="27/07/18" value="1" />
+          <attvalue end="07/08/18" for="4" start="07/08/18" value="1" />
+          <attvalue end="15/08/18" for="4" start="15/08/18" value="1" />
           <attvalue end="28/06/18" for="5" start="14/06/18" value="1" />
           <attvalue end="28/06/18" for="5" start="14/06/18" value="1" />
           <attvalue end="04/08/18" for="5" start="21/07/18" value="1" />
@@ -142,6 +198,10 @@
           <attvalue end="09/07/18" for="7" start="25/06/18" value="3" />
           <attvalue end="12/07/18" for="7" start="28/06/18" value="1" />
           <attvalue end="27/07/18" for="7" start="13/07/18" value="1" />
+          <attvalue end="22/08/18" for="7" start="08/08/18" value="0" />
+          <attvalue end="24/08/18" for="7" start="10/08/18" value="1" />
+          <attvalue end="29/08/18" for="7" start="15/08/18" value="3" />
+          <attvalue end="11/09/18" for="7" start="28/08/18" value="0" />
         </attvalues>
       </node>
       <node id="2" label="2">
@@ -158,11 +218,27 @@
           <attvalue end="28/07/18" for="0" start="14/07/18" value="2" />
           <attvalue end="12/08/18" for="0" start="29/07/18" value="2" />
           <attvalue end="12/08/18" for="0" start="29/07/18" value="2" />
+          <attvalue end="17/08/18" for="0" start="03/08/18" value="2" />
+          <attvalue end="17/08/18" for="0" start="03/08/18" value="2" />
+          <attvalue end="18/08/18" for="0" start="04/08/18" value="2" />
+          <attvalue end="18/08/18" for="0" start="04/08/18" value="2" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="2" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="2" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="0" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="31/08/18" for="0" start="17/08/18" value="2" />
+          <attvalue end="31/08/18" for="0" start="17/08/18" value="2" />
+          <attvalue end="03/09/18" for="0" start="20/08/18" value="3" />
+          <attvalue end="10/09/18" for="0" start="27/08/18" value="4" />
           <attvalue for="1" value="Roy Mccullough" />
           <attvalue end="24/06/18" for="2" start="10/06/18" value="2" />
           <attvalue end="27/06/18" for="2" start="13/06/18" value="2" />
           <attvalue end="28/07/18" for="2" start="14/07/18" value="1" />
           <attvalue end="29/07/18" for="2" start="15/07/18" value="4" />
+          <attvalue end="24/08/18" for="2" start="10/08/18" value="1" />
+          <attvalue end="30/08/18" for="2" start="16/08/18" value="2" />
+          <attvalue end="05/09/18" for="2" start="22/08/18" value="0" />
           <attvalue end="26/06/18" for="3" start="12/06/18" value="2" />
           <attvalue end="26/06/18" for="3" start="12/06/18" value="2" />
           <attvalue end="30/06/18" for="3" start="16/06/18" value="2" />
@@ -185,14 +261,20 @@
           <attvalue end="04/08/18" for="3" start="21/07/18" value="3" />
           <attvalue end="08/08/18" for="3" start="25/07/18" value="2" />
           <attvalue end="08/08/18" for="3" start="25/07/18" value="2" />
+          <attvalue end="22/08/18" for="3" start="08/08/18" value="1" />
+          <attvalue end="01/09/18" for="3" start="18/08/18" value="3" />
+          <attvalue end="11/09/18" for="3" start="28/08/18" value="3" />
           <attvalue end="17/06/18" for="4" start="17/06/18" value="2" />
           <attvalue end="29/06/18" for="4" start="29/06/18" value="2" />
           <attvalue end="01/07/18" for="4" start="01/07/18" value="2" />
           <attvalue end="02/07/18" for="4" start="02/07/18" value="2" />
+          <attvalue end="06/08/18" for="4" start="06/08/18" value="2" />
           <attvalue end="08/07/18" for="5" start="24/06/18" value="4" />
           <attvalue end="19/07/18" for="5" start="05/07/18" value="2" />
           <attvalue end="19/07/18" for="5" start="05/07/18" value="2" />
           <attvalue end="07/08/18" for="5" start="24/07/18" value="4" />
+          <attvalue end="18/08/18" for="5" start="04/08/18" value="2" />
+          <attvalue end="18/08/18" for="5" start="04/08/18" value="2" />
           <attvalue for="6" value="user" />
           <attvalue end="25/06/18" for="7" start="11/06/18" value="0" />
           <attvalue end="30/06/18" for="7" start="16/06/18" value="2" />
@@ -201,6 +283,8 @@
           <attvalue end="23/07/18" for="7" start="09/07/18" value="0" />
           <attvalue end="05/08/18" for="7" start="22/07/18" value="2" />
           <attvalue end="11/08/18" for="7" start="28/07/18" value="3" />
+          <attvalue end="25/08/18" for="7" start="11/08/18" value="2" />
+          <attvalue end="09/09/18" for="7" start="26/08/18" value="2" />
         </attvalues>
       </node>
       <node id="3" label="3">
@@ -239,6 +323,16 @@
           <attvalue end="30/07/18" for="0" start="16/07/18" value="4" />
           <attvalue end="30/07/18" for="0" start="16/07/18" value="1" />
           <attvalue end="06/08/18" for="0" start="23/07/18" value="1" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="4" />
+          <attvalue end="18/08/18" for="0" start="04/08/18" value="2" />
+          <attvalue end="19/08/18" for="0" start="05/08/18" value="4" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="2" />
+          <attvalue end="31/08/18" for="0" start="17/08/18" value="2" />
+          <attvalue end="03/09/18" for="0" start="20/08/18" value="3" />
+          <attvalue end="03/09/18" for="0" start="20/08/18" value="3" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="3" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="3" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
           <attvalue for="1" value="Matthew Wilkins" />
           <attvalue end="14/06/18" for="2" start="31/05/18" value="3" />
           <attvalue end="25/07/18" for="2" start="11/07/18" value="4" />
@@ -270,11 +364,22 @@
           <attvalue end="09/08/18" for="3" start="26/07/18" value="3" />
           <attvalue end="09/08/18" for="3" start="26/07/18" value="3" />
           <attvalue end="12/08/18" for="3" start="29/07/18" value="1" />
+          <attvalue end="15/08/18" for="3" start="01/08/18" value="4" />
+          <attvalue end="17/08/18" for="3" start="03/08/18" value="1" />
+          <attvalue end="26/08/18" for="3" start="12/08/18" value="3" />
+          <attvalue end="26/08/18" for="3" start="12/08/18" value="3" />
+          <attvalue end="01/09/18" for="3" start="18/08/18" value="3" />
+          <attvalue end="01/09/18" for="3" start="18/08/18" value="3" />
+          <attvalue end="04/09/18" for="3" start="21/08/18" value="1" />
+          <attvalue end="11/09/18" for="3" start="28/08/18" value="3" />
+          <attvalue end="11/09/18" for="3" start="28/08/18" value="3" />
           <attvalue end="31/05/18" for="4" start="31/05/18" value="3" />
           <attvalue end="05/06/18" for="4" start="05/06/18" value="3" />
           <attvalue end="07/06/18" for="4" start="07/06/18" value="3" />
           <attvalue end="30/06/18" for="4" start="30/06/18" value="3" />
           <attvalue end="09/07/18" for="4" start="09/07/18" value="3" />
+          <attvalue end="31/07/18" for="4" start="31/07/18" value="3" />
+          <attvalue end="26/08/18" for="4" start="26/08/18" value="3" />
           <attvalue end="27/06/18" for="5" start="13/06/18" value="3" />
           <attvalue end="27/06/18" for="5" start="13/06/18" value="3" />
           <attvalue end="28/06/18" for="5" start="14/06/18" value="1" />
@@ -282,6 +387,8 @@
           <attvalue end="10/07/18" for="5" start="26/06/18" value="3" />
           <attvalue end="10/07/18" for="5" start="26/06/18" value="3" />
           <attvalue end="19/07/18" for="5" start="05/07/18" value="2" />
+          <attvalue end="10/09/18" for="5" start="27/08/18" value="3" />
+          <attvalue end="10/09/18" for="5" start="27/08/18" value="3" />
           <attvalue for="6" value="user" />
           <attvalue end="23/06/18" for="7" start="09/06/18" value="3" />
           <attvalue end="03/07/18" for="7" start="19/06/18" value="1" />
@@ -290,6 +397,7 @@
           <attvalue end="20/07/18" for="7" start="06/07/18" value="0" />
           <attvalue end="01/08/18" for="7" start="18/07/18" value="4" />
           <attvalue end="11/08/18" for="7" start="28/07/18" value="3" />
+          <attvalue end="29/08/18" for="7" start="15/08/18" value="3" />
         </attvalues>
       </node>
       <node id="4" label="4">
@@ -309,10 +417,25 @@
           <attvalue end="26/07/18" for="0" start="12/07/18" value="4" />
           <attvalue end="30/07/18" for="0" start="16/07/18" value="4" />
           <attvalue end="30/07/18" for="0" start="16/07/18" value="4" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="15/08/18" for="0" start="01/08/18" value="1" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="4" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="4" />
+          <attvalue end="17/08/18" for="0" start="03/08/18" value="2" />
+          <attvalue end="19/08/18" for="0" start="05/08/18" value="4" />
+          <attvalue end="19/08/18" for="0" start="05/08/18" value="4" />
+          <attvalue end="01/09/18" for="0" start="18/08/18" value="4" />
+          <attvalue end="01/09/18" for="0" start="18/08/18" value="4" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
+          <attvalue end="10/09/18" for="0" start="27/08/18" value="4" />
+          <attvalue end="10/09/18" for="0" start="27/08/18" value="4" />
           <attvalue for="1" value="Francisco Weathers" />
           <attvalue end="24/06/18" for="2" start="10/06/18" value="2" />
           <attvalue end="25/07/18" for="2" start="11/07/18" value="4" />
           <attvalue end="29/07/18" for="2" start="15/07/18" value="4" />
+          <attvalue end="23/08/18" for="2" start="09/08/18" value="4" />
+          <attvalue end="30/08/18" for="2" start="16/08/18" value="2" />
           <attvalue end="20/06/18" for="3" start="06/06/18" value="1" />
           <attvalue end="23/06/18" for="3" start="09/06/18" value="0" />
           <attvalue end="30/06/18" for="3" start="16/06/18" value="2" />
@@ -326,6 +449,14 @@
           <attvalue end="26/07/18" for="3" start="12/07/18" value="4" />
           <attvalue end="31/07/18" for="3" start="17/07/18" value="3" />
           <attvalue end="06/08/18" for="3" start="23/07/18" value="0" />
+          <attvalue end="15/08/18" for="3" start="01/08/18" value="4" />
+          <attvalue end="15/08/18" for="3" start="01/08/18" value="4" />
+          <attvalue end="19/08/18" for="3" start="05/08/18" value="4" />
+          <attvalue end="19/08/18" for="3" start="05/08/18" value="4" />
+          <attvalue end="31/08/18" for="3" start="17/08/18" value="4" />
+          <attvalue end="31/08/18" for="3" start="17/08/18" value="4" />
+          <attvalue end="03/09/18" for="3" start="20/08/18" value="4" />
+          <attvalue end="03/09/18" for="3" start="20/08/18" value="4" />
           <attvalue end="03/06/18" for="4" start="03/06/18" value="4" />
           <attvalue end="05/06/18" for="4" start="05/06/18" value="4" />
           <attvalue end="14/06/18" for="4" start="14/06/18" value="4" />
@@ -335,6 +466,9 @@
           <attvalue end="13/07/18" for="4" start="13/07/18" value="4" />
           <attvalue end="24/07/18" for="4" start="24/07/18" value="4" />
           <attvalue end="27/07/18" for="4" start="27/07/18" value="4" />
+          <attvalue end="16/08/18" for="4" start="16/08/18" value="4" />
+          <attvalue end="19/08/18" for="4" start="19/08/18" value="4" />
+          <attvalue end="22/08/18" for="4" start="22/08/18" value="4" />
           <attvalue end="07/07/18" for="5" start="23/06/18" value="4" />
           <attvalue end="07/07/18" for="5" start="23/06/18" value="4" />
           <attvalue end="08/07/18" for="5" start="24/06/18" value="4" />
@@ -342,6 +476,18 @@
           <attvalue end="10/07/18" for="5" start="26/06/18" value="3" />
           <attvalue end="07/08/18" for="5" start="24/07/18" value="4" />
           <attvalue end="07/08/18" for="5" start="24/07/18" value="4" />
+          <attvalue end="18/08/18" for="5" start="04/08/18" value="2" />
+          <attvalue end="21/08/18" for="5" start="07/08/18" value="4" />
+          <attvalue end="21/08/18" for="5" start="07/08/18" value="4" />
+          <attvalue end="25/08/18" for="5" start="11/08/18" value="4" />
+          <attvalue end="25/08/18" for="5" start="11/08/18" value="4" />
+          <attvalue end="26/08/18" for="5" start="12/08/18" value="4" />
+          <attvalue end="26/08/18" for="5" start="12/08/18" value="4" />
+          <attvalue end="04/09/18" for="5" start="21/08/18" value="4" />
+          <attvalue end="04/09/18" for="5" start="21/08/18" value="4" />
+          <attvalue end="06/09/18" for="5" start="23/08/18" value="4" />
+          <attvalue end="06/09/18" for="5" start="23/08/18" value="4" />
+          <attvalue end="10/09/18" for="5" start="27/08/18" value="3" />
           <attvalue for="6" value="user" />
           <attvalue end="26/06/18" for="7" start="12/06/18" value="4" />
           <attvalue end="29/06/18" for="7" start="15/06/18" value="1" />
@@ -349,6 +495,8 @@
           <attvalue end="04/07/18" for="7" start="20/06/18" value="4" />
           <attvalue end="11/07/18" for="7" start="27/06/18" value="4" />
           <attvalue end="01/08/18" for="7" start="18/07/18" value="4" />
+          <attvalue end="14/08/18" for="7" start="31/07/18" value="4" />
+          <attvalue end="06/09/18" for="7" start="23/08/18" value="0" />
         </attvalues>
       </node>
       <node id="5" label="5">
@@ -379,6 +527,22 @@
           <attvalue end="06/08/18" for="0" start="23/07/18" value="1" />
           <attvalue end="08/08/18" for="0" start="25/07/18" value="1" />
           <attvalue end="12/08/18" for="0" start="29/07/18" value="2" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="13/08/18" for="0" start="30/07/18" value="1" />
+          <attvalue end="15/08/18" for="0" start="01/08/18" value="1" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="4" />
+          <attvalue end="16/08/18" for="0" start="02/08/18" value="0" />
+          <attvalue end="17/08/18" for="0" start="03/08/18" value="2" />
+          <attvalue end="18/08/18" for="0" start="04/08/18" value="2" />
+          <attvalue end="19/08/18" for="0" start="05/08/18" value="4" />
+          <attvalue end="23/08/18" for="0" start="09/08/18" value="1" />
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="2" />
+          <attvalue end="31/08/18" for="0" start="17/08/18" value="2" />
+          <attvalue end="01/09/18" for="0" start="18/08/18" value="4" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="3" />
+          <attvalue end="07/09/18" for="0" start="24/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
+          <attvalue end="08/09/18" for="0" start="25/08/18" value="0" />
           <attvalue for="8" value="basket communication one effective" />
           <attvalue end="18/06/18" for="3" start="04/06/18" value="0" />
           <attvalue end="26/06/18" for="3" start="12/06/18" value="2" />
@@ -403,6 +567,13 @@
           <attvalue end="09/08/18" for="3" start="26/07/18" value="1" />
           <attvalue end="09/08/18" for="3" start="26/07/18" value="3" />
           <attvalue end="12/08/18" for="3" start="29/07/18" value="1" />
+          <attvalue end="15/08/18" for="3" start="01/08/18" value="4" />
+          <attvalue end="17/08/18" for="3" start="03/08/18" value="1" />
+          <attvalue end="19/08/18" for="3" start="05/08/18" value="4" />
+          <attvalue end="26/08/18" for="3" start="12/08/18" value="3" />
+          <attvalue end="31/08/18" for="3" start="17/08/18" value="4" />
+          <attvalue end="03/09/18" for="3" start="20/08/18" value="4" />
+          <attvalue end="04/09/18" for="3" start="21/08/18" value="1" />
           <attvalue end="27/06/18" for="5" start="13/06/18" value="3" />
           <attvalue end="28/06/18" for="5" start="14/06/18" value="1" />
           <attvalue end="07/07/18" for="5" start="23/06/18" value="4" />
@@ -411,6 +582,13 @@
           <attvalue end="19/07/18" for="5" start="05/07/18" value="2" />
           <attvalue end="04/08/18" for="5" start="21/07/18" value="1" />
           <attvalue end="07/08/18" for="5" start="24/07/18" value="4" />
+          <attvalue end="18/08/18" for="5" start="04/08/18" value="2" />
+          <attvalue end="21/08/18" for="5" start="07/08/18" value="4" />
+          <attvalue end="25/08/18" for="5" start="11/08/18" value="4" />
+          <attvalue end="26/08/18" for="5" start="12/08/18" value="4" />
+          <attvalue end="04/09/18" for="5" start="21/08/18" value="4" />
+          <attvalue end="06/09/18" for="5" start="23/08/18" value="4" />
+          <attvalue end="10/09/18" for="5" start="27/08/18" value="3" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
@@ -693,6 +871,114 @@
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
+      <node id="33" label="33">
+        <spells>
+          <spell end="14/08/18" start="31/07/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="essay emphasis screw idea" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="34" label="34">
+        <spells>
+          <spell end="20/08/18" start="06/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue end="27/08/18" for="0" start="13/08/18" value="0" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="0" start="14/08/18" value="1" />
+          <attvalue end="03/09/18" for="0" start="20/08/18" value="3" />
+          <attvalue end="10/09/18" for="0" start="27/08/18" value="4" />
+          <attvalue for="8" value="exit landscape taste risk" />
+          <attvalue end="22/08/18" for="3" start="08/08/18" value="1" />
+          <attvalue end="01/09/18" for="3" start="18/08/18" value="3" />
+          <attvalue end="11/09/18" for="3" start="28/08/18" value="3" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="35" label="35">
+        <spells>
+          <spell end="20/08/18" start="06/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="budget class work chart" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="36" label="36">
+        <spells>
+          <spell end="21/08/18" start="07/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="chip priority luck one" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="37" label="37">
+        <spells>
+          <spell end="29/08/18" start="15/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="towel drunk conference consist" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="38" label="38">
+        <spells>
+          <spell end="30/08/18" start="16/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="welcome poet cancer tongue" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="39" label="39">
+        <spells>
+          <spell end="02/09/18" start="19/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="member depression factor direction" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="40" label="40">
+        <spells>
+          <spell end="02/09/18" start="19/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="text courage beach guide" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="41" label="41">
+        <spells>
+          <spell end="05/09/18" start="22/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="impact trainer channel rip" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="42" label="42">
+        <spells>
+          <spell end="09/09/18" start="26/08/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="8" value="page hunt bicycle impress" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
     </nodes>
     <edges>
       <edge id="0" source="0" target="1">
@@ -703,14 +989,26 @@
           <spell end="27/07/18" start="13/07/18" />
           <spell end="04/08/18" start="21/07/18" />
           <spell end="08/08/18" start="25/07/18" />
+          <spell end="13/08/18" start="30/07/18" />
+          <spell end="16/08/18" start="02/08/18" />
+          <spell end="22/08/18" start="08/08/18" />
+          <spell end="23/08/18" start="09/08/18" />
+          <spell end="24/08/18" start="10/08/18" />
+          <spell end="11/09/18" start="28/08/18" />
         </spells>
         <attvalues>
           <attvalue end="17/06/18" for="14" start="03/06/18" value="0" />
           <attvalue end="09/07/18" for="14" start="25/06/18" value="1" />
           <attvalue end="14/07/18" for="14" start="30/06/18" value="0" />
           <attvalue end="08/08/18" for="14" start="25/07/18" value="1" />
+          <attvalue end="13/08/18" for="14" start="30/07/18" value="1" />
+          <attvalue end="16/08/18" for="14" start="02/08/18" value="0" />
+          <attvalue end="23/08/18" for="14" start="09/08/18" value="1" />
           <attvalue end="04/08/18" for="18" start="21/07/18" value="1" />
           <attvalue end="27/07/18" for="19" start="13/07/18" value="1" />
+          <attvalue end="22/08/18" for="19" start="08/08/18" value="0" />
+          <attvalue end="24/08/18" for="19" start="10/08/18" value="1" />
+          <attvalue end="11/09/18" for="19" start="28/08/18" value="0" />
         </attvalues>
       </edge>
       <edge id="1" source="0" target="2">
@@ -722,15 +1020,23 @@
           <spell end="29/07/18" start="15/07/18" />
           <spell end="05/08/18" start="22/07/18" />
           <spell end="08/08/18" start="25/07/18" />
+          <spell end="25/08/18" start="11/08/18" />
+          <spell end="27/08/18" start="13/08/18" />
+          <spell end="05/09/18" start="22/08/18" />
+          <spell end="09/09/18" start="26/08/18" />
         </spells>
         <attvalues>
           <attvalue end="01/07/18" for="14" start="17/06/18" value="0" />
+          <attvalue end="27/08/18" for="14" start="13/08/18" value="0" />
+          <attvalue end="05/09/18" for="15" start="22/08/18" value="0" />
           <attvalue end="04/07/18" for="16" start="20/06/18" value="0" />
           <attvalue end="29/07/18" for="16" start="15/07/18" value="2" />
           <attvalue end="08/08/18" for="16" start="25/07/18" value="2" />
           <attvalue end="25/06/18" for="19" start="11/06/18" value="0" />
           <attvalue end="23/07/18" for="19" start="09/07/18" value="0" />
           <attvalue end="05/08/18" for="19" start="22/07/18" value="2" />
+          <attvalue end="25/08/18" for="19" start="11/08/18" value="2" />
+          <attvalue end="09/09/18" for="19" start="26/08/18" value="2" />
         </attvalues>
       </edge>
       <edge id="2" source="0" target="3">
@@ -747,10 +1053,12 @@
           <spell end="01/08/18" start="18/07/18" />
           <spell end="02/08/18" start="19/07/18" />
           <spell end="09/08/18" start="26/07/18" />
+          <spell end="08/09/18" start="25/08/18" />
         </spells>
         <attvalues>
           <attvalue end="22/06/18" for="14" start="08/06/18" value="3" />
           <attvalue end="24/07/18" for="14" start="10/07/18" value="3" />
+          <attvalue end="08/09/18" for="14" start="25/08/18" value="0" />
           <attvalue end="14/06/18" for="15" start="31/05/18" value="3" />
           <attvalue end="18/06/18" for="16" start="04/06/18" value="0" />
           <attvalue end="03/07/18" for="16" start="19/06/18" value="3" />
@@ -769,12 +1077,32 @@
           <spell end="26/06/18" start="12/06/18" />
           <spell end="24/07/18" start="10/07/18" />
           <spell end="06/08/18" start="23/07/18" />
+          <spell end="14/08/18" start="31/07/18" />
+          <spell end="21/08/18" start="07/08/18" />
+          <spell end="25/08/18" start="11/08/18" />
+          <spell end="26/08/18" start="12/08/18" />
+          <spell end="01/09/18" start="18/08/18" />
+          <spell end="04/09/18" start="21/08/18" />
+          <spell end="06/09/18" start="23/08/18" />
+          <spell end="06/09/18" start="23/08/18" />
+          <spell end="07/09/18" start="24/08/18" />
+          <spell end="08/09/18" start="25/08/18" />
         </spells>
         <attvalues>
           <attvalue end="24/07/18" for="14" start="10/07/18" value="0" />
+          <attvalue end="01/09/18" for="14" start="18/08/18" value="4" />
+          <attvalue end="07/09/18" for="14" start="24/08/18" value="0" />
+          <attvalue end="08/09/18" for="14" start="25/08/18" value="0" />
           <attvalue end="23/06/18" for="16" start="09/06/18" value="0" />
           <attvalue end="06/08/18" for="16" start="23/07/18" value="0" />
+          <attvalue end="21/08/18" for="18" start="07/08/18" value="4" />
+          <attvalue end="25/08/18" for="18" start="11/08/18" value="4" />
+          <attvalue end="26/08/18" for="18" start="12/08/18" value="4" />
+          <attvalue end="04/09/18" for="18" start="21/08/18" value="4" />
+          <attvalue end="06/09/18" for="18" start="23/08/18" value="4" />
           <attvalue end="26/06/18" for="19" start="12/06/18" value="4" />
+          <attvalue end="14/08/18" for="19" start="31/07/18" value="4" />
+          <attvalue end="06/09/18" for="19" start="23/08/18" value="0" />
         </attvalues>
       </edge>
       <edge id="4" source="0" target="5">
@@ -785,11 +1113,19 @@
           <spell end="14/07/18" start="30/06/18" />
           <spell end="24/07/18" start="10/07/18" />
           <spell end="06/08/18" start="23/07/18" />
+          <spell end="16/08/18" start="02/08/18" />
+          <spell end="07/09/18" start="24/08/18" />
+          <spell end="08/09/18" start="25/08/18" />
+          <spell end="08/09/18" start="25/08/18" />
         </spells>
         <attvalues>
           <attvalue end="01/07/18" for="14" start="17/06/18" value="0" />
           <attvalue end="14/07/18" for="14" start="30/06/18" value="0" />
           <attvalue end="24/07/18" for="14" start="10/07/18" value="0" />
+          <attvalue end="16/08/18" for="14" start="02/08/18" value="0" />
+          <attvalue end="07/09/18" for="14" start="24/08/18" value="0" />
+          <attvalue end="08/09/18" for="14" start="25/08/18" value="0" />
+          <attvalue end="08/09/18" for="14" start="25/08/18" value="0" />
           <attvalue end="18/06/18" for="16" start="04/06/18" value="0" />
           <attvalue end="04/07/18" for="16" start="20/06/18" value="0" />
           <attvalue end="06/08/18" for="16" start="23/07/18" value="0" />
@@ -803,7 +1139,15 @@
           <attvalue end="17/06/18" for="14" start="03/06/18" value="0" />
         </attvalues>
       </edge>
-      <edge id="6" source="0" target="9">
+      <edge id="6" source="0" target="39">
+        <spells>
+          <spell end="02/09/18" start="19/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="19/08/18" for="17" start="19/08/18" value="0" />
+        </attvalues>
+      </edge>
+      <edge id="7" source="0" target="9">
         <spells>
           <spell end="23/06/18" start="09/06/18" />
         </spells>
@@ -811,7 +1155,15 @@
           <attvalue end="23/06/18" for="16" start="09/06/18" value="0" />
         </attvalues>
       </edge>
-      <edge id="7" source="0" target="18">
+      <edge id="8" source="0" target="34">
+        <spells>
+          <spell end="27/08/18" start="13/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="27/08/18" for="14" start="13/08/18" value="0" />
+        </attvalues>
+      </edge>
+      <edge id="9" source="0" target="18">
         <spells>
           <spell end="11/07/18" start="27/06/18" />
         </spells>
@@ -819,7 +1171,15 @@
           <attvalue end="27/06/18" for="17" start="27/06/18" value="0" />
         </attvalues>
       </edge>
-      <edge id="8" source="0" target="25">
+      <edge id="10" source="0" target="35">
+        <spells>
+          <spell end="20/08/18" start="06/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="06/08/18" for="17" start="06/08/18" value="0" />
+        </attvalues>
+      </edge>
+      <edge id="11" source="0" target="25">
         <spells>
           <spell end="21/07/18" start="07/07/18" />
         </spells>
@@ -827,23 +1187,31 @@
           <attvalue end="07/07/18" for="17" start="07/07/18" value="0" />
         </attvalues>
       </edge>
-      <edge id="9" source="1" target="2">
+      <edge id="12" source="1" target="2">
         <spells>
           <spell end="27/06/18" start="13/06/18" />
           <spell end="13/07/18" start="29/06/18" />
           <spell end="28/07/18" start="14/07/18" />
           <spell end="03/08/18" start="20/07/18" />
           <spell end="12/08/18" start="29/07/18" />
+          <spell end="22/08/18" start="08/08/18" />
+          <spell end="24/08/18" start="10/08/18" />
+          <spell end="28/08/18" start="14/08/18" />
+          <spell end="28/08/18" start="14/08/18" />
         </spells>
         <attvalues>
           <attvalue end="12/08/18" for="14" start="29/07/18" value="2" />
+          <attvalue end="28/08/18" for="14" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="14" start="14/08/18" value="1" />
           <attvalue end="27/06/18" for="15" start="13/06/18" value="2" />
           <attvalue end="28/07/18" for="15" start="14/07/18" value="1" />
+          <attvalue end="24/08/18" for="15" start="10/08/18" value="1" />
           <attvalue end="13/07/18" for="16" start="29/06/18" value="2" />
           <attvalue end="03/08/18" for="16" start="20/07/18" value="2" />
+          <attvalue end="22/08/18" for="16" start="08/08/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="10" source="1" target="3">
+      <edge id="13" source="1" target="3">
         <spells>
           <spell end="18/06/18" start="04/06/18" />
           <spell end="22/06/18" start="08/06/18" />
@@ -861,6 +1229,11 @@
           <spell end="09/08/18" start="26/07/18" />
           <spell end="11/08/18" start="28/07/18" />
           <spell end="12/08/18" start="29/07/18" />
+          <spell end="17/08/18" start="03/08/18" />
+          <spell end="26/08/18" start="12/08/18" />
+          <spell end="29/08/18" start="15/08/18" />
+          <spell end="04/09/18" start="21/08/18" />
+          <spell end="07/09/18" start="24/08/18" />
         </spells>
         <attvalues>
           <attvalue end="18/06/18" for="14" start="04/06/18" value="3" />
@@ -869,31 +1242,48 @@
           <attvalue end="21/07/18" for="14" start="07/07/18" value="3" />
           <attvalue end="30/07/18" for="14" start="16/07/18" value="1" />
           <attvalue end="06/08/18" for="14" start="23/07/18" value="1" />
+          <attvalue end="07/09/18" for="14" start="24/08/18" value="3" />
           <attvalue end="31/07/18" for="15" start="17/07/18" value="3" />
           <attvalue end="02/08/18" for="15" start="19/07/18" value="3" />
           <attvalue end="11/08/18" for="15" start="28/07/18" value="1" />
           <attvalue end="02/07/18" for="16" start="18/06/18" value="3" />
           <attvalue end="09/08/18" for="16" start="26/07/18" value="1" />
           <attvalue end="12/08/18" for="16" start="29/07/18" value="1" />
+          <attvalue end="17/08/18" for="16" start="03/08/18" value="1" />
+          <attvalue end="26/08/18" for="16" start="12/08/18" value="3" />
+          <attvalue end="04/09/18" for="16" start="21/08/18" value="1" />
           <attvalue end="28/06/18" for="18" start="14/06/18" value="1" />
           <attvalue end="03/07/18" for="19" start="19/06/18" value="1" />
           <attvalue end="09/07/18" for="19" start="25/06/18" value="3" />
           <attvalue end="12/07/18" for="19" start="28/06/18" value="1" />
+          <attvalue end="29/08/18" for="19" start="15/08/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="11" source="1" target="4">
+      <edge id="14" source="1" target="4">
         <spells>
           <spell end="20/06/18" start="06/06/18" />
           <spell end="29/06/18" start="15/06/18" />
           <spell end="02/07/18" start="18/06/18" />
+          <spell end="13/08/18" start="30/07/18" />
+          <spell end="15/08/18" start="01/08/18" />
+          <spell end="19/08/18" start="05/08/18" />
+          <spell end="23/08/18" start="09/08/18" />
+          <spell end="31/08/18" start="17/08/18" />
+          <spell end="03/09/18" start="20/08/18" />
         </spells>
         <attvalues>
           <attvalue end="02/07/18" for="14" start="18/06/18" value="1" />
+          <attvalue end="13/08/18" for="14" start="30/07/18" value="1" />
+          <attvalue end="15/08/18" for="14" start="01/08/18" value="1" />
+          <attvalue end="23/08/18" for="15" start="09/08/18" value="4" />
           <attvalue end="20/06/18" for="16" start="06/06/18" value="1" />
+          <attvalue end="19/08/18" for="16" start="05/08/18" value="4" />
+          <attvalue end="31/08/18" for="16" start="17/08/18" value="4" />
+          <attvalue end="03/09/18" for="16" start="20/08/18" value="4" />
           <attvalue end="29/06/18" for="19" start="15/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="12" source="1" target="5">
+      <edge id="15" source="1" target="5">
         <spells>
           <spell end="28/06/18" start="14/06/18" />
           <spell end="09/07/18" start="25/06/18" />
@@ -903,19 +1293,31 @@
           <spell end="08/08/18" start="25/07/18" />
           <spell end="09/08/18" start="26/07/18" />
           <spell end="12/08/18" start="29/07/18" />
+          <spell end="13/08/18" start="30/07/18" />
+          <spell end="13/08/18" start="30/07/18" />
+          <spell end="15/08/18" start="01/08/18" />
+          <spell end="17/08/18" start="03/08/18" />
+          <spell end="23/08/18" start="09/08/18" />
+          <spell end="04/09/18" start="21/08/18" />
         </spells>
         <attvalues>
           <attvalue end="09/07/18" for="14" start="25/06/18" value="1" />
           <attvalue end="30/07/18" for="14" start="16/07/18" value="1" />
           <attvalue end="06/08/18" for="14" start="23/07/18" value="1" />
           <attvalue end="08/08/18" for="14" start="25/07/18" value="1" />
+          <attvalue end="13/08/18" for="14" start="30/07/18" value="1" />
+          <attvalue end="13/08/18" for="14" start="30/07/18" value="1" />
+          <attvalue end="15/08/18" for="14" start="01/08/18" value="1" />
+          <attvalue end="23/08/18" for="14" start="09/08/18" value="1" />
           <attvalue end="09/08/18" for="16" start="26/07/18" value="1" />
           <attvalue end="12/08/18" for="16" start="29/07/18" value="1" />
+          <attvalue end="17/08/18" for="16" start="03/08/18" value="1" />
+          <attvalue end="04/09/18" for="16" start="21/08/18" value="1" />
           <attvalue end="28/06/18" for="18" start="14/06/18" value="1" />
           <attvalue end="04/08/18" for="18" start="21/07/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="13" source="1" target="6">
+      <edge id="16" source="1" target="6">
         <spells>
           <spell end="16/06/18" start="02/06/18" />
         </spells>
@@ -923,7 +1325,7 @@
           <attvalue end="02/06/18" for="17" start="02/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="14" source="1" target="7">
+      <edge id="17" source="1" target="7">
         <spells>
           <spell end="02/07/18" start="18/06/18" />
         </spells>
@@ -931,7 +1333,7 @@
           <attvalue end="02/07/18" for="14" start="18/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="15" source="1" target="9">
+      <edge id="18" source="1" target="9">
         <spells>
           <spell end="20/06/18" start="06/06/18" />
         </spells>
@@ -939,7 +1341,7 @@
           <attvalue end="20/06/18" for="16" start="06/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="16" source="1" target="11">
+      <edge id="19" source="1" target="11">
         <spells>
           <spell end="24/06/18" start="10/06/18" />
         </spells>
@@ -947,7 +1349,7 @@
           <attvalue end="10/06/18" for="17" start="10/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="17" source="1" target="12">
+      <edge id="20" source="1" target="12">
         <spells>
           <spell end="25/06/18" start="11/06/18" />
         </spells>
@@ -955,7 +1357,19 @@
           <attvalue end="11/06/18" for="17" start="11/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="18" source="1" target="16">
+      <edge id="21" source="1" target="34">
+        <spells>
+          <spell end="22/08/18" start="08/08/18" />
+          <spell end="28/08/18" start="14/08/18" />
+          <spell end="28/08/18" start="14/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="28/08/18" for="14" start="14/08/18" value="1" />
+          <attvalue end="28/08/18" for="14" start="14/08/18" value="1" />
+          <attvalue end="22/08/18" for="16" start="08/08/18" value="1" />
+        </attvalues>
+      </edge>
+      <edge id="22" source="1" target="16">
         <spells>
           <spell end="08/07/18" start="24/06/18" />
         </spells>
@@ -963,7 +1377,7 @@
           <attvalue end="24/06/18" for="17" start="24/06/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="19" source="1" target="22">
+      <edge id="23" source="1" target="22">
         <spells>
           <spell end="16/07/18" start="02/07/18" />
         </spells>
@@ -971,7 +1385,7 @@
           <attvalue end="02/07/18" for="17" start="02/07/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="20" source="1" target="24">
+      <edge id="24" source="1" target="24">
         <spells>
           <spell end="19/07/18" start="05/07/18" />
         </spells>
@@ -979,15 +1393,15 @@
           <attvalue end="05/07/18" for="17" start="05/07/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="21" source="1" target="29">
+      <edge id="25" source="1" target="36">
         <spells>
-          <spell end="05/08/18" start="22/07/18" />
+          <spell end="21/08/18" start="07/08/18" />
         </spells>
         <attvalues>
-          <attvalue end="22/07/18" for="17" start="22/07/18" value="1" />
+          <attvalue end="07/08/18" for="17" start="07/08/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="22" source="1" target="31">
+      <edge id="26" source="1" target="31">
         <spells>
           <spell end="10/08/18" start="27/07/18" />
         </spells>
@@ -995,7 +1409,31 @@
           <attvalue end="27/07/18" for="17" start="27/07/18" value="1" />
         </attvalues>
       </edge>
-      <edge id="23" source="2" target="3">
+      <edge id="27" source="1" target="29">
+        <spells>
+          <spell end="05/08/18" start="22/07/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="22/07/18" for="17" start="22/07/18" value="1" />
+        </attvalues>
+      </edge>
+      <edge id="28" source="1" target="37">
+        <spells>
+          <spell end="29/08/18" start="15/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="15/08/18" for="17" start="15/08/18" value="1" />
+        </attvalues>
+      </edge>
+      <edge id="29" source="2" target="34">
+        <spells>
+          <spell end="20/08/18" start="06/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="06/08/18" for="17" start="06/08/18" value="2" />
+        </attvalues>
+      </edge>
+      <edge id="30" source="2" target="3">
         <spells>
           <spell end="26/06/18" start="12/06/18" />
           <spell end="05/07/18" start="21/06/18" />
@@ -1006,20 +1444,32 @@
           <spell end="03/08/18" start="20/07/18" />
           <spell end="04/08/18" start="21/07/18" />
           <spell end="11/08/18" start="28/07/18" />
+          <spell end="18/08/18" start="04/08/18" />
+          <spell end="27/08/18" start="13/08/18" />
+          <spell end="31/08/18" start="17/08/18" />
+          <spell end="01/09/18" start="18/08/18" />
+          <spell end="03/09/18" start="20/08/18" />
+          <spell end="11/09/18" start="28/08/18" />
         </spells>
         <attvalues>
           <attvalue end="05/07/18" for="14" start="21/06/18" value="3" />
           <attvalue end="06/07/18" for="14" start="22/06/18" value="3" />
           <attvalue end="18/07/18" for="14" start="04/07/18" value="3" />
           <attvalue end="28/07/18" for="14" start="14/07/18" value="2" />
+          <attvalue end="18/08/18" for="14" start="04/08/18" value="2" />
+          <attvalue end="27/08/18" for="14" start="13/08/18" value="2" />
+          <attvalue end="31/08/18" for="14" start="17/08/18" value="2" />
+          <attvalue end="03/09/18" for="14" start="20/08/18" value="3" />
           <attvalue end="26/06/18" for="16" start="12/06/18" value="2" />
           <attvalue end="03/08/18" for="16" start="20/07/18" value="2" />
           <attvalue end="04/08/18" for="16" start="21/07/18" value="3" />
+          <attvalue end="01/09/18" for="16" start="18/08/18" value="3" />
+          <attvalue end="11/09/18" for="16" start="28/08/18" value="3" />
           <attvalue end="19/07/18" for="18" start="05/07/18" value="2" />
           <attvalue end="11/08/18" for="19" start="28/07/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="24" source="2" target="4">
+      <edge id="31" source="2" target="4">
         <spells>
           <spell end="24/06/18" start="10/06/18" />
           <spell end="30/06/18" start="16/06/18" />
@@ -1032,22 +1482,30 @@
           <spell end="17/07/18" start="03/07/18" />
           <spell end="29/07/18" start="15/07/18" />
           <spell end="07/08/18" start="24/07/18" />
+          <spell end="17/08/18" start="03/08/18" />
+          <spell end="18/08/18" start="04/08/18" />
+          <spell end="30/08/18" start="16/08/18" />
+          <spell end="10/09/18" start="27/08/18" />
         </spells>
         <attvalues>
+          <attvalue end="17/08/18" for="14" start="03/08/18" value="2" />
+          <attvalue end="10/09/18" for="14" start="27/08/18" value="4" />
           <attvalue end="24/06/18" for="15" start="10/06/18" value="2" />
           <attvalue end="29/07/18" for="15" start="15/07/18" value="4" />
+          <attvalue end="30/08/18" for="15" start="16/08/18" value="2" />
           <attvalue end="30/06/18" for="16" start="16/06/18" value="2" />
           <attvalue end="05/07/18" for="16" start="21/06/18" value="2" />
           <attvalue end="15/07/18" for="16" start="01/07/18" value="2" />
           <attvalue end="17/07/18" for="16" start="03/07/18" value="2" />
           <attvalue end="08/07/18" for="18" start="24/06/18" value="4" />
           <attvalue end="07/08/18" for="18" start="24/07/18" value="4" />
+          <attvalue end="18/08/18" for="18" start="04/08/18" value="2" />
           <attvalue end="30/06/18" for="19" start="16/06/18" value="2" />
           <attvalue end="04/07/18" for="19" start="20/06/18" value="4" />
           <attvalue end="11/07/18" for="19" start="27/06/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="25" source="2" target="5">
+      <edge id="32" source="2" target="5">
         <spells>
           <spell end="26/06/18" start="12/06/18" />
           <spell end="13/07/18" start="29/06/18" />
@@ -1060,10 +1518,19 @@
           <spell end="03/08/18" start="20/07/18" />
           <spell end="08/08/18" start="25/07/18" />
           <spell end="12/08/18" start="29/07/18" />
+          <spell end="17/08/18" start="03/08/18" />
+          <spell end="18/08/18" start="04/08/18" />
+          <spell end="18/08/18" start="04/08/18" />
+          <spell end="27/08/18" start="13/08/18" />
+          <spell end="31/08/18" start="17/08/18" />
         </spells>
         <attvalues>
           <attvalue end="28/07/18" for="14" start="14/07/18" value="2" />
           <attvalue end="12/08/18" for="14" start="29/07/18" value="2" />
+          <attvalue end="17/08/18" for="14" start="03/08/18" value="2" />
+          <attvalue end="18/08/18" for="14" start="04/08/18" value="2" />
+          <attvalue end="27/08/18" for="14" start="13/08/18" value="2" />
+          <attvalue end="31/08/18" for="14" start="17/08/18" value="2" />
           <attvalue end="26/06/18" for="16" start="12/06/18" value="2" />
           <attvalue end="13/07/18" for="16" start="29/06/18" value="2" />
           <attvalue end="15/07/18" for="16" start="01/07/18" value="2" />
@@ -1073,9 +1540,10 @@
           <attvalue end="03/08/18" for="16" start="20/07/18" value="2" />
           <attvalue end="08/08/18" for="16" start="25/07/18" value="2" />
           <attvalue end="19/07/18" for="18" start="05/07/18" value="2" />
+          <attvalue end="18/08/18" for="18" start="04/08/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="26" source="2" target="7">
+      <edge id="33" source="2" target="7">
         <spells>
           <spell end="30/06/18" start="16/06/18" />
           <spell end="05/07/18" start="21/06/18" />
@@ -1085,7 +1553,7 @@
           <attvalue end="05/07/18" for="16" start="21/06/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="27" source="2" target="15">
+      <edge id="34" source="2" target="15">
         <spells>
           <spell end="01/07/18" start="17/06/18" />
         </spells>
@@ -1093,7 +1561,7 @@
           <attvalue end="17/06/18" for="17" start="17/06/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="28" source="2" target="19">
+      <edge id="35" source="2" target="19">
         <spells>
           <spell end="13/07/18" start="29/06/18" />
         </spells>
@@ -1101,7 +1569,7 @@
           <attvalue end="29/06/18" for="17" start="29/06/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="29" source="2" target="21">
+      <edge id="36" source="2" target="21">
         <spells>
           <spell end="15/07/18" start="01/07/18" />
         </spells>
@@ -1109,7 +1577,7 @@
           <attvalue end="01/07/18" for="17" start="01/07/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="30" source="2" target="23">
+      <edge id="37" source="2" target="23">
         <spells>
           <spell end="16/07/18" start="02/07/18" />
         </spells>
@@ -1117,7 +1585,7 @@
           <attvalue end="02/07/18" for="17" start="02/07/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="31" source="3" target="4">
+      <edge id="38" source="3" target="4">
         <spells>
           <spell end="06/07/18" start="22/06/18" />
           <spell end="07/07/18" start="23/06/18" />
@@ -1133,6 +1601,10 @@
           <spell end="30/07/18" start="16/07/18" />
           <spell end="31/07/18" start="17/07/18" />
           <spell end="01/08/18" start="18/07/18" />
+          <spell end="15/08/18" start="01/08/18" />
+          <spell end="16/08/18" start="02/08/18" />
+          <spell end="19/08/18" start="05/08/18" />
+          <spell end="10/09/18" start="27/08/18" />
         </spells>
         <attvalues>
           <attvalue end="07/07/18" for="14" start="23/06/18" value="4" />
@@ -1141,17 +1613,21 @@
           <attvalue end="18/07/18" for="14" start="04/07/18" value="3" />
           <attvalue end="26/07/18" for="14" start="12/07/18" value="4" />
           <attvalue end="30/07/18" for="14" start="16/07/18" value="4" />
+          <attvalue end="16/08/18" for="14" start="02/08/18" value="4" />
+          <attvalue end="19/08/18" for="14" start="05/08/18" value="4" />
           <attvalue end="25/07/18" for="15" start="11/07/18" value="4" />
           <attvalue end="06/07/18" for="16" start="22/06/18" value="3" />
           <attvalue end="25/07/18" for="16" start="11/07/18" value="4" />
           <attvalue end="26/07/18" for="16" start="12/07/18" value="4" />
           <attvalue end="31/07/18" for="16" start="17/07/18" value="3" />
+          <attvalue end="15/08/18" for="16" start="01/08/18" value="4" />
           <attvalue end="07/07/18" for="18" start="23/06/18" value="4" />
           <attvalue end="10/07/18" for="18" start="26/06/18" value="3" />
+          <attvalue end="10/09/18" for="18" start="27/08/18" value="3" />
           <attvalue end="01/08/18" for="19" start="18/07/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="32" source="3" target="5">
+      <edge id="39" source="3" target="5">
         <spells>
           <spell end="14/06/18" start="31/05/18" />
           <spell end="22/06/18" start="08/06/18" />
@@ -1174,6 +1650,9 @@
           <spell end="02/08/18" start="19/07/18" />
           <spell end="04/08/18" start="21/07/18" />
           <spell end="09/08/18" start="26/07/18" />
+          <spell end="26/08/18" start="12/08/18" />
+          <spell end="07/09/18" start="24/08/18" />
+          <spell end="10/09/18" start="27/08/18" />
         </spells>
         <attvalues>
           <attvalue end="22/06/18" for="14" start="08/06/18" value="3" />
@@ -1186,6 +1665,7 @@
           <attvalue end="20/07/18" for="14" start="06/07/18" value="3" />
           <attvalue end="21/07/18" for="14" start="07/07/18" value="3" />
           <attvalue end="24/07/18" for="14" start="10/07/18" value="3" />
+          <attvalue end="07/09/18" for="14" start="24/08/18" value="3" />
           <attvalue end="02/07/18" for="16" start="18/06/18" value="3" />
           <attvalue end="03/07/18" for="16" start="19/06/18" value="3" />
           <attvalue end="22/07/18" for="16" start="08/07/18" value="3" />
@@ -1194,12 +1674,14 @@
           <attvalue end="02/08/18" for="16" start="19/07/18" value="3" />
           <attvalue end="04/08/18" for="16" start="21/07/18" value="3" />
           <attvalue end="09/08/18" for="16" start="26/07/18" value="3" />
+          <attvalue end="26/08/18" for="16" start="12/08/18" value="3" />
           <attvalue end="31/05/18" for="17" start="31/05/18" value="3" />
           <attvalue end="27/06/18" for="18" start="13/06/18" value="3" />
           <attvalue end="10/07/18" for="18" start="26/06/18" value="3" />
+          <attvalue end="10/09/18" for="18" start="27/08/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="33" source="3" target="6">
+      <edge id="40" source="3" target="6">
         <spells>
           <spell end="18/06/18" start="04/06/18" />
         </spells>
@@ -1207,7 +1689,7 @@
           <attvalue end="18/06/18" for="14" start="04/06/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="34" source="3" target="7">
+      <edge id="41" source="3" target="7">
         <spells>
           <spell end="06/07/18" start="22/06/18" />
         </spells>
@@ -1215,7 +1697,7 @@
           <attvalue end="06/07/18" for="16" start="22/06/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="35" source="3" target="8">
+      <edge id="42" source="3" target="8">
         <spells>
           <spell end="19/06/18" start="05/06/18" />
         </spells>
@@ -1223,7 +1705,7 @@
           <attvalue end="05/06/18" for="17" start="05/06/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="36" source="3" target="9">
+      <edge id="43" source="3" target="9">
         <spells>
           <spell end="22/06/18" start="08/06/18" />
         </spells>
@@ -1231,7 +1713,7 @@
           <attvalue end="22/06/18" for="14" start="08/06/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="37" source="3" target="10">
+      <edge id="44" source="3" target="10">
         <spells>
           <spell end="21/06/18" start="07/06/18" />
         </spells>
@@ -1239,7 +1721,19 @@
           <attvalue end="07/06/18" for="17" start="07/06/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="38" source="3" target="20">
+      <edge id="45" source="3" target="34">
+        <spells>
+          <spell end="01/09/18" start="18/08/18" />
+          <spell end="03/09/18" start="20/08/18" />
+          <spell end="11/09/18" start="28/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="03/09/18" for="14" start="20/08/18" value="3" />
+          <attvalue end="01/09/18" for="16" start="18/08/18" value="3" />
+          <attvalue end="11/09/18" for="16" start="28/08/18" value="3" />
+        </attvalues>
+      </edge>
+      <edge id="46" source="3" target="20">
         <spells>
           <spell end="14/07/18" start="30/06/18" />
         </spells>
@@ -1247,7 +1741,15 @@
           <attvalue end="30/06/18" for="17" start="30/06/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="39" source="3" target="27">
+      <edge id="47" source="3" target="33">
+        <spells>
+          <spell end="14/08/18" start="31/07/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="31/07/18" for="17" start="31/07/18" value="3" />
+        </attvalues>
+      </edge>
+      <edge id="48" source="3" target="27">
         <spells>
           <spell end="23/07/18" start="09/07/18" />
         </spells>
@@ -1255,7 +1757,15 @@
           <attvalue end="09/07/18" for="17" start="09/07/18" value="3" />
         </attvalues>
       </edge>
-      <edge id="40" source="4" target="5">
+      <edge id="49" source="3" target="42">
+        <spells>
+          <spell end="09/09/18" start="26/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="26/08/18" for="17" start="26/08/18" value="3" />
+        </attvalues>
+      </edge>
+      <edge id="50" source="4" target="5">
         <spells>
           <spell end="07/07/18" start="23/06/18" />
           <spell end="07/07/18" start="23/06/18" />
@@ -1265,19 +1775,51 @@
           <spell end="26/07/18" start="12/07/18" />
           <spell end="30/07/18" start="16/07/18" />
           <spell end="07/08/18" start="24/07/18" />
+          <spell end="15/08/18" start="01/08/18" />
+          <spell end="16/08/18" start="02/08/18" />
+          <spell end="19/08/18" start="05/08/18" />
+          <spell end="19/08/18" start="05/08/18" />
+          <spell end="21/08/18" start="07/08/18" />
+          <spell end="25/08/18" start="11/08/18" />
+          <spell end="26/08/18" start="12/08/18" />
+          <spell end="31/08/18" start="17/08/18" />
+          <spell end="01/09/18" start="18/08/18" />
+          <spell end="03/09/18" start="20/08/18" />
+          <spell end="04/09/18" start="21/08/18" />
+          <spell end="06/09/18" start="23/08/18" />
         </spells>
         <attvalues>
           <attvalue end="07/07/18" for="14" start="23/06/18" value="4" />
           <attvalue end="26/07/18" for="14" start="12/07/18" value="4" />
           <attvalue end="30/07/18" for="14" start="16/07/18" value="4" />
+          <attvalue end="16/08/18" for="14" start="02/08/18" value="4" />
+          <attvalue end="19/08/18" for="14" start="05/08/18" value="4" />
+          <attvalue end="01/09/18" for="14" start="18/08/18" value="4" />
           <attvalue end="25/07/18" for="16" start="11/07/18" value="4" />
           <attvalue end="26/07/18" for="16" start="12/07/18" value="4" />
+          <attvalue end="15/08/18" for="16" start="01/08/18" value="4" />
+          <attvalue end="19/08/18" for="16" start="05/08/18" value="4" />
+          <attvalue end="31/08/18" for="16" start="17/08/18" value="4" />
+          <attvalue end="03/09/18" for="16" start="20/08/18" value="4" />
           <attvalue end="07/07/18" for="18" start="23/06/18" value="4" />
           <attvalue end="08/07/18" for="18" start="24/06/18" value="4" />
           <attvalue end="07/08/18" for="18" start="24/07/18" value="4" />
+          <attvalue end="21/08/18" for="18" start="07/08/18" value="4" />
+          <attvalue end="25/08/18" for="18" start="11/08/18" value="4" />
+          <attvalue end="26/08/18" for="18" start="12/08/18" value="4" />
+          <attvalue end="04/09/18" for="18" start="21/08/18" value="4" />
+          <attvalue end="06/09/18" for="18" start="23/08/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="41" source="4" target="32">
+      <edge id="51" source="4" target="38">
+        <spells>
+          <spell end="30/08/18" start="16/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="16/08/18" for="17" start="16/08/18" value="4" />
+        </attvalues>
+      </edge>
+      <edge id="52" source="4" target="32">
         <spells>
           <spell end="10/08/18" start="27/07/18" />
         </spells>
@@ -1285,7 +1827,15 @@
           <attvalue end="27/07/18" for="17" start="27/07/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="42" source="4" target="9">
+      <edge id="53" source="4" target="40">
+        <spells>
+          <spell end="02/09/18" start="19/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="19/08/18" for="17" start="19/08/18" value="4" />
+        </attvalues>
+      </edge>
+      <edge id="54" source="4" target="9">
         <spells>
           <spell end="19/06/18" start="05/06/18" />
         </spells>
@@ -1293,7 +1843,7 @@
           <attvalue end="05/06/18" for="17" start="05/06/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="43" source="4" target="7">
+      <edge id="55" source="4" target="7">
         <spells>
           <spell end="17/06/18" start="03/06/18" />
         </spells>
@@ -1301,7 +1851,7 @@
           <attvalue end="03/06/18" for="17" start="03/06/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="44" source="4" target="13">
+      <edge id="56" source="4" target="13">
         <spells>
           <spell end="28/06/18" start="14/06/18" />
         </spells>
@@ -1309,7 +1859,7 @@
           <attvalue end="14/06/18" for="17" start="14/06/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="45" source="4" target="14">
+      <edge id="57" source="4" target="14">
         <spells>
           <spell end="29/06/18" start="15/06/18" />
         </spells>
@@ -1317,7 +1867,15 @@
           <attvalue end="15/06/18" for="17" start="15/06/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="46" source="4" target="17">
+      <edge id="58" source="4" target="34">
+        <spells>
+          <spell end="10/09/18" start="27/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="10/09/18" for="14" start="27/08/18" value="4" />
+        </attvalues>
+      </edge>
+      <edge id="59" source="4" target="17">
         <spells>
           <spell end="10/07/18" start="26/06/18" />
         </spells>
@@ -1325,7 +1883,15 @@
           <attvalue end="26/06/18" for="17" start="26/06/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="47" source="4" target="26">
+      <edge id="60" source="4" target="41">
+        <spells>
+          <spell end="05/09/18" start="22/08/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="22/08/18" for="17" start="22/08/18" value="4" />
+        </attvalues>
+      </edge>
+      <edge id="61" source="4" target="26">
         <spells>
           <spell end="22/07/18" start="08/07/18" />
         </spells>
@@ -1333,7 +1899,7 @@
           <attvalue end="08/07/18" for="17" start="08/07/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="48" source="4" target="28">
+      <edge id="62" source="4" target="28">
         <spells>
           <spell end="27/07/18" start="13/07/18" />
         </spells>
@@ -1341,7 +1907,7 @@
           <attvalue end="13/07/18" for="17" start="13/07/18" value="4" />
         </attvalues>
       </edge>
-      <edge id="49" source="4" target="30">
+      <edge id="63" source="4" target="30">
         <spells>
           <spell end="07/08/18" start="24/07/18" />
         </spells>

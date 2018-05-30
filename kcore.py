@@ -38,7 +38,7 @@ def calculate(G):
     c1 = Counter(C.values())
  #   myclique = clique.max_clique(G)
  #   cliquelist = list(myclique)
-    cliquelist = random.sample(G.nodes, 100)
+  #  cliquelist = random.sample(G.nodes, 100)
     
 def getNodeStats(G,node_id,starttime,endtime):
     edges = G.edges(node_id,data=True)
@@ -56,35 +56,35 @@ def getNodeStats(G,node_id,starttime,endtime):
     
     for (u,v,c) in edges:
         for createactions in c['create']:
-            if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(createactions[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime):
                 if str(createactions[0]) == str(node_id):
                     stories_created = stories_created + 1     
         for readactions in c['read']:
-            if (starttime < datetime.strptime(readactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(readactions[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(readactions[1],"%d/%m/%y") < endtime):
                 if str(readactions[0]) == str(node_id):
                     stories_read = stories_read + 1
                 else:
                     read_by_others = read_by_others + 1
         for commentactions in c['comment']:
-            if (starttime < datetime.strptime(commentactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(commentactions[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(commentactions[1],"%d/%m/%y") < endtime):
                 if str(commentactions[0]) == str(node_id):
                     stories_commented = stories_commented + 1
                 else:
                     commented_by_others = commented_by_others + 1
         for shareactions in c['share']:
-            if (starttime < datetime.strptime(shareactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(shareactions[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(shareactions[1],"%d/%m/%y") < endtime):
                 if str(shareactions[0]) == str(node_id):
                     stories_shared = stories_shared + 1
                 else:
                     shared_by_others = shared_by_others + 1
         for talkactions in c['talk']:
-            if (starttime < datetime.strptime(talkactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(talkactions[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(talkactions[1],"%d/%m/%y") < endtime):
                 if str(talkactions[0]) == str(node_id):
                     talks_started = talks_started + 1
                 else:
                     talks_received = talks_received + 1
         for giveactions in c['give']:
-            if (starttime < datetime.strptime(giveactions[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(giveactions[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(giveactions[1],"%d/%m/%y") < endtime):
                 if str(giveactions[0]) == str(node_id):
                     givings = givings + 1
                 else:
@@ -119,6 +119,7 @@ def plotgraph(G):
   #  myclique = clique.max_clique(G)
    # cliquelist = list(myclique)
     user_id = 0
+    '''
     while len(cliqueids) < 10:
         for id in cliquelist:
             print 'checking id:',id
@@ -126,7 +127,7 @@ def plotgraph(G):
                 print 'Yup',id,'is a user'
                 cliqueids.append(id)
         cliquelist = random.sample(G.nodes, 100)
-        
+    '''    
         
     windowstart = datetime.now()
     windowend = windowstart + cf.one_month
@@ -195,7 +196,7 @@ def plotgraph(G):
                 #Cumulative                 
                 #if windowend > intervals[0]:
                 #Non-cumulative
-                if (windowstart < datetime.strptime(intervals[0],"%d/%m/%y") < windowend) or (windowstart < datetime.strptime(intervals[1],"%d/%m/%y") < windowend):
+                if (windowstart < datetime.strptime(intervals[0],"%d/%m/%y") < windowend):
                     edgeexists = True
                     break
             if edgeexists == False:
@@ -219,9 +220,13 @@ def plotgraph(G):
         #E= dx.core_number_weighted(GCopy,windowstart,windowend,True,True)
         #c1 = Counter(C.values())
         d1 = Counter(D.values())
+        print 'counter says the following ', d1
         #e1 = Counter(E.values())
         #enddate = datetime.utcfromtimestamp(windowend)
-
+        nodeiter = ReducedGraph.nodes(data=True)
+        for (n,c) in nodeiter:
+            c['kcore'] = D[n]
+        #GCopy.remove_nodes_from(nbunch)
         print 'Done the core stuff'
         usertimes.append(windowend)
         for id in cliqueids:

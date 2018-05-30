@@ -37,16 +37,4 @@ class Story(object):
 class Group(object):
 
     def __init__(self):
-       print ''
-		
-#I wonder whether this is necessary, could extrapolate from the impact the interaction has?
-'''
-#Is this the first time this specific interaction has taken place?
-if interaction not in G[source][story]:
-G[source][story]['read'] = []
-#Otherwise the timeframe of the last interaction of this type needs to be updated
-elif len(G[source][story]['read']) > 0:
-last_interaction = G[source][story][interaction][-1]
-updated_last_interaction = (last_interaction[0],last_interaction[1],cur_date.strftime("%y-%m-%dT%H:%M") )
-G[source][story][interaction][-1] = updated_last_interaction    
-'''        
+       print ''      

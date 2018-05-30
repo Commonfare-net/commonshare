@@ -10,7 +10,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     frequency = 0
     for action_key in cf.interaction_keys:
         for action in edge[action_key]:
-            if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(action[2],"%d/%m/%y") < endtime):
+            if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
                 #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
                 if str(action[0]) == str(n1):
                     edgeweight = edgeweight + cf.weights[action_key][0]
@@ -103,7 +103,7 @@ def nodeweight_directed(G,node_id,starttime,endtime):
         for action_key in cf.interaction_keys:
             #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them. Impact will have to be for vis purposes in Gephi only
             for action in c[action_key]:
-                if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime) or (starttime < datetime.strptime(action[2],"%d/%m/%y") < endtime):
+                if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
                     #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
                     if str(action[0]) == str(node_id):
                         #print 'yes node',node_id,'created this'
@@ -114,11 +114,15 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                     c[action_key].remove(action) #Hopefully this gets rid of it
         if overallweight > 0:
             edgeweights.append(int(overallweight))
+            #Adds it as a nice attribute
+            if 'edgeweight' not in c:
+                c['edgeweight'] = {}
+            c['edgeweight'][node_id] = int(overallweight)
     if len(edgeweights) == 0:
         return (G,1)
     mean = sum(edgeweights)/len(edgeweights)
-    if node_id == cf.colluding_nodes[0] or node_id == cf.colluding_nodes[1]:
-        print 'weights are ',edgeweights
+  #  if node_id == cf.colluding_nodes[0] or node_id == cf.colluding_nodes[1]:
+  #      print 'weights are ',edgeweights
     #normalize weights to mean
     norm = [(float(i)/mean)/(float(min(edgeweights))/mean) for i in edgeweights]
     #print 'sum of norm ',sum(norm)
