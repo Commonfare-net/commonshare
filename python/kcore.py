@@ -13,7 +13,7 @@ import json
 from networkx.readwrite import json_graph
 from collections import Counter
 from networkx.algorithms.approximation import clique
-
+import os
 '''
 This module does the necessary k-core calculations and appends the results to each node in the Graph.
 It also has separate methods for plotting charts with Plotly
@@ -117,6 +117,9 @@ def calculate(G):
     global receivings
     global max_y_axis
     user_id = 0
+    
+    if not os.path.exists("../json"):
+        os.makedirs("../json")
     
     while len(cliqueids) < 10:
         for id in cliquelist:
@@ -236,7 +239,7 @@ def calculate(G):
         
         #Create JSON files as output from the 'reduced graph'
         data = json_graph.node_link_data(ReducedGraph)
-        with open('data'+str(loopcount)+'.json', 'w') as outfile:
+        with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(data))
 
 def plotgraph():            

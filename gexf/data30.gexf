@@ -2,27 +2,27 @@
 <gexf xmlns:viz="http://www.gexf.net/1.2draft/viz" version="1.2" xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema-instance">
   <graph defaultedgetype="undirected" mode="dynamic" name="" timeformat="date">
     <attributes class="edge" mode="dynamic">
+      <attribute id="20" title="talk" type="string" />
+      <attribute id="21" title="comment" type="string" />
+      <attribute id="22" title="give" type="string" />
+      <attribute id="23" title="read" type="string" />
+      <attribute id="24" title="create" type="string" />
+      <attribute id="25" title="share" type="string" />
+    </attributes>
+    <attributes class="edge" mode="static">
+      <attribute id="15" title="comment" type="string" />
       <attribute id="16" title="give" type="string" />
       <attribute id="17" title="read" type="string" />
       <attribute id="18" title="create" type="string" />
       <attribute id="19" title="share" type="string" />
-      <attribute id="20" title="talk" type="string" />
-      <attribute id="25" title="comment" type="string" />
-    </attributes>
-    <attributes class="edge" mode="static">
-      <attribute id="15" title="comment" type="string" />
-      <attribute id="21" title="give" type="string" />
-      <attribute id="22" title="read" type="string" />
-      <attribute id="23" title="create" type="string" />
-      <attribute id="24" title="share" type="string" />
     </attributes>
     <attributes class="node" mode="dynamic">
-      <attribute id="8" title="give" type="string" />
-      <attribute id="9" title="read" type="string" />
-      <attribute id="10" title="create" type="string" />
-      <attribute id="11" title="share" type="string" />
-      <attribute id="12" title="talk" type="string" />
-      <attribute id="13" title="comment" type="string" />
+      <attribute id="8" title="comment" type="string" />
+      <attribute id="9" title="talk" type="string" />
+      <attribute id="10" title="give" type="string" />
+      <attribute id="11" title="read" type="string" />
+      <attribute id="12" title="create" type="string" />
+      <attribute id="13" title="share" type="string" />
     </attributes>
     <attributes class="node" mode="static">
       <attribute id="0" title="comment" type="string" />
@@ -46,7 +46,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Melissa Arnold" />
+          <attvalue for="1" value="David Burgess" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -56,7 +56,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ricky Eaton" />
+          <attvalue for="1" value="Moses Plott" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -66,8 +66,11 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Daniela Wesley" />
+          <attvalue end="06/07/18" for="8" start="22/06/18" value="2" />
+          <attvalue end="06/07/18" for="8" start="22/06/18" value="2" />
+          <attvalue for="1" value="Mae Hicks" />
           <attvalue for="6" value="user" />
+          <attvalue end="14/07/18" for="9" start="30/06/18" value="2" />
         </attvalues>
       </node>
       <node id="3" label="3">
@@ -76,10 +79,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Thomas Branco" />
-          <attvalue end="01/07/18" for="8" start="17/06/18" value="72" />
+          <attvalue for="1" value="Stephen Lajoie" />
           <attvalue for="6" value="user" />
-          <attvalue end="07/07/18" for="12" start="23/06/18" value="58" />
         </attvalues>
       </node>
       <node id="4" label="4">
@@ -88,7 +89,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Audrey King" />
+          <attvalue for="1" value="John Modi" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -98,7 +99,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Justin Farley" />
+          <attvalue for="1" value="George Irwin" />
+          <attvalue end="18/06/18" for="10" start="04/06/18" value="50" />
+          <attvalue end="12/06/18" for="12" start="12/06/18" value="5" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -108,10 +111,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Michael Paquette" />
-          <attvalue end="29/06/18" for="8" start="15/06/18" value="6" />
+          <attvalue for="1" value="Edward Gagnon" />
           <attvalue for="6" value="user" />
-          <attvalue end="17/06/18" for="12" start="03/06/18" value="6" />
         </attvalues>
       </node>
       <node id="7" label="7">
@@ -120,7 +121,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="April Walsh" />
+          <attvalue for="1" value="James Pirog" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -130,9 +131,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Jose Oldenburg" />
+          <attvalue for="1" value="Elmer Schulist" />
+          <attvalue end="21/06/18" for="12" start="21/06/18" value="8" />
           <attvalue for="6" value="user" />
-          <attvalue end="19/06/18" for="12" start="05/06/18" value="8" />
         </attvalues>
       </node>
       <node id="9" label="9">
@@ -141,8 +142,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ericka Simmons" />
-          <attvalue end="07/06/18" for="10" start="07/06/18" value="9" />
+          <attvalue end="28/06/18" for="8" start="14/06/18" value="70" />
+          <attvalue for="1" value="Carol Rangel" />
+          <attvalue end="06/06/18" for="12" start="06/06/18" value="9" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -152,7 +154,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Cleveland Sellers" />
+          <attvalue for="1" value="Jamie Heckman" />
+          <attvalue end="18/06/18" for="10" start="04/06/18" value="10" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -162,7 +165,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Nellie Rasmussen" />
+          <attvalue for="1" value="Frederick Barba" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -172,9 +175,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ashley Ramirez" />
+          <attvalue for="1" value="Felicia Martinez" />
+          <attvalue end="30/06/18" for="11" start="16/06/18" value="12" />
+          <attvalue end="30/06/18" for="11" start="16/06/18" value="12" />
           <attvalue for="6" value="user" />
-          <attvalue end="17/06/18" for="12" start="03/06/18" value="6" />
         </attvalues>
       </node>
       <node id="13" label="13">
@@ -183,8 +187,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Glady Davis" />
-          <attvalue end="16/06/18" for="8" start="02/06/18" value="92" />
+          <attvalue for="1" value="Audrey Moten" />
+          <attvalue end="03/07/18" for="10" start="19/06/18" value="63" />
+          <attvalue end="20/06/18" for="12" start="20/06/18" value="13" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -194,7 +199,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Laura Rivera" />
+          <attvalue end="06/07/18" for="8" start="22/06/18" value="2" />
+          <attvalue for="1" value="Eloise Thompson" />
+          <attvalue end="30/06/18" for="11" start="16/06/18" value="12" />
+          <attvalue end="04/06/18" for="12" start="04/06/18" value="14" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -204,8 +212,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Sara Knowles" />
-          <attvalue end="22/06/18" for="10" start="22/06/18" value="15" />
+          <attvalue for="1" value="Lorene Ennis" />
+          <attvalue end="30/06/18" for="10" start="16/06/18" value="50" />
+          <attvalue end="03/07/18" for="10" start="19/06/18" value="15" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -215,10 +224,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue end="26/06/18" for="13" start="12/06/18" value="16" />
-          <attvalue end="26/06/18" for="13" start="12/06/18" value="16" />
-          <attvalue for="1" value="Travis Kolden" />
-          <attvalue end="11/07/18" for="9" start="27/06/18" value="62" />
+          <attvalue for="1" value="Doris Graham" />
+          <attvalue end="08/07/18" for="10" start="24/06/18" value="94" />
+          <attvalue end="07/06/18" for="12" start="07/06/18" value="16" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -228,10 +236,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Matthew Wood" />
-          <attvalue end="05/07/18" for="9" start="21/06/18" value="17" />
-          <attvalue end="05/07/18" for="9" start="21/06/18" value="17" />
-          <attvalue end="13/07/18" for="11" start="29/06/18" value="43" />
+          <attvalue for="1" value="Ed Pardo" />
+          <attvalue end="21/06/18" for="10" start="07/06/18" value="17" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -241,7 +247,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Isaac Arnold" />
+          <attvalue for="1" value="Joan Roper" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -251,9 +257,11 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue end="01/07/18" for="13" start="17/06/18" value="19" />
-          <attvalue end="01/07/18" for="13" start="17/06/18" value="19" />
-          <attvalue for="1" value="Barbara Luckie" />
+          <attvalue end="12/07/18" for="8" start="28/06/18" value="19" />
+          <attvalue end="12/07/18" for="8" start="28/06/18" value="19" />
+          <attvalue for="1" value="Chris Ellis" />
+          <attvalue end="11/06/18" for="12" start="11/06/18" value="19" />
+          <attvalue end="29/06/18" for="12" start="29/06/18" value="19" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -263,9 +271,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ray Cummins" />
-          <attvalue end="22/06/18" for="8" start="08/06/18" value="20" />
-          <attvalue end="04/06/18" for="10" start="04/06/18" value="20" />
+          <attvalue for="1" value="Dorothy Crockett" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -275,9 +281,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue end="01/07/18" for="13" start="17/06/18" value="19" />
-          <attvalue for="1" value="Grace Warner" />
-          <attvalue end="01/06/18" for="10" start="01/06/18" value="21" />
+          <attvalue for="1" value="Delores Finnefrock" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -287,7 +291,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Billy Peters" />
+          <attvalue for="1" value="Myriam Stoffregen" />
+          <attvalue end="04/07/18" for="10" start="20/06/18" value="46" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -297,8 +302,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Michael Marro" />
-          <attvalue end="15/06/18" for="8" start="01/06/18" value="23" />
+          <attvalue for="1" value="Gwendolyn Torres" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -308,8 +312,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Marcus Stembridge" />
-          <attvalue end="01/07/18" for="8" start="17/06/18" value="60" />
+          <attvalue for="1" value="Shirley Flores" />
+          <attvalue end="15/06/18" for="10" start="01/06/18" value="69" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -319,8 +323,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Christopher Morales" />
-          <attvalue end="28/06/18" for="8" start="14/06/18" value="25" />
+          <attvalue for="1" value="Mary Goucher" />
+          <attvalue end="10/07/18" for="10" start="26/06/18" value="69" />
+          <attvalue end="26/06/18" for="12" start="26/06/18" value="25" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -330,9 +335,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Thomas Sabb" />
+          <attvalue for="1" value="Arline Cieslinski" />
           <attvalue for="6" value="user" />
-          <attvalue end="29/06/18" for="12" start="15/06/18" value="62" />
         </attvalues>
       </node>
       <node id="27" label="27">
@@ -341,7 +345,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Earl Stcharles" />
+          <attvalue for="1" value="Theresa Hiott" />
+          <attvalue end="29/06/18" for="12" start="29/06/18" value="27" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -351,7 +356,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ryan Gray" />
+          <attvalue for="1" value="Starr Bernhard" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -361,7 +366,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Charles Page" />
+          <attvalue for="1" value="Yvonne Hattaway" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -371,8 +376,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Kami Iyo" />
-          <attvalue end="23/06/18" for="10" start="23/06/18" value="30" />
+          <attvalue for="1" value="Robert Reck" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -382,10 +386,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Adolfo Davis" />
-          <attvalue end="10/07/18" for="8" start="26/06/18" value="58" />
-          <attvalue end="05/06/18" for="10" start="05/06/18" value="31" />
+          <attvalue for="1" value="Rebecca Sauls" />
           <attvalue for="6" value="user" />
+          <attvalue end="17/06/18" for="9" start="03/06/18" value="31" />
         </attvalues>
       </node>
       <node id="32" label="32">
@@ -394,7 +397,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Darren Morales" />
+          <attvalue for="1" value="Karen Scholtens" />
+          <attvalue end="01/06/18" for="12" start="01/06/18" value="32" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -404,7 +408,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Esta Canty" />
+          <attvalue for="1" value="Christopher Blanks" />
+          <attvalue end="15/06/18" for="12" start="15/06/18" value="33" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -414,9 +419,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Wayne Coy" />
+          <attvalue for="1" value="Elizabeth Payne" />
+          <attvalue end="10/06/18" for="12" start="10/06/18" value="34" />
           <attvalue for="6" value="user" />
-          <attvalue end="10/07/18" for="12" start="26/06/18" value="99" />
         </attvalues>
       </node>
       <node id="35" label="35">
@@ -425,9 +430,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Eula Norwood" />
-          <attvalue end="03/07/18" for="9" start="19/06/18" value="60" />
-          <attvalue end="09/06/18" for="10" start="09/06/18" value="35" />
+          <attvalue for="1" value="John Mccoy" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -437,7 +440,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ka Tropea" />
+          <attvalue for="1" value="Jeff Trudeau" />
+          <attvalue end="18/06/18" for="12" start="18/06/18" value="36" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -447,7 +451,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Bobby Chadwell" />
+          <attvalue for="1" value="Lisa Ritter" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -457,9 +461,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Eric Thomas" />
-          <attvalue end="14/07/18" for="9" start="30/06/18" value="38" />
-          <attvalue end="14/07/18" for="9" start="30/06/18" value="38" />
+          <attvalue for="1" value="Tarah Eber" />
+          <attvalue end="17/06/18" for="12" start="17/06/18" value="38" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -469,9 +472,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Francis Amundson" />
-          <attvalue end="05/07/18" for="9" start="21/06/18" value="17" />
-          <attvalue end="04/06/18" for="10" start="04/06/18" value="39" />
+          <attvalue for="1" value="Ruth Cannone" />
+          <attvalue end="27/06/18" for="12" start="27/06/18" value="39" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -481,7 +483,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Abraham Higgins" />
+          <attvalue for="1" value="Christopher Hardy" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -491,7 +493,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Marshall Wilson" />
+          <attvalue for="1" value="James Owens" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -501,7 +503,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Beatrice Greaves" />
+          <attvalue for="1" value="Annie Windsor" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -511,9 +513,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Michael Santiago" />
-          <attvalue end="13/07/18" for="11" start="29/06/18" value="43" />
-          <attvalue end="13/07/18" for="11" start="29/06/18" value="43" />
+          <attvalue for="1" value="Robert Crisp" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -523,8 +523,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Marylou Dudley" />
-          <attvalue end="06/07/18" for="8" start="22/06/18" value="55" />
+          <attvalue for="1" value="James Lavallee" />
+          <attvalue end="10/06/18" for="12" start="10/06/18" value="44" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -534,10 +534,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Judith Larzazs" />
-          <attvalue end="09/07/18" for="8" start="25/06/18" value="45" />
-          <attvalue end="06/06/18" for="10" start="06/06/18" value="45" />
-          <attvalue end="21/06/18" for="10" start="21/06/18" value="45" />
+          <attvalue for="1" value="Mike Mckinney" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -547,7 +544,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Alan Blalock" />
+          <attvalue for="1" value="Carolyn Jones" />
+          <attvalue end="04/07/18" for="10" start="20/06/18" value="46" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -557,11 +555,11 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue end="09/07/18" for="13" start="25/06/18" value="47" />
-          <attvalue end="09/07/18" for="13" start="25/06/18" value="47" />
-          <attvalue for="1" value="Boyd Larkin" />
+          <attvalue end="12/07/18" for="8" start="28/06/18" value="19" />
+          <attvalue for="1" value="Lynn Zimmer" />
+          <attvalue end="18/06/18" for="10" start="04/06/18" value="10" />
+          <attvalue end="23/06/18" for="12" start="23/06/18" value="47" />
           <attvalue for="6" value="user" />
-          <attvalue end="23/06/18" for="12" start="09/06/18" value="57" />
         </attvalues>
       </node>
       <node id="48" label="48">
@@ -570,10 +568,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Hye Wing" />
+          <attvalue for="1" value="Nicole Carino" />
           <attvalue for="6" value="user" />
-          <attvalue end="15/06/18" for="12" start="01/06/18" value="95" />
-          <attvalue end="19/06/18" for="12" start="05/06/18" value="8" />
         </attvalues>
       </node>
       <node id="49" label="49">
@@ -582,7 +578,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Carl Page" />
+          <attvalue for="1" value="Natasha Bailey" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -592,8 +588,12 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Peggy Hood" />
+          <attvalue for="1" value="Sandra Zahn" />
+          <attvalue end="18/06/18" for="10" start="04/06/18" value="50" />
+          <attvalue end="30/06/18" for="10" start="16/06/18" value="50" />
           <attvalue for="6" value="user" />
+          <attvalue end="17/06/18" for="9" start="03/06/18" value="31" />
+          <attvalue end="27/06/18" for="9" start="13/06/18" value="90" />
         </attvalues>
       </node>
       <node id="51" label="51">
@@ -602,7 +602,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Matthew Lee" />
+          <attvalue for="1" value="Jerry Archuleta" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -612,8 +612,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Mildred Padgett" />
-          <attvalue end="20/06/18" for="10" start="20/06/18" value="52" />
+          <attvalue for="1" value="Elanor Brown" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -623,7 +622,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Michael Welch" />
+          <attvalue for="1" value="Juan Washington" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -633,8 +632,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Simone Horstman" />
+          <attvalue for="1" value="Michael Dungey" />
+          <attvalue end="06/06/18" for="12" start="06/06/18" value="54" />
           <attvalue for="6" value="user" />
+          <attvalue end="28/06/18" for="9" start="14/06/18" value="54" />
         </attvalues>
       </node>
       <node id="55" label="55">
@@ -643,8 +644,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="John Johnson" />
-          <attvalue end="06/07/18" for="8" start="22/06/18" value="55" />
+          <attvalue for="1" value="Glen Nesmith" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -654,7 +654,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="James Sanders" />
+          <attvalue for="1" value="Harriett Ellis" />
+          <attvalue end="28/06/18" for="12" start="28/06/18" value="56" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -664,10 +665,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Erin Culbreth" />
-          <attvalue end="03/06/18" for="10" start="03/06/18" value="57" />
+          <attvalue for="1" value="Robert Hunt" />
+          <attvalue end="08/06/18" for="12" start="08/06/18" value="57" />
           <attvalue for="6" value="user" />
-          <attvalue end="23/06/18" for="12" start="09/06/18" value="57" />
+          <attvalue end="14/07/18" for="9" start="30/06/18" value="57" />
         </attvalues>
       </node>
       <node id="58" label="58">
@@ -676,10 +677,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Carolyn Turner" />
-          <attvalue end="10/07/18" for="8" start="26/06/18" value="58" />
+          <attvalue for="1" value="Jordan Butler" />
           <attvalue for="6" value="user" />
-          <attvalue end="07/07/18" for="12" start="23/06/18" value="58" />
         </attvalues>
       </node>
       <node id="59" label="59">
@@ -688,11 +687,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue end="26/06/18" for="13" start="12/06/18" value="16" />
-          <attvalue for="1" value="Robert Golston" />
-          <attvalue end="14/07/18" for="9" start="30/06/18" value="38" />
-          <attvalue end="11/06/18" for="10" start="11/06/18" value="59" />
+          <attvalue for="1" value="Lynsey Dirden" />
           <attvalue for="6" value="user" />
+          <attvalue end="12/07/18" for="9" start="28/06/18" value="59" />
         </attvalues>
       </node>
       <node id="60" label="60">
@@ -701,11 +698,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue end="09/07/18" for="13" start="25/06/18" value="47" />
-          <attvalue for="1" value="John Beck" />
-          <attvalue end="01/07/18" for="8" start="17/06/18" value="60" />
-          <attvalue end="03/07/18" for="9" start="19/06/18" value="60" />
-          <attvalue end="03/07/18" for="9" start="19/06/18" value="60" />
+          <attvalue for="1" value="Thomas Jones" />
+          <attvalue end="07/07/18" for="10" start="23/06/18" value="72" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -715,7 +709,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Anthony Newman" />
+          <attvalue for="1" value="Michelle Villarreal" />
+          <attvalue end="03/07/18" for="10" start="19/06/18" value="15" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -725,11 +720,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Eva Foster" />
-          <attvalue end="11/07/18" for="9" start="27/06/18" value="62" />
-          <attvalue end="11/07/18" for="9" start="27/06/18" value="62" />
+          <attvalue for="1" value="Rhonda Stamm" />
           <attvalue for="6" value="user" />
-          <attvalue end="29/06/18" for="12" start="15/06/18" value="62" />
         </attvalues>
       </node>
       <node id="63" label="63">
@@ -738,9 +730,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ada Peters" />
-          <attvalue end="28/06/18" for="8" start="14/06/18" value="25" />
+          <attvalue for="1" value="Sherry Montgomery" />
+          <attvalue end="03/07/18" for="10" start="19/06/18" value="63" />
           <attvalue for="6" value="user" />
+          <attvalue end="22/06/18" for="9" start="08/06/18" value="90" />
         </attvalues>
       </node>
       <node id="64" label="64">
@@ -749,7 +742,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Nancy Heaps" />
+          <attvalue for="1" value="Matthew Williamson" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -759,7 +752,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Rosann Wilson" />
+          <attvalue for="1" value="Leann Thompson" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -769,7 +762,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Bernice Mclaughlin" />
+          <attvalue for="1" value="Nanette Carroll" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -779,7 +772,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Kyle Emerick" />
+          <attvalue for="1" value="David Johnson" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -789,7 +782,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Michael Hall" />
+          <attvalue for="1" value="Edna Young" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -799,7 +792,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Carl Skiles" />
+          <attvalue for="1" value="Shelly Kelley" />
+          <attvalue end="15/06/18" for="10" start="01/06/18" value="69" />
+          <attvalue end="10/07/18" for="10" start="26/06/18" value="69" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -809,8 +804,11 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="John Perry" />
+          <attvalue end="28/06/18" for="8" start="14/06/18" value="70" />
+          <attvalue end="28/06/18" for="8" start="14/06/18" value="70" />
+          <attvalue for="1" value="Kenneth Griffin" />
           <attvalue for="6" value="user" />
+          <attvalue end="08/07/18" for="9" start="24/06/18" value="78" />
         </attvalues>
       </node>
       <node id="71" label="71">
@@ -819,9 +817,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Eugene Hardy" />
-          <attvalue end="22/06/18" for="8" start="08/06/18" value="20" />
-          <attvalue end="02/07/18" for="8" start="18/06/18" value="71" />
+          <attvalue for="1" value="Matthew Seymer" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -831,9 +827,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Amy Brown" />
-          <attvalue end="01/07/18" for="8" start="17/06/18" value="72" />
+          <attvalue for="1" value="Matthew Hebert" />
+          <attvalue end="07/07/18" for="10" start="23/06/18" value="72" />
           <attvalue for="6" value="user" />
+          <attvalue end="14/07/18" for="9" start="30/06/18" value="57" />
         </attvalues>
       </node>
       <node id="73" label="73">
@@ -842,7 +839,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="William Baker" />
+          <attvalue for="1" value="Paul Harris" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -852,7 +849,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Norman Hunt" />
+          <attvalue for="1" value="Russell Kelley" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -862,7 +859,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Mary Horton" />
+          <attvalue for="1" value="Chad Matlock" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -872,7 +869,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Jerry Smith" />
+          <attvalue for="1" value="Kelly Harrington" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -882,8 +879,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Chris Moats" />
+          <attvalue for="1" value="Alexander Gourdine" />
           <attvalue for="6" value="user" />
+          <attvalue end="12/07/18" for="9" start="28/06/18" value="59" />
         </attvalues>
       </node>
       <node id="78" label="78">
@@ -892,9 +890,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Rick Chen" />
-          <attvalue end="15/06/18" for="8" start="01/06/18" value="23" />
+          <attvalue for="1" value="Ellen Cox" />
           <attvalue for="6" value="user" />
+          <attvalue end="08/07/18" for="9" start="24/06/18" value="78" />
         </attvalues>
       </node>
       <node id="79" label="79">
@@ -903,9 +901,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Joshua Pritchett" />
-          <attvalue end="29/06/18" for="10" start="29/06/18" value="79" />
+          <attvalue for="1" value="Samatha Mowers" />
           <attvalue for="6" value="user" />
+          <attvalue end="28/06/18" for="9" start="14/06/18" value="54" />
         </attvalues>
       </node>
       <node id="80" label="80">
@@ -914,7 +912,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Marvin Anderson" />
+          <attvalue for="1" value="Jason Hoyt" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -924,7 +922,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Christopher Strickland" />
+          <attvalue for="1" value="Willie Phillips" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -934,7 +932,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Robert Mcintire" />
+          <attvalue for="1" value="Eugene Bailey" />
+          <attvalue end="13/07/18" for="10" start="29/06/18" value="93" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -944,7 +943,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Maria Adcock" />
+          <attvalue for="1" value="Oscar Jean" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -954,7 +953,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Betty Woolridge" />
+          <attvalue for="1" value="Marvin Sneed" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -964,7 +963,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Edwardo Reinhart" />
+          <attvalue for="1" value="Paul Reibert" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -974,7 +973,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Tiffany Morales" />
+          <attvalue for="1" value="Leah Salamanca" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -984,7 +983,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Monnie Southern" />
+          <attvalue for="1" value="Addie Hall" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -994,8 +993,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Shawn Bonney" />
-          <attvalue end="24/06/18" for="10" start="24/06/18" value="88" />
+          <attvalue for="1" value="Christopher Bruce" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1005,7 +1003,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Joel Martin" />
+          <attvalue for="1" value="Paul Rogers" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1015,9 +1013,11 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Jose Daniels" />
-          <attvalue end="29/06/18" for="10" start="29/06/18" value="90" />
+          <attvalue for="1" value="Florence Joyner" />
+          <attvalue end="21/06/18" for="10" start="07/06/18" value="17" />
           <attvalue for="6" value="user" />
+          <attvalue end="22/06/18" for="9" start="08/06/18" value="90" />
+          <attvalue end="27/06/18" for="9" start="13/06/18" value="90" />
         </attvalues>
       </node>
       <node id="91" label="91">
@@ -1026,8 +1026,10 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Justin Fuentes" />
+          <attvalue for="1" value="Zella Best" />
+          <attvalue end="25/06/18" for="12" start="25/06/18" value="91" />
           <attvalue for="6" value="user" />
+          <attvalue end="14/07/18" for="9" start="30/06/18" value="2" />
         </attvalues>
       </node>
       <node id="92" label="92">
@@ -1036,8 +1038,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="William Vergara" />
-          <attvalue end="16/06/18" for="8" start="02/06/18" value="92" />
+          <attvalue for="1" value="James Lupu" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1047,10 +1048,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Diane Reynolds" />
-          <attvalue end="06/06/18" for="10" start="06/06/18" value="93" />
-          <attvalue end="16/06/18" for="10" start="16/06/18" value="93" />
-          <attvalue end="19/06/18" for="10" start="19/06/18" value="93" />
+          <attvalue for="1" value="Jerry Withrow" />
+          <attvalue end="13/07/18" for="10" start="29/06/18" value="93" />
+          <attvalue end="07/06/18" for="12" start="07/06/18" value="93" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1060,9 +1060,9 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Daniel Abrams" />
-          <attvalue end="09/07/18" for="8" start="25/06/18" value="45" />
-          <attvalue end="27/06/18" for="10" start="27/06/18" value="94" />
+          <attvalue for="1" value="John Ioele" />
+          <attvalue end="08/07/18" for="10" start="24/06/18" value="94" />
+          <attvalue end="21/06/18" for="12" start="21/06/18" value="94" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1072,11 +1072,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Ronald Grimes" />
-          <attvalue end="02/07/18" for="8" start="18/06/18" value="71" />
-          <attvalue end="05/06/18" for="10" start="05/06/18" value="95" />
+          <attvalue for="1" value="Victoria Palacios" />
           <attvalue for="6" value="user" />
-          <attvalue end="15/06/18" for="12" start="01/06/18" value="95" />
         </attvalues>
       </node>
       <node id="96" label="96">
@@ -1085,7 +1082,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="April Goldman" />
+          <attvalue for="1" value="Valarie Lindsey" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1095,7 +1092,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="John Espinoza" />
+          <attvalue for="1" value="Kenneth Smith" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1105,8 +1102,7 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Donna Miller" />
-          <attvalue end="27/06/18" for="10" start="27/06/18" value="98" />
+          <attvalue for="1" value="Joshua Lee" />
           <attvalue for="6" value="user" />
         </attvalues>
       </node>
@@ -1116,10 +1112,8 @@
         </spells>
         <viz:color a="1.0" b="254" g="0" r="0" />
         <attvalues>
-          <attvalue for="1" value="Michael Fisherman" />
-          <attvalue end="29/06/18" for="8" start="15/06/18" value="6" />
+          <attvalue for="1" value="Humberto Degraw" />
           <attvalue for="6" value="user" />
-          <attvalue end="10/07/18" for="12" start="26/06/18" value="99" />
         </attvalues>
       </node>
       <node id="100" label="100">
@@ -1128,676 +1122,660 @@
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue end="01/07/18" for="13" start="17/06/18" value="19" />
-          <attvalue for="14" value="cover attention purple stress" />
+          <attvalue for="14" value="minimum moment celebration minute" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="101" label="101">
         <spells>
-          <spell end="17/06/18" start="03/06/18" />
+          <spell end="18/06/18" start="04/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="south safe phone challenge" />
+          <attvalue end="06/07/18" for="8" start="22/06/18" value="2" />
+          <attvalue for="14" value="replacement function resident spirit" />
+          <attvalue end="30/06/18" for="11" start="16/06/18" value="12" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="102" label="102">
         <spells>
-          <spell end="18/06/18" start="04/06/18" />
+          <spell end="20/06/18" start="06/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="cup bother boyfriend shame" />
-          <attvalue end="05/07/18" for="9" start="21/06/18" value="17" />
-          <attvalue end="13/07/18" for="11" start="29/06/18" value="43" />
+          <attvalue end="28/06/18" for="8" start="14/06/18" value="70" />
+          <attvalue for="14" value="following agency copy sky" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="103" label="103">
         <spells>
-          <spell end="18/06/18" start="04/06/18" />
+          <spell end="20/06/18" start="06/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="trash look savings piece" />
+          <attvalue for="14" value="land item marriage reputation" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="104" label="104">
         <spells>
-          <spell end="19/06/18" start="05/06/18" />
+          <spell end="21/06/18" start="07/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="look ladder lie truth" />
+          <attvalue for="14" value="handle procedure burn bell" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="105" label="105">
         <spells>
-          <spell end="19/06/18" start="05/06/18" />
+          <spell end="21/06/18" start="07/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="purple reply stretch historian" />
+          <attvalue for="14" value="anger wait nasty reply" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="106" label="106">
         <spells>
-          <spell end="20/06/18" start="06/06/18" />
+          <spell end="22/06/18" start="08/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="jacket meal classic interview" />
+          <attvalue for="14" value="piece grandfather ball temporary" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="107" label="107">
         <spells>
-          <spell end="20/06/18" start="06/06/18" />
+          <spell end="24/06/18" start="10/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="night inside kitchen band" />
+          <attvalue for="14" value="east wheel button commercial" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="108" label="108">
         <spells>
-          <spell end="21/06/18" start="07/06/18" />
+          <spell end="24/06/18" start="10/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="article single clock she" />
+          <attvalue for="14" value="arrival problem effect television" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="109" label="109">
         <spells>
-          <spell end="23/06/18" start="09/06/18" />
+          <spell end="25/06/18" start="11/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue end="09/07/18" for="13" start="25/06/18" value="47" />
-          <attvalue for="14" value="track inevitable pension yesterday" />
-          <attvalue end="03/07/18" for="9" start="19/06/18" value="60" />
+          <attvalue for="14" value="inspection beat bath service" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="110" label="110">
         <spells>
-          <spell end="25/06/18" start="11/06/18" />
+          <spell end="26/06/18" start="12/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue end="26/06/18" for="13" start="12/06/18" value="16" />
-          <attvalue for="14" value="garage commercial chicken tough" />
-          <attvalue end="11/07/18" for="9" start="27/06/18" value="62" />
-          <attvalue end="14/07/18" for="9" start="30/06/18" value="38" />
+          <attvalue for="14" value="potential view kid woman" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="111" label="111">
         <spells>
-          <spell end="30/06/18" start="16/06/18" />
+          <spell end="29/06/18" start="15/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="swim joint tomorrow future" />
+          <attvalue for="14" value="procedure lay patience split" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="112" label="112">
         <spells>
-          <spell end="03/07/18" start="19/06/18" />
+          <spell end="01/07/18" start="17/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="partner smile satisfaction raw" />
+          <attvalue for="14" value="cycle struggle procedure swing" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="113" label="113">
         <spells>
-          <spell end="04/07/18" start="20/06/18" />
+          <spell end="02/07/18" start="18/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="replacement royal maintenance business" />
+          <attvalue for="14" value="possible period south repeat" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="114" label="114">
         <spells>
-          <spell end="05/07/18" start="21/06/18" />
+          <spell end="04/07/18" start="20/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="potential poem dad gift" />
+          <attvalue for="14" value="hire highway sector touch" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="115" label="115">
         <spells>
-          <spell end="06/07/18" start="22/06/18" />
+          <spell end="05/07/18" start="21/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="disaster river safety pitch" />
+          <attvalue for="14" value="background jury growth dear" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="116" label="116">
         <spells>
-          <spell end="07/07/18" start="23/06/18" />
+          <spell end="05/07/18" start="21/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="unit strain gold road" />
+          <attvalue for="14" value="general metal a bus" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="117" label="117">
         <spells>
-          <spell end="08/07/18" start="24/06/18" />
+          <spell end="07/07/18" start="23/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="breakfast improvement light heavy" />
+          <attvalue end="12/07/18" for="8" start="28/06/18" value="19" />
+          <attvalue for="14" value="information indication cream safe" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="118" label="118">
         <spells>
-          <spell end="11/07/18" start="27/06/18" />
+          <spell end="09/07/18" start="25/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="draft physical respond exit" />
+          <attvalue for="14" value="database order sweet pattern" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="119" label="119">
         <spells>
-          <spell end="11/07/18" start="27/06/18" />
+          <spell end="10/07/18" start="26/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="jury opposite rain fee" />
+          <attvalue for="14" value="replacement profession contest recommendation" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="120" label="120">
         <spells>
-          <spell end="13/07/18" start="29/06/18" />
+          <spell end="11/07/18" start="27/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="mood dimension dump apple" />
+          <attvalue for="14" value="stock contract profession independent" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
       <node id="121" label="121">
         <spells>
+          <spell end="12/07/18" start="28/06/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="14" value="independence copy resolution nothing" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="122" label="122">
+        <spells>
           <spell end="13/07/18" start="29/06/18" />
         </spells>
         <viz:color a="1.0" b="0" g="0" r="254" />
         <attvalues>
-          <attvalue for="14" value="sad shock depth percentage" />
+          <attvalue for="14" value="airport comfortable stretch service" />
+          <attvalue for="6" value="story" />
+        </attvalues>
+      </node>
+      <node id="123" label="123">
+        <spells>
+          <spell end="13/07/18" start="29/06/18" />
+        </spells>
+        <viz:color a="1.0" b="0" g="0" r="254" />
+        <attvalues>
+          <attvalue for="14" value="human luck pull habit" />
           <attvalue for="6" value="story" />
         </attvalues>
       </node>
     </nodes>
     <edges>
-      <edge id="0" source="3" target="72">
+      <edge id="0" source="2" target="91">
         <spells>
-          <spell end="01/07/18" start="17/06/18" />
+          <spell end="14/07/18" start="30/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="01/07/18" for="16" start="17/06/18" value="72" />
+          <attvalue end="14/07/18" for="20" start="30/06/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="1" source="3" target="58">
-        <spells>
-          <spell end="07/07/18" start="23/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="07/07/18" for="20" start="23/06/18" value="58" />
-        </attvalues>
-      </edge>
-      <edge id="2" source="6" target="99">
-        <spells>
-          <spell end="29/06/18" start="15/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="29/06/18" for="16" start="15/06/18" value="6" />
-        </attvalues>
-      </edge>
-      <edge id="3" source="6" target="12">
-        <spells>
-          <spell end="17/06/18" start="03/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="17/06/18" for="20" start="03/06/18" value="6" />
-        </attvalues>
-      </edge>
-      <edge id="4" source="8" target="48">
-        <spells>
-          <spell end="19/06/18" start="05/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="19/06/18" for="20" start="05/06/18" value="8" />
-        </attvalues>
-      </edge>
-      <edge id="5" source="9" target="108">
-        <spells>
-          <spell end="21/06/18" start="07/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="07/06/18" for="18" start="07/06/18" value="9" />
-        </attvalues>
-      </edge>
-      <edge id="6" source="13" target="92">
-        <spells>
-          <spell end="16/06/18" start="02/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="16/06/18" for="16" start="02/06/18" value="92" />
-        </attvalues>
-      </edge>
-      <edge id="7" source="15" target="115">
+      <edge id="1" source="2" target="101">
         <spells>
           <spell end="06/07/18" start="22/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="22/06/18" for="18" start="22/06/18" value="15" />
+          <attvalue end="06/07/18" for="21" start="22/06/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="8" source="16" target="59">
+      <edge id="2" source="2" target="14">
         <spells>
-          <spell end="26/06/18" start="12/06/18" />
+          <spell end="06/07/18" start="22/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="26/06/18" for="25" start="12/06/18" value="16" />
+          <attvalue end="06/07/18" for="21" start="22/06/18" value="2" />
         </attvalues>
       </edge>
-      <edge id="9" source="16" target="110">
-        <spells>
-          <spell end="26/06/18" start="12/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="26/06/18" for="25" start="12/06/18" value="16" />
-        </attvalues>
-      </edge>
-      <edge id="10" source="16" target="62">
-        <spells>
-          <spell end="11/07/18" start="27/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="11/07/18" for="17" start="27/06/18" value="62" />
-        </attvalues>
-      </edge>
-      <edge id="11" source="17" target="43">
-        <spells>
-          <spell end="13/07/18" start="29/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="13/07/18" for="19" start="29/06/18" value="43" />
-        </attvalues>
-      </edge>
-      <edge id="12" source="17" target="102">
-        <spells>
-          <spell end="05/07/18" start="21/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="05/07/18" for="17" start="21/06/18" value="17" />
-        </attvalues>
-      </edge>
-      <edge id="13" source="17" target="39">
-        <spells>
-          <spell end="05/07/18" start="21/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="05/07/18" for="17" start="21/06/18" value="17" />
-        </attvalues>
-      </edge>
-      <edge id="14" source="19" target="100">
-        <spells>
-          <spell end="01/07/18" start="17/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="01/07/18" for="25" start="17/06/18" value="19" />
-        </attvalues>
-      </edge>
-      <edge id="15" source="19" target="21">
-        <spells>
-          <spell end="01/07/18" start="17/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="01/07/18" for="25" start="17/06/18" value="19" />
-        </attvalues>
-      </edge>
-      <edge id="16" source="20" target="103">
+      <edge id="3" source="5" target="50">
         <spells>
           <spell end="18/06/18" start="04/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="04/06/18" for="18" start="04/06/18" value="20" />
+          <attvalue end="18/06/18" for="22" start="04/06/18" value="50" />
         </attvalues>
       </edge>
-      <edge id="17" source="20" target="71">
+      <edge id="4" source="5" target="110">
         <spells>
-          <spell end="22/06/18" start="08/06/18" />
+          <spell end="26/06/18" start="12/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="22/06/18" for="16" start="08/06/18" value="20" />
+          <attvalue end="12/06/18" for="24" start="12/06/18" value="5" />
         </attvalues>
       </edge>
-      <edge id="18" source="21" target="100">
+      <edge id="5" source="8" target="116">
         <spells>
-          <spell end="15/06/18" start="01/06/18" />
+          <spell end="05/07/18" start="21/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="01/06/18" for="18" start="01/06/18" value="21" />
+          <attvalue end="21/06/18" for="24" start="21/06/18" value="8" />
         </attvalues>
       </edge>
-      <edge id="19" source="23" target="78">
+      <edge id="6" source="9" target="102">
         <spells>
-          <spell end="15/06/18" start="01/06/18" />
+          <spell end="20/06/18" start="06/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="15/06/18" for="16" start="01/06/18" value="23" />
+          <attvalue end="06/06/18" for="24" start="06/06/18" value="9" />
         </attvalues>
       </edge>
-      <edge id="20" source="24" target="60">
-        <spells>
-          <spell end="01/07/18" start="17/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="01/07/18" for="16" start="17/06/18" value="60" />
-        </attvalues>
-      </edge>
-      <edge id="21" source="25" target="63">
+      <edge id="7" source="9" target="70">
         <spells>
           <spell end="28/06/18" start="14/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="28/06/18" for="16" start="14/06/18" value="25" />
+          <attvalue end="28/06/18" for="21" start="14/06/18" value="70" />
         </attvalues>
       </edge>
-      <edge id="22" source="26" target="62">
-        <spells>
-          <spell end="29/06/18" start="15/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="29/06/18" for="20" start="15/06/18" value="62" />
-        </attvalues>
-      </edge>
-      <edge id="23" source="30" target="116">
-        <spells>
-          <spell end="07/07/18" start="23/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="23/06/18" for="18" start="23/06/18" value="30" />
-        </attvalues>
-      </edge>
-      <edge id="24" source="31" target="104">
-        <spells>
-          <spell end="19/06/18" start="05/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="05/06/18" for="18" start="05/06/18" value="31" />
-        </attvalues>
-      </edge>
-      <edge id="25" source="31" target="58">
-        <spells>
-          <spell end="10/07/18" start="26/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="10/07/18" for="16" start="26/06/18" value="58" />
-        </attvalues>
-      </edge>
-      <edge id="26" source="34" target="99">
-        <spells>
-          <spell end="10/07/18" start="26/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="10/07/18" for="20" start="26/06/18" value="99" />
-        </attvalues>
-      </edge>
-      <edge id="27" source="35" target="60">
-        <spells>
-          <spell end="03/07/18" start="19/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="03/07/18" for="17" start="19/06/18" value="60" />
-        </attvalues>
-      </edge>
-      <edge id="28" source="35" target="109">
-        <spells>
-          <spell end="23/06/18" start="09/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="09/06/18" for="18" start="09/06/18" value="35" />
-        </attvalues>
-      </edge>
-      <edge id="29" source="38" target="59">
-        <spells>
-          <spell end="14/07/18" start="30/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="14/07/18" for="17" start="30/06/18" value="38" />
-        </attvalues>
-      </edge>
-      <edge id="30" source="38" target="110">
-        <spells>
-          <spell end="14/07/18" start="30/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="14/07/18" for="17" start="30/06/18" value="38" />
-        </attvalues>
-      </edge>
-      <edge id="31" source="39" target="102">
+      <edge id="8" source="10" target="47">
         <spells>
           <spell end="18/06/18" start="04/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="04/06/18" for="18" start="04/06/18" value="39" />
+          <attvalue end="18/06/18" for="22" start="04/06/18" value="10" />
         </attvalues>
       </edge>
-      <edge id="32" source="43" target="102">
-        <spells>
-          <spell end="13/07/18" start="29/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="13/07/18" for="19" start="29/06/18" value="43" />
-        </attvalues>
-      </edge>
-      <edge id="33" source="44" target="55">
-        <spells>
-          <spell end="06/07/18" start="22/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="06/07/18" for="16" start="22/06/18" value="55" />
-        </attvalues>
-      </edge>
-      <edge id="34" source="45" target="114">
-        <spells>
-          <spell end="05/07/18" start="21/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="21/06/18" for="18" start="21/06/18" value="45" />
-        </attvalues>
-      </edge>
-      <edge id="35" source="45" target="107">
-        <spells>
-          <spell end="20/06/18" start="06/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="06/06/18" for="18" start="06/06/18" value="45" />
-        </attvalues>
-      </edge>
-      <edge id="36" source="45" target="94">
-        <spells>
-          <spell end="09/07/18" start="25/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="09/07/18" for="16" start="25/06/18" value="45" />
-        </attvalues>
-      </edge>
-      <edge id="37" source="47" target="57">
-        <spells>
-          <spell end="23/06/18" start="09/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="23/06/18" for="20" start="09/06/18" value="57" />
-        </attvalues>
-      </edge>
-      <edge id="38" source="47" target="60">
-        <spells>
-          <spell end="09/07/18" start="25/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="09/07/18" for="25" start="25/06/18" value="47" />
-        </attvalues>
-      </edge>
-      <edge id="39" source="47" target="109">
-        <spells>
-          <spell end="09/07/18" start="25/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="09/07/18" for="25" start="25/06/18" value="47" />
-        </attvalues>
-      </edge>
-      <edge id="40" source="48" target="95">
-        <spells>
-          <spell end="15/06/18" start="01/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="15/06/18" for="20" start="01/06/18" value="95" />
-        </attvalues>
-      </edge>
-      <edge id="41" source="52" target="113">
-        <spells>
-          <spell end="04/07/18" start="20/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="20/06/18" for="18" start="20/06/18" value="52" />
-        </attvalues>
-      </edge>
-      <edge id="42" source="57" target="101">
-        <spells>
-          <spell end="17/06/18" start="03/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="03/06/18" for="18" start="03/06/18" value="57" />
-        </attvalues>
-      </edge>
-      <edge id="43" source="59" target="110">
-        <spells>
-          <spell end="25/06/18" start="11/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="11/06/18" for="18" start="11/06/18" value="59" />
-        </attvalues>
-      </edge>
-      <edge id="44" source="60" target="109">
-        <spells>
-          <spell end="03/07/18" start="19/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="03/07/18" for="17" start="19/06/18" value="60" />
-        </attvalues>
-      </edge>
-      <edge id="45" source="62" target="110">
-        <spells>
-          <spell end="11/07/18" start="27/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="11/07/18" for="17" start="27/06/18" value="62" />
-        </attvalues>
-      </edge>
-      <edge id="46" source="71" target="95">
-        <spells>
-          <spell end="02/07/18" start="18/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="02/07/18" for="16" start="18/06/18" value="71" />
-        </attvalues>
-      </edge>
-      <edge id="47" source="79" target="120">
-        <spells>
-          <spell end="13/07/18" start="29/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="29/06/18" for="18" start="29/06/18" value="79" />
-        </attvalues>
-      </edge>
-      <edge id="48" source="88" target="117">
-        <spells>
-          <spell end="08/07/18" start="24/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="24/06/18" for="18" start="24/06/18" value="88" />
-        </attvalues>
-      </edge>
-      <edge id="49" source="90" target="121">
-        <spells>
-          <spell end="13/07/18" start="29/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="29/06/18" for="18" start="29/06/18" value="90" />
-        </attvalues>
-      </edge>
-      <edge id="50" source="93" target="112">
-        <spells>
-          <spell end="03/07/18" start="19/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="19/06/18" for="18" start="19/06/18" value="93" />
-        </attvalues>
-      </edge>
-      <edge id="51" source="93" target="106">
-        <spells>
-          <spell end="20/06/18" start="06/06/18" />
-        </spells>
-        <attvalues>
-          <attvalue end="06/06/18" for="18" start="06/06/18" value="93" />
-        </attvalues>
-      </edge>
-      <edge id="52" source="93" target="111">
+      <edge id="9" source="12" target="101">
         <spells>
           <spell end="30/06/18" start="16/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="16/06/18" for="18" start="16/06/18" value="93" />
+          <attvalue end="30/06/18" for="23" start="16/06/18" value="12" />
         </attvalues>
       </edge>
-      <edge id="53" source="94" target="118">
+      <edge id="10" source="12" target="14">
+        <spells>
+          <spell end="30/06/18" start="16/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="30/06/18" for="23" start="16/06/18" value="12" />
+        </attvalues>
+      </edge>
+      <edge id="11" source="13" target="114">
+        <spells>
+          <spell end="04/07/18" start="20/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="20/06/18" for="24" start="20/06/18" value="13" />
+        </attvalues>
+      </edge>
+      <edge id="12" source="13" target="63">
+        <spells>
+          <spell end="03/07/18" start="19/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="03/07/18" for="22" start="19/06/18" value="63" />
+        </attvalues>
+      </edge>
+      <edge id="13" source="14" target="101">
+        <spells>
+          <spell end="18/06/18" start="04/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="04/06/18" for="24" start="04/06/18" value="14" />
+        </attvalues>
+      </edge>
+      <edge id="14" source="15" target="50">
+        <spells>
+          <spell end="30/06/18" start="16/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="30/06/18" for="22" start="16/06/18" value="50" />
+        </attvalues>
+      </edge>
+      <edge id="15" source="15" target="61">
+        <spells>
+          <spell end="03/07/18" start="19/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="03/07/18" for="22" start="19/06/18" value="15" />
+        </attvalues>
+      </edge>
+      <edge id="16" source="16" target="104">
+        <spells>
+          <spell end="21/06/18" start="07/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="07/06/18" for="24" start="07/06/18" value="16" />
+        </attvalues>
+      </edge>
+      <edge id="17" source="16" target="94">
+        <spells>
+          <spell end="08/07/18" start="24/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="08/07/18" for="22" start="24/06/18" value="94" />
+        </attvalues>
+      </edge>
+      <edge id="18" source="17" target="90">
+        <spells>
+          <spell end="21/06/18" start="07/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="21/06/18" for="22" start="07/06/18" value="17" />
+        </attvalues>
+      </edge>
+      <edge id="19" source="19" target="122">
+        <spells>
+          <spell end="13/07/18" start="29/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="29/06/18" for="24" start="29/06/18" value="19" />
+        </attvalues>
+      </edge>
+      <edge id="20" source="19" target="117">
+        <spells>
+          <spell end="12/07/18" start="28/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="12/07/18" for="21" start="28/06/18" value="19" />
+        </attvalues>
+      </edge>
+      <edge id="21" source="19" target="109">
+        <spells>
+          <spell end="25/06/18" start="11/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="11/06/18" for="24" start="11/06/18" value="19" />
+        </attvalues>
+      </edge>
+      <edge id="22" source="19" target="47">
+        <spells>
+          <spell end="12/07/18" start="28/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="12/07/18" for="21" start="28/06/18" value="19" />
+        </attvalues>
+      </edge>
+      <edge id="23" source="22" target="46">
+        <spells>
+          <spell end="04/07/18" start="20/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="04/07/18" for="22" start="20/06/18" value="46" />
+        </attvalues>
+      </edge>
+      <edge id="24" source="24" target="69">
+        <spells>
+          <spell end="15/06/18" start="01/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="15/06/18" for="22" start="01/06/18" value="69" />
+        </attvalues>
+      </edge>
+      <edge id="25" source="25" target="69">
+        <spells>
+          <spell end="10/07/18" start="26/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="10/07/18" for="22" start="26/06/18" value="69" />
+        </attvalues>
+      </edge>
+      <edge id="26" source="25" target="119">
+        <spells>
+          <spell end="10/07/18" start="26/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="26/06/18" for="24" start="26/06/18" value="25" />
+        </attvalues>
+      </edge>
+      <edge id="27" source="27" target="123">
+        <spells>
+          <spell end="13/07/18" start="29/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="29/06/18" for="24" start="29/06/18" value="27" />
+        </attvalues>
+      </edge>
+      <edge id="28" source="31" target="50">
+        <spells>
+          <spell end="17/06/18" start="03/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="17/06/18" for="20" start="03/06/18" value="31" />
+        </attvalues>
+      </edge>
+      <edge id="29" source="32" target="100">
+        <spells>
+          <spell end="15/06/18" start="01/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="01/06/18" for="24" start="01/06/18" value="32" />
+        </attvalues>
+      </edge>
+      <edge id="30" source="33" target="111">
+        <spells>
+          <spell end="29/06/18" start="15/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="15/06/18" for="24" start="15/06/18" value="33" />
+        </attvalues>
+      </edge>
+      <edge id="31" source="34" target="107">
+        <spells>
+          <spell end="24/06/18" start="10/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="10/06/18" for="24" start="10/06/18" value="34" />
+        </attvalues>
+      </edge>
+      <edge id="32" source="36" target="113">
+        <spells>
+          <spell end="02/07/18" start="18/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="18/06/18" for="24" start="18/06/18" value="36" />
+        </attvalues>
+      </edge>
+      <edge id="33" source="38" target="112">
+        <spells>
+          <spell end="01/07/18" start="17/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="17/06/18" for="24" start="17/06/18" value="38" />
+        </attvalues>
+      </edge>
+      <edge id="34" source="39" target="120">
         <spells>
           <spell end="11/07/18" start="27/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="27/06/18" for="18" start="27/06/18" value="94" />
+          <attvalue end="27/06/18" for="24" start="27/06/18" value="39" />
         </attvalues>
       </edge>
-      <edge id="54" source="95" target="105">
+      <edge id="35" source="44" target="108">
         <spells>
-          <spell end="19/06/18" start="05/06/18" />
+          <spell end="24/06/18" start="10/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="05/06/18" for="18" start="05/06/18" value="95" />
+          <attvalue end="10/06/18" for="24" start="10/06/18" value="44" />
         </attvalues>
       </edge>
-      <edge id="55" source="98" target="119">
+      <edge id="36" source="47" target="117">
         <spells>
-          <spell end="11/07/18" start="27/06/18" />
+          <spell end="07/07/18" start="23/06/18" />
         </spells>
         <attvalues>
-          <attvalue end="27/06/18" for="18" start="27/06/18" value="98" />
+          <attvalue end="23/06/18" for="24" start="23/06/18" value="47" />
+        </attvalues>
+      </edge>
+      <edge id="37" source="50" target="90">
+        <spells>
+          <spell end="27/06/18" start="13/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="27/06/18" for="20" start="13/06/18" value="90" />
+        </attvalues>
+      </edge>
+      <edge id="38" source="54" target="103">
+        <spells>
+          <spell end="20/06/18" start="06/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="06/06/18" for="24" start="06/06/18" value="54" />
+        </attvalues>
+      </edge>
+      <edge id="39" source="54" target="79">
+        <spells>
+          <spell end="28/06/18" start="14/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="28/06/18" for="20" start="14/06/18" value="54" />
+        </attvalues>
+      </edge>
+      <edge id="40" source="56" target="121">
+        <spells>
+          <spell end="12/07/18" start="28/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="28/06/18" for="24" start="28/06/18" value="56" />
+        </attvalues>
+      </edge>
+      <edge id="41" source="57" target="72">
+        <spells>
+          <spell end="14/07/18" start="30/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="14/07/18" for="20" start="30/06/18" value="57" />
+        </attvalues>
+      </edge>
+      <edge id="42" source="57" target="106">
+        <spells>
+          <spell end="22/06/18" start="08/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="08/06/18" for="24" start="08/06/18" value="57" />
+        </attvalues>
+      </edge>
+      <edge id="43" source="59" target="77">
+        <spells>
+          <spell end="12/07/18" start="28/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="12/07/18" for="20" start="28/06/18" value="59" />
+        </attvalues>
+      </edge>
+      <edge id="44" source="60" target="72">
+        <spells>
+          <spell end="07/07/18" start="23/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="07/07/18" for="22" start="23/06/18" value="72" />
+        </attvalues>
+      </edge>
+      <edge id="45" source="63" target="90">
+        <spells>
+          <spell end="22/06/18" start="08/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="22/06/18" for="20" start="08/06/18" value="90" />
+        </attvalues>
+      </edge>
+      <edge id="46" source="70" target="102">
+        <spells>
+          <spell end="28/06/18" start="14/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="28/06/18" for="21" start="14/06/18" value="70" />
+        </attvalues>
+      </edge>
+      <edge id="47" source="70" target="78">
+        <spells>
+          <spell end="08/07/18" start="24/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="08/07/18" for="20" start="24/06/18" value="78" />
+        </attvalues>
+      </edge>
+      <edge id="48" source="82" target="93">
+        <spells>
+          <spell end="13/07/18" start="29/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="13/07/18" for="22" start="29/06/18" value="93" />
+        </attvalues>
+      </edge>
+      <edge id="49" source="91" target="118">
+        <spells>
+          <spell end="09/07/18" start="25/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="25/06/18" for="24" start="25/06/18" value="91" />
+        </attvalues>
+      </edge>
+      <edge id="50" source="93" target="105">
+        <spells>
+          <spell end="21/06/18" start="07/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="07/06/18" for="24" start="07/06/18" value="93" />
+        </attvalues>
+      </edge>
+      <edge id="51" source="94" target="115">
+        <spells>
+          <spell end="05/07/18" start="21/06/18" />
+        </spells>
+        <attvalues>
+          <attvalue end="21/06/18" for="24" start="21/06/18" value="94" />
         </attvalues>
       </edge>
     </edges>

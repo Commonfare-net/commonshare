@@ -6,6 +6,7 @@ import time
 import math
 import random
 import kcore
+import os
 from graphclasses import *
 
 #Run this script to generate simulated GEXF data files to be used in the modified k-core algorithm
@@ -121,6 +122,9 @@ cur_date = datetime.datetime.now()
 G=nx.Graph()
 counter = 0
 
+if not os.path.exists("../gexf"):
+    os.makedirs("../gexf")
+
 while counter < cf.DAYS:
   cur_date = cur_date + cf.one_day
   counter = counter + 1
@@ -148,11 +152,11 @@ while counter < cf.DAYS:
   if counter % 30 == 0:
     pos = nx.spring_layout(G)
     edge_labels = {}
-    filename = "test"+str(counter)+".gexf"
+    filename = "../gexf/data"+str(counter)+".gexf"
     print 'filename is ',filename
     nx.write_gexf(G, filename)
 
 #Test reading is working properly
-G_read = nx.read_gexf("test360.gexf")
+G_read = nx.read_gexf("../gexf/data360.gexf")
 kcore.calculate(G_read)
 kcore.plotgraph()
