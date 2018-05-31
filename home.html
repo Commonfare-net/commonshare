@@ -70,7 +70,7 @@ var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
 
 var q = d3.queue();
 for (var i = 1; i < 13; i++) {
-  q.defer(d3.json, 'data'+i+'.json');
+  q.defer(d3.json, 'json/data'+i+'.json');
 }
 q.awaitAll(function(error,results) {
   if (error) throw error;
