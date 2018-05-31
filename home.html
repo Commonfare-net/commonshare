@@ -21,13 +21,12 @@
     <div id="vis">
     </div>
 </body>
-<svg class="bigvis" width="1200" height="800"></svg>
-<svg class="smallvis" width="300" height="300"></svg>
+<svg class="bigvis" width="1000" height="800"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 var data = {};
 var xScale = d3.scaleLinear()
-    .domain([0,1200]).range([0,1200]);
+    .domain([0,1000]).range([0,1000]);
     var yScale = d3.scaleLinear()
     .domain([0,800]).range([0, 800]);
 //zoomery
@@ -53,31 +52,22 @@ var svg = d3.select(".bigvis"),
     height = +svg.attr("height");
 svg.call(zoom);
 
-var svis = d3.select(".smallvis"),
-    width = +svis.attr("width"),
-    height = +svis.attr("height");
-svis.call(zoom);
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody().strength(-75))
-    .force("link", d3.forceLink().distance(75))
+    .force("link", d3.forceLink().distance(75).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
     .force("x", d3.forceX())
     .force("y", d3.forceY())
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    //.force('collide', d3.forceCollide().radius(function(d) {
-   // return d.radius*3
-  //}))
-var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0+ ")"),
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+
+var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
     link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
     node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
     label = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
 
-var smallg = svis.append("g").attr("transform", "translate(" + 0 + "," + 0+ ")"),
-    slink = smallg.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
-    snode = smallg.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
-    slabel = smallg.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label")
 var q = d3.queue();
 for (var i = 1; i < 13; i++) {
   q.defer(d3.json, 'data'+i+'.json');
@@ -94,6 +84,7 @@ q.awaitAll(function(error,results) {
 
 function draw(month){
     graph = data[month]
+
       // Apply the general update pattern to the nodes.
       node = node.data(graph.nodes, function(d) { return d.id;});
       node.exit().transition()
@@ -101,18 +92,21 @@ function draw(month){
       .remove();
 
       node = node.enter().append("circle")
-      .attr("r", function(d) { return (d.kcore*2) + 1;})
+      .attr("mylabel", function(d){return d.id;})
+      .attr("r", function(d) { return (d.kcore*2) + 2;})
       .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended))
-      .merge(node).attr("r", function(d) { return (d.kcore*2) + 1;});
+      .merge(node).attr("r", function(d) { return (d.kcore*2) + 2;});
 
       // Apply the general update pattern to the links.
         label = label.data(graph.nodes, function(d) { return d.id;});
         label.exit().remove();
-
+  
+      
+      
     label = label.enter()
     .append("text")
     .text(function (d) { return d.id + ': ' + d.kcore; })
@@ -122,23 +116,11 @@ function draw(month){
     .style("font-size", 12)
     .merge(label).text(function (d) { return d.id + ': ' + d.kcore; });
     
-      link = link.data(graph.links, function(d) { return d.source.id + "-" + d.target.id; });
+      link = link.data(graph.links, function(d) { return d.source.id + "-" + d.target.id; }); 
       link.exit()
       .remove();
       link = link.enter().append("line")
-      .attr("stroke-width",function(d) {
-        console.log("edgeweight is " + d); 
-        if(typeof d.edgeweight !== "undefined"){
-           var sum = 0;
-           for (var key in d.edgeweight) {
-             if (d.edgeweight.hasOwnProperty(key)) {
-                sum = sum + d.edgeweight[key];
-             }
-           };
-           return Math.sqrt(sum);
-        }
-        return 1;})
-      //.call(function(link) { link.transition().attr("stroke-opacity", 1); })
+      .attr("mylabel", function(d){return d.source + "-" + d.target;})
       .merge(link).attr("stroke-width",function(d) {
         console.log("edgeweight is " + d); 
         if(typeof d.edgeweight !== "undefined"){
@@ -152,7 +134,9 @@ function draw(month){
         }
         return 1;});
 
-      // Update and restart the simulation.
+     
+        
+  // Update and restart the simulation.
       simulation
       .nodes(graph.nodes)
       .on("tick", ticked);
@@ -160,6 +144,8 @@ function draw(month){
   simulation.force("link")
       .links(graph.links);
       simulation.alpha(1).restart();
+      
+ 
     
   function ticked() {
     link
@@ -171,6 +157,8 @@ function draw(month){
     node
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
+    
+ 
     
     label
         .attr("x", function(d){ return d.x; })

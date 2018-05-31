@@ -1,8 +1,8 @@
 import datetime
 
-DAYS = 30
-USERS = 5
-ACTIONS_PER_DAY = 2
+DAYS = 365
+USERS = 100
+ACTIONS_PER_DAY = 3
 
 #Collusion things
 

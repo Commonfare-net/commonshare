@@ -152,5 +152,7 @@ while counter < cf.DAYS:
     print 'filename is ',filename
     nx.write_gexf(G, filename)
 
-kcore.calculate(G)
-kcore.plotgraph(G)
+#Test reading is working properly
+G_read = nx.read_gexf("test360.gexf")
+kcore.calculate(G_read)
+kcore.plotgraph()
