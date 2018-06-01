@@ -30,6 +30,7 @@ def nodeweight_directed(G,node_id,starttime,endtime):
         for action_key in cf.interaction_keys:
             #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them.
             if action_key in c:
+                actions_to_keep = []
                 for action in c[action_key]:
                     if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
                         #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
@@ -38,8 +39,8 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                             overallweight = overallweight + cf.weights[action_key][0]     
                         else:
                             overallweight = overallweight + cf.weights[action_key][1]
-                    else:
-                        c[action_key].remove(action) #Hopefully this gets rid of it
+                        actions_to_keep.append(action)
+                c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
         if overallweight > 0:
             edgeweights.append(int(overallweight))
             #Adds it as a nice attribute

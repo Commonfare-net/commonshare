@@ -29,24 +29,29 @@ cliqueids = []
 def getNodeStats(G,node_id,starttime,endtime):
     edges = G.edges(node_id,data=True)
     stories_created = 0
-    stories_read = 0
+    #stories_read = 0
     stories_commented = 0
-    stories_shared = 0
-    read_by_others = 0
+    #stories_shared = 0
+    #read_by_others = 0
     commented_by_others = 0
-    shared_by_others = 0
+    #shared_by_others = 0
     talks_started = 0
     talks_received = 0
     givings = 0
     receivings = 0
     
     #There are more elegant ways of doing this but it works for now
+    stats = {}
     for (u,v,c) in edges:
         if 'create' in c:
             for createactions in c['create']:
                 if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime):
                     if str(createactions[0]) == str(node_id):
                         stories_created = stories_created + 1 
+            if stories_created > 0:
+                stats['Stories created'] = stories_created
+        #No data on story reads
+        '''
         if 'read' in c:
             for readactions in c['read']:
                 if (starttime < datetime.strptime(readactions[1],"%d/%m/%y") < endtime):
@@ -54,6 +59,11 @@ def getNodeStats(G,node_id,starttime,endtime):
                         stories_read = stories_read + 1
                     else:
                         read_by_others = read_by_others + 1
+            if stories_read >0:
+                stats['Stories created'] = stories_created
+            if read_by_others > 0:
+                stats['Stories created'] = stories_created
+        '''
         if 'comment' in c:
             for commentactions in c['comment']:
                 if (starttime < datetime.strptime(commentactions[1],"%d/%m/%y") < endtime):
@@ -61,6 +71,14 @@ def getNodeStats(G,node_id,starttime,endtime):
                         stories_commented = stories_commented + 1
                     else:
                         commented_by_others = commented_by_others + 1
+                        
+            if stories_commented > 0:
+                stats['Comments left'] = stories_commented
+            if commented_by_others > 0:
+                stats['Comments received'] = commented_by_others
+                
+        #No data on story shares
+        '''
         if 'share' in c:                
             for shareactions in c['share']:
                 if (starttime < datetime.strptime(shareactions[1],"%d/%m/%y") < endtime):
@@ -68,6 +86,7 @@ def getNodeStats(G,node_id,starttime,endtime):
                         stories_shared = stories_shared + 1
                     else:
                         shared_by_others = shared_by_others + 1
+        '''
         if 'talk' in c:
             for talkactions in c['talk']:
                 if (starttime < datetime.strptime(talkactions[1],"%d/%m/%y") < endtime):
@@ -75,18 +94,24 @@ def getNodeStats(G,node_id,starttime,endtime):
                         talks_started = talks_started + 1
                     else:
                         talks_received = talks_received + 1
+
+            if talks_started > 0:
+                stats['Chats started'] = talks_started
+            if talks_received > 0:
+                stats['Chat requests'] = talks_received
+                
         if 'give' in c:
             for giveactions in c['give']:
                 if (starttime < datetime.strptime(giveactions[1],"%d/%m/%y") < endtime):
                     if str(giveactions[0]) == str(node_id):
                         givings = givings + 1
                     else:
-                        receivings = receivings + 1                      
-    stats = {"sc":stories_created,
-             "r":stories_read,"c":stories_commented,"s":stories_shared,
-             "or":read_by_others,"oc":commented_by_others,"os":shared_by_others,
-             "ts":talks_started,"tr":talks_received,
-             "giv":givings,"rec":receivings}
+                        receivings = receivings + 1              
+                        
+            if givings > 0:
+                stats['Donations given'] = givings
+            if receivings > 0:
+                stats['Donations received'] = receivings
     return stats
     
 usertimes = []
@@ -196,8 +221,10 @@ def calculate(G):
         #This adds the kcore value back into the GEXF
         for (n,c) in nodeiter:
             c['kcore'] = D[n]
+            c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
+
         usertimes.append(windowend)
-            
+    
    
         for id in cliqueids:
             d_cliquevals[id].append(D[id])
@@ -210,15 +237,15 @@ def calculate(G):
 
             #Add the stats for each user at each point in time
             d_cliquesmoothed[id].append(d_smoothed)
-            stats = getNodeStats(GCopy,id,windowstart,windowend)
-            cliquestats[id].append(str(stats))
-            storiescreated[id].append(stats['sc'])
-            selfactions[id].append(stats['r'] + stats['c'] + stats['s'])
-            othersactions[id].append(stats['or'] + stats['oc'] + stats['os'])
-            starttalks[id].append(stats['ts'])
-            replytalks[id].append(stats['tr'])
-            givings[id].append(stats['giv'])
-            receivings[id].append(stats['rec'])
+           # stats = getNodeStats(GCopy,id,windowstart,windowend)
+           # cliquestats[id].append(str(stats))
+           # storiescreated[id].append(stats['sc'])
+           # selfactions[id].append(stats['r'] + stats['c'] + stats['s'])
+           # othersactions[id].append(stats['or'] + stats['oc'] + stats['os'])
+           # starttalks[id].append(stats['ts'])
+           # replytalks[id].append(stats['tr'])
+           # givings[id].append(stats['giv'])
+           # receivings[id].append(stats['rec'])
 
         d_keysum = 0
         d_numvalues = 0

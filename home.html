@@ -3,7 +3,6 @@
 <style>
 
 .links line {
-  stroke: #999;
   stroke-opacity: 0.6;
 }
 
@@ -12,6 +11,16 @@
   stroke-width: 1.5px;
 }
 
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  padding: 2px;             
+  font: 14px sans-serif;        
+  background: lightsteelblue;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
 </style>
 <body>
     <form>
@@ -24,170 +33,211 @@
 <svg class="bigvis" width="1000" height="800"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
+
 var data = {};
+
 var xScale = d3.scaleLinear()
     .domain([0,1000]).range([0,1000]);
     var yScale = d3.scaleLinear()
     .domain([0,800]).range([0, 800]);
-//zoomery
+
+
+//Zooming function
+function zoomFunction(){
+    // create new scale ojects based on event
+    var new_xScale = d3.event.transform.rescaleX(xScale)
+    var new_yScale = d3.event.transform.rescaleY(yScale)
+    g.attr("transform", d3.event.transform)
+};
+
 var zoom = d3.zoom()
     .on("zoom", zoomFunction);
 
-
-
-function zoomFunction(){
-  // create new scale ojects based on event
-  var new_xScale = d3.event.transform.rescaleX(xScale)
-  var new_yScale = d3.event.transform.rescaleY(yScale)
-  console.log(d3.event.transform)
-
-  g.attr("transform", d3.event.transform)
-
-};
-
-//Temporary hack because I know the month names
-var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04','2019-05']
-var svg = d3.select(".bigvis"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+    
+var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
 svg.call(zoom);
 
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+//These forces are tweaked to attract connected nodes to the center, and unconnected nodes to cluster in the top-left corner. Took a lot of adjustment so don't play about with them.
 var simulation = d3.forceSimulation()
-    .force("charge", d3.forceManyBody().strength(-75))
+    .force("charge", d3.forceManyBody().strength(function(d){if(d.kcore == 0)return -6; return -75;}))
     .force("link", d3.forceLink().distance(75).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
-    .force("x", d3.forceX())
-    .force("y", d3.forceY())
-    .force("center", d3.forceCenter(width / 2, height / 2));
-
+    .force("x", d3.forceX().x(function(d){if(d.kcore == 0)return 100; return width/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
+    .force("y", d3.forceY().y(function(d){if(d.kcore == 0)return 100; return height/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}));
 
 var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
     link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
     node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
     label = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
 
+//Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+//Ensure all JSON files are loaded before initiating visualisation    
 var q = d3.queue();
 for (var i = 1; i < 13; i++) {
-  q.defer(d3.json, 'json/data'+i+'.json');
+    q.defer(d3.json, 'json/data'+i+'.json');
 }
 q.awaitAll(function(error,results) {
-  if (error) throw error;
-  else{
-    for(var i = 0; i < results.length; i++){
-        data[months[i]] = results[i]
-    }
+    if (error) throw error;
+    else{
+        for(var i = 0; i < results.length; i++){
+            data[months[i]] = results[i]
+        }
     draw('2018-06');
-  }
+    }
 });
 
 function draw(month){
-    graph = data[month]
+    graph = data[month];
+    selected_node = "";
+    
+    // Apply the general update pattern to the nodes.
+    node = node.data(graph.nodes, function(d) { return d.id;});
+    node.exit().transition()
+    .attr("r", 0)
+    .remove();
 
-      // Apply the general update pattern to the nodes.
-      node = node.data(graph.nodes, function(d) { return d.id;});
-      node.exit().transition()
-      .attr("r", 0)
-      .remove();
+    node = node.enter().append("circle")
+    .attr("mylabel", function(d){return d.id;})
+    .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
+    .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); }) //Coloured based on their type
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended))
+    .merge(node).attr("r", function(d) { return (d.kcore*2) + 2;})
 
-      node = node.enter().append("circle")
-      .attr("mylabel", function(d){return d.id;})
-      .attr("r", function(d) { return (d.kcore*2) + 2;})
-      .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); })
-      .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended))
-      .merge(node).attr("r", function(d) { return (d.kcore*2) + 2;});
+    //Node and link highlighting
+    .on("mouseover", function(d) {
+        selected_node = d.id;
+        d3.select(this).attr("fill",d3.color("orange"));
+        sourcelinks = link.filter(function(d){return d.source.id == selected_node || d.target.id == selected_node;});
+        sourcelinks.each(function(d){
+        d3.select(this).attr("oldstrokeval",d3.select(this).style("stroke-width"));
+        var colour = ""
+        if(d.source.id == selected_node && d.edgeweight[d.source.id] < d.edgeweight[d.target.id])
+            colour = "red";
+        else if(d.target.id == selected_node && d.edgeweight[d.target.id] < d.edgeweight[d.source.id])
+            colour = "red";
+        else
+            colour = "green";
+        d3.select(this).style("stroke",colour);
+        d3.select(this).style("stroke-width",d.edgeweight[selected_node]);
+        });
+        //Add the tooltips, formatted based on whether they represent a user or story
+        div.transition()        
+            .duration(200)      
+            .style("opacity", .9); 
+        if(d.type == "user"){
+        div .html(d.name + "<br/>"  + JSON.stringify(d.stats))  
+            .style("left", (d3.event.pageX) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px")
+            .style("background", "lightsteelblue");    
+        }
+        else{
+        div .html(d.title + "<br/>"  + JSON.stringify(d.stats))  
+            .style("left", (d3.event.pageX) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px")
+            .style("background", "pink");    
+        }
+        })                  
+    .on("mouseout", function(d) {
+        //Set the colour of links back to black, and the thickness to its original value
+        d3.select(this).attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); });
+                    sourcelinks.each(function(d){d3.select(this).style("stroke","black");});
+                    sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));});
+        div.transition()        
+            .duration(500)      
+            .style("opacity", 0);   
+    });
 
-      // Apply the general update pattern to the links.
-        label = label.data(graph.nodes, function(d) { return d.id;});
-        label.exit().remove();
-  
-      
-      
+    label = label.data(graph.nodes, function(d) { return d.id;});
+    label.exit().remove();      
+    //Label nodes with their ID and k-core (if it's more than 0)  
     label = label.enter()
     .append("text")
-    .text(function (d) { return d.id + ': ' + d.kcore; })
+    .text(function (d) { if(d.kcore > 0){return d.id + ': ' + d.kcore;}return ""; })
     .style("text-anchor", "middle")
     .style("fill", "#555")
     .style("font-family", "Arial")
     .style("font-size", 12)
-    .merge(label).text(function (d) { return d.id + ': ' + d.kcore; });
-    
-      link = link.data(graph.links, function(d) { return d.source.id + "-" + d.target.id; }); 
-      link.exit()
-      .remove();
-      link = link.enter().append("line")
-      .attr("mylabel", function(d){return d.source + "-" + d.target;})
-      .merge(link).attr("stroke-width",function(d) {
-        console.log("edgeweight is " + d); 
-        if(typeof d.edgeweight !== "undefined"){
-           var sum = 0;
-           for (var key in d.edgeweight) {
-             if (d.edgeweight.hasOwnProperty(key)) {
-                sum = sum + d.edgeweight[key];
-             }
-           };
-           return Math.sqrt(sum);
-        }
-        return 1;});
+    .merge(label).text(function (d) { if(d.kcore > 0){return d.id + ': ' + d.kcore;}return ""; });
 
-     
+    //Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
+    link = link.data(graph.links, function(d) { return d.source.id + "-" + d.target.id; }); 
+    link.exit()
+    .remove();
+    link = link.enter().append("line")
+    .attr("class","line")
+    .merge(link).attr("stroke-width",function(d) {
+    if(typeof d.edgeweight !== "undefined"){
+       var sum = 0;
+       for (var key in d.edgeweight) {
+         if (d.edgeweight.hasOwnProperty(key)) {
+            sum = sum + d.edgeweight[key];
+         }
+       };
+       return Math.sqrt(sum);
+    }
+    return 1;});
+
         
-  // Update and restart the simulation.
-      simulation
-      .nodes(graph.nodes)
-      .on("tick", ticked);
+    // Update and restart the simulation.
+    simulation
+    .nodes(graph.nodes)
+    .on("tick", ticked);
 
-  simulation.force("link")
-      .links(graph.links);
-      simulation.alpha(1).restart();
+    simulation.force("link")
+    .links(graph.links);
+    simulation.alpha(1).restart();
       
  
-    
-  function ticked() {
+//Updates to make on simulation 'tick'
+function ticked() {
     link
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+    .attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
 
     node
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-    
- 
-    
+    .attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+
     label
-        .attr("x", function(d){ return d.x; })
-        .attr("y", function (d) {return d.y - 10; });
-  }
+    .attr("x", function(d){ return d.x; })
+    .attr("y", function (d) {return d.y - 10; });
+    }
 }
 
+//Dragging functions
 function dragstarted(d) {
-  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-  d3.event.sourceEvent.stopPropagation();
-  d.fx = d.x;
-  d.fy = d.y;
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d3.event.sourceEvent.stopPropagation();
+    d.fx = d.x;
+    d.fy = d.y;
 }
 
 function dragged(d) {
-  d.fx = d3.event.x;
-  d.fy = d3.event.y;
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
 }
 
 function dragended(d) {
-  if (!d3.event.active) simulation.alphaTarget(0);
-  d.fx = null;
-  d.fy = null;
+    if (!d3.event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
 }
+
+//Temporary hack because I know the month names
+var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04','2019-05']
+//Add the month picker functionality
 var monthpicker = d3.select('#month');
-monthpicker.on('change', function() {
-    draw(this.value);
-});
+monthpicker.on('change', function() {draw(this.value);});
 
 </script>
-
-<!--<iframe width="900" height="800" frameborder="0" scrolling="no" src="//plot.ly/~DJR53/2.embed?logo=false&modebar=false&link=false"></iframe>-->

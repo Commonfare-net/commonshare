@@ -22,7 +22,7 @@ def get_users(need_two_users):
         return random.sample(cf.colluding_nodes,2)
       else:
           users = random.sample(G.nodes(),2)
-          if type[users[0]] == 'user' and type[users[1]] == 'user': #and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes:
+          if type[users[0]] == 'user' and type[users[1]] == 'user' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes:
             break
     else:
       users = random.sample(G.nodes(),1)
@@ -107,16 +107,16 @@ def do_random_thing():
   num = random.randint(1,9)
   if num == 1 or num == 2:
     create_story(get_users(False)[0])
-  elif num == 3 or num == 4:
-    story_interact('read')
+ # elif num == 3 or num == 4:
+ #   story_interact('read')
   elif num == 5 or num == 6:
     story_interact('comment')
   elif num == 7:
     user_interact('talk')
   elif num == 8:
     user_interact('give')
-  else:
-    story_interact('share')
+  #else:
+  #  story_interact('share')
 
 cur_date = datetime.datetime.now()
 G=nx.Graph()
@@ -137,14 +137,14 @@ while counter < cf.DAYS:
     G.nodes[user]['viz'] = {}
     G.nodes[user]['viz']['color'] = {'r' : 0, 'g' : 0, 'b' : 254, 'a':1.0}
     G = nx.convert_node_labels_to_integers(G)
-    '''
+    
     if len(G.nodes()) == cf.USERS-1:
         cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS)
         #So they have something to interact with
         for i in range(cf.NUM_COLLUDERS):
             print 'colluder is ',cf.colluding_nodes[i]
             create_story(cf.colluding_nodes[i])
-    '''        
+            
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
   G = nx.convert_node_labels_to_integers(G)
