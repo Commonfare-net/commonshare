@@ -30,14 +30,16 @@ div.tooltip {
     <div id="vis">
     </div>
 </body>
-<svg class="bigvis" width="1000" height="800"></svg>
+<svg class="bigvis" width="700" height="800"></svg>
+<svg class="weevis" width="700" height="800"></svg>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
 var data = {};
-
+var subdata = {};
 var xScale = d3.scaleLinear()
-    .domain([0,1000]).range([0,1000]);
+    .domain([0,700]).range([0,700]);
     var yScale = d3.scaleLinear()
     .domain([0,800]).range([0, 800]);
 
@@ -48,15 +50,20 @@ function zoomFunction(){
     var new_xScale = d3.event.transform.rescaleX(xScale)
     var new_yScale = d3.event.transform.rescaleY(yScale)
     g.attr("transform", d3.event.transform)
+    subg.attr("transform", d3.event.transform)
+
 };
 
 var zoom = d3.zoom()
     .on("zoom", zoomFunction);
-
+var subzoom = d3.zoom()
+    .on("zoom", zoomFunction);
     
 var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
-svg.call(zoom);
+var subsvg = d3.select(".weevis"), subwidth = +subsvg.attr("width"), subheight = +subsvg.attr("height");
 
+svg.call(zoom);
+subsvg.call(subzoom);
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -67,11 +74,23 @@ var simulation = d3.forceSimulation()
     .force("x", d3.forceX().x(function(d){if(d.kcore == 0)return 100; return width/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
     .force("y", d3.forceY().y(function(d){if(d.kcore == 0)return 100; return height/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}));
 
+var subsim = d3.forceSimulation()
+    .force("charge", d3.forceManyBody().strength(function(d){if(d.kcore == 0)return -6; return -75;}))
+    .force("link", d3.forceLink().distance(75).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
+    .force("center", d3.forceCenter(subwidth / 2, subheight / 2))
+    .force("x", d3.forceX())
+    .force("y", d3.forceY());
+
 var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
     link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
     node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
     label = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
 
+var subg = subsvg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
+    sublink = subg.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".sublink"),
+    subnode = subg.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".subnode"),
+    sublabel = subg.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
+    
 //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
 var div = d3.select("body").append("div")   
     .attr("class", "tooltip")               
@@ -87,6 +106,7 @@ q.awaitAll(function(error,results) {
     else{
         for(var i = 0; i < results.length; i++){
             data[months[i]] = results[i]
+            subdata[months[i]] = results[i]
         }
     draw('2018-06');
     }
@@ -94,6 +114,7 @@ q.awaitAll(function(error,results) {
 
 function draw(month){
     graph = data[month];
+    subgraph = subdata[month];
     selected_node = "";
     
     // Apply the general update pattern to the nodes.
@@ -111,10 +132,73 @@ function draw(month){
       .on("drag", dragged)
       .on("end", dragended))
     .merge(node).attr("r", function(d) { return (d.kcore*2) + 2;})
+    
+    .on("click", function(od) {
+        var nodestoshow = [];
+        sublink = sublink.data(subgraph.links.filter(function(d){return d.source.id == od.id || d.target.id == od.id;}), function(d) { return d.source.id + "-" + d.target.id; }); 
+        sublink.exit()
+               .remove();
+        sublink = sublink.enter().append("line")
+        .attr("class","line")
+        .merge(sublink).attr("stroke-width",function(d) {
+        if(typeof d.edgeweight !== "undefined"){
+           var sum = 0;
+           for (var key in d.edgeweight) {
+             if (d.edgeweight.hasOwnProperty(key)) {
+                sum = sum + d.edgeweight[key];
+             }
+           };
+           return Math.sqrt(sum);
+        }
+        return 1;});
+        sublink.each(function(d){console.log("pushing " + d.source.id + ", " + d.target.id);nodestoshow.push(d.source.id);nodestoshow.push(d.target.id);});
+        console.log("nodes should now be " + nodestoshow);
+        
+        subnode = subnode.data(subgraph.nodes.filter(function(d){return nodestoshow.includes(d.id);}),function(d){return d.id;});
+        subnode.exit().remove();
 
+        subnode = subnode.enter().append("circle")
+        .attr("mylabel", function(d){return d.id;})
+        .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
+        .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); }) //Coloured based on their type
+      ///  .call(d3.drag()
+      ///    .on("start", dragstarted)
+      ///    .on("drag", dragged)
+      ///    .on("end", dragended))
+        .on("mouseover",function(d){console.log("But this one is " + d.id);})
+        .merge(subnode);
+        
+        
+        
+    // Update and restart the simulation.
+    subsim
+    .nodes(subgraph.nodes.filter(function(d){return nodestoshow.includes(d.id);}))
+    .on("tick", subticked);
+
+    subsim.force("link")
+    .links(subgraph.links.filter(function(d){return d.source.id == od.id || d.target.id == od.id;}));
+    subsim.alpha(1).restart();
+    
+    function subticked() {
+        sublink
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+        subnode
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+     //   label
+     //   .attr("x", function(d){ return d.x; })
+      //  .attr("y", function (d) {return d.y - 10; });
+    }
+    })
     //Node and link highlighting
     .on("mouseover", function(d) {
         selected_node = d.id;
+        console.log("ID is " + d.id);
         d3.select(this).attr("fill",d3.color("orange"));
         sourcelinks = link.filter(function(d){return d.source.id == selected_node || d.target.id == selected_node;});
         sourcelinks.each(function(d){
@@ -217,7 +301,7 @@ function ticked() {
 
 //Dragging functions
 function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    if (!d3.event.active){simulation.alphaTarget(0.3).restart();subsim.alphaTarget(0.3).restart();}
     d3.event.sourceEvent.stopPropagation();
     d.fx = d.x;
     d.fy = d.y;
@@ -229,7 +313,7 @@ function dragged(d) {
 }
 
 function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
+    if (!d3.event.active){simulation.alphaTarget(0);subsim.alphaTarget(0);}
     d.fx = null;
     d.fy = null;
 }

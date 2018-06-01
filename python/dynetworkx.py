@@ -9,12 +9,13 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     edgeweight = 0
     frequency = 0
     for action_key in cf.interaction_keys:
-        for action in edge[action_key]:
-            if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
-                #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                if str(action[0]) == str(n1):
-                    edgeweight = edgeweight + cf.weights[action_key][0]
-                    frequency = frequency + 1
+        if action_key in edge:
+            for action in edge[action_key]:
+                if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
+                    #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
+                    if str(action[0]) == str(n1):
+                        edgeweight = edgeweight + cf.weights[action_key][0]
+                        frequency = frequency + 1
     #print 'freq',n1,'-',n2,'=',frequency,'and % is',((edgeweight/n2_weight)*100)
     if frequency > cf.FREQUENCY_THRESHOLD and ((edgeweight/n2_weight)*100) > cf.PERCENTAGE_THRESHOLD:
         return True
