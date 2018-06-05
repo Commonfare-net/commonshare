@@ -147,7 +147,7 @@ function draw(month,tag){
 
     node = node.enter().append("circle")
     .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
-    .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); }) //Coloured based on their type
+    .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime"); return d3.color("red"); }) //Coloured based on their type
     .call(d3.drag()
       .on("start", dragstarted)
       .on("drag", dragged)
@@ -183,7 +183,7 @@ function draw(month,tag){
         subnode = subnode.enter().append("circle")
         .attr("mylabel", function(d){return d.id;})
         .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
-        .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); }) //Coloured based on their type
+        .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime");return d3.color("red"); }) //Coloured based on their type
       ///  .call(d3.drag()
       ///    .on("start", dragstarted)
       ///    .on("drag", dragged)
@@ -241,13 +241,13 @@ function draw(month,tag){
             .duration(200)      
             .style("opacity", .9); 
         if(d.type == "user"){
-        div .html(d.name + "<br/>"  + JSON.stringify(d.stats))  
+        div .html(d.name + "<br/>"  + JSON.stringify(d.tags))  
             .style("left", (d3.event.pageX) + "px")     
             .style("top", (d3.event.pageY - 28) + "px")
             .style("background", "lightsteelblue");    
         }
         else{
-        div .html(d.title + "<br/>"  + JSON.stringify(d.stats))  
+        div .html(d.title + "<br/>"  + JSON.stringify(d.tags))  
             .style("left", (d3.event.pageX) + "px")     
             .style("top", (d3.event.pageY - 28) + "px")
             .style("background", "pink");    
@@ -255,7 +255,7 @@ function draw(month,tag){
         })                  
     .on("mouseout", function(d) {
         //Set the colour of links back to black, and the thickness to its original value
-        d3.select(this).attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); });
+        d3.select(this).attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime");return d3.color("red"); });
                     sourcelinks.each(function(d){d3.select(this).style("stroke","black");});
                     sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));});
         div.transition()        

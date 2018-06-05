@@ -38,6 +38,27 @@ def get_users(need_two_users):
   return users    
 
 
+
+#Will be effectively the same as the 'create story' function
+
+def create_listing(user):
+  e = Edge()
+  listing = Listing()
+  G.add_node(listing)
+  nx.set_node_attributes(G,{listing: {'type': 'listing','title':unicode(str(listing)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
+  G.nodes[listing]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
+  G.add_edge(user,listing,read=[],comment=[],share=[],create=[],talk=[],give=[])
+  
+  G.nodes[user]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
+  G[user][listing]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
+  G[user][listing]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
+  if cf.SHOULD_CLIQUE:
+    tags = G.nodes[user]['tags'].split(',')
+    numtags = len(tags)
+    G.nodes[listing]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
+  else:
+    G.nodes[listing]['tags'] = listing.__get_tags__()
+    
 def create_story(user):
   e = Edge()
   story = Story()
@@ -49,8 +70,6 @@ def create_story(user):
   G.nodes[user]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
   G[user][story]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
   G[user][story]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
-  G.nodes[story]['viz'] = {}
-  G.nodes[story]['viz']['color'] = {'r' : 254, 'g' : 0, 'b' : 0, 'a':1.0}
   if cf.SHOULD_CLIQUE:
     tags = G.nodes[user]['tags'].split(',')
     numtags = len(tags)
@@ -71,28 +90,27 @@ def user_interact(interaction):
   G[source][target]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
   update_links(source,target,interaction)
   update_nodes(source,target,interaction)
-  
-#These are two-way interactions. Different 'impact' depending on the direction. 
-#For example, having your story read is worth more than reading a story?
-def story_interact(interaction):
+
+
+def object_interact(objtype,interaction):
   pair = get_users(True)
   source = pair[0]
   target = pair[1]
   tags=nx.get_node_attributes(G,'tags')
-  for story in G.neighbors(target):
+  for object in G.neighbors(target):
     type=nx.get_node_attributes(G,'type')
     #Pick a random story of the target user
-    if type[story] == 'story' and 'create' in G[target][story]:
+    if type[object] == objtype and 'create' in G[target][object]:
       if cf.SHOULD_CLIQUE == True: #If we're 'cliquing', only want users to interact with stories with which they share a tag
         usertags = tags[source].split(',')
-        storytags = tags[story].split(',')
-        if len([val for val in usertags if val in storytags]) == 0: #If there are no shared tags between user and story,  carry on
+        objtags = tags[object].split(',')
+        if len([val for val in usertags if val in objtags]) == 0: #If there are no shared tags between user and story,  carry on
             continue
     #  print source,'read story',story,'of user',target
       #Is this the first time source user has interacted with this story?
-      if G.has_edge(source,story) == False:
-        G.add_edge(source,story,read=[],comment=[],share=[],create=[],talk=[],give=[])
-        G[source][story]['spells'] = []
+      if G.has_edge(source,object) == False:
+        G.add_edge(source,object,read=[],comment=[],share=[],create=[],talk=[],give=[])
+        G[source][object]['spells'] = []
       #Is this the first time source user has interacted with the target user?
       if G.has_edge(source,target) == False:
         G.add_edge(source,target,read=[],comment=[],share=[],create=[],talk=[],give=[])
@@ -100,12 +118,12 @@ def story_interact(interaction):
     #add the spells
         
       G[source][target]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
-      G[source][story]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
+      G[source][object]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
       
-      update_links(source,story,interaction)
+      update_links(source,object,interaction)
       update_links(source,target,interaction)
       update_nodes(source,target,interaction)
-      update_nodes(source,story,interaction)
+      update_nodes(source,object,interaction)
       return
     
 def update_links(source,target,interaction):
@@ -123,17 +141,21 @@ def update_nodes(source,target,interaction):
 
   
 def do_random_thing():
-  num = random.randint(1,9)
+  num = random.randint(1,10)
   if num == 1 or num == 2:
     create_story(get_users(False)[0])
+  elif num == 3 or num == 4:
+    create_listing(get_users(False)[0])
  # elif num == 3 or num == 4:
  #   story_interact('read')
   elif num == 5 or num == 6:
-    story_interact('comment')
+    object_interact('story','comment')
   elif num == 7:
     user_interact('talk')
   elif num == 8:
     user_interact('give')
+  elif num == 9:
+    object_interact('listing','comment')
   #else:
   #  story_interact('share')
 

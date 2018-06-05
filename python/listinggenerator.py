@@ -1,3 +1,5 @@
+import random
+
 nouns = ['stretch',
 'tank',
 'corn',
