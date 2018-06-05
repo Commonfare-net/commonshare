@@ -192,7 +192,6 @@ while counter < cf.DAYS:
   G = nx.convert_node_labels_to_integers(G)
 
   if counter % 30 == 0:
-    pos = nx.spring_layout(G)
     edge_labels = {}
     filename = "../gexf/data"+str(counter)+".gexf"
     print 'filename is ',filename

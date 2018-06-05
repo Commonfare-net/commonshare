@@ -3,12 +3,12 @@ import dynetworkx as dx
 import time
 import math
 import random
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
+#import plotly
+#import plotly.plotly as py
+#import plotly.graph_objs as go
 from datetime import datetime
 import config as cf
-from plotly import tools
+#from plotly import tools
 import json
 from networkx.readwrite import json_graph
 from collections import Counter
@@ -20,7 +20,7 @@ It also has separate methods for plotting charts with Plotly
 '''
 
 #My Plotly account credentials
-plotly.tools.set_credentials_file(username='DJR53', api_key='2WZTNjaJOyOoxGeTcIq4')
+#plotly.tools.set_credentials_file(username='DJR53', api_key='2WZTNjaJOyOoxGeTcIq4')
 
 end_of_time = datetime.now() + cf.one_year
 cliquelist = []
@@ -281,6 +281,8 @@ def calculate(G):
         with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(data))
 
+#Old Plotly generation code
+'''
 def plotgraph():            
     data = []
     mybuttons = []
@@ -433,4 +435,4 @@ def plot(myid,labels,cliquevals,averages,myaxisx,myaxisy):
     )
     data.append(trace)
     return data
-    
+'''    
