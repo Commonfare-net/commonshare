@@ -21,11 +21,35 @@ div.tooltip {
   border-radius: 8px;           
   pointer-events: none;         
 }
+    'welfare',
+    'provision',
+    'help needed',
+    'commoncoin',
+    'saving money',
+    'food banks',
+    'social services',
+    'good practices',
+    'protests',
+    'cake recipes'
 </style>
 <body>
     <form>
         <label for="year">Please select a month: </label>
         <input type="month" id="month" name="themonth" value="2018-06" min="2018-06" max="2019-05">
+        <label for="tag">Pick a tag to filter: </label>
+        <select name="tags" id="tags" name="thetags">
+            <option value="all">All</option>        
+            <option value="welfare">Welfare</option>
+            <option value="provision">Provision</option>
+            <option value="help needed">Help needed</option>
+            <option value="commoncoin">Commoncoin</option>
+            <option value="saving money">Saving money</option>
+            <option value="food banks">Food banks</option>
+            <option value="social services">Social services</option>
+            <option value="good practices">Good practices</option>
+            <option value="protests">Protests</option>
+            <option value="cake recipes">Cake recipes</option>
+        </select>
     </form>
     <div id="vis">
     </div>
@@ -106,36 +130,35 @@ q.awaitAll(function(error,results) {
     else{
         for(var i = 0; i < results.length; i++){
             data[months[i]] = results[i]
-            subdata[months[i]] = results[i]
+            subdata[months[i]] = JSON.parse(JSON.stringify(results[i])); //Let's try this 
         }
-    draw('2018-06');
+    draw('2018-06','all');
     }
 });
-
-function draw(month){
+function draw(month,tag){
     graph = data[month];
     subgraph = subdata[month];
     selected_node = "";
-    
-    // Apply the general update pattern to the nodes.
-    node = node.data(graph.nodes, function(d) { return d.id;});
+    node = node.data(graph.nodes.filter(function(d){return tag == "all" || d.tags.includes(tag);}), function(d) {return d.id;});
+    link = link.data(graph.links.filter(function(d){return tag == "all" || d.edgetags.includes(tag);}), function(d) { return d.source.id + "-" + d.target.id;});
     node.exit().transition()
     .attr("r", 0)
     .remove();
 
     node = node.enter().append("circle")
-    .attr("mylabel", function(d){return d.id;})
     .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
     .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); return d3.color("red"); }) //Coloured based on their type
     .call(d3.drag()
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
-    .merge(node).attr("r", function(d) { return (d.kcore*2) + 2;})
-    
+    .merge(node)
+    .attr("r", function(d) { return (d.kcore*2) + 2;})
     .on("click", function(od) {
         var nodestoshow = [];
-        sublink = sublink.data(subgraph.links.filter(function(d){return d.source.id == od.id || d.target.id == od.id;}), function(d) { return d.source.id + "-" + d.target.id; }); 
+        sublinks = sublink.data(subgraph.links);
+        console.log(sublinks);
+        sublink = sublink.data(subgraph.links.filter(function(d){return d.source == od.id || d.target == od.id;}), function(d) { return d.source + "-" + d.target; }); 
         sublink.exit()
                .remove();
         sublink = sublink.enter().append("line")
@@ -151,7 +174,7 @@ function draw(month){
            return Math.sqrt(sum);
         }
         return 1;});
-        sublink.each(function(d){console.log("pushing " + d.source.id + ", " + d.target.id);nodestoshow.push(d.source.id);nodestoshow.push(d.target.id);});
+        sublink.each(function(d){console.log("pushing " + d.source + ", " + d.target);nodestoshow.push(d.source);nodestoshow.push(d.target);});
         console.log("nodes should now be " + nodestoshow);
         
         subnode = subnode.data(subgraph.nodes.filter(function(d){return nodestoshow.includes(d.id);}),function(d){return d.id;});
@@ -176,7 +199,7 @@ function draw(month){
     .on("tick", subticked);
 
     subsim.force("link")
-    .links(subgraph.links.filter(function(d){return d.source.id == od.id || d.target.id == od.id;}));
+    .links(subgraph.links.filter(function(d){return d.source == od.id || d.target == od.id;}));
     subsim.alpha(1).restart();
     
     function subticked() {
@@ -240,6 +263,7 @@ function draw(month){
             .style("opacity", 0);   
     });
 
+    /*
     label = label.data(graph.nodes, function(d) { return d.id;});
     label.exit().remove();      
     //Label nodes with their ID and k-core (if it's more than 0)  
@@ -251,9 +275,14 @@ function draw(month){
     .style("font-family", "Arial")
     .style("font-size", 12)
     .merge(label).text(function (d) { if(d.kcore > 0){return d.id + ': ' + d.kcore;}return ""; });
-
+    
+    .filter(function(d){console.log("#" + d.source.id); console.log("#" + d.target.id);return (node.selectAll('circle').select("#" + d.source.id).empty() == false) && (node.selectAll('circle').select("#" + d.target.id).empty() == false);})
+*/
+    //filteredlinks = link.data(graph.links);
     //Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
-    link = link.data(graph.links, function(d) { return d.source.id + "-" + d.target.id; }); 
+
+   // link = link.data(graph.links, function(d) {return d.source.id + "-" + d.target.id; }); 
+
     link.exit()
     .remove();
     link = link.enter().append("line")
@@ -268,8 +297,7 @@ function draw(month){
        };
        return Math.sqrt(sum);
     }
-    return 1;});
-
+    return 1;})
         
     // Update and restart the simulation.
     simulation
@@ -301,7 +329,7 @@ function ticked() {
 
 //Dragging functions
 function dragstarted(d) {
-    if (!d3.event.active){simulation.alphaTarget(0.3).restart();subsim.alphaTarget(0.3).restart();}
+    if (!d3.event.active){simulation.alphaTarget(0.3).restart();}
     d3.event.sourceEvent.stopPropagation();
     d.fx = d.x;
     d.fy = d.y;
@@ -313,7 +341,7 @@ function dragged(d) {
 }
 
 function dragended(d) {
-    if (!d3.event.active){simulation.alphaTarget(0);subsim.alphaTarget(0);}
+    if (!d3.event.active){simulation.alphaTarget(0);}
     d.fx = null;
     d.fy = null;
 }
@@ -322,6 +350,9 @@ function dragended(d) {
 var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04','2019-05']
 //Add the month picker functionality
 var monthpicker = d3.select('#month');
-monthpicker.on('change', function() {draw(this.value);});
-
+var tagpicker = d3.select('#tags');
+var tagvalue = "all";
+var monthvalue = '2018-06';
+monthpicker.on('change', function() {monthvalue = this.value; draw(monthvalue,tagvalue);});
+tagpicker.on('change', function() {tagvalue = this.value;draw(monthvalue,tagvalue);});
 </script>

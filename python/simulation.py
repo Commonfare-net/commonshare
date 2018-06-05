@@ -13,6 +13,7 @@ from graphclasses import *
 
 def get_users(need_two_users):
   type=nx.get_node_attributes(G,'type')
+  tags=nx.get_node_attributes(G,'tags')
   all_users = False
   #Randomly determine whether colluding nodes get detected
   random_no = random.randint(1,10)
@@ -23,7 +24,13 @@ def get_users(need_two_users):
       else:
           users = random.sample(G.nodes(),2)
           if type[users[0]] == 'user' and type[users[1]] == 'user' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes:
-            break
+            if cf.SHOULD_CLIQUE == True: #Nodes should only talk if they have similar tags
+                user1tags = tags[users[0]].split(',')
+                user2tags = tags[users[1]].split(',')
+                if len([val for val in user1tags if val in user2tags]) > 0:
+                    break
+            else:
+                break
     else:
       users = random.sample(G.nodes(),1)
       if type[users[0]] == 'user':
@@ -44,7 +51,13 @@ def create_story(user):
   G[user][story]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
   G.nodes[story]['viz'] = {}
   G.nodes[story]['viz']['color'] = {'r' : 254, 'g' : 0, 'b' : 0, 'a':1.0}
-
+  if cf.SHOULD_CLIQUE:
+    tags = G.nodes[user]['tags'].split(',')
+    numtags = len(tags)
+    G.nodes[story]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
+  else:
+    G.nodes[story]['tags'] = story.__get_tags__()
+    
 #What kind of interactions might users have? Conversation? 
 def user_interact(interaction):
   pair = get_users(True)
@@ -65,10 +78,16 @@ def story_interact(interaction):
   pair = get_users(True)
   source = pair[0]
   target = pair[1]
+  tags=nx.get_node_attributes(G,'tags')
   for story in G.neighbors(target):
     type=nx.get_node_attributes(G,'type')
     #Pick a random story of the target user
     if type[story] == 'story' and 'create' in G[target][story]:
+      if cf.SHOULD_CLIQUE == True: #If we're 'cliquing', only want users to interact with stories with which they share a tag
+        usertags = tags[source].split(',')
+        storytags = tags[story].split(',')
+        if len([val for val in usertags if val in storytags]) == 0: #If there are no shared tags between user and story,  carry on
+            continue
     #  print source,'read story',story,'of user',target
       #Is this the first time source user has interacted with this story?
       if G.has_edge(source,story) == False:
@@ -136,6 +155,7 @@ while counter < cf.DAYS:
     G.nodes[user]['spells'] = [(cur_date.strftime("%d/%m/%y"),None)]
     G.nodes[user]['viz'] = {}
     G.nodes[user]['viz']['color'] = {'r' : 0, 'g' : 0, 'b' : 254, 'a':1.0}
+    G.nodes[user]['tags'] = user.__get_tags__()
     G = nx.convert_node_labels_to_integers(G)
     
     if len(G.nodes()) == cf.USERS-1:
@@ -159,4 +179,4 @@ while counter < cf.DAYS:
 #Test reading is working properly
 G_read = nx.read_gexf("../gexf/data360.gexf")
 kcore.calculate(G_read)
-kcore.plotgraph()
+#kcore.plotgraph()

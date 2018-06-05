@@ -5,7 +5,18 @@ import random
 Returns a "random" 4 word phrase from a list of words.
 
 """
-
+tags = [
+    'welfare',
+    'provision',
+    'help needed',
+    'commoncoin',
+    'saving money',
+    'food banks',
+    'social services',
+    'good practices',
+    'protests',
+    'cake recipes'
+    ]
 
 nouns = [
     'people',
@@ -1534,6 +1545,10 @@ nouns = [
     'yesterday',
 ]
 
+def random_tags():
+  numtags = random.randrange(1,5);
+  return ",".join([tags[random.randrange(0,len(tags))] for x in range(numtags)])
+  
 def random_phrase():
   return " ".join([nouns[random.randrange(0, len(nouns))] for i in range(4)])
 

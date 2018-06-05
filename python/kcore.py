@@ -222,7 +222,16 @@ def calculate(G):
         for (n,c) in nodeiter:
             c['kcore'] = D[n]
             c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
-
+            c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
+        
+        #Hopefully this will label edges appropriately
+        edgeiter = ReducedGraph.edges(data=True)
+        for (u,v,c) in edgeiter:
+            starttags = ReducedGraph.nodes[u]['tags']
+            endtags = ReducedGraph.nodes[v]['tags']
+            tagintersect = [val for val in starttags if val in endtags] #intersection of tags for proper printing in D3
+            c['edgetags'] = tagintersect
+            
         usertimes.append(windowend)
     
    
@@ -256,8 +265,11 @@ def calculate(G):
             d_numvalues = d_numvalues + v
             d_keys.append(k)
             d_values.append(v)
-        d_avg = d_keysum / d_numvalues
-        d_avgs.append(d_avg)
+        if d_numvalues == 0:
+            d_avgs.append(0)
+        else:
+            d_avg = d_keysum / d_numvalues
+            d_avgs.append(d_avg)
   
         #Update the 'sliding window'
         windowstart = windowend
