@@ -6,9 +6,16 @@
   stroke-opacity: 0.6;
 }
 
+svg {
+    vertical-align:top;
+}
 .nodes circle {
   stroke: #fff;
   stroke-width: 1.5px;
+}
+
+.grid-container {
+  display: grid;
 }
 
 div.tooltip {   
@@ -21,16 +28,21 @@ div.tooltip {
   border-radius: 8px;           
   pointer-events: none;         
 }
-    'welfare',
-    'provision',
-    'help needed',
-    'commoncoin',
-    'saving money',
-    'food banks',
-    'social services',
-    'good practices',
-    'protests',
-    'cake recipes'
+
+      .day {
+        fill: #fff;
+        stroke: #ccc;
+      }
+
+      .month {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 4px;
+      }
+      .year-title {
+        font-size: 1.5em;
+      }
+
 </style>
 <body>
     <form>
@@ -54,18 +66,19 @@ div.tooltip {
     <div id="vis">
     </div>
 </body>
-<svg class="bigvis" width="700" height="800"></svg>
-<svg class="weevis" width="700" height="800"></svg>
+<svg class="bigvis" width="500" height="600"></svg>
+<svg class="commonchart" width="400" height="300"></svg>
+<svg class="activitychart" width="400" height="300"></svg>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
-
+//All this stuff is for the network viz
 var data = {};
 var subdata = {};
 var xScale = d3.scaleLinear()
-    .domain([0,700]).range([0,700]);
+    .domain([0,500]).range([0,500]);
     var yScale = d3.scaleLinear()
-    .domain([0,800]).range([0, 800]);
+    .domain([0,600]).range([0, 600]);
 
 
 //Zooming function
@@ -74,20 +87,17 @@ function zoomFunction(){
     var new_xScale = d3.event.transform.rescaleX(xScale)
     var new_yScale = d3.event.transform.rescaleY(yScale)
     g.attr("transform", d3.event.transform)
-    subg.attr("transform", d3.event.transform)
+    //subg.attr("transform", d3.event.transform)
 
 };
 
 var zoom = d3.zoom()
     .on("zoom", zoomFunction);
-var subzoom = d3.zoom()
-    .on("zoom", zoomFunction);
     
 var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
-var subsvg = d3.select(".weevis"), subwidth = +subsvg.attr("width"), subheight = +subsvg.attr("height");
 
 svg.call(zoom);
-subsvg.call(subzoom);
+//subsvg.call(subzoom);
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -98,23 +108,12 @@ var simulation = d3.forceSimulation()
     .force("x", d3.forceX().x(function(d){if(d.kcore == 0)return 100; return width/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
     .force("y", d3.forceY().y(function(d){if(d.kcore == 0)return 100; return height/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}));
 
-var subsim = d3.forceSimulation()
-    .force("charge", d3.forceManyBody().strength(function(d){if(d.kcore == 0)return -6; return -75;}))
-    .force("link", d3.forceLink().distance(75).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
-    .force("center", d3.forceCenter(subwidth / 2, subheight / 2))
-    .force("x", d3.forceX())
-    .force("y", d3.forceY());
 
 var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
     link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
     node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
     label = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
 
-var subg = subsvg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
-    sublink = subg.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".sublink"),
-    subnode = subg.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".subnode"),
-    sublabel = subg.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
-    
 //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
 var div = d3.select("body").append("div")   
     .attr("class", "tooltip")               
@@ -130,13 +129,14 @@ q.awaitAll(function(error,results) {
     else{
         for(var i = 0; i < results.length; i++){
             data[months[i]] = results[i]
-            subdata[months[i]] = JSON.parse(JSON.stringify(results[i])); //Let's try this 
+           // subdata[months[i]] = JSON.parse(JSON.stringify(results[i])); //Let's try this 
         }
     draw('2018-06','all');
     }
 });
 function draw(month,tag){
     graph = data[month];
+    subdata[month] = JSON.parse(JSON.stringify(data[month])); //Maybe doing it in here will solve things 
     subgraph = subdata[month];
     selected_node = "";
     node = node.data(graph.nodes.filter(function(d){return tag == "all" || d.tags.includes(tag);}), function(d) {return d.id;});
@@ -155,68 +155,9 @@ function draw(month,tag){
     .merge(node)
     .attr("r", function(d) { return (d.kcore*2) + 2;})
     .on("click", function(od) {
-        var nodestoshow = [];
-        sublinks = sublink.data(subgraph.links);
-        console.log(sublinks);
-        sublink = sublink.data(subgraph.links.filter(function(d){return d.source == od.id || d.target == od.id;}), function(d) { return d.source + "-" + d.target; }); 
-        sublink.exit()
-               .remove();
-        sublink = sublink.enter().append("line")
-        .attr("class","line")
-        .merge(sublink).attr("stroke-width",function(d) {
-        if(typeof d.edgeweight !== "undefined"){
-           var sum = 0;
-           for (var key in d.edgeweight) {
-             if (d.edgeweight.hasOwnProperty(key)) {
-                sum = sum + d.edgeweight[key];
-             }
-           };
-           return Math.sqrt(sum);
-        }
-        return 1;});
-        sublink.each(function(d){console.log("pushing " + d.source + ", " + d.target);nodestoshow.push(d.source);nodestoshow.push(d.target);});
-        console.log("nodes should now be " + nodestoshow);
+        plotcommonshare(od);
+        plotcalendars(od,month);
         
-        subnode = subnode.data(subgraph.nodes.filter(function(d){return nodestoshow.includes(d.id);}),function(d){return d.id;});
-        subnode.exit().remove();
-
-        subnode = subnode.enter().append("circle")
-        .attr("mylabel", function(d){return d.id;})
-        .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
-        .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime");return d3.color("red"); }) //Coloured based on their type
-      ///  .call(d3.drag()
-      ///    .on("start", dragstarted)
-      ///    .on("drag", dragged)
-      ///    .on("end", dragended))
-        .on("mouseover",function(d){console.log("But this one is " + d.id);})
-        .merge(subnode);
-        
-        
-        
-    // Update and restart the simulation.
-    subsim
-    .nodes(subgraph.nodes.filter(function(d){return nodestoshow.includes(d.id);}))
-    .on("tick", subticked);
-
-    subsim.force("link")
-    .links(subgraph.links.filter(function(d){return d.source == od.id || d.target == od.id;}));
-    subsim.alpha(1).restart();
-    
-    function subticked() {
-        sublink
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-        subnode
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
-
-     //   label
-     //   .attr("x", function(d){ return d.x; })
-      //  .attr("y", function (d) {return d.y - 10; });
-    }
     })
     //Node and link highlighting
     .on("mouseover", function(d) {
@@ -263,28 +204,9 @@ function draw(month,tag){
             .style("opacity", 0);   
     });
 
-    /*
-    label = label.data(graph.nodes, function(d) { return d.id;});
-    label.exit().remove();      
-    //Label nodes with their ID and k-core (if it's more than 0)  
-    label = label.enter()
-    .append("text")
-    .text(function (d) { if(d.kcore > 0){return d.id + ': ' + d.kcore;}return ""; })
-    .style("text-anchor", "middle")
-    .style("fill", "#555")
-    .style("font-family", "Arial")
-    .style("font-size", 12)
-    .merge(label).text(function (d) { if(d.kcore > 0){return d.id + ': ' + d.kcore;}return ""; });
-    
-    .filter(function(d){console.log("#" + d.source.id); console.log("#" + d.target.id);return (node.selectAll('circle').select("#" + d.source.id).empty() == false) && (node.selectAll('circle').select("#" + d.target.id).empty() == false);})
-*/
-    //filteredlinks = link.data(graph.links);
     //Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
-
-   // link = link.data(graph.links, function(d) {return d.source.id + "-" + d.target.id; }); 
-
     link.exit()
-    .remove();
+        .remove();
     link = link.enter().append("line")
     .attr("class","line")
     .merge(link).attr("stroke-width",function(d) {
@@ -355,4 +277,193 @@ var tagvalue = "all";
 var monthvalue = '2018-06';
 monthpicker.on('change', function() {monthvalue = this.value; draw(monthvalue,tagvalue);});
 tagpicker.on('change', function() {tagvalue = this.value;draw(monthvalue,tagvalue);});
+
+//Here we have stuff for the common-chart viz
+
+
+var chart = d3.select(".commonchart"),
+    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    chartwidth = +chart.attr("width") - margin.left - margin.right,
+    chartheight = +chart.attr("height") - margin.top - margin.bottom,
+    chartg = chart.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var parseTime = d3.timeParse("%e/%m/%y");
+
+var x = d3.scaleTime()
+    .rangeRound([0, chartwidth]);
+
+var y = d3.scaleLinear()
+    .rangeRound([chartheight, 0]);
+
+var area = d3.area()
+    .x(function(d) { return x(parseTime(d.date)); })
+    .y1(function(d) { return y(d.kcore); });
+
+
+function plotcommonshare(user){
+    datalist = []
+    for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+                graph = data[key];
+                var graphdata = graph.nodes.filter(function(d){return user.id == d.id;})[0];
+                if(graphdata == null)continue;
+           //     if(typeof(graphdata.date) == "string") //Only if we haven't parsed it already
+           //         graphdata.date = parseTime(graphdata.date);
+                graphdata.kcore = +graphdata.kcore
+//                console.log(graphdata);
+                datalist.push(graphdata);
+        }
+    };
+  x.domain(d3.extent(datalist, function(d) { return parseTime(d.date); }));
+  y.domain([0, d3.max(datalist, function(d) { return d.kcore; })]);
+  area.y0(y(0));
+
+  chartg.selectAll(".mypath").remove();
+  chartg.selectAll(".axis").remove();
+  var colour;
+  if(user.type == "user") colour =  d3.color("steelblue"); 
+  else if(user.type=="listing") colour = d3.color("lime");
+  else colour = d3.color("red");
+  
+  chartg.append("path")
+      .datum(datalist)
+      .attr("fill", colour)
+      .attr("class","mypath")
+      .attr("d", area);
+
+  chartg.append("g")
+      .attr("transform", "translate(0," + chartheight + ")")
+      .attr("class","axis")
+      .call(d3.axisBottom(x));
+
+  chartg.append("g")
+      .attr("class","axis")
+      .call(d3.axisLeft(y))
+    .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Price ($)");
+}
+
+
+
+    //Only want one SVG so I don't think I need to adjust this?
+    var rect = d3.select(".activitychart").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+      .append("g").selectAll(".day");
+
+    
+
+    //  Tooltip Object
+    var tooltip = d3.select("body")
+      .append("div").attr("id", "tooltip")
+      .style("position", "absolute")
+      .style("z-index", "10")
+      .style("visibility", "hidden")
+      .text("a simple tooltip");
+
+
+//Sums up the weights of all interactions on a given day
+function summer(total, num) {
+    return total + num[1];
+}
+
+function plotcalendars(user,mymonth){
+    graph = data[mymonth];
+    var width = 960,
+        height = 750,
+        cellSize = 40; // cell size
+
+
+    var day = d3.timeFormat("%w"), // day of the week
+        day_of_month = d3.timeFormat("%e") // day of the month
+        day_of_year = d3.timeFormat("%j")
+        week = d3.timeFormat("%U"), // week number of the year
+        month = d3.timeFormat("%m"), // month number
+        year = d3.timeFormat("%Y"),
+        percent = d3.format(".1%"),
+        format = d3.timeFormat("%Y-%m-%d");
+        myformat = d3.timeFormat("%d/%m/%y");
+    var graphdata = graph.nodes.filter(function(d){return user.id == d.id;})[0];
+    //graphdata.date = parseTime(graphdata.date);
+    graphdata.kcore = +graphdata.kcore
+ //   console.log(graphdata);
+    
+    //var mydate = parseTime(graphdata.date);
+    //console.log("date is " + graphdata.date);
+    var graphyear = +year(parseTime(graphdata.date));
+    var graphmonth = +month(parseTime(graphdata.date)) -1;
+
+    
+   
+    
+    let mapped = d3.timeDays(new Date(graphyear,graphmonth,1), new Date(graphyear,graphmonth+1,1)).map((val, index, arr) => {
+        return {
+            date: val, //The original date becomes 'date' in the returned object
+            stats: graphdata.stats[myformat(val)], //And the interactions for this date in the graphdata are returned as 'stats'
+            sumval: myformat(val) in graphdata.stats ? graphdata.stats[myformat(val)].reduce(summer,0) : 0
+            };
+    });
+    rect = rect.data(mapped,function(d) {return d;})
+    var buckets = 7,
+   // colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"], // alternatively colorbrewer.YlGnBu[9]
+    //greens = ['#186A3B', '#1D8348', '#239B56', '#28B463', '#2ECC71', '#58D68D', '#82E0AA'];
+    greens = ['#82E0AA','#58D68D','#2ECC71','#28B463','#239B56','#1D8348','#186A3B'];
+
+    colorScale = d3.scaleQuantile()
+              .domain([0, buckets - 1, d3.max(mapped, function (d) { return d.sumval; })])
+              .range(greens);      
+    rect.exit().remove();
+       
+    rect = rect.enter().append("rect")
+        .attr("class", "day")
+        .attr("width", cellSize)
+        .attr("height", cellSize)
+        .attr("x", function(d) {
+          return 10 + day(d.date) * cellSize + 20; 
+        })
+        .attr("y", function(d) { 
+          var week_diff = week(d.date) - week(new Date(year(d.date), month(d.date)-1, 1) );
+          return 10+ (week_diff*cellSize);// + cellSize*8 - cellSize/2;
+        });
+       // .datum(myformat);
+      
+      rect.filter(function(d) {return d.sumval > 0; })
+          .style("fill",function(d){return colorScale(d.sumval);})
+        .select("title")
+          .text(function(d) { return d + ": "; });
+
+      //  Tooltip
+      rect.on("mouseover", mouseover);
+      rect.on("mouseout", mouseout);
+      function mouseover(d) {
+         div.transition()        
+            .duration(200)      
+            .style("opacity", .9); 
+        div .html(d.name + "<br/>"  + JSON.stringify(d.stats))  
+            .style("left", (d3.event.pageX) + "px")     
+            .style("top", (d3.event.pageY - 28) + "px")
+            .style("background", "lightgreen");    
+      }
+      function mouseout (d) {
+        div.transition()        
+            .duration(500)      
+            .style("opacity", 0);   
+      }
+
+    }
+
+    function dayTitle (t0) {
+      return t0.toString().split(" ")[2];
+    }
+    function monthTitle (t0) {
+      return t0.toLocaleString("en-us", { month: "long" });
+    }
+    function yearTitle (t0) {
+      return t0.toString().split(" ")[3];
+    }
 </script>

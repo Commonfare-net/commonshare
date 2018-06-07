@@ -159,7 +159,8 @@ def do_random_thing():
   #else:
   #  story_interact('share')
 
-cur_date = datetime.datetime.now()
+cur_date = datetime.datetime(2018,6,1)
+start_date = cur_date
 G=nx.Graph()
 counter = 0
 
@@ -199,5 +200,6 @@ while counter < cf.DAYS:
 
 #Test reading is working properly
 G_read = nx.read_gexf("../gexf/data360.gexf")
-kcore.calculate(G_read)
+#Pass the start and end times of the file in, as well as the granularity at which you want the data (default 1 month)
+kcore.calculate(G_read,start_date,cur_date,"month")
 #kcore.plotgraph()

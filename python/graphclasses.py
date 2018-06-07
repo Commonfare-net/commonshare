@@ -49,6 +49,7 @@ class Listing(object):
 
     def __init__(self):
         self.__name = listinggenerator.random_listing()
+        self.__tags = phrases.random_tags()
         
     def __str__(self):
         return self.__name

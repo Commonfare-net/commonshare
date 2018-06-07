@@ -25,6 +25,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
 def nodeweight_directed(G,node_id,starttime,endtime):
     #Here finds the weight corresponding to the interactions at the particular point in time
     edges = G.edges(node_id,data=True)
+    #print "START TIIIIIME: ",starttime
     edgeweights = []
     for (u,v,c) in edges:
         overallweight = 0
@@ -41,13 +42,18 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                         else:
                             overallweight = overallweight + cf.weights[action_key][1]
                         actions_to_keep.append(action)
+
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
+                
         if overallweight > 0:
             edgeweights.append(int(overallweight))
             #Adds it as a nice attribute
             if 'edgeweight' not in c:
                 c['edgeweight'] = {}
             c['edgeweight'][node_id] = int(overallweight)
+            
+    #Also remove unnecessary attributes from the nodes
+    
     if len(edgeweights) == 0:
         return (G,1)
     mean = sum(edgeweights)/len(edgeweights)
