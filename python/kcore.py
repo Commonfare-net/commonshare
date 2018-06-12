@@ -148,6 +148,7 @@ def calculate(G,startdate,enddate,granularity):
         #Go through them again and remove the unnecessary attributes
         nodeiter = GCopy.nodes(data=True)      
         for (n,c) in nodeiter:
+            nodemeta = []
             for action_key in cf.interaction_keys:
                 #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them.
                 if action_key in c:
@@ -156,6 +157,19 @@ def calculate(G,startdate,enddate,granularity):
                         if (windowstart < datetime.strptime(action[1],"%d/%m/%y") < windowend):
                             actions_to_keep.append(action)
                     c[action_key] = actions_to_keep
+                    if action_key == 'talk' and len(actions_to_keep) > 0:
+                        nodemeta.append('social')
+                    elif action_key == 'give' and len(actions_to_keep) > 0:
+                        nodemeta.append('commoncoin')
+                    #Here's where it gets tricky
+                    #If the user has left a comment and they are the commenter (user to resource) rather than the receiver (user to user)...
+                    #...then this node is active in the resource network too
+                    elif action_key == 'create':
+                        nodemeta.append('resource')
+                    elif action_key == 'comment' and len(actions_to_keep) > 0 and n in list(map(lambda x: x[0], c['comment'])):
+                        nodemeta.append('resource')
+                c['nodemeta'] = nodemeta
+                
         #This uses a modified core_number algorithm that takes the weights of each node's edges into account
         #Trying it for both standard undirected graphs and my 'directed' equivalent
         
@@ -174,13 +188,22 @@ def calculate(G,startdate,enddate,granularity):
                 c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
         ReducedGraph.remove_nodes_from(loners)
         
-        #Hopefully this will label edges appropriately
+        #Hopefully this will label edges appropriately both with the tags, and the type of communications that happen along them
         edgeiter = ReducedGraph.edges(data=True)
         for (u,v,c) in edgeiter:
+            edgemeta = []
             starttags = ReducedGraph.nodes[u]['tags']
             endtags = ReducedGraph.nodes[v]['tags']
             tagintersect = [val for val in starttags if val in endtags] #intersection of tags for proper printing in D3
             c['edgetags'] = tagintersect
+            if 'talk' in c:
+                edgemeta.append('social')
+            if 'give' in c:
+                edgemeta.append('finance')
+            #It's not part of the 'resource' network if it's a user-user comment interaction
+            if ('comment' in c or 'create' in c) and (ReducedGraph.nodes[u]['type'] != 'user' or ReducedGraph.nodes[v]['type'] != 'user'):
+                edgemeta.append('resource')
+            c['edgemeta'] = edgemeta
             
         #Update the 'sliding window'
         windowstart = windowend

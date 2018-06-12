@@ -21,6 +21,13 @@
             <option value="protests">Protests</option>
             <option value="cake recipes">Cake recipes</option>
         </select>
+        <label for="network">Pick a network to show</label>
+        <select name="networks" id="networks" name="thenetworks">
+            <option value="all">All</option>
+            <option value="social">Social</option>
+            <option value="resource">Resource</option>
+            <option value="commoncoin">Commoncoin</option>
+        </select>
     </form>
     <div class="inline">
         Selected node: 
@@ -106,7 +113,7 @@ function transform() {
       .translate(-translatex, -translatey);
 }
 
-function draw(index,tag){
+function draw(index,tag,filtertype){
     graph = data[months[index]];
     selected_node = "";
     //These commented lines filter nodes and links by tag so they aren't rendered at all
@@ -127,7 +134,18 @@ function draw(index,tag){
     .attr("id", function(d) { return "n"+d.id; }) //Now each datum can be accessed as a DOM element
     .attr("r", function(d) { return (d.kcore*2) + 2;})
     .attr("fill", function(d) {if(d.id==clicked_node)return d3.color("orange");if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime"); return d3.color("red"); }) //Coloured based on their type
-    .style("opacity", function(d) {if(tag == "all" || d.tags.includes(tag))return 1; return 0.15;}) //Make nodes and links transparent if they aren't linked to tags
+    .style("opacity", function(d) {
+        if(filtertype == "tag"){
+            if(tag == "all" || d.tags.includes(tag))
+                return 1; 
+            return 0.15;
+        }
+        else if(filtertype == "network"){
+            if(tag == "all" || d.nodemeta.includes(tag))
+                return 1;
+            return 0.15;
+        }
+    }) //Make nodes and links transparent if they aren't linked to tags
     .on("click", function(od) {
         //Reset previously clicked node's colour
         if(clicked_node != "")
@@ -212,7 +230,18 @@ function draw(index,tag){
         }
         return 1;
     })
-    .style("opacity", function(d) {if(tag == "all" || d.edgetags.includes(tag))return 1; return 0.15;});
+    .style("opacity", function(d) {
+        if(filtertype == "tag"){
+            if(tag == "all" || d.edgetags.includes(tag))
+                return 1; 
+            return 0.15;
+        }
+        else if(filtertype == "network"){
+            if(tag == "all" || d.edgemeta.includes(tag))
+                return 1;
+            return 0.15;
+        }
+    });
 
     //Updates to make on simulation 'tick'
     function ticked() {
@@ -286,11 +315,13 @@ var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-
 //Add the month picker functionality
 var monthpicker = d3.select('#month');
 var tagpicker = d3.select('#tags');
+var networkpicker = d3.select('#networks');
 var tagvalue = "all";
+var networkvalue = "all";
 var monthvalue = months.length - 1;
 monthpicker.on('change', function() {monthvalue = months.indexOf(this.value); draw(monthvalue,tagvalue);});
-tagpicker.on('change', function() {tagvalue = this.value;draw(monthvalue,tagvalue);});
-
+tagpicker.on('change', function() {tagvalue = this.value;draw(monthvalue,tagvalue,"tag");});
+networkpicker.on('change', function(){networkvalue = this.value;draw(monthvalue,networkvalue,"network");});
 
 /*-------------COMMONSHARE AREA CHART---------------*/
 
