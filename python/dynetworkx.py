@@ -1,7 +1,7 @@
 import math
 import config as cf
 from datetime import datetime
-
+import networkx as nx
 def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if G.has_edge(n1,n2) == False:
         return False
@@ -83,8 +83,11 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                                                   G.successors_iter(v)])
     else:
         neighbors=G.neighbors
-        
+    
+
+
     degrees=G.degree()
+    
     nodeweights = {}
     degrees = dict(G.degree())
     if directed:

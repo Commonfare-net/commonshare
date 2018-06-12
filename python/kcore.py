@@ -142,7 +142,9 @@ def calculate(G,startdate,enddate,granularity):
                 else:
                     nbunch.append(n)
         GCopy.remove_nodes_from(nbunch)
+        
 
+        
         #Go through them again and remove the unnecessary attributes
         nodeiter = GCopy.nodes(data=True)      
         for (n,c) in nodeiter:
@@ -160,13 +162,18 @@ def calculate(G,startdate,enddate,granularity):
         (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
         d1 = Counter(D.values())
 
+        loners = []
         nodeiter = ReducedGraph.nodes(data=True)
         #This adds the kcore value back into the GEXF
         for (n,c) in nodeiter:
-            c['kcore'] = D[n]
-            c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
-            c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
-            
+            if D[n] == 0:
+                loners.append(n);
+            else:
+                c['kcore'] = D[n]
+                c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
+                c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
+        ReducedGraph.remove_nodes_from(loners)
+        
         #Hopefully this will label edges appropriately
         edgeiter = ReducedGraph.edges(data=True)
         for (u,v,c) in edgeiter:
@@ -179,7 +186,9 @@ def calculate(G,startdate,enddate,granularity):
         windowstart = windowend
         windowend = windowend + relativedelta(months=+1)
         loopcount = loopcount + 1
-        
+                #Get rid of the isolates because they're not informative in the network and slow the vis down
+        #List casting has to happen. Explained nicely in https://stackoverflow.com/questions/48820586/removing-isolated-vertices-in-networkx
+       # ReducedGraph.remove_nodes_from(list(nx.isolates(ReducedGraph)))
         #Create JSON files as output from the 'reduced graph'
         data = json_graph.node_link_data(ReducedGraph)
         with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:

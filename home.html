@@ -1,53 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
-
-.links line {
-  stroke-opacity: 0.6;
-}
-
-svg {
-    vertical-align:top;
-}
-.nodes circle {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
-
-.grid-container {
-  display: grid;
-}
-
-div.tooltip {   
-  position: absolute;           
-  text-align: center;           
-  padding: 2px;             
-  font: 14px sans-serif;        
-  background: lightsteelblue;   
-  border: 0px;      
-  border-radius: 8px;           
-  pointer-events: none;         
-}
-
-      .day {
-        fill: #fff;
-        stroke: #ccc;
-      }
-
-      .month {
-        fill: none;
-        stroke: #fff;
-        stroke-width: 4px;
-      }
-      .year-title {
-        font-size: 1.5em;
-      }
-
-</style>
+<head>
+<link rel="stylesheet" type="text/css" href="commonfare.css">
+</head>
 <body>
-    <form>
+    <form class="inline" style="margin-right:30px">
         <label for="year">Please select a month: </label>
-        <input type="month" id="month" name="themonth" value="2018-06" min="2018-06" max="2019-05">
+        <input type="month" id="month" name="themonth" value="2019-04" min="2018-06" max="2019-04">
         <label for="tag">Pick a tag to filter: </label>
         <select name="tags" id="tags" name="thetags">
             <option value="all">All</option>        
@@ -63,56 +22,54 @@ div.tooltip {
             <option value="cake recipes">Cake recipes</option>
         </select>
     </form>
-    <div id="vis">
+    <div class="inline">
+        Selected node: 
+        <div style="display: inline;margin-right: 20px;" id="selected-node"></div>
     </div>
+    <button class="inline" id="clear-node" type="button" disabled>Clear selection</button>
+    <br class="clearBoth" />    
+    <div id="vis"></div>
 </body>
+
 <svg class="bigvis" width="500" height="600"></svg>
 <svg class="commonchart" width="400" height="300"></svg>
-<svg class="activitychart" width="400" height="300"></svg>
-
+<div style="width:400px">
+    <h5 id="yearmonth"></h5>
+    <svg class="activitychart" width="400" height="300"></svg>
+</div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+
 <script>
 //All this stuff is for the network viz
 var data = {};
-var subdata = {};
+var drawn = {};
 var xScale = d3.scaleLinear()
     .domain([0,500]).range([0,500]);
-    var yScale = d3.scaleLinear()
+var yScale = d3.scaleLinear()
     .domain([0,600]).range([0, 600]);
-
 
 //Zooming function
 function zoomFunction(){
-    // create new scale ojects based on event
     var new_xScale = d3.event.transform.rescaleX(xScale)
     var new_yScale = d3.event.transform.rescaleY(yScale)
     g.attr("transform", d3.event.transform)
-    //subg.attr("transform", d3.event.transform)
-
 };
-
-var zoom = d3.zoom()
-    .on("zoom", zoomFunction);
-    
+var zoom = d3.zoom().on("zoom", zoomFunction);
 var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
-
 svg.call(zoom);
-//subsvg.call(subzoom);
 
-var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-//These forces are tweaked to attract connected nodes to the center, and unconnected nodes to cluster in the top-left corner. Took a lot of adjustment so don't play about with them.
+//These forces are tweaked to attract connected nodes to the center
 var simulation = d3.forceSimulation()
-    .force("charge", d3.forceManyBody().strength(function(d){if(d.kcore == 0)return -6; return -75;}))
-    .force("link", d3.forceLink().distance(75).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
+    .alphaDecay(0.25)
+    .force("charge", d3.forceManyBody().strength(function(d){return -90;}))
+    .force("link", d3.forceLink().distance(75).iterations(10).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
     .force("x", d3.forceX().x(function(d){if(d.kcore == 0)return 100; return width/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
-    .force("y", d3.forceY().y(function(d){if(d.kcore == 0)return 100; return height/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}));
-
-
+    .force("y", d3.forceY().y(function(d){if(d.kcore == 0)return 100; return height/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
+    .stop();
+    
 var g = svg.append("g").attr("transform", "translate(" + 0 + "," + 0 + ")"),
     link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
-    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
-    label = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".label");
+    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 
 //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
 var div = d3.select("body").append("div")   
@@ -121,118 +78,194 @@ var div = d3.select("body").append("div")
 
 //Ensure all JSON files are loaded before initiating visualisation    
 var q = d3.queue();
-for (var i = 1; i < 13; i++) {
+for (var i = 1; i < 12; i++) {
     q.defer(d3.json, 'json/data'+i+'.json');
 }
 q.awaitAll(function(error,results) {
     if (error) throw error;
     else{
         for(var i = 0; i < results.length; i++){
-            data[months[i]] = results[i]
-           // subdata[months[i]] = JSON.parse(JSON.stringify(results[i])); //Let's try this 
+            data[months[i]] = results[i];
+            drawn[months[i]] = false;
         }
-    draw('2018-06','all');
+    draw(0,'all');
     }
 });
-function draw(month,tag){
-    graph = data[month];
-    subdata[month] = JSON.parse(JSON.stringify(data[month])); //Maybe doing it in here will solve things 
-    subgraph = subdata[month];
+
+//The node that's been clicked on to maintain focus across different months
+clicked_node = "";
+
+//zoom transform from https://bl.ocks.org/mbostock/b783fbb2e673561d214e09c7fb5cedee allows clicked node to be zoomed in on
+function transform() {
+  translatex = d3.select("#n" + clicked_node).attr("cx");
+  translatey = d3.select("#n" + clicked_node).attr("cy");
+  console.log("transforming to " + translatex + " , " + translatey);
+  return d3.zoomIdentity
+      .translate(width / 2, height / 2)
+      .scale(4)
+      .translate(-translatex, -translatey);
+}
+
+function draw(index,tag){
+    graph = data[months[index]];
     selected_node = "";
-    node = node.data(graph.nodes.filter(function(d){return tag == "all" || d.tags.includes(tag);}), function(d) {return d.id;});
-    link = link.data(graph.links.filter(function(d){return tag == "all" || d.edgetags.includes(tag);}), function(d) { return d.source.id + "-" + d.target.id;});
+    //These commented lines filter nodes and links by tag so they aren't rendered at all
+    // node = node.data(graph.nodes.filter(function(d){return tag == "all" || d.tags.includes(tag);}), function(d) {return d.id;});
+    // link = link.data(graph.links.filter(function(d){return tag == "all" || d.edgetags.includes(tag);}), function(d) { return d.source.id + "-" + d.target.id;});
+    node = node.data(graph.nodes,function(d) {return d.id;});
+    link = link.data(graph.links,function(d) { return d.source.id + "-" + d.target.id;});
     node.exit().transition()
     .attr("r", 0)
     .remove();
 
     node = node.enter().append("circle")
-    .attr("r", function(d) { return (d.kcore*2) + 2;}) //Sized based on k-core value
-    .attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime"); return d3.color("red"); }) //Coloured based on their type
     .call(d3.drag()
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended))
     .merge(node)
+    .attr("id", function(d) { return "n"+d.id; }) //Now each datum can be accessed as a DOM element
     .attr("r", function(d) { return (d.kcore*2) + 2;})
+    .attr("fill", function(d) {if(d.id==clicked_node)return d3.color("orange");if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime"); return d3.color("red"); }) //Coloured based on their type
+    .style("opacity", function(d) {if(tag == "all" || d.tags.includes(tag))return 1; return 0.15;}) //Make nodes and links transparent if they aren't linked to tags
     .on("click", function(od) {
+        //Reset previously clicked node's colour
+        if(clicked_node != "")
+            d3.select("#n"+clicked_node).attr("fill", function(d) {if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime"); return d3.color("red"); }) //Coloured based on their type
+        clicked_node = od.id;
+        svg.call(zoom.transform, transform);
         plotcommonshare(od);
-        plotcalendars(od,month);
-        
+        plotcalendars(od,months[index]);
+        var nodediv = document.getElementById("selected-node");
+        var clearbutton = document.getElementById("clear-node");
+        nodediv.innerHTML = od.id;
+        clearbutton.disabled = false;
+        //Reset clicked node when the clear button is pressed
+        clearbutton.onclick = function(){
+            clearbutton.disabled = true;
+            nodediv.innerHTML = "";
+            d3.select("#n"+clicked_node).attr("fill", function(d) {if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime"); return d3.color("red"); }) //Coloured based on their type
+            clicked_node = "";
+            svg.call(zoom.transform, d3.zoomIdentity);
+        };
     })
     //Node and link highlighting
     .on("mouseover", function(d) {
         selected_node = d.id;
-        console.log("ID is " + d.id);
         d3.select(this).attr("fill",d3.color("orange"));
         sourcelinks = link.filter(function(d){return d.source.id == selected_node || d.target.id == selected_node;});
+        //Style links of hovered node
         sourcelinks.each(function(d){
-        d3.select(this).attr("oldstrokeval",d3.select(this).style("stroke-width"));
-        var colour = ""
-        if(d.source.id == selected_node && d.edgeweight[d.source.id] < d.edgeweight[d.target.id])
-            colour = "red";
-        else if(d.target.id == selected_node && d.edgeweight[d.target.id] < d.edgeweight[d.source.id])
-            colour = "red";
-        else
-            colour = "green";
-        d3.select(this).style("stroke",colour);
-        d3.select(this).style("stroke-width",d.edgeweight[selected_node]);
+            d3.select(this).attr("oldstrokeval",d3.select(this).style("stroke-width"));
+            var colour = "";
+            if(d.source.id == selected_node && d.edgeweight[d.source.id] < d.edgeweight[d.target.id])
+                colour = "red";
+            else if(d.target.id == selected_node && d.edgeweight[d.target.id] < d.edgeweight[d.source.id])
+                colour = "red";
+            else
+                colour = "green";
+            d3.select(this).style("stroke",colour);
+            d3.select(this).style("stroke-width",d.edgeweight[selected_node]);
         });
         //Add the tooltips, formatted based on whether they represent a user or story
         div.transition()        
             .duration(200)      
             .style("opacity", .9); 
         if(d.type == "user"){
-        div .html(d.name + "<br/>"  + JSON.stringify(d.tags))  
-            .style("left", (d3.event.pageX) + "px")     
-            .style("top", (d3.event.pageY - 28) + "px")
-            .style("background", "lightsteelblue");    
+            div.html(d.name + "<br/>"  + JSON.stringify(d.tags))  
+               .style("left", (d3.event.pageX) + "px")     
+               .style("top", (d3.event.pageY - 28) + "px")
+               .style("background", "lightsteelblue");    
         }
         else{
-        div .html(d.title + "<br/>"  + JSON.stringify(d.tags))  
-            .style("left", (d3.event.pageX) + "px")     
-            .style("top", (d3.event.pageY - 28) + "px")
-            .style("background", "pink");    
+            div.html(d.title + "<br/>"  + JSON.stringify(d.tags))  
+               .style("left", (d3.event.pageX) + "px")     
+               .style("top", (d3.event.pageY - 28) + "px")
+               .style("background", "pink");    
         }
-        })                  
+    })                  
     .on("mouseout", function(d) {
         //Set the colour of links back to black, and the thickness to its original value
-        d3.select(this).attr("fill", function(d) { if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime");return d3.color("red"); });
-                    sourcelinks.each(function(d){d3.select(this).style("stroke","black");});
-                    sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));});
+        d3.select(this).attr("fill", function(d) {if(d.id == clicked_node) return d3.color("orange"); if(d.type == "user") return d3.color("steelblue"); if(d.type=="listing") return d3.color("lime");return d3.color("red"); });
+        sourcelinks.each(function(d){d3.select(this).style("stroke","black");});
+        sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));});
         div.transition()        
             .duration(500)      
             .style("opacity", 0);   
     });
 
+    
     //Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
     link.exit()
-        .remove();
+    .remove();
     link = link.enter().append("line")
     .attr("class","line")
     .merge(link).attr("stroke-width",function(d) {
-    if(typeof d.edgeweight !== "undefined"){
-       var sum = 0;
-       for (var key in d.edgeweight) {
-         if (d.edgeweight.hasOwnProperty(key)) {
-            sum = sum + d.edgeweight[key];
-         }
-       };
-       return Math.sqrt(sum);
+        if(typeof d.edgeweight !== "undefined"){
+           var sum = 0;
+           for (var key in d.edgeweight) {
+             if (d.edgeweight.hasOwnProperty(key)) {
+                sum = sum + d.edgeweight[key];
+             }
+           };
+           return Math.sqrt(sum);
+        }
+        return 1;
+    })
+    .style("opacity", function(d) {if(tag == "all" || d.edgetags.includes(tag))return 1; return 0.15;});
+
+    //Updates to make on simulation 'tick'
+    function ticked() {
+        link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+        node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
     }
-    return 1;})
-        
+
+    //Dragging functions
+    function dragstarted(d) {
+        d3.event.sourceEvent.stopPropagation();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+        d.x = d3.event.x;
+        d.y = d3.event.y;
+        ticked();
+    }
+
+    function dragended(d) {
+        d.fx = null;
+        d.fy = null;
+    }
+
+    d3.timeout(function(){    
     // Update and restart the simulation.
     simulation
     .nodes(graph.nodes)
-    .on("tick", ticked);
 
+    //Manually update the simulation so it doesn't take a long time to do its thing
     simulation.force("link")
     .links(graph.links);
-    simulation.alpha(1).restart();
-      
- 
-//Updates to make on simulation 'tick'
-function ticked() {
+    if(drawn[months[index]] == false){
+        drawn[months[index]] = true;
+        simulation.alpha(1);
+        for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+            simulation.tick();
+        }
+        //Here we continue to draw the graph for each month until they're all done
+        if(months.length > index+1){
+            draw(++index,'all');
+        }
+    }
     link
     .attr("x1", function(d) { return d.source.x; })
     .attr("y1", function(d) { return d.source.y; })
@@ -242,130 +275,199 @@ function ticked() {
     node
     .attr("cx", function(d) { return d.x; })
     .attr("cy", function(d) { return d.y; });
+    if(clicked_node != "")
+        svg.call(zoom.transform, transform);
+    });
 
-    label
-    .attr("x", function(d){ return d.x; })
-    .attr("y", function (d) {return d.y - 10; });
-    }
-}
-
-//Dragging functions
-function dragstarted(d) {
-    if (!d3.event.active){simulation.alphaTarget(0.3).restart();}
-    d3.event.sourceEvent.stopPropagation();
-    d.fx = d.x;
-    d.fy = d.y;
-}
-
-function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
-}
-
-function dragended(d) {
-    if (!d3.event.active){simulation.alphaTarget(0);}
-    d.fx = null;
-    d.fy = null;
 }
 
 //Temporary hack because I know the month names
-var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04','2019-05']
+var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04']
 //Add the month picker functionality
 var monthpicker = d3.select('#month');
 var tagpicker = d3.select('#tags');
 var tagvalue = "all";
-var monthvalue = '2018-06';
-monthpicker.on('change', function() {monthvalue = this.value; draw(monthvalue,tagvalue);});
+var monthvalue = months.length - 1;
+monthpicker.on('change', function() {monthvalue = months.indexOf(this.value); draw(monthvalue,tagvalue);});
 tagpicker.on('change', function() {tagvalue = this.value;draw(monthvalue,tagvalue);});
 
-//Here we have stuff for the common-chart viz
 
+/*-------------COMMONSHARE AREA CHART---------------*/
 
 var chart = d3.select(".commonchart"),
-    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    margin = {top: 20, right: 20, bottom: 70, left: 50},
     chartwidth = +chart.attr("width") - margin.left - margin.right,
     chartheight = +chart.attr("height") - margin.top - margin.bottom,
     chartg = chart.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var parseTime = d3.timeParse("%e/%m/%y");
+var parseMonthAxis = d3.timeFormat("%Y-%m");
 
 var x = d3.scaleTime()
     .rangeRound([0, chartwidth]);
-
 var y = d3.scaleLinear()
     .rangeRound([chartheight, 0]);
 
 var area = d3.area()
+    .curve(d3.curveMonotoneX)
     .x(function(d) { return x(parseTime(d.date)); })
     .y1(function(d) { return y(d.kcore); });
+    
+var line = d3.line()
+    .curve(d3.curveMonotoneX)
+    .x(function(d) { return x(parseTime(d.date)); })
+    .y(function(d) { return y(d.kcore); });
+area.y0(y(0));
 
+//Taken from https://www.creativebloq.com/how-to/boost-d3js-charts-with-svg-gradients
+var areaGradient = svg.append("defs")
+    .append("linearGradient")
+    .attr("id","areaGradient")
+    .attr("x1", "0%").attr("y1", "0%")
+    .attr("x2", "0%").attr("y2", "100%");
+
+areaGradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#21825C")
+    .attr("stop-opacity", 0.75);
+areaGradient.append("stop")
+    .attr("offset", "80%")
+    .attr("stop-color", "white")
+    .attr("stop-opacity", 0);
 
 function plotcommonshare(user){
-    datalist = []
+    datalist = [];
+    //Find the selected user's commonshare value in each of the month datasets
     for (var key in data) {
         if (data.hasOwnProperty(key)) {
-                graph = data[key];
-                var graphdata = graph.nodes.filter(function(d){return user.id == d.id;})[0];
-                if(graphdata == null)continue;
-           //     if(typeof(graphdata.date) == "string") //Only if we haven't parsed it already
-           //         graphdata.date = parseTime(graphdata.date);
-                graphdata.kcore = +graphdata.kcore
-//                console.log(graphdata);
-                datalist.push(graphdata);
+            graph = data[key];
+            var graphdata = graph.nodes.filter(function(d){return user.id == d.id;})[0];
+            if(graphdata == null)continue;
+            graphdata.kcore = +graphdata.kcore
+            datalist.push(graphdata);
         }
     };
   x.domain(d3.extent(datalist, function(d) { return parseTime(d.date); }));
   y.domain([0, d3.max(datalist, function(d) { return d.kcore; })]);
-  area.y0(y(0));
 
+  //Reset chart stuff 
   chartg.selectAll(".mypath").remove();
   chartg.selectAll(".axis").remove();
+  chartg.selectAll(".shading").remove();
+  chartg.selectAll(".lineDots").remove();
+  chartg.selectAll("#clip").remove();
   var colour;
-  if(user.type == "user") colour =  d3.color("steelblue"); 
-  else if(user.type=="listing") colour = d3.color("lime");
-  else colour = d3.color("red");
+  if(user.type == "user") 
+    colour =  d3.color("steelblue"); 
+  else if(user.type=="listing") 
+    colour = d3.color("lime");
+  else 
+    colour = d3.color("red");
   
-  chartg.append("path")
-      .datum(datalist)
-      .attr("fill", colour)
-      .attr("class","mypath")
-      .attr("d", area);
-
+  //Animation code from https://stackoverflow.com/questions/47986520/how-to-synchronize-animation-of-path-and-area
+  var linepath = chartg.append("path")
+    .datum(datalist)
+    .attr("class","mypath")
+    .attr("clip-path", "url(#clip)")
+    .attr("d",line);
+      
+  var areapath = chartg.append("path")
+    .datum(datalist)
+    .attr("class","shading")
+    .attr("clip-path", "url(#clip)")
+    .style("fill", "url(#areaGradient)")
+    .attr("d", area);
+  
+  var clip = chartg.append("clipPath")
+    .attr("id", "clip");
+  var clipRect = clip.append("rect")
+    .attr("width", 0)
+    .attr("height", 300);
+  var totalLength = linepath.node().getTotalLength();
+  
+  clipRect.transition()
+    .duration(5000)
+    .ease(d3.easeLinear)
+    .attr("width", totalLength)
+   
+  chartg.selectAll(".lineDots")
+    .data(datalist, function(d) { return parseTime(d.date); })
+    .enter().append("circle")
+    .attr("class", "lineDots")
+    .attr("id",function(d,i) { return "dot"+(i);})
+    .attr("r", 3)
+    .attr("clip-path","url(#clip)")
+    .attr("cx", function(d) { return x(parseTime(d.date)); } )
+    .attr("cy", function(d) { return y(d.kcore); } ); 
+ 
   chartg.append("g")
       .attr("transform", "translate(0," + chartheight + ")")
       .attr("class","axis")
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y-%m")))
+      .selectAll("text")	
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");;
 
   chartg.append("g")
       .attr("class","axis")
-      .call(d3.axisLeft(y))
-    .append("text")
-      .attr("fill", "#000")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Price ($)");
+      .call(d3.axisLeft(y).ticks(5))
+      .append("text")
+        .attr("fill", "#000")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Commonshare");
+
+  //Adapted from http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html
+  chartg.append("rect")                                    
+      .attr("width", chartwidth+50)                             
+      .attr("height", chartheight)                            
+      .style("fill", "none")                             
+      .style("pointer-events", "all")                    
+      .on("mousemove", mousemove);
+  
+  bisectDate = d3.bisector(function(d) { return parseTime(d.date); }).left; 
+  
+  var olddate = "";
+  function mousemove() {                                 
+        var x0 = x.invert(d3.mouse(this)[0]),             
+            i = bisectDate(datalist, x0, 1),                   
+            d0 = datalist[i - 1],                              
+            d1 = datalist[i],                                  
+            d = x0 - parseTime(d0.date) > parseTime(d1.date) - x0 ? d1 : d0;    
+            d3.selectAll(".lineDots").attr("r",3);
+            d3.select("#dot" + datalist.indexOf(d)).attr("r",8);
+         
+            if(d.date != olddate){
+                olddate = d.date;
+                plotcalendars(user,parseMonthAxis(parseTime(d.date)));
+                document.getElementById("month").value = parseMonthAxis(parseTime(d.date));
+                draw(months.indexOf(parseMonthAxis(parseTime(d.date))),tagvalue);
+            }
+    }
+    
+  function mouseclick() {
+        var x0 = x.invert(d3.mouse(this)[0]),
+            i = bisectDate(datalist, x0, 1),
+            d0 = datalist[i - 1],
+            d1 = datalist[i],
+            d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+            d3.selectAll(".lineDots").attr("r",3);
+            d3.select("#dot" + i).attr("r",8);
+            d3.select("#dot" + i).style("fill","#ffff00");
+            console.log("CLIKC");
+  }
 }
 
+/*--------------------CALENDAR VIZ-----------------------*/
 
-
-    //Only want one SVG so I don't think I need to adjust this?
-    var rect = d3.select(".activitychart").append("svg")
-        .attr("width", width)
-        .attr("height", height)
-      .append("g").selectAll(".day");
-
-    
-
-    //  Tooltip Object
-    var tooltip = d3.select("body")
-      .append("div").attr("id", "tooltip")
-      .style("position", "absolute")
-      .style("z-index", "10")
-      .style("visibility", "hidden")
-      .text("a simple tooltip");
-
+var rect = d3.select(".activitychart").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g").selectAll(".day");
 
 //Sums up the weights of all interactions on a given day
 function summer(total, num) {
@@ -373,97 +475,116 @@ function summer(total, num) {
 }
 
 function plotcalendars(user,mymonth){
+    rect.selectAll("rect").remove();
+    rect.selectAll("text").remove();
     graph = data[mymonth];
-    var width = 960,
-        height = 750,
-        cellSize = 40; // cell size
-
-
+    var width = 960, height = 750, cellSize = 40;
     var day = d3.timeFormat("%w"), // day of the week
-        day_of_month = d3.timeFormat("%e") // day of the month
-        day_of_year = d3.timeFormat("%j")
         week = d3.timeFormat("%U"), // week number of the year
         month = d3.timeFormat("%m"), // month number
+        monthname = d3.timeFormat("%B"),
         year = d3.timeFormat("%Y"),
-        percent = d3.format(".1%"),
-        format = d3.timeFormat("%Y-%m-%d");
+        dayofmonth = d3.timeFormat("%d"),
         myformat = d3.timeFormat("%d/%m/%y");
+        
     var graphdata = graph.nodes.filter(function(d){return user.id == d.id;})[0];
-    //graphdata.date = parseTime(graphdata.date);
     graphdata.kcore = +graphdata.kcore
- //   console.log(graphdata);
-    
-    //var mydate = parseTime(graphdata.date);
-    //console.log("date is " + graphdata.date);
     var graphyear = +year(parseTime(graphdata.date));
-    var graphmonth = +month(parseTime(graphdata.date)) -1;
+    var graphmonth = +month(parseTime(graphdata.date))-1;
+    document.getElementById("yearmonth").innerHTML = monthname(parseTime(graphdata.date)) + " " + year(parseTime(graphdata.date));
 
-    
-   
-    
-    let mapped = d3.timeDays(new Date(graphyear,graphmonth,1), new Date(graphyear,graphmonth+1,1)).map((val, index, arr) => {
+    //Here we map the list of dates to the stats of our selected user
+    let mapped = d3.timeDays(new Date(graphyear,graphmonth,0), new Date(graphyear,graphmonth+1,1)).map((val, index, arr) => {
         return {
             date: val, //The original date becomes 'date' in the returned object
             stats: graphdata.stats[myformat(val)], //And the interactions for this date in the graphdata are returned as 'stats'
             sumval: myformat(val) in graphdata.stats ? graphdata.stats[myformat(val)].reduce(summer,0) : 0
-            };
+        };
     });
+    
+    //Set up colour range (darker green means higher value to actions)
     rect = rect.data(mapped,function(d) {return d;})
     var buckets = 7,
-   // colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"], // alternatively colorbrewer.YlGnBu[9]
-    //greens = ['#186A3B', '#1D8348', '#239B56', '#28B463', '#2ECC71', '#58D68D', '#82E0AA'];
     greens = ['#82E0AA','#58D68D','#2ECC71','#28B463','#239B56','#1D8348','#186A3B'];
-
     colorScale = d3.scaleQuantile()
-              .domain([0, buckets - 1, d3.max(mapped, function (d) { return d.sumval; })])
-              .range(greens);      
+                .domain([0, buckets - 1, d3.max(mapped, function (d) { return d.sumval; })])
+                .range(greens);      
     rect.exit().remove();
        
-    rect = rect.enter().append("rect")
+    rect = rect.enter().append("g");
+    
+    rect.append("rect")
         .attr("class", "day")
         .attr("width", cellSize)
         .attr("height", cellSize)
         .attr("x", function(d) {
-          return 10 + day(d.date) * cellSize + 20; 
+          return 30 + day(d.date) * cellSize + 20; 
         })
         .attr("y", function(d) { 
           var week_diff = week(d.date) - week(new Date(year(d.date), month(d.date)-1, 1) );
-          return 10+ (week_diff*cellSize);// + cellSize*8 - cellSize/2;
+          return (week_diff*cellSize);// + cellSize*8 - cellSize/2;
         });
-       // .datum(myformat);
-      
-      rect.filter(function(d) {return d.sumval > 0; })
-          .style("fill",function(d){return colorScale(d.sumval);})
+    rect.append("text") 
+        .attr("x", function(d) {
+          return 30 + day(d.date) * cellSize + 20; 
+        })
+        .attr("y", function(d) { 
+          var week_diff = week(d.date) - week(new Date(year(d.date), month(d.date)-1, 1) );
+          return 15+ (week_diff*cellSize);// + cellSize*8 - cellSize/2;
+        })
+        .text(function(d){return dayofmonth(d.date);});
+        
+    rect.filter(function(d) {return d.sumval > 0; })
+        .select("rect").style("fill",function(d){return colorScale(d.sumval);})
         .select("title")
-          .text(function(d) { return d + ": "; });
+            .text(function(d) { return d + ": "; });
 
-      //  Tooltip
-      rect.on("mouseover", mouseover);
-      rect.on("mouseout", mouseout);
-      function mouseover(d) {
-         div.transition()        
+    rect.filter(function(d) {return d.sumval > 0; }).on("mouseover", mouseover);
+    rect.filter(function(d) {return d.sumval > 0; }).on("mouseout", mouseout);
+    function mouseover(d) {
+        div.transition()        
             .duration(200)      
             .style("opacity", .9); 
-        div .html(d.name + "<br/>"  + JSON.stringify(d.stats))  
-            .style("left", (d3.event.pageX) + "px")     
-            .style("top", (d3.event.pageY - 28) + "px")
-            .style("background", "lightgreen");    
+        div.html(function(){
+        //This could probably be greatly reduced in size by a hashmap or something similar
+        var myhtml = "";
+        var create = 0,comment = 0,rcomment = 0,talk = 0,rtalk = 0,give = 0,rgive = 0;
+        for(var i in d.stats){
+            switch(d.stats[i][0]){
+                case "create":create++;break;
+                case "comment":comment++;break;
+                case "rcomment":rcomment++;break;
+                case "talk":talk++;break;
+                case "rtalk":rtalk++;break;
+                case "give":give++;break;
+                case "rgive":rgive++;break;
+            }
+        };
+        if(create > 0)
+            myhtml += "Stories created: " + create + "<br/>";
+        if(comment > 0)
+            myhtml += "Comments left: " + comment + "<br/>";
+        if(rcomment > 0)
+            myhtml += "Comments received: " + rcomment + "<br/>";
+        if(give > 0)
+            myhtml += "Donations made: " + give + "<br/>";
+        if(rgive > 0)
+            myhtml += "Donations received: " + rgive + "<br/>";
+        if(talk > 0)
+            myhtml += "Chats started by you: " + talk + "<br/>";
+        if(rtalk > 0)
+            myhtml += "Chats started by others: " + rtalk + "<br/>";            
+        return myhtml;
+        })  
+        .style("left", (d3.event.pageX) + "px")     
+        .style("top", (d3.event.pageY - 28) + "px")
+        .style("background", "lightgreen");    
       }
+      
       function mouseout (d) {
         div.transition()        
             .duration(500)      
             .style("opacity", 0);   
       }
-
-    }
-
-    function dayTitle (t0) {
-      return t0.toString().split(" ")[2];
-    }
-    function monthTitle (t0) {
-      return t0.toLocaleString("en-us", { month: "long" });
-    }
-    function yearTitle (t0) {
-      return t0.toString().split(" ")[3];
     }
 </script>
