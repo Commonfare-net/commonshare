@@ -2,6 +2,7 @@ import math
 import config as cf
 from datetime import datetime
 import networkx as nx
+import ast
 def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if G.has_edge(n1,n2) == False:
         return False
@@ -13,7 +14,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
             for action in edge[action_key]:
                 if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
                     #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                    if str(action[0]) == str(n1):
+                    if str(ast.literal_eval(action[0])[0]) == str(n1):
                         edgeweight = edgeweight + cf.weights[action_key][0]
                         frequency = frequency + 1
     #print 'freq',n1,'-',n2,'=',frequency,'and % is',((edgeweight/n2_weight)*100)
@@ -36,7 +37,7 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                 for action in c[action_key]:
                     if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
                         #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                        if str(action[0]) == str(node_id):
+                        if str(ast.literal_eval(action[0])[0]) == str(node_id):
                             #print 'yes node',node_id,'created this'
                             overallweight = overallweight + cf.weights[action_key][0]     
                         else:

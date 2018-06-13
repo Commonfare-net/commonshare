@@ -41,41 +41,50 @@ def get_users(need_two_users):
 
 #Will be effectively the same as the 'create story' function
 
-def create_listing(user):
+def create_welfare(user):
+  global G
   e = Edge()
-  listing = Listing()
-  G.add_node(listing)
-  nx.set_node_attributes(G,{listing: {'type': 'listing','title':unicode(str(listing)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
-  G.nodes[listing]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
-  G.add_edge(user,listing,read=[],comment=[],share=[],create=[],talk=[],give=[])
+  welfare = Welfare()
+  G.add_node(welfare)
+  G = nx.convert_node_labels_to_integers(G)
+  welfare_node = nx.number_of_nodes(G) -1
+
+  nx.set_node_attributes(G,{welfare_node: {'type': 'welfare','title':unicode(str(welfare)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
+  G.nodes[welfare_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
   
-  G.nodes[user]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
-  G[user][listing]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
-  G[user][listing]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
+  G.add_edge(user,welfare_node,read=[],comment=[],share=[],create=[],talk=[],give=[])
+  
+  G.nodes[user]['create'].append(([user,welfare_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
+  G[user][welfare_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
+  G[user][welfare_node]['create'].append(([user,welfare_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
   if cf.SHOULD_CLIQUE:
     tags = G.nodes[user]['tags'].split(',')
     numtags = len(tags)
-    G.nodes[listing]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
+    G.nodes[welfare_node]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
   else:
-    G.nodes[listing]['tags'] = listing.__get_tags__()
+    G.nodes[welfare_node]['tags'] = welfare.__get_tags__()
     
 def create_story(user):
+  global G
   e = Edge()
   story = Story()
   G.add_node(story)
-  nx.set_node_attributes(G,{story: {'type': 'story','title':unicode(str(story)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
-  G.nodes[story]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
-  G.add_edge(user,story,read=[],comment=[],share=[],create=[],talk=[],give=[])
+  G = nx.convert_node_labels_to_integers(G)
+  story_node = nx.number_of_nodes(G) -1
+  nx.set_node_attributes(G,{story_node: {'type': 'story','title':unicode(str(story)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
+  G.nodes[story_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
   
-  G.nodes[user]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
-  G[user][story]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
-  G[user][story]['create'].append((str(user),cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
+  G.add_edge(user,story_node,read=[],comment=[],share=[],create=[],talk=[],give=[])
+  
+  G.nodes[user]['create'].append(([user,story_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
+  G[user][story_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
+  G[user][story_node]['create'].append(([user,story_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
   if cf.SHOULD_CLIQUE:
     tags = G.nodes[user]['tags'].split(',')
     numtags = len(tags)
-    G.nodes[story]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
+    G.nodes[story_node]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
   else:
-    G.nodes[story]['tags'] = story.__get_tags__()
+    G.nodes[story_node]['tags'] = story.__get_tags__()
     
 #What kind of interactions might users have? Conversation? 
 def user_interact(interaction):
@@ -130,32 +139,32 @@ def update_links(source,target,interaction):
     w = cf.weights.get(interaction)
     source_weight = w[0]
     target_weight = w[1]
-    G[source][target][interaction].append((str(source),cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
+    G[source][target][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
 
 def update_nodes(source,target,interaction):
     w = cf.weights.get(interaction)
     source_weight = w[0]
     target_weight = w[1]
-    G.nodes[source][interaction].append((str(source),cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
-    G.nodes[target][interaction].append((str(source),cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
+    G.nodes[source][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
+    G.nodes[target][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
 
   
 def do_random_thing():
-  num = random.randint(1,10)
-  if num == 1 or num == 2:
+  num = random.randint(1,11)
+  if num == 1:
     create_story(get_users(False)[0])
-  elif num == 3 or num == 4:
-    create_listing(get_users(False)[0])
+  elif num == 3:
+    create_welfare(get_users(False)[0])
  # elif num == 3 or num == 4:
  #   story_interact('read')
-  elif num == 5 or num == 6:
+  elif num == 5 or num == 6 or num == 2:
     object_interact('story','comment')
   elif num == 7:
     user_interact('talk')
   elif num == 8:
     user_interact('give')
-  elif num == 9:
-    object_interact('listing','comment')
+  elif num == 9  or num == 4 or num == 10:
+    object_interact('welfare','comment')
   #else:
   #  story_interact('share')
 

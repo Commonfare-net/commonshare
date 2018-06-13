@@ -45,7 +45,7 @@ class Story(object):
     def __get_tags__(self):
         return self.__tags
 
-class Listing(object):
+class Welfare(object):
 
     def __init__(self):
         self.__name = listinggenerator.random_listing()
