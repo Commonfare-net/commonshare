@@ -8,14 +8,9 @@ Returns a "random" 4 word phrase from a list of words.
 tags = [
     'welfare',
     'provision',
-    'help needed',
     'commoncoin',
-    'saving money',
-    'food banks',
-    'social services',
     'good practices',
     'protests',
-    'cake recipes'
     ]
 
 nouns = [

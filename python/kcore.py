@@ -192,6 +192,9 @@ def calculate(G,startdate,enddate,granularity):
         (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
         d1 = Counter(D.values())
 
+
+        
+        tag_globals = {}
         loners = []
         nodeiter = ReducedGraph.nodes(data=True)
         #This adds the kcore value back into the GEXF
@@ -202,8 +205,19 @@ def calculate(G,startdate,enddate,granularity):
                 c['kcore'] = D[n]
                 c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
                 c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
+                #Now accumulate tag number
+                for tag in c['tags']:
+                    if tag not in tag_globals:
+                        tag_globals[tag] = 1
+                    else:
+                        tag_globals[tag] = tag_globals[tag] + 1
         ReducedGraph.remove_nodes_from(loners)
         
+        network_globals = {}
+        num_social = 0;
+        num_story = 0;
+        num_welfare = 0;
+        num_donation = 0;        
         #Hopefully this will label edges appropriately both with the tags, and the type of communications that happen along them
         edgeiter = ReducedGraph.edges(data=True)
         for (u,v,c) in edgeiter:
@@ -214,31 +228,49 @@ def calculate(G,startdate,enddate,granularity):
             c['edgetags'] = tagintersect
             if 'talk' in c:
                 edgemeta.append('social')
+                num_social = num_social + len(c['talk'])
             if 'give' in c:
                 edgemeta.append('finance')
+                num_donation = num_donation + len(c['give'])                
             #It's not part of the 'resource' network if it's a user-user comment interaction
             if ('comment' in c or 'create' in c) and (ReducedGraph.nodes[u]['type'] == 'story' or ReducedGraph.nodes[v]['type'] == 'story'):
                 edgemeta.append('story')
+                if 'comment' in c:
+                    num_story = num_story + len(c['comment'])
+                if 'create' in c:
+                    num_story = num_story + len(c['create'])            
             if ('comment' in c or 'create' in c) and (ReducedGraph.nodes[u]['type'] == 'welfare' or ReducedGraph.nodes[v]['type'] == 'welfare'):
-                edgemeta.append('welfare')                
+                edgemeta.append('welfare')  
+                if 'comment' in c:
+                    num_welfare = num_welfare + len(c['comment'])
+                if 'create' in c:
+                    num_welfare = num_welfare + len(c['create'])
             c['edgemeta'] = edgemeta
-            
+        network_globals['social'] = num_social
+        network_globals['story'] = num_story
+        network_globals['welfare'] = num_welfare
+        network_globals['donation'] = num_donation
+
         #Update the 'sliding window'
         windowstart = windowend
         windowend = windowend + relativedelta(months=+1)
         loopcount = loopcount + 1
-                #Get rid of the isolates because they're not informative in the network and slow the vis down
-        #List casting has to happen. Explained nicely in https://stackoverflow.com/questions/48820586/removing-isolated-vertices-in-networkx
-       # ReducedGraph.remove_nodes_from(list(nx.isolates(ReducedGraph)))
+
+
         #Create JSON files as output from the 'reduced graph'
         data = json_graph.node_link_data(ReducedGraph)
+        #Add the counters of tags of users this month, combined with the tags of stories and welfare provisions created
+        #Also add the counters of social interactions, donations, story interactions and welfare interactions this month
+        data['network_globals'] = network_globals
+        data['tag_globals'] = tag_globals
+                
         with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(data))
-cur_date = datetime(2018,6,1)
-start_date = cur_date
-cur_date = cur_date + cf.one_year            
+#cur_date = datetime(2018,6,1)
+#start_date = cur_date
+#cur_date = cur_date + cf.one_year            
 #Test reading is working properly
-G_read = nx.read_gexf("../gexf/data360.gexf")
+#G_read = nx.read_gexf("../gexf/data360.gexf")
 #Pass the start and end times of the file in, as well as the granularity at which you want the data (default 1 month)
-calculate(G_read,start_date,cur_date,"month")
+#calculate(G_read,start_date,cur_date,"month")
 #kcore.plotgraph()

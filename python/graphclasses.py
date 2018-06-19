@@ -19,7 +19,6 @@ class User(object):
 
     def __init__(self):
         self.__name = names.get_full_name()
-        self.__tags = phrases.random_tags()
 
     def __str__(self):
         return self.__name
@@ -28,7 +27,7 @@ class User(object):
         return str(self)	
 
     def __get_tags__(self):
-        return self.__tags
+        return phrases.random_tags()
 		
 class Story(object):
 

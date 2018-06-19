@@ -1,40 +1,39 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-<link rel="stylesheet" type="text/css" href="commonfare.css">
+		<link rel="stylesheet" type="text/css" href="css/vicons-font.css" />
+		<link rel="stylesheet" type="text/css" href="css/buttons.css" />
+        <link rel="stylesheet" type="text/css" href="css/commonfare.css">
 </head>
 <body>
-    <form class="inline" style="margin-right:30px">
-        <label for="year">Please select a month: </label>
-        <input type="month" id="month" name="themonth" value="2019-04" min="2018-06" max="2019-04">
-        <label for="tag">Pick a tag to filter: </label>
-        <select name="tags" id="tags" name="thetags">
-            <option value="all">All</option>        
-            <option value="welfare">Welfare</option>
-            <option value="provision">Provision</option>
-            <option value="help needed">Help needed</option>
-            <option value="commoncoin">Commoncoin</option>
-            <option value="saving money">Saving money</option>
-            <option value="food banks">Food banks</option>
-            <option value="social services">Social services</option>
-            <option value="good practices">Good practices</option>
-            <option value="protests">Protests</option>
-            <option value="cake recipes">Cake recipes</option>
-        </select>
-        <label for="network">Pick a network to show</label>
-        <select name="networks" id="networks" name="thenetworks">
-            <option value="all">All</option>
-            <option value="social">Social</option>
-            <option value="story">Story</option>
-            <option value="welfare">Welfare</option>
-            <option value="finance">Finance</option>
-        </select>
-    </form>
-    <br class="clearBoth" />    
-    <div id="vis"></div>
+    
+    <svg style="width:45%; float:left; display:inline-block;" class="bigvis" width="600" height="700"></svg>
+    <svg id="myslider" class="myslider" style="width:45%; display:inline-block;" height="75"></svg>
+    <div style="width:45%;display:inline-block;" class="sectiontitle">
+        Tag filters
+    </div>
+    <div style="width:45%; display:inline-block; text-align: center;" >
+    	<button id="btnall" onclick="filter('all',this)" class="button button--ujarak button--border-thin button--text-thick">Show all</button>
+		<button id="btnwelfare" onclick="filter('welfare',this)" class="button button--ujarak button--border-thin button--text-thick">Welfare</button>
+		<button id="btnprovision" onclick="filter('provision',this)" class="button button--ujarak button--border-thin button--text-thick">Provisions</button>
+		<button id="btngood practices" onclick="filter('good practices',this)" class="button button--ujarak button--border-thin button--text-thick">Good Practices</button>
+		<button id="btncommoncoin" onclick="filter('commoncoin',this)" class="button button--ujarak button--border-thin button--text-thick">Commoncoin</button>
+		<button id="btnprotests" onclick="filter('protests',this)" class="button button--ujarak button--border-thin button--text-thick">Social cooperation</button>
+	</div>
+    <div style="width:45%;display:inline-block;" class="sectiontitle">
+        Network type filters
+    </div>
+    <div style="width:45%; display:inline-block; text-align: center;" >
+    	<button onclick="nwfilter('all',this)" class="button button--ujarak button--border-thin button--text-thick">All</button>
+		<button onclick="nwfilter('social',this)" class="button button--ujarak button--border-thin button--text-thick">Social</button>
+		<button onclick="nwfilter('story',this)" class="button button--ujarak button--border-thin button--text-thick">Stories</button>
+		<button onclick="nwfilter('welfare',this)" class="button button--ujarak button--border-thin button--text-thick">Welfare</button>
+		<button onclick="nwfilter('finance',this)" class="button button--ujarak button--border-thin button--text-thick">Commoncoin</button>             
+	</div>
+    <svg id="tagchart" class="tagchart" style="width:45%; display:inline-block;" height="400"></svg>
 </body>
 
-<svg class="bigvis" width="700" height="800"></svg>
+
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
 <script>
@@ -97,7 +96,6 @@ clicked_node = "";
 function transform() {
   translatex = d3.select("#n" + clicked_node).attr("cx");
   translatey = d3.select("#n" + clicked_node).attr("cy");
-  console.log("transforming to " + translatex + " , " + translatey);
   return d3.zoomIdentity
       .translate(width / 2, height / 2)
       .scale(4)
@@ -107,14 +105,14 @@ function transform() {
 function draw(index,tag,filtertype){
     graph = data[months[index]];
     selected_node = "";
-    console.log("CALLED " + tag + " " + filtertype);
-
     node = node.data(graph.nodes,function(d) {return d.id;});
     link = link.data(graph.links,function(d) { return d.source.id + "-" + d.target.id;});
     node.exit().transition()
     .attr("r", 0)
     .remove();
 
+  
+    
     node = node.enter().append("circle")
     .call(d3.drag()
       .on("start", dragstarted)
@@ -124,7 +122,11 @@ function draw(index,tag,filtertype){
     .attr("id", function(d) { return "n"+d.id; }) //Now each datum can be accessed as a DOM element
     .attr("meta", function(d) { return "n" + JSON.stringify(d.type);})
     .attr("r", function(d) { return (d.kcore*2) + 2;})
-    .attr("fill", function(d) {if(d.id==clicked_node)return d3.color("orange");if(d.type == "user") return d3.color("steelblue"); if(d.type=="welfare") return d3.color("green"); return d3.color("red"); }) //Coloured based on their type
+    .attr("fill", function(d) {
+        if(d.id==clicked_node)return d3.color("orange");
+        if(d.type == "user") return d3.color("steelblue");
+        if(d.type=="welfare") return d3.color("green");
+        return d3.color("red"); }) //Coloured based on their type
     .style("opacity", function(d) {
         if(filtertype == "tag"){
             if(tag == "all" || d.tags.includes(tag))
@@ -156,42 +158,77 @@ function draw(index,tag,filtertype){
             else
                 colour = "green";
             d3.select(this).style("stroke",colour);
-            d3.select(this).style("stroke-width",d.edgeweight[selected_node]);
+            d3.select("#mend"+d.source.id + "-" + d.target.id).style("stroke",colour).style("fill",colour);
+            d3.select("#mstart"+d.source.id + "-" + d.target.id).style("stroke",colour).style("fill",colour);
+
+          //  d3.select(this).style("stroke-width",d.edgeweight[selected_node]);
         });
         //Add the tooltips, formatted based on whether they represent a user or story
-        div.transition()        
+
+        if(d.type != "user"){
+                div.transition()        
             .duration(200)      
             .style("opacity", .9); 
-        if(d.type == "user"){
-            div.html(d.name + "<br/>"  + JSON.stringify(d.tags))  
-               .style("left", (d3.event.pageX) + "px")     
-               .style("top", (d3.event.pageY - 28) + "px")
-               .style("background", "lightsteelblue");    
-        }
-        else{
             div.html(d.title + "<br/>"  + JSON.stringify(d.tags))  
                .style("left", (d3.event.pageX) + "px")     
                .style("top", (d3.event.pageY - 28) + "px")
-               .style("background", "pink");    
+               .style("background", "pink");     
         }
+
     })                  
     .on("mouseout", function(d) {
         //Set the colour of links back to black, and the thickness to its original value
         d3.select(this).attr("fill", function(d) {if(d.id == clicked_node) return d3.color("orange"); if(d.type == "user") return d3.color("steelblue"); if(d.type=="welfare") return d3.color("green");return d3.color("red"); });
         sourcelinks.each(function(d){d3.select(this).style("stroke","black");});
-        sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));});
+        sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));
+                    d3.select("#mstart"+d.source.id + "-" + d.target.id).style("stroke","black").style("fill","black");
+                    d3.select("#mend"+d.source.id + "-" + d.target.id).style("stroke","black").style("fill","black");
+                    });
         div.transition()        
             .duration(500)      
             .style("opacity", 0);   
     });
 
+   //Arrowheads that show the direction of the interaction. Have to be drawn manually
+    svg.selectAll("defs").remove();
+    svg.append("defs").selectAll("marker")
+    .data(graph.links)
+    .enter().append("marker")
+    .attr("id", function(d) { return "mend" + d.source.id + "-" + d.target.id; })
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", function(d){
+        if(d.target.id == null)return 10; 
+        radius = d3.select("#n"+d.target.id).attr("r");
+        return 10 + parseInt(radius);})
+    .attr("markerUnits","userSpaceOnUse")
+    .attr("markerWidth", 10)
+    .attr("markerHeight", 10)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5");
+    
+    svg.append("defs").selectAll("marker")
+    .data(graph.links)
+    .enter().append("marker")
+    .attr("id", function(d) { return "mstart" + d.source.id + "-" + d.target.id; })
+    .attr("viewBox", "-10 -5 10 10")
+    .attr("refX", function(d){
+        if(d.source.id == null)return 10; 
+        radius = d3.select("#n"+d.source.id).attr("r");
+        return -10 - parseInt(radius);})
+    .attr("markerUnits","userSpaceOnUse")
+    .attr("markerWidth", 10)
+    .attr("markerHeight", 10)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L-10,0L0,5");
     
     //Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
     link.exit()
     .remove();
     link = link.enter().append("line")
     .attr("class","line")
-    .merge(link).attr("stroke-width",function(d) {
+    .merge(link).attr("stroke-width",function(d) {return 1.5; //Doing this for now to see if it helps
         if(typeof d.edgeweight !== "undefined"){
            var sum = 0;
            for (var key in d.edgeweight) {
@@ -204,6 +241,14 @@ function draw(index,tag,filtertype){
         return 1;
     })
     .attr("edgemeta", function(d){return d.id + JSON.stringify(d.edgemeta);})
+    .attr("marker-end", function(d){
+        if(d.edgeweight[d.source.id] > d.edgeweight[d.target.id] || d.edgeweight[d.target.id] == null)
+            return "url(#mend" + d.source.id + "-" + d.target.id + ")";
+        return null; })
+    .attr("marker-start", function(d){
+        if(d.edgeweight[d.source.id] < d.edgeweight[d.target.id] || d.edgeweight[d.source.id] == null)
+            return "url(#mstart" + d.source.id + "-" + d.target.id + ")";
+        return null;})
     .style("opacity", function(d) {
         if(filtertype == "tag"){
             if(tag == "all" || d.edgetags.includes(tag))
@@ -211,7 +256,6 @@ function draw(index,tag,filtertype){
             return 0.15;
         }
         else if(filtertype == "network"){
-            console.log("tag is " + tag);
             if(tag == "all" || d.edgemeta.includes(tag))
                 return 1;
             return 0.15;
@@ -224,7 +268,7 @@ function draw(index,tag,filtertype){
     //Updates to make on simulation 'tick'
     function ticked() {
         link
-        .attr("x1", function(d) { return d.source.x; })
+        .attr("x1", function(d) {return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
@@ -256,49 +300,333 @@ function draw(index,tag,filtertype){
 
     d3.timeout(function(){    
     // Update and restart the simulation.
-    simulation
-    .nodes(graph.nodes)
+        simulation.nodes(graph.nodes)
 
     //Manually update the simulation so it doesn't take a long time to do its thing
-    simulation.force("link")
-    .links(graph.links);
-    if(drawn[months[index]] == false){
-        drawn[months[index]] = true;
-        simulation.alpha(1);
-        for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
-            simulation.tick();
+        simulation.force("link")
+        .links(graph.links);
+        if(drawn[months[index]] == false){
+            drawn[months[index]] = true;
+            simulation.alpha(1);
+            for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+                simulation.tick();
+            }
+            //Here we continue to draw the graph for each month until they're all done
+            if(months.length > index+1){
+                draw(++index,'all');
+            }
+            else{
+                draw(0,'all');
+                plotcommonsharevals();
+                }
         }
-        //Here we continue to draw the graph for each month until they're all done
-        if(months.length > index+1){
-            draw(++index,'all');
-        }
-    }
-    link
-    .attr("x1", function(d) { return d.source.x; })
-    .attr("y1", function(d) { return d.source.y; })
-    .attr("x2", function(d) { return d.target.x; })
-    .attr("y2", function(d) { return d.target.y; });
+        link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
 
-    node
-    .attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; });
-    if(clicked_node != "")
-        svg.call(zoom.transform, transform);
+        node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+        if(clicked_node != "")
+            svg.call(zoom.transform, transform);
     });
-
 }
 
 //Temporary hack because I know the month names
 var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04']
-//Add the month picker functionality
-var monthpicker = d3.select('#month');
-var tagpicker = d3.select('#tags');
-var networkpicker = d3.select('#networks');
+var parseMonth = d3.timeParse("%Y-%m");
+var parseTime = d3.timeParse("%d/%m/%y");
+var formatMonth = d3.timeFormat("%b %y");
+var formatToList = d3.timeFormat("%Y-%m");
+
 var tagvalue = "all";
 var networkvalue = "all";
 var currentfilter = "";
-var monthvalue = months.length - 1;
-monthpicker.on('change', function() {monthvalue = months.indexOf(this.value); if(currentfilter == "tag")draw(monthvalue,tagvalue,currentfilter);else draw(monthvalue,networkvalue,currentfilter);});
-tagpicker.on('change', function() {currentfilter="tag";document.getElementById("networks").value = "all";tagvalue = this.value;draw(monthvalue,tagvalue,"tag");});
-networkpicker.on('change', function(){currentfilter="network";document.getElementById("tags").value = "all";networkvalue = this.value;draw(monthvalue,networkvalue,"network");});
+var monthvalue = 0;
+
+
+
+//////////////////////////////////////////////
+/*-------------TAG LINE CHART---------------*/
+//////////////////////////////////////////////
+
+
+
+//Functions for filtering based on tag/network type buttons
+function nwfilter(nwname,button){
+    currentfilter = "network";
+    networkvalue = nwname;
+
+    var buttons = document.getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; i++) {
+        var currentbutton = buttons[i];
+        currentbutton.style.background = '#fff';
+        currentbutton.style.color = '#37474f';
+    }
+    draw(monthvalue,networkvalue,"network");
+    button.style.color = "#fff";
+	button.style.borderColor = "#37474f";
+    button.style.background = "#37474f";
+}
+
+function filter(tagname,button){
+    currentfilter = "tag";
+    tagvalue = tagname;
+
+    var buttons = document.getElementsByTagName("button");
+    for (var i = 0; i < buttons.length; i++) {
+        var currentbutton = buttons[i];
+        currentbutton.style.background = '#fff';
+        currentbutton.style.color = '#37474f';
+    }
+    draw(monthvalue,tagvalue,"tag");
+    button.style.color = "#fff";
+	button.style.borderColor = "#37474f";
+    button.style.background = "#37474f";
+}
+//New date slider code (adapted from https://bl.ocks.org/mbostock/6452972)
+
+var s = document.getElementById("myslider");
+
+var slidesvg = d3.select(".myslider"),
+    margin = {right: 50, left: 50, top: 100},
+  //  width = +slidesvg.style("width") - margin.left - margin.right,
+    height = +slidesvg.attr("height");
+var sliderwidth = parseFloat(window.getComputedStyle(s).width)- margin.left - margin.right;
+
+console.log("Slider width is " + sliderwidth);
+var slidex = d3.scaleTime()
+    .domain([parseMonth(months[0]),parseMonth(months[months.length-1])])
+    .range([0, sliderwidth])
+    .clamp(true);
+    
+var slider = slidesvg.append("g")
+    .attr("class", "slider")
+    .attr("transform", "translate(" + margin.left + "," + height / 2 + ")");
+
+slider.append("line")
+    .attr("class", "track")
+    .attr("x1", slidex.range()[0])
+    .attr("x2", slidex.range()[1])
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-inset")
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-overlay")
+    .call(d3.drag()
+        .on("start.interrupt", function() { slider.interrupt(); })
+        .on("start drag", function() { 
+            console.log("Event x is " + d3.event.x);
+            console.log(formatToList(slidex.invert(d3.event.x)));
+            var selected_date = formatToList(slidex.invert(d3.event.x));
+            if(selected_date != monthvalue){
+                monthvalue = months.indexOf(selected_date);
+                if(currentfilter == "tag")
+                   draw(months.indexOf(selected_date),tagvalue,"tag");
+                else
+                   draw(months.indexOf(selected_date),networkvalue,"network");
+            }
+            handle.attr("cx", slidex(slidex.invert(d3.event.x)));}));
+
+slider.insert("g", ".track-overlay")
+    .attr("class", "ticks")
+    .attr("transform", "translate(0," + 18 + ")")
+  .selectAll("text")
+  .data(slidex.ticks(10))
+  .enter().append("text")
+    .attr("x", slidex)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return formatMonth(d); });
+
+var handle = slider.insert("circle", ".track-overlay")
+    .attr("class", "handle")
+    .attr("r", 9);
+
+var tagchart_dom = document.getElementById("tagchart");
+
+var tagchart = d3.select(".tagchart"),
+    tagchart_margin = {top: 20, right: 20, bottom: 70, left: 50},
+    tagchart_height = +tagchart.attr("height") - tagchart_margin.top - tagchart_margin.bottom,
+    tagchart_g = tagchart.append("g").attr("transform", "translate(" + tagchart_margin.left + "," + tagchart_margin.top + ")"),
+    tagchart_width = parseFloat(window.getComputedStyle(tagchart_dom).width)- tagchart_margin.left - tagchart_margin.right;
+
+var tagchart_x = d3.scaleTime().rangeRound([0, tagchart_width]);
+var tagchart_y = d3.scaleLinear().rangeRound([tagchart_height, 0]);
+var tagchart_z = d3.scaleOrdinal(d3.schemeCategory10);
+   
+var tagchart_line = d3.line()
+    .curve(d3.curveMonotoneX)
+    .x(function(d) {return tagchart_x(parseTime(d.date)); })
+    .y(function(d) { return tagchart_y(d.total); });
+    
+//For this, we'll need to get the number of interactions with each tag, and of each network type, for each month. 
+//Then it'd be nice to have a button to switch betwixt them 
+function plotcommonsharevals(){
+    tagdataobject = {};
+    networkdataobject = {};
+    for (var key in data) {
+        if (data.hasOwnProperty(key)) {
+            graph = data[key];
+            var datum = graph.nodes[0].date;
+            var tag_data = graph.tag_globals;
+            for (var tagname in tag_data){
+                if(tag_data.hasOwnProperty(tagname)){
+                    if(!(tagname in tagdataobject))
+                        tagdataobject[tagname] = []
+                    tagdataobject[tagname].push({"id": tagname, "date":datum, "total": tag_data[tagname]}); 
+                }
+            }
+            var network_data = graph.network_globals;
+            for (var networkname in network_data){
+                if(network_data.hasOwnProperty(networkname)){
+                    if(!(networkname in networkdataobject))
+                        networkdataobject[networkname] = []
+                    networkdataobject[networkname].push({"id": networkname, "date":datum, "total": network_data[networkname]}); 
+                }
+            }            
+        }
+    };
+  var tagdata_list = Object.keys(tagdataobject).map(function(k) { return {"id": k, "values":tagdataobject[k] };});
+  var networkdata_list = Object.keys(networkdataobject).map(function(k) { return {"id": k, "values":networkdataobject[k] };});
+
+  tagchart_x.domain([
+  d3.min(tagdata_list,function(c) {return d3.min(c.values, function(d) {return parseTime(d.date); });}),
+  d3.max(tagdata_list,function(c) { return d3.max(c.values, function(d) {return parseTime(d.date); });})
+  ]);
+
+  tagchart_y.domain([
+  d3.min(tagdata_list,function(c) {return d3.min(c.values, function(d) {return d.total; });}),
+  d3.max(tagdata_list,function(c) { return d3.max(c.values, function(d) {return d.total; });})
+  ]);
+  
+  tagchart_z.domain(tagdata_list.map(function(c) { return c.id; }));
+
+  var tag = tagchart_g.selectAll('.tag')
+    .data(tagdata_list)
+    .enter().append("g")
+    .attr("class","tag");
+    
+  //Animation code from https://stackoverflow.com/questions/47986520/how-to-synchronize-animation-of-path-and-area
+    tag.append("path")
+    .attr("class","line")
+    .attr("clip-path", "url(#clip)")
+    .attr("d",function(d){return tagchart_line(d.values);})
+    .style("stroke", function(d) { return tagchart_z(d.id); });
+    
+  var tagchart_clip = tagchart_g.append("clipPath")
+    .attr("id", "tagchart_clip");
+  var tagchart_clipRect = tagchart_clip.append("rect")
+    .attr("width", 0)
+    .attr("height", 300);
+  var totalLength = tagchart_width;
+  
+  tagchart_clipRect.transition()
+    .duration(5000)
+    .ease(d3.easeLinear)
+    .attr("width", totalLength);
+    
+
+
+  tagchart_g.selectAll(".dots")
+    .data(tagdata_list)
+    .enter().append("g")
+    .attr("class", "dots")
+    .selectAll("circle")
+    .data(function(d) {return d.values; })
+      .enter().append("circle")
+      .attr("class","mydot")
+      .style("fill", function(d) { return tagchart_z(d.id); })
+      .attr("id",function(d,i) { return "dot"+ d.total + "-" + (i);})
+      .attr("r", 3)
+      .attr("clip-path","url(#tagchart_clip)")
+      .attr("cx", function(d) {return tagchart_x(parseTime(d.date)); } )
+      .attr("cy", function(d) {return tagchart_y(d.total); } ); 
+ 
+  tagchart_g.append("g")
+      .attr("transform", "translate(0," + tagchart_height + ")")
+      .attr("class","axis")
+      .call(d3.axisBottom(tagchart_x).tickFormat(d3.timeFormat("%Y-%m")))
+      .selectAll("text")	
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");;
+
+  tagchart_g.append("g")
+      .attr("class","axis")
+      .call(d3.axisLeft(tagchart_y).ticks(5))
+      .append("text")
+        .attr("fill", "#000")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Commonshare");
+
+  //Adapted from http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html to enable interactive selections
+  tagchart_g.append("rect")                                    
+      .attr("width", tagchart_width)                             
+      .attr("height", tagchart_height)                            
+      .style("fill", "none")                             
+      .style("pointer-events", "all")                    
+      .on("mousemove", tagchart_mousemove)
+      .on("click", tagchart_mouseclick);
+  
+    //Helper function to select the nearest dot vertically
+    function closest (num, arr) {
+        var object = arr[0];
+        var curr = arr[0].total;       
+        var diff = Math.abs (num - curr);
+        for (var val = 0; val < arr.length; val++) {
+            var newdiff = Math.abs (num - arr[val].total);
+            if (newdiff < diff) {
+                diff = newdiff;
+                object = arr[val];
+                curr = arr[val].total;
+            }
+        }
+        return object;
+    }
+  
+  //Date 'bisector' to snap to dates on the x-axis
+  bisectDate = d3.bisector(function(d) { return parseTime(d.date); }).left; 
+
+  //Mapper function to return all the Y positions of dots at a particular month
+  mapvals = function(d,i){return d.map(function(c){return c.values[i];});};
+  
+  function tagchart_mousemove() {                                 
+    var x0 = tagchart_x.invert(d3.mouse(this)[0]), 
+        y0 = tagchart_y.invert(d3.mouse(this)[1]),
+        i = bisectDate(tagdata_list[0].values, x0, 1),
+        d0 = tagdata_list[0].values[i - 1],                              
+        d1 = tagdata_list[0].values[i],                                  
+        d = x0 - parseTime(d0.date) > parseTime(d1.date) - x0 ? d1 : d0,
+        tagdata_vals = mapvals(tagdata_list,tagdata_list[0].values.indexOf(d));
+     var nearestyval = closest(y0, tagdata_vals).total;            
+        d3.selectAll(".mydot").attr("r",3);
+        //Dots on the chart are IDd by their Y position, and the index of the month with which they are aligned
+        d3.select("#dot" + nearestyval + "-" + tagdata_list[0].values.indexOf(d)).attr("r",8);
+        console.log("#dot" + nearestyval + "-" + tagdata_list[0].values.indexOf(d));
+  }
+    
+  function tagchart_mouseclick() {
+    var x0 = tagchart_x.invert(d3.mouse(this)[0]), 
+        y0 = tagchart_y.invert(d3.mouse(this)[1]),
+        i = bisectDate(tagdata_list[0].values, x0, 1),
+        d0 = tagdata_list[0].values[i - 1],                              
+        d1 = tagdata_list[0].values[i],                                  
+        d = x0 - parseTime(d0.date) > parseTime(d1.date) - x0 ? d1 : d0,
+        tagvals = mapvals(tagdata_list,tagdata_list[0].values.indexOf(d));
+    var nearestyval = closest(y0, tagvals);            
+        d3.selectAll(".mydot").attr("r",3);
+        d3.select("#dot" + nearestyval.total + "-" + tagdata_list[0].values.indexOf(d)).attr("r",8);
+        console.log("#dot" + nearestyval.total + "-" + tagdata_list[0].values.indexOf(d));
+     
+    //Here's where the magic happens
+    var datetouse = formatToList(parseTime(d.date));
+    monthvalue = months.indexOf(datetouse);
+    filter(nearestyval.id,document.getElementById("btn"+nearestyval.id));          
+  }
+}
 </script>

@@ -1,0 +1,117 @@
+
+.links line {
+  stroke-opacity: 0.6;
+}
+
+body {
+  font-family: Helvetica;
+}
+
+h5 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.sectiontitle{
+  text-align: center;
+  font-size: 20px;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+.axis path,
+		.axis line {
+			fill: none;
+		  	stroke: #C4C4C4;
+		  	shape-rendering: crispEdges;
+		}
+		
+		.mypath {
+			stroke: #21825C;
+			stroke-width: 1.5px;
+			fill: none;
+		}
+		
+		.lineDots {
+			fill: #21825C;
+		}
+/*
+svg {
+    vertical-align:top;
+}
+*/
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 0.5px;
+}
+.links {
+    stroke-width: 1px;
+}
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  padding: 2px;             
+  font: 14px sans-serif;        
+  background: lightsteelblue;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
+.inline { float:left; }
+.clearBoth { clear:both; }
+
+
+.day {
+    fill: #fff;
+    stroke: #ccc;
+}
+
+.month {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 4px;
+}
+.year-title {
+    font-size: 1.5em;
+}
+
+
+
+.ticks {
+  font: 10px sans-serif;
+}
+
+.track,
+.track-inset,
+.track-overlay {
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: #000;
+  stroke-opacity: 0.3;
+  stroke-width: 10px;
+}
+
+.track-inset {
+  stroke: #ddd;
+  stroke-width: 8px;
+}
+
+.track-overlay {
+  pointer-events: stroke;
+  stroke-width: 50px;
+  stroke: transparent;
+  cursor: crosshair;
+}
+
+.handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: 0.5;
+  stroke-width: 1.25px;
+}

@@ -34,7 +34,9 @@ def get_users(need_two_users):
     else:
       users = random.sample(G.nodes(),1)
       if type[users[0]] == 'user':
-        break      
+        break     
+  #This just randomly updates the tags of our selected user (maybe they're interested in different things this month or whatever
+  G.nodes[users[0]]['tags'] = user.__get_tags__()
   return users    
 
 
