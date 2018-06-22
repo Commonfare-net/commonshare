@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,commoncoin", "title": "innocent vein", "label": "428", "type": "welfare", "id": "428", "spells": [["08/08/18", "22/08/18"]]}, {"id": "39"}], "links": [{"source": "428", "create": [["[39, 428]", "08/08/18", "08/08/18"]], "target": "39", "id": "1794", "spells": [["08/08/18", "22/08/18"]]}], "multigraph": false}

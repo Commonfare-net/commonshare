@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "small jail", "label": "846", "type": "welfare", "id": "846", "spells": [["10/11/18", "24/11/18"]]}, {"id": "27"}], "links": [{"source": "846", "create": [["[27, 846]", "10/11/18", "10/11/18"]], "target": "27", "id": "1268", "spells": [["10/11/18", "24/11/18"]]}], "multigraph": false}

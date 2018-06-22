@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,commoncoin", "title": "important rake", "label": "1328", "type": "welfare", "id": "1328", "spells": [["15/02/19", "01/03/19"]]}, {"id": "632"}], "links": [{"source": "1328", "create": [["[632, 1328]", "15/02/19", "15/02/19"]], "target": "632", "id": "7058", "spells": [["15/02/19", "01/03/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "cream refrigerator stick passion", "label": "363", "type": "story", "id": "363", "spells": [["25/07/18", "08/08/18"]]}, {"id": "96"}], "links": [{"source": "363", "create": [["[96, 363]", "25/07/18", "25/07/18"]], "target": "96", "id": "3901", "spells": [["25/07/18", "08/08/18"]]}], "multigraph": false}

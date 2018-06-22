@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "fantastic throne", "label": "638", "type": "welfare", "id": "638", "spells": [["25/09/18", "09/10/18"]]}, {"id": "272"}], "links": [{"source": "638", "create": [["[272, 638]", "25/09/18", "25/09/18"]], "target": "272", "id": "5727", "spells": [["25/09/18", "09/10/18"]]}], "multigraph": false}

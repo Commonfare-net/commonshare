@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,protests", "title": "heavenly drink", "label": "246", "type": "welfare", "id": "246", "spells": [["04/07/18", "18/07/18"]]}, {"id": "145"}], "links": [{"source": "246", "create": [["[145, 246]", "04/07/18", "04/07/18"]], "target": "145", "id": "4512", "spells": [["04/07/18", "18/07/18"]]}], "multigraph": false}

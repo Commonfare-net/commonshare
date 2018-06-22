@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,commoncoin", "title": "enchanting desk", "label": "715", "type": "welfare", "id": "715", "spells": [["11/10/18", "25/10/18"]]}, {"id": "377"}], "links": [{"source": "715", "create": [["[377, 715]", "11/10/18", "11/10/18"]], "target": "377", "id": "6181", "spells": [["11/10/18", "25/10/18"]]}], "multigraph": false}

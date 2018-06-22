@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "135"}, {"tags": "commoncoin", "title": "efficacious selection", "label": "508", "type": "welfare", "id": "508", "spells": [["28/08/18", "11/09/18"]]}], "links": [{"source": "135", "create": [["[135, 508]", "28/08/18", "28/08/18"]], "target": "508", "id": "4390", "spells": [["28/08/18", "11/09/18"]]}], "multigraph": false}

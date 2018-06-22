@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "lopsided space", "label": "622", "type": "welfare", "id": "622", "spells": [["22/09/18", "06/10/18"]]}, {"id": "16"}], "links": [{"source": "622", "create": [["[16, 622]", "22/09/18", "22/09/18"]], "target": "16", "id": "828", "spells": [["22/09/18", "06/10/18"]]}], "multigraph": false}

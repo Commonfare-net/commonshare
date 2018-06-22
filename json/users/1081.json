@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "131"}, {"tags": "good practices", "title": "efficacious lumber", "label": "1081", "type": "welfare", "id": "1081", "spells": [["26/12/18", "09/01/19"]]}], "links": [{"source": "131", "create": [["[131, 1081]", "26/12/18", "26/12/18"]], "target": "1081", "id": "4259", "spells": [["26/12/18", "09/01/19"]]}], "multigraph": false}

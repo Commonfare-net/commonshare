@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "59"}, {"tags": "welfare", "title": "tough sugar", "label": "937", "type": "welfare", "id": "937", "spells": [["28/11/18", "12/12/18"]]}], "links": [{"source": "59", "create": [["[59, 937]", "28/11/18", "28/11/18"]], "target": "937", "id": "2612", "spells": [["28/11/18", "12/12/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "narrow summer", "label": "789", "type": "welfare", "id": "789", "spells": [["27/10/18", "10/11/18"]]}, {"id": "97"}], "links": [{"source": "789", "create": [["[97, 789]", "27/10/18", "27/10/18"]], "target": "97", "id": "3911", "spells": [["27/10/18", "10/11/18"]]}], "multigraph": false}

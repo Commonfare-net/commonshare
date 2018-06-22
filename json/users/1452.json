@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1247"}, {"tags": "protests,provision", "title": "nine channel", "label": "1452", "type": "welfare", "id": "1452", "spells": [["12/03/19", "26/03/19"]]}], "links": [{"source": "1247", "create": [["[1247, 1452]", "12/03/19", "12/03/19"]], "target": "1452", "id": "7823", "spells": [["12/03/19", "26/03/19"]]}], "multigraph": false}

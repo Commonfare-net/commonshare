@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,welfare,commoncoin", "title": "nine toy", "label": "486", "type": "welfare", "id": "486", "spells": [["23/08/18", "06/09/18"]]}, {"id": "20"}], "links": [{"source": "486", "create": [["[20, 486]", "23/08/18", "23/08/18"]], "target": "20", "id": "958", "spells": [["23/08/18", "06/09/18"]]}], "multigraph": false}

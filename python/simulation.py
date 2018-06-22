@@ -36,7 +36,7 @@ def get_users(need_two_users):
       if type[users[0]] == 'user':
         break     
   #This just randomly updates the tags of our selected user (maybe they're interested in different things this month or whatever
-  G.nodes[users[0]]['tags'] = user.__get_tags__()
+  G.nodes[users[0]]['tags'] = User().__get_tags__()
   return users    
 
 
@@ -150,7 +150,18 @@ def update_nodes(source,target,interaction):
     G.nodes[source][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
     G.nodes[target][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
 
-  
+
+def add_user():
+    global G
+    user = User()
+    G.add_node(user)
+    nx.set_node_attributes(G,{user: {'type': 'user','name': str(user),'read':[],'comment':[],'share':[],'create':[],'talk':[],'give':[]}})
+    G.nodes[user]['spells'] = [(cur_date.strftime("%d/%m/%y"),None)]
+    G.nodes[user]['viz'] = {}
+    G.nodes[user]['viz']['color'] = {'r' : 0, 'g' : 0, 'b' : 254, 'a':1.0}
+    G.nodes[user]['tags'] = user.__get_tags__()
+    G = nx.convert_node_labels_to_integers(G)
+
 def do_random_thing():
   num = random.randint(1,11)
   if num == 1:
@@ -159,9 +170,9 @@ def do_random_thing():
     create_welfare(get_users(False)[0])
  # elif num == 3 or num == 4:
  #   story_interact('read')
-  elif num == 5 or num == 6 or num == 2:
+  elif num == 5 or num == 6:
     object_interact('story','comment')
-  elif num == 7:
+  elif num == 7 or num == 2:
     user_interact('talk')
   elif num == 8:
     user_interact('give')
@@ -182,17 +193,10 @@ while counter < cf.DAYS:
   cur_date = cur_date + cf.one_day
   counter = counter + 1
   G = nx.convert_node_labels_to_integers(G)
-  while len(G.nodes()) < cf.USERS:
-    user = User()
-    G.add_node(user)
-    nx.set_node_attributes(G,{user: {'type': 'user','name': str(user),'read':[],'comment':[],'share':[],'create':[],'talk':[],'give':[]}})
-    G.nodes[user]['spells'] = [(cur_date.strftime("%d/%m/%y"),None)]
-    G.nodes[user]['viz'] = {}
-    G.nodes[user]['viz']['color'] = {'r' : 0, 'g' : 0, 'b' : 254, 'a':1.0}
-    G.nodes[user]['tags'] = user.__get_tags__()
-    G = nx.convert_node_labels_to_integers(G)
+  while len(G.nodes()) < cf.INITIAL_USERS:
+    add_user()
     
-    if len(G.nodes()) == cf.USERS-1:
+    if len(G.nodes()) == cf.INITIAL_USERS-1:
         cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS)
         #So they have something to interact with
         for i in range(cf.NUM_COLLUDERS):
@@ -201,6 +205,7 @@ while counter < cf.DAYS:
             
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
+  add_user()
   G = nx.convert_node_labels_to_integers(G)
 
   if counter % 30 == 0:

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,good practices", "title": "various dock", "label": "318", "type": "welfare", "id": "318", "spells": [["17/07/18", "31/07/18"]]}, {"id": "45"}], "links": [{"source": "318", "create": [["[45, 318]", "17/07/18", "17/07/18"]], "target": "45", "id": "2070", "spells": [["17/07/18", "31/07/18"]]}], "multigraph": false}

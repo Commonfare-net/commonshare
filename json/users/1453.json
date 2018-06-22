@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1212"}, {"tags": "commoncoin,provision", "title": "bright jail", "label": "1453", "type": "welfare", "id": "1453", "spells": [["12/03/19", "26/03/19"]]}], "links": [{"source": "1212", "create": [["[1212, 1453]", "12/03/19", "12/03/19"]], "target": "1453", "id": "7807", "spells": [["12/03/19", "26/03/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "12"}, {"tags": "protests", "title": "guttural quiet", "label": "721", "type": "welfare", "id": "721", "spells": [["12/10/18", "26/10/18"]]}], "links": [{"source": "12", "create": [["[12, 721]", "12/10/18", "12/10/18"]], "target": "721", "id": "625", "spells": [["12/10/18", "26/10/18"]]}], "multigraph": false}

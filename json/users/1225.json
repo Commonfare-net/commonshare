@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "69"}, {"tags": "commoncoin", "title": "poor dirt", "label": "1225", "type": "welfare", "id": "1225", "spells": [["24/01/19", "07/02/19"]]}], "links": [{"source": "69", "create": [["[69, 1225]", "24/01/19", "24/01/19"]], "target": "1225", "id": "3012", "spells": [["24/01/19", "07/02/19"]]}], "multigraph": false}

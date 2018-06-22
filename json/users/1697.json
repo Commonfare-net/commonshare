@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,welfare", "title": "enchanting name", "label": "1697", "type": "welfare", "id": "1697", "spells": [["09/05/19", "23/05/19"]]}, {"id": "690"}], "links": [{"source": "1697", "create": [["[690, 1697]", "09/05/19", "09/05/19"]], "target": "690", "id": "7214", "spells": [["09/05/19", "23/05/19"]]}], "multigraph": false}

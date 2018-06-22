@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "90"}, {"tags": "welfare", "title": "important dirt", "label": "1764", "type": "welfare", "id": "1764", "spells": [["24/05/19", "07/06/19"]]}], "links": [{"source": "90", "create": [["[90, 1764]", "24/05/19", "24/05/19"]], "target": "1764", "id": "3715", "spells": [["24/05/19", "07/06/19"]]}], "multigraph": false}

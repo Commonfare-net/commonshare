@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "30"}, {"tags": "welfare", "title": "camera trainer night promotion", "label": "1574", "type": "story", "id": "1574", "spells": [["08/04/19", "22/04/19"]]}], "links": [{"source": "30", "create": [["[30, 1574]", "08/04/19", "08/04/19"]], "target": "1574", "id": "1417", "spells": [["08/04/19", "22/04/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "brawny summer", "label": "1257", "type": "welfare", "id": "1257", "spells": [["01/02/19", "15/02/19"]]}, {"id": "1001"}], "links": [{"source": "1257", "create": [["[1001, 1257]", "01/02/19", "01/02/19"]], "target": "1001", "id": "7648", "spells": [["01/02/19", "15/02/19"]]}], "multigraph": false}

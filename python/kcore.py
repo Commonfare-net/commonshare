@@ -266,11 +266,21 @@ def calculate(G,startdate,enddate,granularity):
                 
         with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(data))
-#cur_date = datetime(2018,6,1)
-#start_date = cur_date
-#cur_date = cur_date + cf.one_year            
+            
+    #Now print out the whole history of each user
+    nodeiter = G.nodes(data=True)
+    for (n,c) in nodeiter:
+        UserG=nx.Graph()
+        UserG.add_node(n)
+        UserG.nodes[n].update(c)
+        UserG.add_edges_from(G.edges(n,data=True))
+        data = json_graph.node_link_data(UserG)
+        with open('../json/users/' + str(n) + '.json', 'w') as outfile:
+            outfile.write(json.dumps(data))
+cur_date = datetime(2018,6,1)
+start_date = cur_date
+cur_date = cur_date + cf.one_year            
 #Test reading is working properly
-#G_read = nx.read_gexf("../gexf/data360.gexf")
+G_read = nx.read_gexf("../gexf/data360.gexf")
 #Pass the start and end times of the file in, as well as the granularity at which you want the data (default 1 month)
-#calculate(G_read,start_date,cur_date,"month")
-#kcore.plotgraph()
+calculate(G_read,start_date,cur_date,"month")

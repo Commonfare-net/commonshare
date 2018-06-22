@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "longing side", "label": "1348", "type": "welfare", "id": "1348", "spells": [["19/02/19", "05/03/19"]]}, {"id": "824"}], "links": [{"source": "1348", "create": [["[824, 1348]", "19/02/19", "19/02/19"]], "target": "824", "id": "7459", "spells": [["19/02/19", "05/03/19"]]}], "multigraph": false}

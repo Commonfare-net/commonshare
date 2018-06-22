@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "281"}, {"tags": "welfare", "title": "whereas trip bonus period", "label": "1763", "type": "story", "id": "1763", "spells": [["24/05/19", "07/06/19"]]}], "links": [{"source": "281", "create": [["[281, 1763]", "24/05/19", "24/05/19"]], "target": "1763", "id": "5773", "spells": [["24/05/19", "07/06/19"]]}], "multigraph": false}

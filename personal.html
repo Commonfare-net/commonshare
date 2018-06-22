@@ -5,8 +5,14 @@
 </head>
 <body>
 <div style="width: 100%; text-align:center;">
+<h1>Interactions by month</h1>
+</div>
+<div style="width: 100%; text-align:center;">
     <svg style="display:inline-block;width:400px;" class="bigvis" width="400" height="400"></svg>
-    <svg style="display:inline-block;width:400px;"class="commonchart" width="400" height="300"></svg>
+    <div style="display:inline-block;width:400px">
+        <h5>Your Commonshare</h5>    
+        <svg style="display:inline-block;width:400px;"class="commonchart" width="400" height="300"></svg>
+    </div>
     <div style="display:inline-block;width:400px">
         <h5 id="yearmonth"></h5>
         <svg class="activitychart" width="400" height="300"></svg>
@@ -305,7 +311,7 @@ var areaGradient = svg.append("defs")
 
 areaGradient.append("stop")
     .attr("offset", "0%")
-    .attr("stop-color", "#21825C")
+    .attr("stop-color", "#e7472e")
     .attr("stop-opacity", 0.75);
 areaGradient.append("stop")
     .attr("offset", "80%")
@@ -489,7 +495,7 @@ function plotcalendars(user,mymonth){
     //Set up colour range (darker green means higher value to actions)
     rect = rect.data(mapped,function(d) {return d;})
     var buckets = 7,
-    greens = ['#82E0AA','#58D68D','#2ECC71','#28B463','#239B56','#1D8348','#186A3B'];
+    greens = ['#f3a396','#f09081','#ee7e6c','#eb6b57','#e95942','#e7472e','#cf3f29'];
     colorScale = d3.scaleQuantile()
                 .domain([0, buckets - 1, d3.max(mapped, function (d) { return d.sumval; })])
                 .range(greens);      

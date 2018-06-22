@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "301"}, {"tags": "welfare", "title": "economic branch", "label": "1166", "type": "welfare", "id": "1166", "spells": [["12/01/19", "26/01/19"]]}], "links": [{"source": "301", "create": [["[301, 1166]", "12/01/19", "12/01/19"]], "target": "1166", "id": "5875", "spells": [["12/01/19", "26/01/19"]]}], "multigraph": false}

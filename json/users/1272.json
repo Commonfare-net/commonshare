@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "energetic board", "label": "1272", "type": "welfare", "id": "1272", "spells": [["04/02/19", "18/02/19"]]}, {"id": "331"}], "links": [{"source": "1272", "create": [["[331, 1272]", "04/02/19", "04/02/19"]], "target": "331", "id": "5993", "spells": [["04/02/19", "18/02/19"]]}], "multigraph": false}

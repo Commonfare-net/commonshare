@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "pricey corn", "label": "803", "type": "welfare", "id": "803", "spells": [["31/10/18", "14/11/18"]]}, {"id": "394"}], "links": [{"source": "803", "create": [["[394, 803]", "31/10/18", "31/10/18"]], "target": "394", "id": "6337", "spells": [["31/10/18", "14/11/18"]]}], "multigraph": false}

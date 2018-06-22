@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,commoncoin", "title": "thoughtless drink", "label": "1133", "type": "welfare", "id": "1133", "spells": [["05/01/19", "19/01/19"]]}, {"id": "92"}], "links": [{"source": "1133", "create": [["[92, 1133]", "05/01/19", "05/01/19"]], "target": "92", "id": "3797", "spells": [["05/01/19", "19/01/19"]]}], "multigraph": false}

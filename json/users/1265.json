@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "street cook lab ground", "label": "1265", "type": "story", "id": "1265", "spells": [["03/02/19", "17/02/19"]]}, {"id": "78"}], "links": [{"source": "1265", "create": [["[78, 1265]", "03/02/19", "03/02/19"]], "target": "78", "id": "3308", "spells": [["03/02/19", "17/02/19"]]}], "multigraph": false}

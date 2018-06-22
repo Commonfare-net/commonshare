@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "list indication regret beat", "label": "465", "type": "story", "id": "465", "spells": [["18/08/18", "01/09/18"]]}, {"id": "192"}], "links": [{"source": "465", "create": [["[192, 465]", "18/08/18", "18/08/18"]], "target": "192", "id": "4900", "spells": [["18/08/18", "01/09/18"]]}], "multigraph": false}

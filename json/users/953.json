@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "heavenly name", "label": "953", "type": "welfare", "id": "953", "spells": [["01/12/18", "15/12/18"]]}, {"id": "95"}], "links": [{"source": "953", "create": [["[95, 953]", "01/12/18", "01/12/18"]], "target": "95", "id": "3859", "spells": [["01/12/18", "15/12/18"]]}], "multigraph": false}

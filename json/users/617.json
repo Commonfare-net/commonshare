@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "13"}, {"tags": "good practices", "title": "various coil", "label": "617", "type": "welfare", "id": "617", "spells": [["21/09/18", "05/10/18"]]}], "links": [{"source": "13", "create": [["[13, 617]", "21/09/18", "21/09/18"]], "target": "617", "id": "681", "spells": [["21/09/18", "05/10/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "uttermost authority", "label": "586", "type": "welfare", "id": "586", "spells": [["15/09/18", "29/09/18"]]}, {"id": "435"}], "links": [{"source": "586", "create": [["[435, 586]", "15/09/18", "15/09/18"]], "target": "435", "id": "6473", "spells": [["15/09/18", "29/09/18"]]}], "multigraph": false}

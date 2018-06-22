@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,commoncoin,provision", "title": "longing fold", "label": "855", "type": "welfare", "id": "855", "spells": [["12/11/18", "26/11/18"]]}, {"id": "73"}], "links": [{"source": "855", "create": [["[73, 855]", "12/11/18", "12/11/18"]], "target": "73", "id": "3160", "spells": [["12/11/18", "26/11/18"]]}], "multigraph": false}

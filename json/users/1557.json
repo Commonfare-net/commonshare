@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "283"}, {"tags": "commoncoin,welfare", "title": "delicate sugar", "label": "1557", "type": "welfare", "id": "1557", "spells": [["05/04/19", "19/04/19"]]}], "links": [{"source": "283", "create": [["[283, 1557]", "05/04/19", "05/04/19"]], "target": "1557", "id": "5792", "spells": [["05/04/19", "19/04/19"]]}], "multigraph": false}

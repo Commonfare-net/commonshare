@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "209"}, {"tags": "welfare,welfare", "title": "brawny end", "label": "1280", "type": "welfare", "id": "1280", "spells": [["06/02/19", "20/02/19"]]}], "links": [{"source": "209", "create": [["[209, 1280]", "06/02/19", "06/02/19"]], "target": "1280", "id": "5030", "spells": [["06/02/19", "20/02/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "443"}, {"tags": "welfare", "title": "abrasive person", "label": "954", "type": "welfare", "id": "954", "spells": [["01/12/18", "15/12/18"]]}], "links": [{"source": "443", "create": [["[443, 954]", "01/12/18", "01/12/18"]], "target": "954", "id": "6512", "spells": [["01/12/18", "15/12/18"]]}], "multigraph": false}

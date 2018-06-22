@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "57"}, {"tags": "good practices", "title": "unbiased stretch", "label": "1749", "type": "welfare", "id": "1749", "spells": [["20/05/19", "03/06/19"]]}], "links": [{"source": "57", "create": [["[57, 1749]", "20/05/19", "20/05/19"]], "target": "1749", "id": "2571", "spells": [["20/05/19", "03/06/19"]]}], "multigraph": false}

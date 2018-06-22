@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "10"}, {"tags": "good practices", "title": "rush leadership path conclusion", "label": "843", "type": "story", "id": "843", "spells": [["09/11/18", "23/11/18"]]}], "links": [{"source": "10", "create": [["[10, 843]", "09/11/18", "09/11/18"]], "target": "843", "id": "512", "spells": [["09/11/18", "23/11/18"]]}], "multigraph": false}

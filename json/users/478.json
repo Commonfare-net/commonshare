@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices,welfare", "title": "old beef", "label": "478", "type": "welfare", "id": "478", "spells": [["21/08/18", "04/09/18"]]}, {"id": "468"}], "links": [{"source": "478", "create": [["[468, 478]", "21/08/18", "21/08/18"]], "target": "468", "id": "6606", "spells": [["21/08/18", "04/09/18"]]}], "multigraph": false}

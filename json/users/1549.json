@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "632"}, {"tags": "protests", "title": "hot corn", "label": "1549", "type": "welfare", "id": "1549", "spells": [["04/04/19", "18/04/19"]]}], "links": [{"source": "632", "create": [["[632, 1549]", "04/04/19", "04/04/19"]], "target": "1549", "id": "7053", "spells": [["04/04/19", "18/04/19"]]}], "multigraph": false}

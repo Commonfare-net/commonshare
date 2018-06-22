@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1174"}, {"tags": "good practices", "title": "mixed celery", "label": "1662", "type": "welfare", "id": "1662", "spells": [["29/04/19", "13/05/19"]]}], "links": [{"source": "1174", "create": [["[1174, 1662]", "29/04/19", "29/04/19"]], "target": "1662", "id": "7781", "spells": [["29/04/19", "13/05/19"]]}], "multigraph": false}

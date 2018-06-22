@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "248"}, {"tags": "welfare", "title": "super winter", "label": "566", "type": "welfare", "id": "566", "spells": [["10/09/18", "24/09/18"]]}], "links": [{"source": "248", "create": [["[248, 566]", "10/09/18", "10/09/18"]], "target": "566", "id": "5296", "spells": [["10/09/18", "24/09/18"]]}], "multigraph": false}

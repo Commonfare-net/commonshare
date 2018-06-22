@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "42"}, {"tags": "welfare,commoncoin", "title": "cooing beef", "label": "376", "type": "welfare", "id": "376", "spells": [["28/07/18", "11/08/18"]]}], "links": [{"source": "42", "create": [["[42, 376]", "28/07/18", "28/07/18"]], "target": "376", "id": "1950", "spells": [["28/07/18", "11/08/18"]]}], "multigraph": false}

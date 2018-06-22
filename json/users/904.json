@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "54"}, {"tags": "welfare,commoncoin", "title": "small vein", "label": "904", "type": "welfare", "id": "904", "spells": [["21/11/18", "05/12/18"]]}], "links": [{"source": "54", "create": [["[54, 904]", "21/11/18", "21/11/18"]], "target": "904", "id": "2416", "spells": [["21/11/18", "05/12/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "61"}, {"tags": "commoncoin,welfare", "title": "mixed channel", "label": "1783", "type": "welfare", "id": "1783", "spells": [["27/05/19", "10/06/19"]]}], "links": [{"source": "61", "create": [["[61, 1783]", "27/05/19", "27/05/19"]], "target": "1783", "id": "2731", "spells": [["27/05/19", "10/06/19"]]}], "multigraph": false}

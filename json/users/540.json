@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "shiny size", "label": "540", "type": "welfare", "id": "540", "spells": [["05/09/18", "19/09/18"]]}, {"id": "13"}], "links": [{"source": "540", "create": [["[13, 540]", "05/09/18", "05/09/18"]], "target": "13", "id": "655", "spells": [["05/09/18", "19/09/18"]]}], "multigraph": false}

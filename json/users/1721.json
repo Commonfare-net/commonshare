@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1039"}, {"tags": "welfare,welfare", "title": "bright flame", "label": "1721", "type": "welfare", "id": "1721", "spells": [["14/05/19", "28/05/19"]]}], "links": [{"source": "1039", "create": [["[1039, 1721]", "14/05/19", "14/05/19"]], "target": "1721", "id": "7683", "spells": [["14/05/19", "28/05/19"]]}], "multigraph": false}

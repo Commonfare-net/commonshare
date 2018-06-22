@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "lively shoes", "label": "491", "type": "welfare", "id": "491", "spells": [["24/08/18", "07/09/18"]]}, {"id": "184"}], "links": [{"source": "491", "create": [["[184, 491]", "24/08/18", "24/08/18"]], "target": "184", "id": "4812", "spells": [["24/08/18", "07/09/18"]]}], "multigraph": false}

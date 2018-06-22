@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "nine fang", "label": "237", "type": "welfare", "id": "237", "spells": [["03/07/18", "17/07/18"]]}, {"id": "48"}], "links": [{"source": "237", "create": [["[48, 237]", "03/07/18", "03/07/18"]], "target": "48", "id": "2211", "spells": [["03/07/18", "17/07/18"]]}], "multigraph": false}

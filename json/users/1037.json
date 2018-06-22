@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,protests", "title": "bright authority", "label": "1037", "type": "welfare", "id": "1037", "spells": [["17/12/18", "31/12/18"]]}, {"id": "66"}], "links": [{"source": "1037", "create": [["[66, 1037]", "17/12/18", "17/12/18"]], "target": "66", "id": "2900", "spells": [["17/12/18", "31/12/18"]]}], "multigraph": false}

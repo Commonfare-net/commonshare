@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,provision", "title": "quiet shower permit self", "label": "809", "type": "story", "id": "809", "spells": [["01/11/18", "15/11/18"]]}, {"id": "336"}], "links": [{"source": "809", "create": [["[336, 809]", "01/11/18", "01/11/18"]], "target": "336", "id": "6003", "spells": [["01/11/18", "15/11/18"]]}], "multigraph": false}

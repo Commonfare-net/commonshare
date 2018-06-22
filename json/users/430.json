@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "131"}, {"tags": "commoncoin,welfare", "title": "fantastic bell", "label": "430", "type": "welfare", "id": "430", "spells": [["08/08/18", "22/08/18"]]}], "links": [{"source": "131", "create": [["[131, 430]", "08/08/18", "08/08/18"]], "target": "430", "id": "4257", "spells": [["08/08/18", "22/08/18"]]}], "multigraph": false}

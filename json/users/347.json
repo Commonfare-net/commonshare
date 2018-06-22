@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices,welfare", "title": "hot quiet", "label": "347", "type": "welfare", "id": "347", "spells": [["22/07/18", "05/08/18"]]}, {"id": "119"}], "links": [{"source": "347", "create": [["[119, 347]", "22/07/18", "22/07/18"]], "target": "119", "id": "4143", "spells": [["22/07/18", "05/08/18"]]}], "multigraph": false}

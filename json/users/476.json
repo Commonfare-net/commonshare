@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "384"}, {"tags": "commoncoin,protests", "title": "bright knee", "label": "476", "type": "welfare", "id": "476", "spells": [["21/08/18", "04/09/18"]]}], "links": [{"source": "384", "create": [["[384, 476]", "21/08/18", "21/08/18"]], "target": "476", "id": "6198", "spells": [["21/08/18", "04/09/18"]]}], "multigraph": false}

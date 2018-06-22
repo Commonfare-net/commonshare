@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "57"}, {"tags": "protests,welfare,welfare", "title": "narrow dock", "label": "243", "type": "welfare", "id": "243", "spells": [["04/07/18", "18/07/18"]]}], "links": [{"source": "57", "create": [["[57, 243]", "04/07/18", "04/07/18"]], "target": "243", "id": "2569", "spells": [["04/07/18", "18/07/18"]]}], "multigraph": false}

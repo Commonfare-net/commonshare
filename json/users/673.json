@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "98"}, {"tags": "good practices", "title": "kind whole employer spread", "label": "673", "type": "story", "id": "673", "spells": [["01/10/18", "15/10/18"]]}], "links": [{"source": "98", "create": [["[98, 673]", "01/10/18", "01/10/18"]], "target": "673", "id": "3950", "spells": [["01/10/18", "15/10/18"]]}], "multigraph": false}

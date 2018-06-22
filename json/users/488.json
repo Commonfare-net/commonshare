@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "89"}, {"tags": "commoncoin", "title": "homely cellar", "label": "488", "type": "welfare", "id": "488", "spells": [["23/08/18", "06/09/18"]]}], "links": [{"source": "89", "create": [["[89, 488]", "23/08/18", "23/08/18"]], "target": "488", "id": "3682", "spells": [["23/08/18", "06/09/18"]]}], "multigraph": false}

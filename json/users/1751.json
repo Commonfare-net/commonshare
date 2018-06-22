@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "7"}, {"tags": "commoncoin,welfare", "title": "sugar midnight level party", "label": "1751", "type": "story", "id": "1751", "spells": [["21/05/19", "04/06/19"]]}], "links": [{"source": "7", "create": [["[7, 1751]", "21/05/19", "21/05/19"]], "target": "1751", "id": "368", "spells": [["21/05/19", "04/06/19"]]}], "multigraph": false}

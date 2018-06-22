@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "83"}, {"tags": "welfare,provision", "title": "hot throne", "label": "1761", "type": "welfare", "id": "1761", "spells": [["23/05/19", "06/06/19"]]}], "links": [{"source": "83", "create": [["[83, 1761]", "23/05/19", "23/05/19"]], "target": "1761", "id": "3463", "spells": [["23/05/19", "06/06/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "24"}, {"tags": "good practices", "title": "drop tear mix feedback", "label": "1732", "type": "story", "id": "1732", "spells": [["16/05/19", "30/05/19"]]}], "links": [{"source": "24", "create": [["[24, 1732]", "16/05/19", "16/05/19"]], "target": "1732", "id": "1135", "spells": [["16/05/19", "30/05/19"]]}], "multigraph": false}

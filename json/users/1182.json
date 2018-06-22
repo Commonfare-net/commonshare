@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "725"}, {"tags": "provision", "title": "detailed houses", "label": "1182", "type": "welfare", "id": "1182", "spells": [["15/01/19", "29/01/19"]]}], "links": [{"source": "725", "create": [["[725, 1182]", "15/01/19", "15/01/19"]], "target": "1182", "id": "7293", "spells": [["15/01/19", "29/01/19"]]}], "multigraph": false}

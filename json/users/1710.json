@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "poor cream", "label": "1710", "type": "welfare", "id": "1710", "spells": [["11/05/19", "25/05/19"]]}, {"id": "1399"}], "links": [{"source": "1710", "create": [["[1399, 1710]", "11/05/19", "11/05/19"]], "target": "1399", "id": "7865", "spells": [["11/05/19", "25/05/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "38"}, {"tags": "provision", "title": "narrow roof", "label": "410", "type": "welfare", "id": "410", "spells": [["05/08/18", "19/08/18"]]}], "links": [{"source": "38", "create": [["[38, 410]", "05/08/18", "05/08/18"]], "target": "410", "id": "1742", "spells": [["05/08/18", "19/08/18"]]}], "multigraph": false}

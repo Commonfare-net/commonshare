@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "economic celery", "label": "1712", "type": "welfare", "id": "1712", "spells": [["12/05/19", "26/05/19"]]}, {"id": "1491"}], "links": [{"source": "1712", "create": [["[1491, 1712]", "12/05/19", "12/05/19"]], "target": "1491", "id": "7884", "spells": [["12/05/19", "26/05/19"]]}], "multigraph": false}

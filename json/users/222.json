@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "57"}, {"tags": "welfare", "title": "five stretch", "label": "222", "type": "welfare", "id": "222", "spells": [["29/06/18", "13/07/18"]]}], "links": [{"source": "57", "create": [["[57, 222]", "29/06/18", "29/06/18"]], "target": "222", "id": "2565", "spells": [["29/06/18", "13/07/18"]]}], "multigraph": false}

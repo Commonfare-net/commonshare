@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "0"}, {"tags": "commoncoin,protests,provision", "title": "various beds", "label": "751", "type": "welfare", "id": "751", "spells": [["18/10/18", "01/11/18"]]}], "links": [{"source": "0", "create": [["[0, 751]", "18/10/18", "18/10/18"]], "target": "751", "id": "42", "spells": [["18/10/18", "01/11/18"]]}], "multigraph": false}

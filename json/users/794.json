@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "336"}, {"tags": "provision", "title": "window associate enthusiasm hall", "label": "794", "type": "story", "id": "794", "spells": [["28/10/18", "11/11/18"]]}], "links": [{"source": "336", "create": [["[336, 794]", "28/10/18", "28/10/18"]], "target": "794", "id": "6000", "spells": [["28/10/18", "11/11/18"]]}], "multigraph": false}

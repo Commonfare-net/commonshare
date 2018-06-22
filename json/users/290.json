@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "39"}, {"tags": "good practices", "title": "bright moon", "label": "290", "type": "welfare", "id": "290", "spells": [["12/07/18", "26/07/18"]]}], "links": [{"source": "39", "create": [["[39, 290]", "12/07/18", "12/07/18"]], "target": "290", "id": "1791", "spells": [["12/07/18", "26/07/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "lively table", "label": "1511", "type": "welfare", "id": "1511", "spells": [["25/03/19", "08/04/19"]]}, {"id": "50"}], "links": [{"source": "1511", "create": [["[50, 1511]", "25/03/19", "25/03/19"]], "target": "50", "id": "2279", "spells": [["25/03/19", "08/04/19"]]}], "multigraph": false}

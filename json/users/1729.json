@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1624"}, {"tags": "welfare", "title": "innocent channel", "label": "1729", "type": "welfare", "id": "1729", "spells": [["16/05/19", "30/05/19"]]}], "links": [{"source": "1624", "create": [["[1624, 1729]", "16/05/19", "16/05/19"]], "target": "1729", "id": "7904", "spells": [["16/05/19", "30/05/19"]]}], "multigraph": false}

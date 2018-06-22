@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "3"}, {"tags": "good practices,protests,welfare", "title": "lively board", "label": "265", "type": "welfare", "id": "265", "spells": [["07/07/18", "21/07/18"]]}], "links": [{"source": "3", "create": [["[3, 265]", "07/07/18", "07/07/18"]], "target": "265", "id": "150", "spells": [["07/07/18", "21/07/18"]]}], "multigraph": false}

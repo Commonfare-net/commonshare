@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,welfare", "title": "lavish cellar", "label": "887", "type": "welfare", "id": "887", "spells": [["18/11/18", "02/12/18"]]}, {"id": "43"}], "links": [{"source": "887", "create": [["[43, 887]", "18/11/18", "18/11/18"]], "target": "43", "id": "1995", "spells": [["18/11/18", "02/12/18"]]}], "multigraph": false}

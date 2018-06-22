@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "futuristic stretch", "label": "1456", "type": "welfare", "id": "1456", "spells": [["13/03/19", "27/03/19"]]}, {"id": "23"}], "links": [{"source": "1456", "create": [["[23, 1456]", "13/03/19", "13/03/19"]], "target": "23", "id": "1104", "spells": [["13/03/19", "27/03/19"]]}], "multigraph": false}

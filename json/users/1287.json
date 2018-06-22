@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "nauseating winter", "label": "1287", "type": "welfare", "id": "1287", "spells": [["07/02/19", "21/02/19"]]}, {"id": "39"}], "links": [{"source": "1287", "create": [["[39, 1287]", "07/02/19", "07/02/19"]], "target": "39", "id": "1793", "spells": [["07/02/19", "21/02/19"]]}], "multigraph": false}

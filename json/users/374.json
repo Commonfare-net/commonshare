@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "letter couple reveal woman", "label": "374", "type": "story", "id": "374", "spells": [["28/07/18", "11/08/18"]]}, {"id": "67"}], "links": [{"source": "374", "create": [["[67, 374]", "28/07/18", "28/07/18"]], "target": "67", "id": "2937", "spells": [["28/07/18", "11/08/18"]]}], "multigraph": false}

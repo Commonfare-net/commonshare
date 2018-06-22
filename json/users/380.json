@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,protests", "title": "glove read tell growth", "label": "380", "type": "story", "id": "380", "spells": [["29/07/18", "12/08/18"]]}, {"id": "32"}], "links": [{"source": "380", "create": [["[32, 380]", "29/07/18", "29/07/18"]], "target": "32", "id": "1505", "spells": [["29/07/18", "12/08/18"]]}], "multigraph": false}

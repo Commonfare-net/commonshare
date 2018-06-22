@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "355"}, {"tags": "commoncoin", "title": "bunch golf diamond will", "label": "635", "type": "story", "id": "635", "spells": [["24/09/18", "08/10/18"]]}], "links": [{"source": "355", "create": [["[355, 635]", "24/09/18", "24/09/18"]], "target": "635", "id": "6101", "spells": [["24/09/18", "08/10/18"]]}], "multigraph": false}

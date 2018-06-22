@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,provision", "title": "nine bed", "label": "1306", "type": "welfare", "id": "1306", "spells": [["10/02/19", "24/02/19"]]}, {"id": "14"}], "links": [{"source": "1306", "create": [["[14, 1306]", "10/02/19", "10/02/19"]], "target": "14", "id": "699", "spells": [["10/02/19", "24/02/19"]]}], "multigraph": false}

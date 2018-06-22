@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "502"}, {"tags": "protests,protests", "title": "shiny loaf", "label": "1504", "type": "welfare", "id": "1504", "spells": [["24/03/19", "07/04/19"]]}], "links": [{"source": "502", "create": [["[502, 1504]", "24/03/19", "24/03/19"]], "target": "1504", "id": "6714", "spells": [["24/03/19", "07/04/19"]]}], "multigraph": false}

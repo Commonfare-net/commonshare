@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "longing loaf", "label": "1316", "type": "welfare", "id": "1316", "spells": [["13/02/19", "27/02/19"]]}, {"id": "798"}], "links": [{"source": "1316", "create": [["[798, 1316]", "13/02/19", "13/02/19"]], "target": "798", "id": "7422", "spells": [["13/02/19", "27/02/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "energetic train", "label": "1740", "type": "welfare", "id": "1740", "spells": [["18/05/19", "01/06/19"]]}, {"id": "935"}], "links": [{"source": "1740", "create": [["[935, 1740]", "18/05/19", "18/05/19"]], "target": "935", "id": "7584", "spells": [["18/05/19", "01/06/19"]]}], "multigraph": false}

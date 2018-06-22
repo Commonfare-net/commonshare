@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "economic jail", "label": "1400", "type": "welfare", "id": "1400", "spells": [["02/03/19", "16/03/19"]]}, {"id": "86"}], "links": [{"source": "1400", "create": [["[86, 1400]", "02/03/19", "02/03/19"]], "target": "86", "id": "3578", "spells": [["02/03/19", "16/03/19"]]}], "multigraph": false}

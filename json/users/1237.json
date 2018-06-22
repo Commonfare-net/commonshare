@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,provision,welfare", "title": "super recess", "label": "1237", "type": "welfare", "id": "1237", "spells": [["27/01/19", "10/02/19"]]}, {"id": "23"}], "links": [{"source": "1237", "create": [["[23, 1237]", "27/01/19", "27/01/19"]], "target": "23", "id": "1117", "spells": [["27/01/19", "10/02/19"]]}], "multigraph": false}

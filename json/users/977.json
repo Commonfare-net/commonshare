@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "matter sense court bother", "label": "977", "type": "story", "id": "977", "spells": [["07/12/18", "21/12/18"]]}, {"id": "620"}], "links": [{"source": "977", "create": [["[620, 977]", "07/12/18", "07/12/18"]], "target": "620", "id": "7038", "spells": [["07/12/18", "21/12/18"]]}], "multigraph": false}

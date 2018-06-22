@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,protests", "title": "ruddy bee", "label": "1598", "type": "welfare", "id": "1598", "spells": [["14/04/19", "28/04/19"]]}, {"id": "1406"}], "links": [{"source": "1598", "create": [["[1406, 1598]", "14/04/19", "14/04/19"]], "target": "1406", "id": "7867", "spells": [["14/04/19", "28/04/19"]]}], "multigraph": false}

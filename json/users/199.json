@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,commoncoin,welfare", "title": "bright bell", "label": "199", "type": "welfare", "id": "199", "spells": [["23/06/18", "07/07/18"]]}, {"id": "96"}], "links": [{"source": "199", "create": [["[96, 199]", "23/06/18", "23/06/18"]], "target": "96", "id": "3892", "spells": [["23/06/18", "07/07/18"]]}], "multigraph": false}

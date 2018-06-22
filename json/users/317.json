@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,good practices", "title": "onerous vegetable", "label": "317", "type": "welfare", "id": "317", "spells": [["17/07/18", "31/07/18"]]}, {"id": "85"}], "links": [{"source": "317", "create": [["[85, 317]", "17/07/18", "17/07/18"]], "target": "85", "id": "3544", "spells": [["17/07/18", "31/07/18"]]}], "multigraph": false}

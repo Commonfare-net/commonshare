@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "efficacious card", "label": "1422", "type": "welfare", "id": "1422", "spells": [["06/03/19", "20/03/19"]]}, {"id": "601"}], "links": [{"source": "1422", "create": [["[601, 1422]", "06/03/19", "06/03/19"]], "target": "601", "id": "6994", "spells": [["06/03/19", "20/03/19"]]}], "multigraph": false}

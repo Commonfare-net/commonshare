@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,welfare", "title": "five time", "label": "813", "type": "welfare", "id": "813", "spells": [["02/11/18", "16/11/18"]]}, {"id": "89"}], "links": [{"source": "813", "create": [["[89, 813]", "02/11/18", "02/11/18"]], "target": "89", "id": "3663", "spells": [["02/11/18", "16/11/18"]]}], "multigraph": false}

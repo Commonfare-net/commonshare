@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,good practices", "title": "important rice", "label": "344", "type": "welfare", "id": "344", "spells": [["21/07/18", "04/08/18"]]}, {"id": "75"}], "links": [{"source": "344", "create": [["[75, 344]", "21/07/18", "21/07/18"]], "target": "75", "id": "3219", "spells": [["21/07/18", "04/08/18"]]}], "multigraph": false}

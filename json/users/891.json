@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,provision", "title": "bright secretary", "label": "891", "type": "welfare", "id": "891", "spells": [["18/11/18", "02/12/18"]]}, {"id": "13"}], "links": [{"source": "891", "create": [["[13, 891]", "18/11/18", "18/11/18"]], "target": "13", "id": "678", "spells": [["18/11/18", "02/12/18"]]}], "multigraph": false}

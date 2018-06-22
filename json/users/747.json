@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "524"}, {"tags": "good practices", "title": "jury oven pop option", "label": "747", "type": "story", "id": "747", "spells": [["18/10/18", "01/11/18"]]}], "links": [{"source": "524", "create": [["[524, 747]", "18/10/18", "18/10/18"]], "target": "747", "id": "6808", "spells": [["18/10/18", "01/11/18"]]}], "multigraph": false}

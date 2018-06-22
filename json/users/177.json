@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,welfare", "title": "pricey match", "label": "177", "type": "welfare", "id": "177", "spells": [["19/06/18", "03/07/18"]]}, {"id": "67"}], "links": [{"source": "177", "create": [["[67, 177]", "19/06/18", "19/06/18"]], "target": "67", "id": "2933", "spells": [["19/06/18", "03/07/18"]]}], "multigraph": false}

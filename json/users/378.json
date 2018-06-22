@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,good practices,protests", "title": "nine robin", "label": "378", "type": "welfare", "id": "378", "spells": [["29/07/18", "12/08/18"]]}, {"id": "47"}], "links": [{"source": "378", "create": [["[47, 378]", "29/07/18", "29/07/18"]], "target": "47", "id": "2164", "spells": [["29/07/18", "12/08/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "384"}, {"tags": "commoncoin", "title": "while pay job tackle", "label": "1010", "type": "story", "id": "1010", "spells": [["12/12/18", "26/12/18"]]}], "links": [{"source": "384", "create": [["[384, 1010]", "12/12/18", "12/12/18"]], "target": "1010", "id": "6201", "spells": [["12/12/18", "26/12/18"]]}], "multigraph": false}

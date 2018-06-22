@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "pricey turkey", "label": "1559", "type": "welfare", "id": "1559", "spells": [["05/04/19", "19/04/19"]]}, {"id": "117"}], "links": [{"source": "1559", "create": [["[117, 1559]", "05/04/19", "05/04/19"]], "target": "117", "id": "4109", "spells": [["05/04/19", "19/04/19"]]}], "multigraph": false}

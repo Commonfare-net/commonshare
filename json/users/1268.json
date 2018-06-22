@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,welfare", "title": "zany winter", "label": "1268", "type": "welfare", "id": "1268", "spells": [["04/02/19", "18/02/19"]]}, {"id": "37"}], "links": [{"source": "1268", "create": [["[37, 1268]", "04/02/19", "04/02/19"]], "target": "37", "id": "1729", "spells": [["04/02/19", "18/02/19"]]}], "multigraph": false}

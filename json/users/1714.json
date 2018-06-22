@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "507"}, {"tags": "good practices,protests", "title": "super rice", "label": "1714", "type": "welfare", "id": "1714", "spells": [["12/05/19", "26/05/19"]]}], "links": [{"source": "507", "create": [["[507, 1714]", "12/05/19", "12/05/19"]], "target": "1714", "id": "6723", "spells": [["12/05/19", "26/05/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "super throne", "label": "1032", "type": "welfare", "id": "1032", "spells": [["17/12/18", "31/12/18"]]}, {"id": "43"}], "links": [{"source": "1032", "create": [["[43, 1032]", "17/12/18", "17/12/18"]], "target": "43", "id": "1957", "spells": [["17/12/18", "31/12/18"]]}], "multigraph": false}

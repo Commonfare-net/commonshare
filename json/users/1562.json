@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "graceful turkey", "label": "1562", "type": "welfare", "id": "1562", "spells": [["06/04/19", "20/04/19"]]}, {"id": "72"}], "links": [{"source": "1562", "create": [["[72, 1562]", "06/04/19", "06/04/19"]], "target": "72", "id": "3117", "spells": [["06/04/19", "20/04/19"]]}], "multigraph": false}

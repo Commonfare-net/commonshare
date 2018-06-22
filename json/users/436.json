@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "pull contribution salt voice", "label": "436", "type": "story", "id": "436", "spells": [["10/08/18", "24/08/18"]]}, {"id": "22"}], "links": [{"source": "436", "create": [["[22, 436]", "10/08/18", "10/08/18"]], "target": "22", "id": "1040", "spells": [["10/08/18", "24/08/18"]]}], "multigraph": false}

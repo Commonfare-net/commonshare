@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices,commoncoin", "title": "guttural bee", "label": "899", "type": "welfare", "id": "899", "spells": [["20/11/18", "04/12/18"]]}, {"id": "323"}], "links": [{"source": "899", "create": [["[323, 899]", "20/11/18", "20/11/18"]], "target": "323", "id": "5946", "spells": [["20/11/18", "04/12/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "71"}, {"tags": "commoncoin", "title": "funny negative finish celebration", "label": "589", "type": "story", "id": "589", "spells": [["15/09/18", "29/09/18"]]}], "links": [{"source": "71", "create": [["[71, 589]", "15/09/18", "15/09/18"]], "target": "589", "id": "3096", "spells": [["15/09/18", "29/09/18"]]}], "multigraph": false}

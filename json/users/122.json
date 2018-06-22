@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "bright pull", "label": "122", "type": "welfare", "id": "122", "spells": [["06/06/18", "20/06/18"]]}, {"id": "40"}], "links": [{"source": "122", "create": [["[40, 122]", "06/06/18", "06/06/18"]], "target": "40", "id": "1864", "spells": [["06/06/18", "20/06/18"]]}], "multigraph": false}

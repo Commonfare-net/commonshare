@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "51"}, {"tags": "welfare,welfare", "title": "heavenly card", "label": "1459", "type": "welfare", "id": "1459", "spells": [["13/03/19", "27/03/19"]]}], "links": [{"source": "51", "create": [["[51, 1459]", "13/03/19", "13/03/19"]], "target": "1459", "id": "2298", "spells": [["13/03/19", "27/03/19"]]}], "multigraph": false}

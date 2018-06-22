@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "57"}, {"tags": "protests", "title": "futuristic beds", "label": "1286", "type": "welfare", "id": "1286", "spells": [["07/02/19", "21/02/19"]]}], "links": [{"source": "57", "create": [["[57, 1286]", "07/02/19", "07/02/19"]], "target": "1286", "id": "2566", "spells": [["07/02/19", "21/02/19"]]}], "multigraph": false}

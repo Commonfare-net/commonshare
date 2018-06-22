@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "795"}, {"tags": "commoncoin", "title": "fall parking physics shower", "label": "927", "type": "story", "id": "927", "spells": [["26/11/18", "10/12/18"]]}], "links": [{"source": "795", "create": [["[795, 927]", "26/11/18", "26/11/18"]], "target": "927", "id": "7415", "spells": [["26/11/18", "10/12/18"]]}], "multigraph": false}

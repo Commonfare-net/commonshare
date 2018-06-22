@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,welfare", "title": "eat math football coach", "label": "788", "type": "story", "id": "788", "spells": [["27/10/18", "10/11/18"]]}, {"id": "439"}], "links": [{"source": "788", "create": [["[439, 788]", "27/10/18", "27/10/18"]], "target": "439", "id": "6487", "spells": [["27/10/18", "10/11/18"]]}], "multigraph": false}

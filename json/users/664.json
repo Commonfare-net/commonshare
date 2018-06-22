@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "32"}, {"tags": "commoncoin,protests", "title": "heavenly size", "label": "664", "type": "welfare", "id": "664", "spells": [["30/09/18", "14/10/18"]]}], "links": [{"source": "32", "create": [["[32, 664]", "30/09/18", "30/09/18"]], "target": "664", "id": "1473", "spells": [["30/09/18", "14/10/18"]]}], "multigraph": false}

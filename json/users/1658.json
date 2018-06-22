@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "easy girl", "label": "1658", "type": "welfare", "id": "1658", "spells": [["28/04/19", "12/05/19"]]}, {"id": "1564"}], "links": [{"source": "1658", "create": [["[1564, 1658]", "28/04/19", "28/04/19"]], "target": "1564", "id": "7895", "spells": [["28/04/19", "12/05/19"]]}], "multigraph": false}

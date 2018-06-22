@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "lavish moon", "label": "1771", "type": "welfare", "id": "1771", "spells": [["25/05/19", "08/06/19"]]}, {"id": "468"}], "links": [{"source": "1771", "create": [["[468, 1771]", "25/05/19", "25/05/19"]], "target": "468", "id": "6608", "spells": [["25/05/19", "08/06/19"]]}], "multigraph": false}

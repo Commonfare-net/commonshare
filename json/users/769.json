@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "281"}, {"tags": "good practices", "title": "heavenly recess", "label": "769", "type": "welfare", "id": "769", "spells": [["23/10/18", "06/11/18"]]}], "links": [{"source": "281", "create": [["[281, 769]", "23/10/18", "23/10/18"]], "target": "769", "id": "5752", "spells": [["23/10/18", "06/11/18"]]}], "multigraph": false}

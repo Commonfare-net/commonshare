@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices,welfare", "title": "hot fang", "label": "1633", "type": "welfare", "id": "1633", "spells": [["22/04/19", "06/05/19"]]}, {"id": "400"}], "links": [{"source": "1633", "create": [["[400, 1633]", "22/04/19", "22/04/19"]], "target": "400", "id": "6366", "spells": [["22/04/19", "06/05/19"]]}], "multigraph": false}

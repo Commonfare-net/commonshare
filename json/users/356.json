@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "91"}, {"tags": "good practices", "title": "wind eat amount background", "label": "356", "type": "story", "id": "356", "spells": [["24/07/18", "07/08/18"]]}], "links": [{"source": "91", "create": [["[91, 356]", "24/07/18", "24/07/18"]], "target": "356", "id": "3751", "spells": [["24/07/18", "07/08/18"]]}], "multigraph": false}

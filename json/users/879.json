@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "352"}, {"tags": "commoncoin,commoncoin", "title": "detailed reward", "label": "879", "type": "welfare", "id": "879", "spells": [["16/11/18", "30/11/18"]]}], "links": [{"source": "352", "create": [["[352, 879]", "16/11/18", "16/11/18"]], "target": "879", "id": "6085", "spells": [["16/11/18", "30/11/18"]]}], "multigraph": false}

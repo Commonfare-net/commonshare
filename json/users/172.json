@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "economic beds", "label": "172", "type": "welfare", "id": "172", "spells": [["18/06/18", "02/07/18"]]}, {"id": "157"}], "links": [{"source": "172", "create": [["[157, 172]", "18/06/18", "18/06/18"]], "target": "157", "id": "4606", "spells": [["18/06/18", "02/07/18"]]}], "multigraph": false}

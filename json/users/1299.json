@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "president math cost salt", "label": "1299", "type": "story", "id": "1299", "spells": [["09/02/19", "23/02/19"]]}, {"id": "67"}], "links": [{"source": "1299", "create": [["[67, 1299]", "09/02/19", "09/02/19"]], "target": "67", "id": "2924", "spells": [["09/02/19", "23/02/19"]]}], "multigraph": false}

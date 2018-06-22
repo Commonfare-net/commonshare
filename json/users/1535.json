@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,good practices", "title": "economic desk", "label": "1535", "type": "welfare", "id": "1535", "spells": [["31/03/19", "14/04/19"]]}, {"id": "2"}], "links": [{"source": "1535", "create": [["[2, 1535]", "31/03/19", "31/03/19"]], "target": "2", "id": "146", "spells": [["31/03/19", "14/04/19"]]}], "multigraph": false}

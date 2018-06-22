@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,commoncoin", "title": "nauseating cellar", "label": "1169", "type": "welfare", "id": "1169", "spells": [["13/01/19", "27/01/19"]]}, {"id": "49"}], "links": [{"source": "1169", "create": [["[49, 1169]", "13/01/19", "13/01/19"]], "target": "49", "id": "2222", "spells": [["13/01/19", "27/01/19"]]}], "multigraph": false}

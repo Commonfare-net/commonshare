@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "106"}, {"tags": "welfare", "title": "rock internal union profile", "label": "1171", "type": "story", "id": "1171", "spells": [["13/01/19", "27/01/19"]]}], "links": [{"source": "106", "create": [["[106, 1171]", "13/01/19", "13/01/19"]], "target": "1171", "id": "3996", "spells": [["13/01/19", "27/01/19"]]}], "multigraph": false}

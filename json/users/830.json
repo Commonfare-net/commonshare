@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,welfare,welfare", "title": "onerous cellar", "label": "830", "type": "welfare", "id": "830", "spells": [["06/11/18", "20/11/18"]]}, {"id": "790"}], "links": [{"source": "830", "create": [["[790, 830]", "06/11/18", "06/11/18"]], "target": "790", "id": "7409", "spells": [["06/11/18", "20/11/18"]]}], "multigraph": false}

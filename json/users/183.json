@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,welfare", "title": "homely shoes", "label": "183", "type": "welfare", "id": "183", "spells": [["20/06/18", "04/07/18"]]}, {"id": "88"}], "links": [{"source": "183", "create": [["[88, 183]", "20/06/18", "20/06/18"]], "target": "88", "id": "3638", "spells": [["20/06/18", "04/07/18"]]}], "multigraph": false}

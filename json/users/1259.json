@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "283"}, {"tags": "protests", "title": "relationship year raw tale", "label": "1259", "type": "story", "id": "1259", "spells": [["01/02/19", "15/02/19"]]}], "links": [{"source": "283", "create": [["[283, 1259]", "01/02/19", "01/02/19"]], "target": "1259", "id": "5803", "spells": [["01/02/19", "15/02/19"]]}], "multigraph": false}

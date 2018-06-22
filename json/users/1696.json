@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "guttural oranges", "label": "1696", "type": "welfare", "id": "1696", "spells": [["09/05/19", "23/05/19"]]}, {"id": "464"}], "links": [{"source": "1696", "create": [["[464, 1696]", "09/05/19", "09/05/19"]], "target": "464", "id": "6589", "spells": [["09/05/19", "23/05/19"]]}], "multigraph": false}

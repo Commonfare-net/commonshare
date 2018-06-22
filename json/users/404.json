@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,commoncoin", "title": "tough ants", "label": "404", "type": "welfare", "id": "404", "spells": [["03/08/18", "17/08/18"]]}, {"id": "58"}], "links": [{"source": "404", "create": [["[58, 404]", "03/08/18", "03/08/18"]], "target": "58", "id": "2582", "spells": [["03/08/18", "17/08/18"]]}], "multigraph": false}

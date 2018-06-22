@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,protests", "title": "nauseating rod", "label": "215", "type": "welfare", "id": "215", "spells": [["27/06/18", "11/07/18"]]}, {"id": "106"}], "links": [{"source": "215", "create": [["[106, 215]", "27/06/18", "27/06/18"]], "target": "106", "id": "4007", "spells": [["27/06/18", "11/07/18"]]}], "multigraph": false}

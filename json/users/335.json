@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "hot end", "label": "335", "type": "welfare", "id": "335", "spells": [["19/07/18", "02/08/18"]]}, {"id": "2"}], "links": [{"source": "335", "create": [["[2, 335]", "19/07/18", "19/07/18"]], "target": "2", "id": "122", "spells": [["19/07/18", "02/08/18"]]}], "multigraph": false}

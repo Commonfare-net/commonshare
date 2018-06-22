@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,protests", "title": "mixed rhythm", "label": "666", "type": "welfare", "id": "666", "spells": [["30/09/18", "14/10/18"]]}, {"id": "236"}], "links": [{"source": "666", "create": [["[236, 666]", "30/09/18", "30/09/18"]], "target": "236", "id": "5246", "spells": [["30/09/18", "14/10/18"]]}], "multigraph": false}

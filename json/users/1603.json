@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "unsightly trucks", "label": "1603", "type": "welfare", "id": "1603", "spells": [["15/04/19", "29/04/19"]]}, {"id": "34"}], "links": [{"source": "1603", "create": [["[34, 1603]", "15/04/19", "15/04/19"]], "target": "34", "id": "1579", "spells": [["15/04/19", "29/04/19"]]}], "multigraph": false}

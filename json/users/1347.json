@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "552"}, {"tags": "welfare,protests", "title": "nauseating toy", "label": "1347", "type": "welfare", "id": "1347", "spells": [["19/02/19", "05/03/19"]]}], "links": [{"source": "552", "create": [["[552, 1347]", "19/02/19", "19/02/19"]], "target": "1347", "id": "6893", "spells": [["19/02/19", "05/03/19"]]}], "multigraph": false}

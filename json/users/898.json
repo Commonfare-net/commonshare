@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,good practices", "title": "zany cactus", "label": "898", "type": "welfare", "id": "898", "spells": [["20/11/18", "04/12/18"]]}, {"id": "283"}], "links": [{"source": "898", "create": [["[283, 898]", "20/11/18", "20/11/18"]], "target": "283", "id": "5791", "spells": [["20/11/18", "04/12/18"]]}], "multigraph": false}

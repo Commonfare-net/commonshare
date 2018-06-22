@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,good practices", "title": "easy sugar", "label": "959", "type": "welfare", "id": "959", "spells": [["02/12/18", "16/12/18"]]}, {"id": "213"}], "links": [{"source": "959", "create": [["[213, 959]", "02/12/18", "02/12/18"]], "target": "213", "id": "5071", "spells": [["02/12/18", "16/12/18"]]}], "multigraph": false}

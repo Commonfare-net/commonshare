@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "thoughtless quiet", "label": "368", "type": "welfare", "id": "368", "spells": [["27/07/18", "10/08/18"]]}, {"id": "16"}], "links": [{"source": "368", "create": [["[16, 368]", "27/07/18", "27/07/18"]], "target": "16", "id": "816", "spells": [["27/07/18", "10/08/18"]]}], "multigraph": false}

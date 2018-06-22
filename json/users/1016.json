@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "982"}, {"tags": "welfare", "title": "puny bed", "label": "1016", "type": "welfare", "id": "1016", "spells": [["13/12/18", "27/12/18"]]}], "links": [{"source": "982", "create": [["[982, 1016]", "13/12/18", "13/12/18"]], "target": "1016", "id": "7634", "spells": [["13/12/18", "27/12/18"]]}], "multigraph": false}

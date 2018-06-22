@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "645"}, {"tags": "welfare", "title": "puny selection", "label": "1295", "type": "welfare", "id": "1295", "spells": [["08/02/19", "22/02/19"]]}], "links": [{"source": "645", "create": [["[645, 1295]", "08/02/19", "08/02/19"]], "target": "1295", "id": "7089", "spells": [["08/02/19", "22/02/19"]]}], "multigraph": false}

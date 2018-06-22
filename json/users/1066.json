@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "345"}, {"tags": "commoncoin", "title": "show ride suspect entry", "label": "1066", "type": "story", "id": "1066", "spells": [["23/12/18", "06/01/19"]]}], "links": [{"source": "345", "create": [["[345, 1066]", "23/12/18", "23/12/18"]], "target": "1066", "id": "6065", "spells": [["23/12/18", "06/01/19"]]}], "multigraph": false}

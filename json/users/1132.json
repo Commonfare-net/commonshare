@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,good practices", "title": "cooing train", "label": "1132", "type": "welfare", "id": "1132", "spells": [["05/01/19", "19/01/19"]]}, {"id": "2"}], "links": [{"source": "1132", "create": [["[2, 1132]", "05/01/19", "05/01/19"]], "target": "2", "id": "137", "spells": [["05/01/19", "19/01/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,welfare", "title": "poor beef", "label": "1701", "type": "welfare", "id": "1701", "spells": [["10/05/19", "24/05/19"]]}, {"id": "801"}], "links": [{"source": "1701", "create": [["[801, 1701]", "10/05/19", "10/05/19"]], "target": "801", "id": "7432", "spells": [["10/05/19", "24/05/19"]]}], "multigraph": false}

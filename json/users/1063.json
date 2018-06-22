@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "puny pull", "label": "1063", "type": "welfare", "id": "1063", "spells": [["22/12/18", "05/01/19"]]}, {"id": "218"}], "links": [{"source": "1063", "create": [["[218, 1063]", "22/12/18", "22/12/18"]], "target": "218", "id": "5096", "spells": [["22/12/18", "05/01/19"]]}], "multigraph": false}

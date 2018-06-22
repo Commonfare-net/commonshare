@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "33"}, {"tags": "good practices,commoncoin", "title": "heavenly stew", "label": "763", "type": "welfare", "id": "763", "spells": [["21/10/18", "04/11/18"]]}], "links": [{"source": "33", "create": [["[33, 763]", "21/10/18", "21/10/18"]], "target": "763", "id": "1554", "spells": [["21/10/18", "04/11/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "read key bug pipe", "label": "1506", "type": "story", "id": "1506", "spells": [["24/03/19", "07/04/19"]]}, {"id": "594"}], "links": [{"source": "1506", "create": [["[594, 1506]", "24/03/19", "24/03/19"]], "target": "594", "id": "6987", "spells": [["24/03/19", "07/04/19"]]}], "multigraph": false}

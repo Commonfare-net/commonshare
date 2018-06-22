@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "225"}, {"tags": "commoncoin", "title": "abrasive boot", "label": "1581", "type": "welfare", "id": "1581", "spells": [["09/04/19", "23/04/19"]]}], "links": [{"source": "225", "create": [["[225, 1581]", "09/04/19", "09/04/19"]], "target": "1581", "id": "5153", "spells": [["09/04/19", "23/04/19"]]}], "multigraph": false}

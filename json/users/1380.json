@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1"}, {"tags": "protests", "title": "lavish spark", "label": "1380", "type": "welfare", "id": "1380", "spells": [["25/02/19", "11/03/19"]]}], "links": [{"source": "1", "create": [["[1, 1380]", "25/02/19", "25/02/19"]], "target": "1380", "id": "81", "spells": [["25/02/19", "11/03/19"]]}], "multigraph": false}

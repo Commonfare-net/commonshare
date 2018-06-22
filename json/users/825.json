@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,welfare,good practices", "title": "onerous fold", "label": "825", "type": "welfare", "id": "825", "spells": [["05/11/18", "19/11/18"]]}, {"id": "87"}], "links": [{"source": "825", "create": [["[87, 825]", "05/11/18", "05/11/18"]], "target": "87", "id": "3596", "spells": [["05/11/18", "19/11/18"]]}], "multigraph": false}

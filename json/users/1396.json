@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,welfare", "title": "hot robin", "label": "1396", "type": "welfare", "id": "1396", "spells": [["01/03/19", "15/03/19"]]}, {"id": "521"}], "links": [{"source": "1396", "create": [["[521, 1396]", "01/03/19", "01/03/19"]], "target": "521", "id": "6783", "spells": [["01/03/19", "15/03/19"]]}], "multigraph": false}

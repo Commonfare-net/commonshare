@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,commoncoin", "title": "heavenly invention", "label": "1553", "type": "welfare", "id": "1553", "spells": [["04/04/19", "18/04/19"]]}, {"id": "67"}], "links": [{"source": "1553", "create": [["[67, 1553]", "04/04/19", "04/04/19"]], "target": "67", "id": "2923", "spells": [["04/04/19", "18/04/19"]]}], "multigraph": false}

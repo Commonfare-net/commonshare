@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "40"}, {"tags": "provision", "title": "small throne", "label": "530", "type": "welfare", "id": "530", "spells": [["02/09/18", "16/09/18"]]}], "links": [{"source": "40", "create": [["[40, 530]", "02/09/18", "02/09/18"]], "target": "530", "id": "1830", "spells": [["02/09/18", "16/09/18"]]}], "multigraph": false}

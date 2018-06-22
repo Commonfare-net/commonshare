@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "685"}, {"tags": "welfare,commoncoin", "title": "energetic drink", "label": "1269", "type": "welfare", "id": "1269", "spells": [["04/02/19", "18/02/19"]]}], "links": [{"source": "685", "create": [["[685, 1269]", "04/02/19", "04/02/19"]], "target": "1269", "id": "7209", "spells": [["04/02/19", "18/02/19"]]}], "multigraph": false}

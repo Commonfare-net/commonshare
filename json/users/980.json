@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,provision", "title": "economic rod", "label": "980", "type": "welfare", "id": "980", "spells": [["07/12/18", "21/12/18"]]}, {"id": "233"}], "links": [{"source": "980", "create": [["[233, 980]", "07/12/18", "07/12/18"]], "target": "233", "id": "5231", "spells": [["07/12/18", "21/12/18"]]}], "multigraph": false}

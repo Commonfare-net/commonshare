@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1077"}, {"tags": "welfare", "title": "zany secretary", "label": "1100", "type": "welfare", "id": "1100", "spells": [["30/12/18", "13/01/19"]]}], "links": [{"source": "1077", "create": [["[1077, 1100]", "30/12/18", "30/12/18"]], "target": "1100", "id": "7710", "spells": [["30/12/18", "13/01/19"]]}], "multigraph": false}

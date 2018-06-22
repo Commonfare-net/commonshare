@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "620"}, {"tags": "commoncoin", "title": "tear equal draft jacket", "label": "1443", "type": "story", "id": "1443", "spells": [["10/03/19", "24/03/19"]]}], "links": [{"source": "620", "create": [["[620, 1443]", "10/03/19", "10/03/19"]], "target": "1443", "id": "7034", "spells": [["10/03/19", "24/03/19"]]}], "multigraph": false}

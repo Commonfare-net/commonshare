@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "807"}, {"tags": "commoncoin,provision", "title": "hot fireman", "label": "1698", "type": "welfare", "id": "1698", "spells": [["09/05/19", "23/05/19"]]}], "links": [{"source": "807", "create": [["[807, 1698]", "09/05/19", "09/05/19"]], "target": "1698", "id": "7437", "spells": [["09/05/19", "23/05/19"]]}], "multigraph": false}

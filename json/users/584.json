@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,commoncoin,protests", "title": "old card", "label": "584", "type": "welfare", "id": "584", "spells": [["14/09/18", "28/09/18"]]}, {"id": "517"}], "links": [{"source": "584", "create": [["[517, 584]", "14/09/18", "14/09/18"]], "target": "517", "id": "6771", "spells": [["14/09/18", "28/09/18"]]}], "multigraph": false}

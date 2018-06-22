@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "material oranges", "label": "1248", "type": "welfare", "id": "1248", "spells": [["30/01/19", "13/02/19"]]}, {"id": "935"}], "links": [{"source": "1248", "create": [["[935, 1248]", "30/01/19", "30/01/19"]], "target": "935", "id": "7586", "spells": [["30/01/19", "13/02/19"]]}], "multigraph": false}

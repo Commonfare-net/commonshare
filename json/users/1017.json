@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,welfare", "title": "business illegal ear wait", "label": "1017", "type": "story", "id": "1017", "spells": [["13/12/18", "27/12/18"]]}, {"id": "50"}], "links": [{"source": "1017", "create": [["[50, 1017]", "13/12/18", "13/12/18"]], "target": "50", "id": "2274", "spells": [["13/12/18", "27/12/18"]]}], "multigraph": false}

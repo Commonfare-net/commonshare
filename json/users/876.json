@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "cooing ants", "label": "876", "type": "welfare", "id": "876", "spells": [["16/11/18", "30/11/18"]]}, {"id": "697"}], "links": [{"source": "876", "create": [["[697, 876]", "16/11/18", "16/11/18"]], "target": "697", "id": "7231", "spells": [["16/11/18", "30/11/18"]]}], "multigraph": false}

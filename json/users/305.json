@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,good practices", "title": "abrasive edge", "label": "305", "type": "welfare", "id": "305", "spells": [["15/07/18", "29/07/18"]]}, {"id": "58"}], "links": [{"source": "305", "create": [["[58, 305]", "15/07/18", "15/07/18"]], "target": "58", "id": "2588", "spells": [["15/07/18", "29/07/18"]]}], "multigraph": false}

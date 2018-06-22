@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,welfare", "title": "longing rice", "label": "1250", "type": "welfare", "id": "1250", "spells": [["30/01/19", "13/02/19"]]}, {"id": "387"}], "links": [{"source": "1250", "create": [["[387, 1250]", "30/01/19", "30/01/19"]], "target": "387", "id": "6258", "spells": [["30/01/19", "13/02/19"]]}], "multigraph": false}

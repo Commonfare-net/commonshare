@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "459"}, {"tags": "welfare,protests", "title": "walk place load judge", "label": "1513", "type": "story", "id": "1513", "spells": [["26/03/19", "09/04/19"]]}], "links": [{"source": "459", "create": [["[459, 1513]", "26/03/19", "26/03/19"]], "target": "1513", "id": "6565", "spells": [["26/03/19", "09/04/19"]]}], "multigraph": false}

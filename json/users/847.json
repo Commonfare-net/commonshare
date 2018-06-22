@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,welfare,protests", "title": "super grip", "label": "847", "type": "welfare", "id": "847", "spells": [["10/11/18", "24/11/18"]]}, {"id": "85"}], "links": [{"source": "847", "create": [["[85, 847]", "10/11/18", "10/11/18"]], "target": "85", "id": "3538", "spells": [["10/11/18", "24/11/18"]]}], "multigraph": false}

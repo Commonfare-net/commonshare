@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "37"}, {"tags": "commoncoin", "title": "unarmed grip", "label": "1330", "type": "welfare", "id": "1330", "spells": [["15/02/19", "01/03/19"]]}], "links": [{"source": "37", "create": [["[37, 1330]", "15/02/19", "15/02/19"]], "target": "1330", "id": "1712", "spells": [["15/02/19", "01/03/19"]]}], "multigraph": false}

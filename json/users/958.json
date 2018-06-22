@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare,protests", "title": "puny sense", "label": "958", "type": "welfare", "id": "958", "spells": [["02/12/18", "16/12/18"]]}, {"id": "657"}], "links": [{"source": "958", "create": [["[657, 958]", "02/12/18", "02/12/18"]], "target": "657", "id": "7124", "spells": [["02/12/18", "16/12/18"]]}], "multigraph": false}

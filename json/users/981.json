@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices,provision", "title": "super trucks", "label": "981", "type": "welfare", "id": "981", "spells": [["07/12/18", "21/12/18"]]}, {"id": "30"}], "links": [{"source": "981", "create": [["[30, 981]", "07/12/18", "07/12/18"]], "target": "30", "id": "1408", "spells": [["07/12/18", "21/12/18"]]}], "multigraph": false}

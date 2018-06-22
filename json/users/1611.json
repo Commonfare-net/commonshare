@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "697"}, {"tags": "welfare", "title": "hot quiet", "label": "1611", "type": "welfare", "id": "1611", "spells": [["17/04/19", "01/05/19"]]}], "links": [{"source": "697", "create": [["[697, 1611]", "17/04/19", "17/04/19"]], "target": "1611", "id": "7237", "spells": [["17/04/19", "01/05/19"]]}], "multigraph": false}

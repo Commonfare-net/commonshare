@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "594"}, {"tags": "welfare,provision", "title": "thoughtless match", "label": "1575", "type": "welfare", "id": "1575", "spells": [["08/04/19", "22/04/19"]]}], "links": [{"source": "594", "create": [["[594, 1575]", "08/04/19", "08/04/19"]], "target": "1575", "id": "6984", "spells": [["08/04/19", "22/04/19"]]}], "multigraph": false}

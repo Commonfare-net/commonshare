@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,good practices", "title": "heavenly tank", "label": "147", "type": "welfare", "id": "147", "spells": [["12/06/18", "26/06/18"]]}, {"id": "88"}], "links": [{"source": "147", "create": [["[88, 147]", "12/06/18", "12/06/18"]], "target": "88", "id": "3629", "spells": [["12/06/18", "26/06/18"]]}], "multigraph": false}

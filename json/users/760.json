@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,commoncoin", "title": "important lumber", "label": "760", "type": "welfare", "id": "760", "spells": [["21/10/18", "04/11/18"]]}, {"id": "22"}], "links": [{"source": "760", "create": [["[22, 760]", "21/10/18", "21/10/18"]], "target": "22", "id": "1068", "spells": [["21/10/18", "04/11/18"]]}], "multigraph": false}

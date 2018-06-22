@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "narrow tank", "label": "1666", "type": "welfare", "id": "1666", "spells": [["30/04/19", "14/05/19"]]}, {"id": "39"}], "links": [{"source": "1666", "create": [["[39, 1666]", "30/04/19", "30/04/19"]], "target": "39", "id": "1783", "spells": [["30/04/19", "14/05/19"]]}], "multigraph": false}

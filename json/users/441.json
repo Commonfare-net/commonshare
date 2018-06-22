@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "embarrassed branch", "label": "441", "type": "welfare", "id": "441", "spells": [["11/08/18", "25/08/18"]]}, {"id": "14"}], "links": [{"source": "441", "create": [["[14, 441]", "11/08/18", "11/08/18"]], "target": "14", "id": "715", "spells": [["11/08/18", "25/08/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "innocent beef", "label": "1756", "type": "welfare", "id": "1756", "spells": [["23/05/19", "06/06/19"]]}, {"id": "1206"}], "links": [{"source": "1756", "create": [["[1206, 1756]", "23/05/19", "23/05/19"]], "target": "1206", "id": "7798", "spells": [["23/05/19", "06/06/19"]]}], "multigraph": false}

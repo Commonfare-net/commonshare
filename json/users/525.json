@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,protests", "title": "aspect increase stupid screen", "label": "525", "type": "story", "id": "525", "spells": [["01/09/18", "15/09/18"]]}, {"id": "4"}], "links": [{"source": "525", "create": [["[4, 525]", "01/09/18", "01/09/18"]], "target": "4", "id": "236", "spells": [["01/09/18", "15/09/18"]]}], "multigraph": false}

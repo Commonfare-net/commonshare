@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "0"}, {"tags": "welfare", "title": "material boot", "label": "444", "type": "welfare", "id": "444", "spells": [["12/08/18", "26/08/18"]]}], "links": [{"source": "0", "create": [["[0, 444]", "12/08/18", "12/08/18"]], "target": "444", "id": "22", "spells": [["12/08/18", "26/08/18"]]}], "multigraph": false}

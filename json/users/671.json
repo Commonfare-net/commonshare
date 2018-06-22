@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "51"}, {"tags": "good practices", "title": "consequence field cloud start", "label": "671", "type": "story", "id": "671", "spells": [["01/10/18", "15/10/18"]]}], "links": [{"source": "51", "create": [["[51, 671]", "01/10/18", "01/10/18"]], "target": "671", "id": "2301", "spells": [["01/10/18", "15/10/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "futuristic fold", "label": "1219", "type": "welfare", "id": "1219", "spells": [["23/01/19", "06/02/19"]]}, {"id": "22"}], "links": [{"source": "1219", "create": [["[22, 1219]", "23/01/19", "23/01/19"]], "target": "22", "id": "1049", "spells": [["23/01/19", "06/02/19"]]}], "multigraph": false}

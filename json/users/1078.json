@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "94"}, {"tags": "protests", "title": "cut teach consideration mother", "label": "1078", "type": "story", "id": "1078", "spells": [["26/12/18", "09/01/19"]]}], "links": [{"source": "94", "create": [["[94, 1078]", "26/12/18", "26/12/18"]], "target": "1078", "id": "3843", "spells": [["26/12/18", "09/01/19"]]}], "multigraph": false}

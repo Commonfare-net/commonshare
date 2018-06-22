@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "unbiased rod", "label": "349", "type": "welfare", "id": "349", "spells": [["22/07/18", "05/08/18"]]}, {"id": "34"}], "links": [{"source": "349", "create": [["[34, 349]", "22/07/18", "22/07/18"]], "target": "34", "id": "1592", "spells": [["22/07/18", "05/08/18"]]}], "multigraph": false}

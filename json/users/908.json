@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "various fang", "label": "908", "type": "welfare", "id": "908", "spells": [["22/11/18", "06/12/18"]]}, {"id": "71"}], "links": [{"source": "908", "create": [["[71, 908]", "22/11/18", "22/11/18"]], "target": "71", "id": "3093", "spells": [["22/11/18", "06/12/18"]]}], "multigraph": false}

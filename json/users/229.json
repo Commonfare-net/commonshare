@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "89"}, {"tags": "welfare,protests", "title": "wine basket speaker south", "label": "229", "type": "story", "id": "229", "spells": [["30/06/18", "14/07/18"]]}], "links": [{"source": "89", "create": [["[89, 229]", "30/06/18", "30/06/18"]], "target": "229", "id": "3681", "spells": [["30/06/18", "14/07/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "42"}, {"tags": "welfare,provision", "title": "claim stick finger mixture", "label": "425", "type": "story", "id": "425", "spells": [["08/08/18", "22/08/18"]]}], "links": [{"source": "42", "create": [["[42, 425]", "08/08/18", "08/08/18"]], "target": "425", "id": "1949", "spells": [["08/08/18", "22/08/18"]]}], "multigraph": false}

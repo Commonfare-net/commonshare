@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "provision,good practices", "title": "shiny thought", "label": "1004", "type": "welfare", "id": "1004", "spells": [["11/12/18", "25/12/18"]]}, {"id": "36"}], "links": [{"source": "1004", "create": [["[36, 1004]", "11/12/18", "11/12/18"]], "target": "36", "id": "1691", "spells": [["11/12/18", "25/12/18"]]}], "multigraph": false}

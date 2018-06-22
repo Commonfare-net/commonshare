@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "old jail", "label": "279", "type": "welfare", "id": "279", "spells": [["10/07/18", "24/07/18"]]}, {"id": "135"}], "links": [{"source": "279", "create": [["[135, 279]", "10/07/18", "10/07/18"]], "target": "135", "id": "4359", "spells": [["10/07/18", "24/07/18"]]}], "multigraph": false}

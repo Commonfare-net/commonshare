@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "graceful rice", "label": "158", "type": "welfare", "id": "158", "spells": [["15/06/18", "29/06/18"]]}, {"id": "21"}], "links": [{"source": "158", "create": [["[21, 158]", "15/06/18", "15/06/18"]], "target": "21", "id": "977", "spells": [["15/06/18", "29/06/18"]]}], "multigraph": false}

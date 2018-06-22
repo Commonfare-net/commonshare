@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "shiny moon", "label": "1704", "type": "welfare", "id": "1704", "spells": [["10/05/19", "24/05/19"]]}, {"id": "34"}], "links": [{"source": "1704", "create": [["[34, 1704]", "10/05/19", "10/05/19"]], "target": "34", "id": "1600", "spells": [["10/05/19", "24/05/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,provision", "title": "embarrassed winter", "label": "988", "type": "welfare", "id": "988", "spells": [["08/12/18", "22/12/18"]]}, {"id": "117"}], "links": [{"source": "988", "create": [["[117, 988]", "08/12/18", "08/12/18"]], "target": "117", "id": "4103", "spells": [["08/12/18", "22/12/18"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,welfare,provision", "title": "fantastic change", "label": "787", "type": "welfare", "id": "787", "spells": [["27/10/18", "10/11/18"]]}, {"id": "6"}], "links": [{"source": "787", "create": [["[6, 787]", "27/10/18", "27/10/18"]], "target": "6", "id": "293", "spells": [["27/10/18", "10/11/18"]]}], "multigraph": false}

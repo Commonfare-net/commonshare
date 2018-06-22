@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests", "title": "unsightly rice", "label": "1118", "type": "welfare", "id": "1118", "spells": [["03/01/19", "17/01/19"]]}, {"id": "12"}], "links": [{"source": "1118", "create": [["[12, 1118]", "03/01/19", "03/01/19"]], "target": "12", "id": "629", "spells": [["03/01/19", "17/01/19"]]}], "multigraph": false}

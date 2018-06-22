@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "70"}, {"tags": "provision", "title": "embarrassed board", "label": "1398", "type": "welfare", "id": "1398", "spells": [["01/03/19", "15/03/19"]]}], "links": [{"source": "70", "create": [["[70, 1398]", "01/03/19", "01/03/19"]], "target": "1398", "id": "3065", "spells": [["01/03/19", "15/03/19"]]}], "multigraph": false}
