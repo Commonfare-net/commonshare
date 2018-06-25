@@ -1,1 +1,1 @@
-{"directed": false, "graph": {}, "nodes": [{"tags": "good practices", "title": "efficacious end", "label": "628", "type": "welfare", "id": "628", "spells": [["23/09/18", "07/10/18"]]}, {"id": "517"}], "links": [{"source": "628", "create": [["[517, 628]", "23/09/18", "23/09/18"]], "target": "517", "id": "6775", "spells": [["23/09/18", "07/10/18"]]}], "multigraph": false}
+{"directed": false, "graph": {}, "nodes": [{"name": "Christina Ganong", "tags": "welfare", "label": "628", "type": "user", "id": "628", "spells": [["19/03/19", "None"]]}], "links": [], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,protests,good practices", "title": "economic knee", "label": "1793", "type": "ForumPost", "id": "1793", "spells": [["26/05/19", "09/06/19"]]}, {"id": "651"}], "links": [{"source": "1793", "target": "651", "id": "2229", "spells": [["26/05/19", "09/06/19"]]}], "multigraph": false}

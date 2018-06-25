@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "good practices,welfare", "title": "wing house storage prize", "label": "1788", "type": "Story", "id": "1788", "spells": [["25/05/19", "08/06/19"]]}, {"id": "61"}], "links": [{"source": "1788", "target": "61", "id": "944", "spells": [["25/05/19", "08/06/19"]]}], "multigraph": false}

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1120"}, {"tags": "protests", "title": "poor robin", "label": "1790", "type": "ForumPost", "id": "1790", "spells": [["25/05/19", "08/06/19"]]}], "links": [{"source": "1120", "target": "1790", "id": "2502", "spells": [["25/05/19", "08/06/19"]]}], "multigraph": false}

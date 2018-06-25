@@ -1,1 +1,1 @@
-{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "lively bell", "label": "498", "type": "welfare", "id": "498", "spells": [["25/08/18", "08/09/18"]]}, {"id": "96"}], "links": [{"source": "498", "create": [["[96, 498]", "25/08/18", "25/08/18"]], "target": "96", "id": "3904", "spells": [["25/08/18", "08/09/18"]]}], "multigraph": false}
+{"directed": false, "graph": {}, "nodes": [{"name": "Florence Swanson", "tags": "provision,commoncoin", "label": "498", "type": "user", "id": "498", "spells": [["14/01/19", "None"]]}], "links": [], "multigraph": false}

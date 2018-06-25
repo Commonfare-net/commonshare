@@ -2,8 +2,8 @@ import datetime
 
 DAYS = 365
 USERS = 500
-INITIAL_USERS = 100
-ACTIONS_PER_DAY = 20
+INITIAL_USERS = 20
+ACTIONS_PER_DAY = 6
 
 #Collusion things
 
@@ -23,7 +23,30 @@ one_year = datetime.timedelta(days=365)
 epoch = datetime.datetime.utcfromtimestamp(0)
 
 DEPRECIATION = 2.5
-read_key = "read"
+like_story="like_Story"
+comment_story="comment_Story"
+create_story="create_Story"
+friendship="friendship"
+transaction="transaction"
+create_post="create_ForumPost"
+like_post="like_ForumPost"
+comment_post="comment_ForumPost"
+accept_post="accept_post"
+interaction_keys =[like_story,comment_story,create_story,friendship,transaction,create_post,like_post,comment_post,accept_post]
+indirect_interactions = [like_story,comment_story,like_post,comment_post,accept_post]
+
+meta_networks = ['story','discussion','social','transaction']
+#Meta-data to add to nodes and edges based on actions
+meta = {like_story:'story',
+        comment_story:'story',
+        create_story:'story',
+        like_post:'discussion',
+        comment_post:'discussion',
+        create_post:'discussion',
+        friendship:'social',
+        transaction:'transaction'
+        }
+'''
 comment_key = "comment"
 share_key = "share"
 create_key = "create"
@@ -37,7 +60,21 @@ share_provision_key = "share_prov"
 interaction_keys = [read_key,comment_key,share_key,create_key,talk_key,give_key]
 direct_interaction_keys = [talk_key,give_key]
 #,create_listing_key,comment_listing_key,create_provision_key,comment_provision_key,share_provision_key]
-
+'''
+#Story-based interactions
+weights = {like_story:(0,1),
+           comment_story:(2,2),
+           create_story:(2,0),
+#Friendship-based interactions
+           friendship:(10,10),
+#Transaction-based interactions
+           transaction:(5,5),
+#Forum-based interactions
+           create_post:(2,0),
+           like_post:(0,1),
+           comment_post:(2,2),
+           accept_post:(6,6)}
+'''           
 weights = {read_key:(2,1),
            comment_key:(4,1),
            share_key:(4,1),
@@ -50,6 +87,6 @@ weights = {read_key:(2,1),
            comment_provision_key:(0,0),
            share_provision_key:(0,0),
            share_provision_key:(0,0)}
-
+'''
 def utmillis(dt):
     return (dt - epoch).total_seconds()

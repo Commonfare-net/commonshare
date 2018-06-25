@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1558"}, {"tags": "protests,provision,protests,good practices", "title": "disagreeable match", "label": "1805", "type": "ForumPost", "id": "1805", "spells": [["27/05/19", "10/06/19"]]}], "links": [{"source": "1558", "target": "1805", "id": "2605", "spells": [["27/05/19", "10/06/19"]]}], "multigraph": false}

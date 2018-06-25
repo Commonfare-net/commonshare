@@ -7,8 +7,13 @@ import math
 import random
 import kcore
 import os
+import sys
+import copy
+
 from graphclasses import *
 
+def str_to_class(classname):
+    return reduce(getattr, classname.split("."), sys.modules[__name__])    
 #Run this script to generate simulated GEXF data files to be used in the modified k-core algorithm
 
 def get_users(need_two_users):
@@ -43,51 +48,33 @@ def get_users(need_two_users):
 
 #Will be effectively the same as the 'create story' function
 
-def create_welfare(user):
+def create_object(user,objtype):
   global G
   e = Edge()
-  welfare = Welfare()
-  G.add_node(welfare)
+  object = str_to_class(objtype)()
+  G.add_node(object)
   G = nx.convert_node_labels_to_integers(G)
-  welfare_node = nx.number_of_nodes(G) -1
-
-  nx.set_node_attributes(G,{welfare_node: {'type': 'welfare','title':unicode(str(welfare)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
-  G.nodes[welfare_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
+  obj_node = nx.number_of_nodes(G) -1
+  dict = copy.deepcopy(actions_dict)
+  dict['type'] = objtype
+  dict['title'] = unicode(str(object))
+  nx.set_node_attributes(G,{obj_node: dict})
+  #Spells can be used to determine how long an action contributes to a user's commonfare for
+  G.nodes[obj_node]['spells'] = [(s_today,s_fortnight)]
+  G.add_edge(user,obj_node)
+  for x in actions_dict:
+    G[user][obj_node][x] = []
   
-  G.add_edge(user,welfare_node,read=[],comment=[],share=[],create=[],talk=[],give=[])
-  
-  G.nodes[user]['create'].append(([user,welfare_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
-  G[user][welfare_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
-  G[user][welfare_node]['create'].append(([user,welfare_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
+  G.nodes[user]['create_'+objtype].append(([user,obj_node],s_today,s_today))    
+  G[user][obj_node]['spells'] = [(s_today,s_fortnight)]
   if cf.SHOULD_CLIQUE:
     tags = G.nodes[user]['tags'].split(',')
     numtags = len(tags)
-    G.nodes[welfare_node]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
+    G.nodes[obj_node]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
   else:
-    G.nodes[welfare_node]['tags'] = welfare.__get_tags__()
-    
-def create_story(user):
-  global G
-  e = Edge()
-  story = Story()
-  G.add_node(story)
-  G = nx.convert_node_labels_to_integers(G)
-  story_node = nx.number_of_nodes(G) -1
-  nx.set_node_attributes(G,{story_node: {'type': 'story','title':unicode(str(story)),'read':[],'comment':[],'share':[],'talk':[],'give':[]}})
-  G.nodes[story_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
+    G.nodes[obj_node]['tags'] = object.__get_tags__()
+  update(user,obj_node,'create_'+objtype)
   
-  G.add_edge(user,story_node,read=[],comment=[],share=[],create=[],talk=[],give=[])
-  
-  G.nodes[user]['create'].append(([user,story_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y")))    
-  G[user][story_node]['spells'] = [(cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y"))]
-  G[user][story_node]['create'].append(([user,story_node],cur_date.strftime("%d/%m/%y"),cur_date.strftime("%d/%m/%y") ))
-  if cf.SHOULD_CLIQUE:
-    tags = G.nodes[user]['tags'].split(',')
-    numtags = len(tags)
-    G.nodes[story_node]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
-  else:
-    G.nodes[story_node]['tags'] = story.__get_tags__()
-    
 #What kind of interactions might users have? Conversation? 
 def user_interact(interaction):
   pair = get_users(True)
@@ -95,15 +82,16 @@ def user_interact(interaction):
   target = pair[1]
  # print source,'started talking to',target
   if G.has_edge(source,target) == False:
-    G.add_edge(source,target,read=[],comment=[],share=[],create=[],talk=[],give=[])
+    G.add_edge(source,target)
+    for x in actions_dict:
+        G[source][target][x] = []
     G[source][target]['spells'] = []
   #Add the spells
-  G[source][target]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
-  update_links(source,target,interaction)
-  update_nodes(source,target,interaction)
-
+  G[source][target]['spells'].append((s_today,s_fortnight))
+  update(source,target,interaction)
 
 def object_interact(objtype,interaction):
+  interaction = interaction+'_'+objtype
   pair = get_users(True)
   source = pair[0]
   target = pair[1]
@@ -120,77 +108,81 @@ def object_interact(objtype,interaction):
     #  print source,'read story',story,'of user',target
       #Is this the first time source user has interacted with this story?
       if G.has_edge(source,object) == False:
-        G.add_edge(source,object,read=[],comment=[],share=[],create=[],talk=[],give=[])
+        G.add_edge(source,object)
+        for x in actions_dict:
+            G[source][object][x] = []
         G[source][object]['spells'] = []
       #Is this the first time source user has interacted with the target user?
       if G.has_edge(source,target) == False:
-        G.add_edge(source,target,read=[],comment=[],share=[],create=[],talk=[],give=[])
+        G.add_edge(source,target)
+        for x in actions_dict:
+            G[source][target][x] = []
         G[source][target]['spells'] = []
     #add the spells
         
-      G[source][target]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
-      G[source][object]['spells'].append((cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
+      G[source][target]['spells'].append((s_today,s_fortnight))
+      G[source][object]['spells'].append((s_today,s_fortnight))
       
-      update_links(source,object,interaction)
-      update_links(source,target,interaction)
-      update_nodes(source,target,interaction)
-      update_nodes(source,object,interaction)
+      update(source,object,interaction)
+      update(source,target,interaction)
       return
     
-def update_links(source,target,interaction):
-    w = cf.weights.get(interaction)
-    source_weight = w[0]
-    target_weight = w[1]
-    G[source][target][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))
-
-def update_nodes(source,target,interaction):
-    w = cf.weights.get(interaction)
-    source_weight = w[0]
-    target_weight = w[1]
-    G.nodes[source][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
-    G.nodes[target][interaction].append(([source,target],cur_date.strftime("%d/%m/%y"),(cur_date+cf.two_weeks).strftime("%d/%m/%y")))    
-
+def update(source,target,interaction):
+    G[source][target][interaction].append(([source,target],s_today,s_fortnight))
+    G.nodes[source][interaction].append(([source,target],s_today,s_fortnight))    
+    G.nodes[target][interaction].append(([source,target],s_today,s_fortnight))    
 
 def add_user():
     global G
     user = User()
     G.add_node(user)
-    nx.set_node_attributes(G,{user: {'type': 'user','name': str(user),'read':[],'comment':[],'share':[],'create':[],'talk':[],'give':[]}})
-    G.nodes[user]['spells'] = [(cur_date.strftime("%d/%m/%y"),None)]
-    G.nodes[user]['viz'] = {}
-    G.nodes[user]['viz']['color'] = {'r' : 0, 'g' : 0, 'b' : 254, 'a':1.0}
+    dict = copy.deepcopy(actions_dict)
+    dict['type'] = 'user'
+    dict['name'] = str(user)
+    nx.set_node_attributes(G,{user: dict})
+    G.nodes[user]['spells'] = [(s_today,None)]
     G.nodes[user]['tags'] = user.__get_tags__()
     G = nx.convert_node_labels_to_integers(G)
 
+#TODO: Figure out how user's 'accepting' another user's forum post answer might work
 def do_random_thing():
   num = random.randint(1,11)
   if num == 1:
-    create_story(get_users(False)[0])
+    create_object(get_users(False)[0],'Story')
+  elif num == 2:
+    create_object(get_users(False)[0],'ForumPost')
   elif num == 3:
-    create_welfare(get_users(False)[0])
- # elif num == 3 or num == 4:
- #   story_interact('read')
-  elif num == 5 or num == 6:
-    object_interact('story','comment')
-  elif num == 7 or num == 2:
-    user_interact('talk')
+    object_interact('Story','comment')
+  elif num == 4 or num == 11:
+    object_interact('ForumPost','comment')
+  elif num == 5 or num == 9:
+    object_interact('Story','like')
+  elif num == 6 or num == 10:
+    object_interact('ForumPost','like')
+  elif num == 7:
+    user_interact('friendship')
   elif num == 8:
-    user_interact('give')
-  elif num == 9  or num == 4 or num == 10:
-    object_interact('welfare','comment')
-  #else:
-  #  story_interact('share')
+    user_interact('transaction')
 
 cur_date = datetime.datetime(2018,6,1)
 start_date = cur_date
 G=nx.Graph()
 counter = 0
+#Set up the actions dictionary that applies to each node and edge
+actions_dict = {}
+s_today = ''
+s_fortnight = ''
 
+for key in cf.interaction_keys:
+    actions_dict[key] = []
+    
 if not os.path.exists("../gexf"):
     os.makedirs("../gexf")
 
 while counter < cf.DAYS:
   cur_date = cur_date + cf.one_day
+  s_today = cur_date.strftime("%d/%m/%y")
+  s_fortnight = (cur_date+cf.two_weeks).strftime("%d/%m/%y")
   counter = counter + 1
   G = nx.convert_node_labels_to_integers(G)
   while len(G.nodes()) < cf.INITIAL_USERS:
@@ -201,7 +193,7 @@ while counter < cf.DAYS:
         #So they have something to interact with
         for i in range(cf.NUM_COLLUDERS):
             print 'colluder is ',cf.colluding_nodes[i]
-            create_story(cf.colluding_nodes[i])
+            create_object(cf.colluding_nodes[i],'Story')
             
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
@@ -218,4 +210,3 @@ while counter < cf.DAYS:
 G_read = nx.read_gexf("../gexf/data360.gexf")
 #Pass the start and end times of the file in, as well as the granularity at which you want the data (default 1 month)
 kcore.calculate(G_read,start_date,cur_date,"month")
-#kcore.plotgraph()

@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1517"}, {"tags": "welfare,good practices,welfare,welfare", "title": "push dependent mission travel", "label": "1803", "type": "Story", "id": "1803", "spells": [["27/05/19", "10/06/19"]]}], "links": [{"source": "1517", "target": "1803", "id": "2599", "spells": [["27/05/19", "10/06/19"]]}], "multigraph": false}

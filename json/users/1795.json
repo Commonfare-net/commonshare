@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1403"}, {"tags": "welfare,commoncoin", "title": "bright invention", "label": "1795", "type": "ForumPost", "id": "1795", "spells": [["26/05/19", "09/06/19"]]}], "links": [{"source": "1403", "target": "1795", "id": "2578", "spells": [["26/05/19", "09/06/19"]]}], "multigraph": false}

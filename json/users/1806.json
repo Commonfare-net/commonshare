@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,good practices,welfare", "title": "graceful beef", "label": "1806", "type": "ForumPost", "id": "1806", "spells": [["27/05/19", "10/06/19"]]}, {"id": "966"}], "links": [{"source": "1806", "target": "966", "id": "2437", "spells": [["27/05/19", "10/06/19"]]}], "multigraph": false}

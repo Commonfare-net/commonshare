@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin,provision,commoncoin", "title": "skill associate interaction top", "label": "1802", "type": "Story", "id": "1802", "spells": [["27/05/19", "10/06/19"]]}, {"id": "896"}], "links": [{"source": "1802", "target": "896", "id": "2402", "spells": [["27/05/19", "10/06/19"]]}], "multigraph": false}

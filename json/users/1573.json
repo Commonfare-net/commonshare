@@ -1,1 +1,1 @@
-{"directed": false, "graph": {}, "nodes": [{"tags": "provision", "title": "fantastic beds", "label": "1573", "type": "welfare", "id": "1573", "spells": [["08/04/19", "22/04/19"]]}, {"id": "93"}], "links": [{"source": "1573", "create": [["[93, 1573]", "08/04/19", "08/04/19"]], "target": "93", "id": "3815", "spells": [["08/04/19", "22/04/19"]]}], "multigraph": false}
+{"directed": false, "graph": {}, "nodes": [{"name": "Beverly Tucker", "tags": "good practices", "label": "1573", "type": "user", "id": "1573", "spells": [["21/04/19", "None"]]}], "links": [], "multigraph": false}

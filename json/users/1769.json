@@ -1,1 +1,1 @@
-{"directed": false, "graph": {}, "nodes": [{"name": "George Murphy", "tags": "commoncoin,welfare,commoncoin,commoncoin", "label": "1769", "viz": {"color": {"a": 1.0, "r": 0, "b": 254, "g": 0}}, "type": "user", "id": "1769", "spells": [["24/05/19", "None"]]}], "links": [], "multigraph": false}
+{"directed": false, "graph": {}, "nodes": [{"name": "Jill White", "tags": "protests,welfare,provision,provision", "label": "1769", "type": "user", "id": "1769", "spells": [["19/05/19", "None"]]}], "links": [], "multigraph": false}

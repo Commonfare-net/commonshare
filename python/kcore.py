@@ -23,73 +23,14 @@ def getNodeStats(G,node_id,starttime,endtime):
     #There are more elegant ways of doing this but it works for now
     stats = {}
     for (u,v,c) in edges:
-        if 'create' in c:
-            dates = []
-            for createactions in c['create']:
-                if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime):
-                    if str(ast.literal_eval(createactions[0])[0]) == str(node_id):
-                        if createactions[1] not in stats:
-                            stats[createactions[1]] = []
-                        stats[createactions[1]].append(['create',cf.weights['create'][0]])
-        #No data on story reads
-        '''
-        if 'read' in c:
-            for readactions in c['read']:
-                if (starttime < datetime.strptime(readactions[1],"%d/%m/%y") < endtime):
-                    if str(readactions[0]) == str(node_id):
-                        stories_read = stories_read + 1
-                    else:
-                        read_by_others = read_by_others + 1
-            if stories_read >0:
-                stats['Stories created'] = stories_created
-            if read_by_others > 0:
-                stats['Stories created'] = stories_created
-        '''
-        if 'comment' in c:
-            commentdates = []
-            receivedates = []
-            for commentactions in c['comment']:
-                if (starttime < datetime.strptime(commentactions[1],"%d/%m/%y") < endtime):
-                    if commentactions[1] not in stats:
-                        stats[commentactions[1]] = []                
-                    if str(ast.literal_eval(commentactions[0])[0]) == str(node_id):
-                        stats[commentactions[1]].append(["comment",cf.weights['comment'][0]])
-                    else:
-                        stats[commentactions[1]].append(["rcomment",cf.weights['comment'][1]])
-        #No data on story shares
-        '''
-        if 'share' in c:                
-            for shareactions in c['share']:
-                if (starttime < datetime.strptime(shareactions[1],"%d/%m/%y") < endtime):
-                    if str(shareactions[0]) == str(node_id):
-                        stories_shared = stories_shared + 1
-                    else:
-                        shared_by_others = shared_by_others + 1
-        '''
-        if 'talk' in c:
-            talkdates = []
-            receivedates = []
-            for talkactions in c['talk']:
-                if (starttime < datetime.strptime(talkactions[1],"%d/%m/%y") < endtime):
-                    if talkactions[1] not in stats:
-                        stats[talkactions[1]] = []
-                    if str(ast.literal_eval(talkactions[0])[0]) == str(node_id):
-                        stats[talkactions[1]].append(["talk",cf.weights['talk'][0]])
-                    else:
-                        stats[talkactions[1]].append(["rtalk",cf.weights['talk'][1]])
-                
-        if 'give' in c:
-            givedates = []
-            receivedates = []
-            for giveactions in c['give']:
-                if (starttime < datetime.strptime(giveactions[1],"%d/%m/%y") < endtime):
-                    if giveactions[1] not in stats:
-                        stats[giveactions[1]] = []                
-                    if str(ast.literal_eval(giveactions[0])[0]) == str(node_id):
-                        stats[giveactions[1]].append(["give",cf.weights['give'][0]])
-                    else:
-                        stats[giveactions[1]].append(["rgive",cf.weights['give'][1]])
-                        
+        for action_key in cf.interaction_keys:
+            if action_key in c:
+                for actions in c[action_key]:
+           #     if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime):
+                    if str(ast.literal_eval(actions[0])[0]) == str(node_id):
+                        if actions[1] not in stats:
+                            stats[actions[1]] = []
+                        stats[actions[1]].append([action_key,cf.weights[action_key][0]])
     return stats
 
 def calculate(G,startdate,enddate,granularity):   
@@ -109,7 +50,6 @@ def calculate(G,startdate,enddate,granularity):
     while(windowend < enddate):
         #Find edges which have a spell that started or ended within the bounds of a given hour/day
         #For those edges that didn't, remove them, then calculate the k-core
-
         ebunch = []
         indirectedges = []
         
@@ -145,7 +85,7 @@ def calculate(G,startdate,enddate,granularity):
         GCopy.remove_nodes_from(nbunch)
         
 
-        #Go through them again and remove the unnecessary attributes
+        #Go through them again, remove unnecessary actions and add 'meta-data' to nodes based on their remaining actions
         nodeiter = GCopy.nodes(data=True)      
         for (n,c) in nodeiter:
             nodemeta = []
@@ -157,38 +97,22 @@ def calculate(G,startdate,enddate,granularity):
                         if (windowstart < datetime.strptime(action[1],"%d/%m/%y") < windowend):
                             actions_to_keep.append(action)
                     c[action_key] = actions_to_keep
-                    if action_key == 'talk' and len(actions_to_keep) > 0:
-                        nodemeta.append('social')
-                    elif action_key == 'give' and len(actions_to_keep) > 0:
-                        nodemeta.append('finance')
-
-                    elif action_key == 'create':
-                        for creations in c['create']:
-                            nodepair = ast.literal_eval(creations[0])
-                            if GCopy.node[str(nodepair[1])]['type'] == 'story': 
-                                nodemeta.append('story')
-                            elif GCopy.node[str(nodepair[1])]['type'] == 'welfare': 
-                                nodemeta.append('welfare')    
-                    #Here's where it gets tricky
+                    if len(actions_to_keep) == 0:
+                        continue
+                    if action_key not in cf.indirect_interactions:
+                        nodemeta.append(cf.meta[action_key])
                     #If the user has left a comment and they are the commenter (user to resource) rather than the receiver (user to user)...
-                    #...then this node is active in the resource network too
-                    elif action_key == 'comment' and len(actions_to_keep) > 0 and n in list(map(lambda x: str(ast.literal_eval(x[0])[0]), c['comment'])):
-                        for comments in c['comment']:
-                            nodepair = ast.literal_eval(comments[0])                        
-                            if GCopy.node[str(nodepair[1])]['type'] == 'story': 
-                                nodemeta.append('story')
-                            elif GCopy.node[str(nodepair[1])]['type'] == 'welfare': 
-                                nodemeta.append('welfare')
-            #Any story or welfare node that still exists in the reduced graph 
+                    #...then this node is active in the story/discussion network too
+                    if action_key in cf.indirect_interactions and n in list(map(lambda x: str(ast.literal_eval(x[0])[0]), c[action_key])): 
+                        nodemeta.append(cf.meta[action_key])
             if c['type'] == 'story':
                 nodemeta.append('story')
-            elif c['type'] == 'welfare':
-                nodemeta.append('welfare')
+            elif c['type'] == 'ForumPost':
+                nodemeta.append('discussion')
             c['nodemeta'] = nodemeta
                 
         #This uses a modified core_number algorithm that takes the weights of each node's edges into account
         #Trying it for both standard undirected graphs and my 'directed' equivalent
-        
         (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
         d1 = Counter(D.values())
 
@@ -214,11 +138,8 @@ def calculate(G,startdate,enddate,granularity):
         ReducedGraph.remove_nodes_from(loners)
         
         network_globals = {}
-        num_social = 0;
-        num_story = 0;
-        num_welfare = 0;
-        num_donation = 0;        
-        #Hopefully this will label edges appropriately both with the tags, and the type of communications that happen along them
+        for meta in cf.meta_networks:
+            network_globals[meta] = 0
         edgeiter = ReducedGraph.edges(data=True)
         for (u,v,c) in edgeiter:
             edgemeta = []
@@ -226,31 +147,14 @@ def calculate(G,startdate,enddate,granularity):
             endtags = ReducedGraph.nodes[v]['tags']
             tagintersect = [val for val in starttags if val in endtags] #intersection of tags for proper printing in D3
             c['edgetags'] = tagintersect
-            if 'talk' in c:
-                edgemeta.append('social')
-                num_social = num_social + len(c['talk'])
-            if 'give' in c:
-                edgemeta.append('finance')
-                num_donation = num_donation + len(c['give'])                
-            #It's not part of the 'resource' network if it's a user-user comment interaction
-            if ('comment' in c or 'create' in c) and (ReducedGraph.nodes[u]['type'] == 'story' or ReducedGraph.nodes[v]['type'] == 'story'):
-                edgemeta.append('story')
-                if 'comment' in c:
-                    num_story = num_story + len(c['comment'])
-                if 'create' in c:
-                    num_story = num_story + len(c['create'])            
-            if ('comment' in c or 'create' in c) and (ReducedGraph.nodes[u]['type'] == 'welfare' or ReducedGraph.nodes[v]['type'] == 'welfare'):
-                edgemeta.append('welfare')  
-                if 'comment' in c:
-                    num_welfare = num_welfare + len(c['comment'])
-                if 'create' in c:
-                    num_welfare = num_welfare + len(c['create'])
+            for action_key in cf.interaction_keys:
+                if action_key in c and action_key not in cf.indirect_interactions:
+                    edgemeta.append(cf.meta[action_key])
+                    network_globals[cf.meta[action_key]] +=1
+                if action_key in c and action_key in cf.indirect_interactions and (ReducedGraph.nodes[u]['type'] != 'User' or ReducedGraph.nodes[v]['type'] != 'User'):
+                    edgemeta.append(cf.meta[action_key])
+                    network_globals[cf.meta[action_key]] +=1
             c['edgemeta'] = edgemeta
-        network_globals['social'] = num_social
-        network_globals['story'] = num_story
-        network_globals['welfare'] = num_welfare
-        network_globals['donation'] = num_donation
-
         #Update the 'sliding window'
         windowstart = windowend
         windowend = windowend + relativedelta(months=+1)

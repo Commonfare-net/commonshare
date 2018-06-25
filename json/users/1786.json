@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "1097"}, {"tags": "protests,good practices", "title": "nauseating dock", "label": "1786", "type": "ForumPost", "id": "1786", "spells": [["24/05/19", "07/06/19"]]}], "links": [{"source": "1097", "target": "1786", "id": "2489", "spells": [["24/05/19", "07/06/19"]]}], "multigraph": false}

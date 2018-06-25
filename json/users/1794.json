@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"id": "828"}, {"tags": "welfare", "title": "homely monkey", "label": "1794", "type": "ForumPost", "id": "1794", "spells": [["26/05/19", "09/06/19"]]}], "links": [{"source": "828", "target": "1794", "id": "2358", "spells": [["26/05/19", "09/06/19"]]}], "multigraph": false}

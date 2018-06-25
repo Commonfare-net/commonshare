@@ -1,1 +1,1 @@
-{"directed": false, "graph": {}, "nodes": [{"tags": "commoncoin", "title": "delicate houses", "label": "1703", "type": "welfare", "id": "1703", "spells": [["10/05/19", "24/05/19"]]}, {"id": "71"}], "links": [{"source": "1703", "create": [["[71, 1703]", "10/05/19", "10/05/19"]], "target": "71", "id": "3105", "spells": [["10/05/19", "24/05/19"]]}], "multigraph": false}
+{"directed": false, "graph": {}, "nodes": [{"name": "Sandra Fennessey", "tags": "protests", "label": "1703", "type": "user", "id": "1703", "spells": [["17/05/19", "None"]]}], "links": [], "multigraph": false}

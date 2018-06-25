@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "welfare", "title": "drink cloud half handle", "label": "1796", "type": "Story", "id": "1796", "spells": [["26/05/19", "09/06/19"]]}, {"id": "94"}], "links": [{"source": "1796", "target": "94", "id": "1351", "spells": [["26/05/19", "09/06/19"]]}], "multigraph": false}

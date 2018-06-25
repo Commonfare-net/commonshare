@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,protests,provision", "title": "unarmed bell", "label": "1799", "type": "ForumPost", "id": "1799", "spells": [["26/05/19", "09/06/19"]]}, {"id": "58"}], "links": [{"source": "1799", "target": "58", "id": "908", "spells": [["26/05/19", "09/06/19"]]}], "multigraph": false}

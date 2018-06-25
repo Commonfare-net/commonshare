@@ -1,0 +1,1 @@
+{"directed": false, "graph": {}, "nodes": [{"tags": "protests,provision,commoncoin", "title": "guitar nasty chance discipline", "label": "1789", "type": "Story", "id": "1789", "spells": [["25/05/19", "08/06/19"]]}, {"id": "143"}], "links": [{"source": "1789", "target": "143", "id": "1484", "spells": [["25/05/19", "08/06/19"]]}], "multigraph": false}
