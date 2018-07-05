@@ -113,7 +113,7 @@ var div = d3.select("body").append("div")
 
 
 //Ensure all JSON files are loaded before initiating visualisation    
-d3.json('json/usersuncliquing/'+userid+'.json',function(results){
+d3.json('json/users/'+userid+'.json',function(results){
     data = results;
     plotsimpleline(userid);
     plotsplitline(userid);

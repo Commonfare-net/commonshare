@@ -29,8 +29,8 @@
     	<button onclick="nwfilter('all',this)" class="button button--ujarak button--border-thin button--text-thick">All</button>
 		<button onclick="nwfilter('social',this)" class="button button--ujarak button--border-thin button--text-thick">Social</button>
 		<button onclick="nwfilter('story',this)" class="button button--ujarak button--border-thin button--text-thick">Stories</button>
-		<button onclick="nwfilter('welfare',this)" class="button button--ujarak button--border-thin button--text-thick">Welfare</button>
-		<button onclick="nwfilter('finance',this)" class="button button--ujarak button--border-thin button--text-thick">Commoncoin</button>             
+		<!--<button onclick="nwfilter('welfare',this)" class="button button--ujarak button--border-thin button--text-thick">Welfare</button> -->
+		<button onclick="nwfilter('transaction',this)" class="button button--ujarak button--border-thin button--text-thick">Transactions</button>             
 	</div>
     
     <!--Container for the line chart of network tags over time-->
@@ -95,7 +95,7 @@ var div = d3.select("body").append("div")
 //Ensure all JSON files are loaded before initiating visualisation    
 var q = d3.queue();
 for (var i = 1; i < 12; i++) {
-    q.defer(d3.json, 'json/data'+i+'.json');
+    q.defer(d3.json, 'json/datapietro.json');
 }
 q.awaitAll(function(error,results) {
     if (error) throw error;
@@ -209,7 +209,7 @@ function draw(index,tag,filtertype){
             .duration(200)      
             .style("opacity", .9); 
         if(d.type == "user"){
-            div.html(d.name + "<br/>"  + JSON.stringify(d.tags))  
+            div.html(d.commoner_name)  
                .style("left", (d3.event.pageX) + "px")     
                .style("top", (d3.event.pageY - 28) + "px")
                .style("background", "lightsteelblue");    

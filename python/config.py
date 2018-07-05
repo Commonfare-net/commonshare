@@ -31,9 +31,9 @@ transaction="transaction"
 create_post="create_ForumPost"
 like_post="like_ForumPost"
 comment_post="comment_ForumPost"
-accept_post="accept_post"
-interaction_keys =[like_story,comment_story,create_story,friendship,transaction,create_post,like_post,comment_post,accept_post]
-indirect_interactions = [like_story,comment_story,like_post,comment_post,accept_post]
+#accept_post="accept_post"
+interaction_keys =[like_story,comment_story,create_story,friendship,transaction,create_post,like_post,comment_post]
+indirect_interactions = [like_story,comment_story,like_post,comment_post]
 meta_networks = ['story','discussion','social','transaction']
 #Meta-data to add to nodes and edges based on actions
 meta = {like_story:'story',
@@ -74,8 +74,7 @@ weights = {like_story:(0,1),
 #Forum-based interactions
            create_post:(2,0),
            like_post:(0,1),
-           comment_post:(2,2),
-           accept_post:(6,6)}
+           comment_post:(2,2)}
 '''           
 #Unweighted
 weights = {like_story:(1,1),
