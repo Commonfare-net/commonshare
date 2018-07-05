@@ -21,10 +21,10 @@ def get_users(need_two_users):
   tags=nx.get_node_attributes(G,'tags')
   all_users = False
   #Randomly determine whether colluding nodes get detected
-  random_no = random.randint(1,10)
+  random_no = random.randint(1,20)
   while True:
     if need_two_users:
-      if cf.SHOULD_COLLUDE and random_no > 7:
+      if cf.SHOULD_COLLUDE and random_no > 19:
         return random.sample(cf.colluding_nodes,2)
       else:
           users = random.sample(G.nodes(),2)
@@ -65,7 +65,7 @@ def create_object(user,objtype):
   for x in actions_dict:
     G[user][obj_node][x] = []
   
-  G.nodes[user]['create_'+objtype].append(([user,obj_node],s_today,s_today))    
+  #G.nodes[user]['create_'+objtype].append(([user,obj_node],s_today,s_today))    
   G[user][obj_node]['spells'] = [(s_today,s_fortnight)]
   if cf.SHOULD_CLIQUE:
     tags = G.nodes[user]['tags'].split(',')
@@ -95,16 +95,20 @@ def object_interact(objtype,interaction):
   pair = get_users(True)
   source = pair[0]
   target = pair[1]
-  tags=nx.get_node_attributes(G,'tags')
+  #tags=nx.get_node_attributes(G,'tags')
+  type=nx.get_node_attributes(G,'type')
   for object in G.neighbors(target):
-    type=nx.get_node_attributes(G,'type')
     #Pick a random story of the target user
-    if type[object] == objtype and 'create' in G[target][object]:
-      if cf.SHOULD_CLIQUE == True: #If we're 'cliquing', only want users to interact with stories with which they share a tag
-        usertags = tags[source].split(',')
-        objtags = tags[object].split(',')
-        if len([val for val in usertags if val in objtags]) == 0: #If there are no shared tags between user and story,  carry on
-            continue
+    if type[object] == objtype and len(G[target][object]['create_'+objtype]) > 0:
+      with open('out.txt', 'a') as f:
+        print >> f, 'create_',objtype,' is in G[',target,'][',object,']'
+        print >> f, 'because it is ',G[target][object]
+      #print 'create_'+objtype + ' is in G[',target,'][',object,']'
+     # if cf.SHOULD_CLIQUE == True: #If we're 'cliquing', only want users to interact with stories with which they share a tag
+     #   usertags = tags[source].split(',')
+     #   objtags = tags[object].split(',')
+     #   if len([val for val in usertags if val in objtags]) == 0: #If there are no shared tags between user and story,  carry on
+     #       continue
     #  print source,'read story',story,'of user',target
       #Is this the first time source user has interacted with this story?
       if G.has_edge(source,object) == False:
@@ -197,7 +201,8 @@ while counter < cf.DAYS:
             
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
-  add_user()
+  #if counter % 3 == 0:
+  #  add_user()
   G = nx.convert_node_labels_to_integers(G)
 
   if counter % 30 == 0:

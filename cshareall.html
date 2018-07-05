@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="css/commonfare.css">
+</head>
+<body>
+<div style="width: 100%; text-align:center;">
+    <!--Simple line chart div-->
+    <div class="bigchart">
+        <h5>Your Commonshare</h5>    
+        <svg id="linechart" width="800" height="200"></svg>
+    </div>
+    <!--Split line chart div-->
+    <div class="minicharts">  
+        <div>    
+            <h6 class="commonchart-title"></h6>
+            <svg class="commonchart" width="400" height="80"></svg>
+        </div>
+        <div>    
+            <h6 class="commonchart-title"></h6>        
+            <svg class="commonchart" width="400" height="80"></svg>
+        </div>
+        <div>    
+            <h6 class="commonchart-title"></h6>        
+            <svg class="commonchart" width="400" height="80"></svg>
+        </div>
+        <div>    
+            <h6 class="commonchart-title"></h6>        
+            <svg class="commonchart" width="400" height="80"></svg>
+        </div>
+    </div>
+    <!--Simple area chart div-->
+    <div class="bigchart">    
+        <svg id="areachart" width="800" height="200"></svg>
+    </div>
+    <!--Split area chart div-->
+    <div class="minicharts">
+        <div>
+            <h6 class="splitarea-title"></h6>
+            <svg class="splitareachart" width="400" height="80"></svg>
+        </div>
+        <div>
+            <h6 class="splitarea-title"></h6>        
+            <svg class="splitareachart" width="400" height="80"></svg>
+        </div>
+        <div>
+            <h6 class="splitarea-title"></h6>        
+            <svg class="splitareachart" width="400" height="80"></svg>
+        </div>
+        <div>
+            <h6 class="splitarea-title"></h6>        
+            <svg class="splitareachart" width="400" height="80"></svg>
+        </div>
+    </div>
+    <!--Stacked bar chart div-->
+    <div class="bigchart">   
+        <svg id="stackedbarchart" width="800" height="200"></svg>
+    </div>    
+    <!--Grouped bar chart div-->
+    <div class="bigchart">    
+        <svg id="groupedbarchart" width="800" height="200"></svg>
+    </div>   
+    <!--Circle chart div-->
+    <div class="bigchart">
+        <svg id="circlechart" width="800" height="200" style="margin-left:50px"></svg>
+    </div>
+    <!--Calendar chart div-->
+    <div class="bigchart">
+        <svg id="calendarchart" width="800" height="200" style="margin-left:50px"></svg>
+    </div>        
+</div>
+</body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+var prettyKeys = 
+{"create_Story":"Stories written",
+"comment_Story":"Story comments made",
+"rcomment_Story":"Story comments received",
+"like_Story":"Story likes left",
+"rlike_Story":"Story likes received",
+"create_ForumPost":"Forum posts created",
+"comment_ForumPost":"Post comments made",
+"rcomment_ForumPost":"Post comments received",
+"like_ForumPost":"Post likes left",
+"rlike_ForumPost":"Post likes received",
+"transaction":"Transactions made",
+"rtransaction":"Transactions made",
+"friendship":"Friends made",
+"rfriendship":"Friends made"
+};
+var color; //The colour scale, gets set in the simple line part and then used everywhere else
+var mykeys = [];
+
+var parseTime = d3.timeParse("%d/%m/%y");
+var formatDate = d3.timeFormat("%b-%y");
+
+var urlParams = new URLSearchParams(window.location.search);
+var userid = urlParams.get('userid'); // "edit"
+
+var data = {};
+
+function monthLetter(date) {
+  var str = formatDate(date);
+  return str.substr(0,2);
+}   
+//Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+   
+
+
+
+//Ensure all JSON files are loaded before initiating visualisation    
+d3.json('json/usersuncliquing/'+userid+'.json',function(results){
+    data = results;
+    plotsimpleline(userid);
+    plotsplitline(userid);
+    plotsimplearea(userid);
+    plotsplitarea(userid);
+    plotstackedbar(userid);
+    plotgroupedbar(userid);
+    plotcirclechart(userid);
+    plotcalendars(userid);
+});
+
+</script>
+<script src="js/simpleline.js"></script>
+<script src="js/splitline.js"></script>
+<script src="js/simplearea.js"></script>
+<script src="js/splitarea.js"></script>
+<script src="js/stackedbar.js"></script>
+<script src="js/groupedbar.js"></script>
+<script src="js/circles.js"></script>
+<script src="js/calendar.js"></script>

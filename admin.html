@@ -557,7 +557,7 @@ function plotcommonsharevals(){
   //Animation code from https://stackoverflow.com/questions/47986520/how-to-synchronize-animation-of-path-and-area
     tag.append("path")
     .attr("class","line")
-    .attr("clip-path", "url(#clip)")
+    .attr("clip-path", "url(#tagchart_clip)")
     .attr("d",function(d){return tagchart_line(d.values);})
     .style("stroke", function(d) { return tagchart_z(d.id); });
     

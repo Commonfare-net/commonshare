@@ -20,17 +20,41 @@ Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used
 def getNodeStats(G,node_id,starttime,endtime):
     edges = G.edges(node_id,data=True)
     
-    #There are more elegant ways of doing this but it works for now
     stats = {}
     for (u,v,c) in edges:
         for action_key in cf.interaction_keys:
             if action_key in c:
-                for actions in c[action_key]:
-           #     if (starttime < datetime.strptime(createactions[1],"%d/%m/%y") < endtime):
-                    if str(ast.literal_eval(actions[0])[0]) == str(node_id):
-                        if actions[1] not in stats:
-                            stats[actions[1]] = []
-                        stats[actions[1]].append([action_key,cf.weights[action_key][0]])
+                meta = cf.meta[action_key]
+                if meta not in stats:
+                    stats[meta] = {}
+                if action_key not in stats[meta]:
+                    stats[meta][action_key] = []
+                    stats[meta]["r"+action_key] = [] #This is the inverse (i.e. comment received, like received)
+                for action in c[action_key]:
+                    if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                        stats[meta][action_key].append(action)
+                        if action[1] not in stats:
+                            stats[action[1]] = {}
+                        if meta not in stats[action[1]]:
+                            stats[action[1]][meta] = {}                            
+                        if action_key not in stats[action[1]][meta]:
+                            stats[action[1]][meta][action_key] = [1,cf.weights[action_key][0]]
+                        else:
+                            stats[action[1]][meta][action_key][0] += 1 #Number of actions
+                            stats[action[1]][meta][action_key][1] += cf.weights[action_key][0] #Weight of actions
+                    elif action_key in cf.indirect_interactions:
+                        stats[meta]["r"+action_key].append(action)
+                        if action[1] not in stats:
+                            stats[action[1]] = {}
+                        if meta not in stats[action[1]]:
+                            stats[action[1]][meta] = {}
+                        if ("r" + action_key) not in stats[action[1]][meta]:
+                            stats[action[1]][meta]["r"+action_key] = [1,cf.weights[action_key][1]]
+                        else:
+                            stats[action[1]][meta]["r"+action_key][0] += 1 #Number of actions
+                            stats[action[1]][meta]["r"+action_key][1] += cf.weights[action_key][1] #Weight of actions
+                    else:
+                        stats[meta][action_key].append(action)
     return stats
 
 def calculate(G,startdate,enddate,granularity):   
@@ -45,7 +69,10 @@ def calculate(G,startdate,enddate,granularity):
     alpha = 0.4
     loopcount = 0
     
-    
+    node_data_dict = {}
+    nodeiter = G.nodes(data=True)      
+    for (n,c) in nodeiter:
+        node_data_dict[n] = []
     
     while(windowend < enddate):
         #Find edges which have a spell that started or ended within the bounds of a given hour/day
@@ -116,17 +143,22 @@ def calculate(G,startdate,enddate,granularity):
         (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
         d1 = Counter(D.values())
 
-
         
         tag_globals = {}
         loners = []
         nodeiter = ReducedGraph.nodes(data=True)
         #This adds the kcore value back into the GEXF
         for (n,c) in nodeiter:
+            
             if D[n] == 0:
                 loners.append(n);
+                c['kcore'] = 0
+                c['stats'] = {}
+                node_data_dict[n].append(c)                
             else:
                 c['kcore'] = D[n]
+                c['cumu_totals'] = {k:(v*D[n]) for k,v in c['cumu_totals'].items()}
+                c['avg_totals'] = {k:(v*D[n]) for k,v in c['avg_totals'].items()}
                 c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
                 c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
                 #Now accumulate tag number
@@ -135,6 +167,7 @@ def calculate(G,startdate,enddate,granularity):
                         tag_globals[tag] = 1
                     else:
                         tag_globals[tag] = tag_globals[tag] + 1
+                node_data_dict[n].append(c)
         ReducedGraph.remove_nodes_from(loners)
         
         network_globals = {}
@@ -170,17 +203,20 @@ def calculate(G,startdate,enddate,granularity):
                 
         with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(data))
-            
+                  
+        for k,v in node_data_dict.items():
+            with open('../json/usersuncliquing/' + str(k) + '.json', 'w') as outfile:
+                outfile.write(json.dumps(v))              
     #Now print out the whole history of each user
-    nodeiter = G.nodes(data=True)
-    for (n,c) in nodeiter:
-        UserG=nx.Graph()
-        UserG.add_node(n)
-        UserG.nodes[n].update(c)
-        UserG.add_edges_from(G.edges(n,data=True))
-        data = json_graph.node_link_data(UserG)
-        with open('../json/users/' + str(n) + '.json', 'w') as outfile:
-            outfile.write(json.dumps(data))
+    #nodeiter = G.nodes(data=True)
+    #for (n,c) in nodeiter:
+    #    UserG=nx.Graph()
+   #     UserG.add_node(n)
+   #     UserG.nodes[n].update(c)
+   #     UserG.add_edges_from(G.edges(n,data=True))
+   #     data = json_graph.node_link_data(UserG)
+   #     with open('../json/users/' + str(n) + '.json', 'w') as outfile:
+   #         outfile.write(json.dumps(data))
 cur_date = datetime(2018,6,1)
 start_date = cur_date
 cur_date = cur_date + cf.one_year            

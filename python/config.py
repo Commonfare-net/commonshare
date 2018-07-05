@@ -1,14 +1,14 @@
 import datetime
 
 DAYS = 365
-USERS = 500
-INITIAL_USERS = 20
-ACTIONS_PER_DAY = 6
+USERS = 50
+INITIAL_USERS = 500
+ACTIONS_PER_DAY = 30
 
 #Collusion things
 
 SHOULD_CLIQUE = False
-SHOULD_COLLUDE = False
+SHOULD_COLLUDE = True
 NUM_COLLUDERS = 3
 FREQUENCY_THRESHOLD = 5
 REPUTATION_THRESHOLD = 30
@@ -34,7 +34,6 @@ comment_post="comment_ForumPost"
 accept_post="accept_post"
 interaction_keys =[like_story,comment_story,create_story,friendship,transaction,create_post,like_post,comment_post,accept_post]
 indirect_interactions = [like_story,comment_story,like_post,comment_post,accept_post]
-
 meta_networks = ['story','discussion','social','transaction']
 #Meta-data to add to nodes and edges based on actions
 meta = {like_story:'story',
@@ -61,6 +60,9 @@ interaction_keys = [read_key,comment_key,share_key,create_key,talk_key,give_key]
 direct_interaction_keys = [talk_key,give_key]
 #,create_listing_key,comment_listing_key,create_provision_key,comment_provision_key,share_provision_key]
 '''
+
+#Weighted, directed
+
 #Story-based interactions
 weights = {like_story:(0,1),
            comment_story:(2,2),
@@ -75,18 +77,35 @@ weights = {like_story:(0,1),
            comment_post:(2,2),
            accept_post:(6,6)}
 '''           
-weights = {read_key:(2,1),
-           comment_key:(4,1),
-           share_key:(4,1),
-           create_key:(6,0),
-           talk_key:(8,4),
-           give_key:(10,3),
-           create_listing_key:(5,0),
-           comment_listing_key:(0,0),
-           create_provision_key:(0,0),
-           comment_provision_key:(0,0),
-           share_provision_key:(0,0),
-           share_provision_key:(0,0)}
+#Unweighted
+weights = {like_story:(1,1),
+           comment_story:(1,1),
+           create_story:(1,1),
+#Friendship-based interactions
+           friendship:(1,1),
+#Transaction-based interactions
+           transaction:(1,1),
+#Forum-based interactions
+           create_post:(1,1),
+           like_post:(1,1),
+           comment_post:(1,1),
+           accept_post:(1,1)}
+
+#Weighted, undirected
+
+weights = {like_story:(1,1),
+           comment_story:(2,2),
+           create_story:(2,2),
+#Friendship-based interactions
+           friendship:(10,10),
+#Transaction-based interactions
+           transaction:(5,5),
+#Forum-based interactions
+           create_post:(2,2),
+           like_post:(1,1),
+           comment_post:(2,2),
+           accept_post:(6,6)}           
+
 '''
 def utmillis(dt):
     return (dt - epoch).total_seconds()

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="css/commonfare.css">
+</head>
+<body>
+<div style="width: 100%; text-align:center;">
+    <div style="display:inline-block;width:1200px">
+        <h5>Your Commonshare</h5> 
+        <h6 class="commonchart-title"></h6>
+        <svg style="display:inline-block;width:1000px;"class="commonchart" width="1000" height="150"></svg>
+        <h6 class="commonchart-title"></h6>
+        <svg style="display:inline-block;width:1000px;"class="commonchart" width="1000" height="150"></svg>
+        <h6 class="commonchart-title"></h6>        
+        <svg style="display:inline-block;width:1000px;"class="commonchart" width="1000" height="150"></svg>
+        <h6 class="commonchart-title"></h6>        
+        <svg style="display:inline-block;width:1000px;"class="commonchart" width="1000" height="150"></svg>
+        <h6 class="commonchart-title"></h6>        
+        <svg style="display:inline-block;width:1000px;"class="commonchart" width="1000" height="150"></svg>
+
+    </div>
+</div>
+</body>
+
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script>
+var prettyKeys = 
+{"create_Story":"Stories written",
+"comment_Story":"Story comments made",
+"rcomment_Story":"Story comments received",
+"like_Story":"Story likes left",
+"rlike_Story":"Story likes received",
+"create_ForumPost":"Forum posts created",
+"comment_ForumPost":"Post comments made",
+"rcomment_ForumPost":"Post comments received",
+"like_ForumPost":"Post likes left",
+"rlike_ForumPost":"Post likes received",
+"transaction":"Transactions made",
+"rtransaction":"Transactions made",
+"friendship":"Friends made",
+"rfriendship":"Friends made"
+};
+//All this stuff is for the network viz
+var urlParams = new URLSearchParams(window.location.search);
+var userid = urlParams.get('userid'); // "edit"
+//Generates a random user ID between 0 and 499 (because the viz is currently working with 500 simulated users)
+var data = {};
+var xScale = d3.scaleLinear()
+    .domain([0,1000]).range([0,1000]);
+var yScale = d3.scaleLinear()
+    .domain([0,150]).range([0,150]);
+
+//Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+
+//Ensure all JSON files are loaded before initiating visualisation    
+d3.json('json/users/'+userid+'.json',function(results){
+    data = results;
+    plotcommonshare(userid);
+});
+
+/*-------------COMMONSHARE AREA CHART---------------*/
+
+var charts = d3.selectAll(".commonchart"),
+    margin = {top: 5, right: 50, bottom: 20, left: 50},
+    chartwidth = +charts.attr("width") - margin.left - margin.right,
+    chartheight = +charts.attr("height") - margin.top - margin.bottom,
+    chartg = charts.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var titles = d3.selectAll(".commonchart-title");
+
+var parseTime = d3.timeParse("%d/%m/%y");
+var parseMonthAxis = d3.timeFormat("%Y-%m");
+
+var x = d3.scaleTime()
+    .rangeRound([0, chartwidth]);
+var y = d3.scaleLinear()
+    .rangeRound([chartheight,0]);
+var z = d3.scaleOrdinal(d3.schemeCategory10);
+
+ 
+var area = d3.area()
+    .x(function(d) {return x(parseTime(d.date)); })
+    .y1(function(d) {return y(d.total); })
+
+
+var kcoreline = d3.area()
+    .x(function(d) {return x(parseTime(d.date)); })
+    .y1(function(d) {return y(d.kcore); })
+
+    
+function plotcommonshare(user){
+
+    var keys = [];
+    var lists_of_metas = {}
+    var kcorelist = []
+    var storylist = []
+    var discussionlist = []
+    var friendshiplist = []
+    var transactionlist = []
+    lists_of_metas["kcore"] = []
+    for (var month in data){
+     //   console.log(data[month]);
+        var cumu_totals = data[month].cumu_totals;    
+        for (var name in cumu_totals){
+            if(cumu_totals.hasOwnProperty(name)){
+                if(!(name in lists_of_metas))
+                    lists_of_metas[name] = [];
+                    keys.push(name);
+                lists_of_metas[name].push({"id": name, "date":data[month].date, "stats":data[month].stats, "total": cumu_totals[name]}); 
+            }
+        };
+        data[month].kcore = +data[month].kcore
+        
+        lists_of_metas["kcore"].push({"id": "kcore", "date":data[month].date,"total":data[month].kcore});
+    }
+  var color = d3.scaleOrdinal() // D3 Version 4
+  .domain(keys)
+  .range(['#a6cee3','#1f78b4','#b2df8a','#33a02c']); 
+  
+  var avgdata_list = Object.keys(lists_of_metas).map(function(k) { return {"id": k, "values":lists_of_metas[k] };});  
+    console.log(avgdata_list);
+
+  x.domain([
+  d3.min(avgdata_list,function(c) {return d3.min(c.values, function(d) {return parseTime(d.date); });}),
+  d3.max(avgdata_list,function(c) { return d3.max(c.values, function(d) {return parseTime(d.date); });})
+  ]);
+  
+  y.domain([
+  0,
+  d3.max(avgdata_list,function(c) { return d3.max(c.values, function(d) {return d.total; });})
+  ]);
+    area.y0(y(0));
+    kcoreline.y0(y(0));
+  z.domain(avgdata_list.map(function(c) { return c.id; }));
+  
+
+  //Animation code from https://stackoverflow.com/questions/47986520/how-to-synchronize-animation-of-path-and-area
+  var linepath = chartg.append("path")
+    .data(avgdata_list)
+    .attr("class", "area")
+    .attr("clip-path", "url(#clip)")
+    .attr("d",function(d){return area(d.values);})
+    .style("fill", function(d) { return color(d.id); });
+
+    titles.data(avgdata_list)
+    .each(function(d){d3.select(this).node().innerHTML = d.id;
+                      d3.select(this).node().style.color = color(d.id);});
+  //  .style('fill',function(d){return z(d.id);});
+    
+     chartg.append("g")
+    .data(avgdata_list)
+    .attr("class", "dots")
+    .selectAll("circle")
+    .data(function(d,i) {return d.values; })
+      .enter().append("circle")
+      .attr("class","mydot")
+      .style("fill", function(d) { return color(d.id); })
+      .attr("id",function(d,i) { return "dot"+ d.total + "-" + (i);})
+      .attr("r", 3)
+      .attr("clip-path","url(#clip)")
+      .attr("cx", function(d) {return x(parseTime(d.date)); } )
+      .attr("cy", function(d) {return y(d.total); } )
+      .on("mouseover", function(d) {
+            var html_content = "";
+            for(var meta in d.stats){
+                console.log("d.id is " + d.id + " and meta is " + meta);
+                if(meta == d.id){ //If this holds the interactions of this particular type
+                    for(var statistic in d.stats[meta]){
+                        console.log("statistic is " + statistic);
+                        if(d.stats[meta][statistic].length > 0)
+                            html_content += prettyKeys[statistic] + ": " + d.stats[meta][statistic].length + "<br/>";
+                    }
+                }
+            }
+            d3.select(this).attr("r",8);
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div	.html(html_content)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            })					
+        .on("mouseout", function(d) {	
+            d3.select(this).attr("r",4);
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+       }) 
+      ; 
+
+  var clip = chartg.append("clipPath")
+    .attr("id", "clip");
+  var clipRect = clip.append("rect")
+    .attr("width", 0)
+    .attr("height", 150);
+  var totalLength = linepath.node().getTotalLength();
+  
+  clipRect.transition()
+    .duration(5000)
+    .ease(d3.easeLinear)
+    .attr("width", totalLength)
+ 
+  chartg.append("g")
+      .attr("transform", "translate(0," + chartheight + ")")
+      .attr("class","axis")
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%Y-%m")))
+      .selectAll("text")	
+       // .style("text-anchor", "end")
+        .attr("dy", "0.71em");
+        //.attr("transform", "rotate(-65)");;
+
+
+  chartg.append("g")
+      .attr("class","axis")
+      .call(d3.axisLeft(y).ticks(5))
+      .append("text")
+        .attr("fill", "#000")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Commonshare");
+
+}
+</script>

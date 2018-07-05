@@ -1,4 +1,40 @@
+/*Legend stuff */
+  .legend {
+    font-size: 16px;
+  }
+  rect {
+    stroke-width: 2;
+  }
+  h6 { 
+  color: black;
+  font-family: 'Lato', sans-serif; 
+  font-size: 16px; 
+  font-weight: bold;  
+  margin: 0 0; 
+  width: 400px;
+}
+  
+.bigchart {
+    display: inline-block;
+    width: auto;
+}
+.bigchart svg{
+    display: inline-block;
+    width: auto;   
+}
+.minicharts {
+  display: inline-block;
+  width: 1000px;
+}
 
+.minicharts div{
+  display: inline-block;
+  width: 400px;
+}
+.minicharts svg{
+    display: inline-block;
+    width: 400px;
+}
 .links line {
   stroke-opacity: 0.6;
 }
@@ -31,27 +67,26 @@ h5 {
   stroke: black;
   stroke-width: 1.5px;
 }
-.axis path,
-		.axis line {
-			fill: none;
-		  	stroke: #C4C4C4;
-		  	shape-rendering: crispEdges;
-		}
-		
-		.mypath {
-			stroke: #E7472E;
-			stroke-width: 1.5px;
-			fill: none;
-		}
-		
-		.lineDots {
-			fill: #E7472E;
-		}
-/*
-svg {
-    vertical-align:top;
+.axis path, .axis line {
+	fill: none;
+    stroke: #C4C4C4;
+	shape-rendering: crispEdges;
 }
-*/
+
+.axis text {
+   font-size: 14px;
+}
+
+.mypath {
+	stroke: #E7472E;
+	stroke-width: 1.5px;
+	fill: none;
+}
+		
+.lineDots {
+	fill: #E7472E;
+}
+
 .nodes circle {
   stroke: #fff;
   stroke-width: 0.5px;
