@@ -1,7 +1,7 @@
 import datetime
 
 DAYS = 365
-USERS = 50
+TAGS = 50
 INITIAL_USERS = 500
 ACTIONS_PER_DAY = 30
 
@@ -23,28 +23,34 @@ one_year = datetime.timedelta(days=365)
 epoch = datetime.datetime.utcfromtimestamp(0)
 
 DEPRECIATION = 2.5
-like_story="like_Story"
-comment_story="comment_Story"
-create_story="create_Story"
-friendship="friendship"
+comment_story="comment_story"
+comment_listing="comment_listing"
+create_story="create_story"
+create_listing="create_listing"
+conversation="conversation"
 transaction="transaction"
-create_post="create_ForumPost"
-like_post="like_ForumPost"
-comment_post="comment_ForumPost"
+tag_story="tag_story"
+tag_listing="tag_listing"
+tag_commoner="tag_commoner"
 #accept_post="accept_post"
-interaction_keys =[like_story,comment_story,create_story,friendship,transaction,create_post,like_post,comment_post]
-indirect_interactions = [like_story,comment_story,like_post,comment_post]
-meta_networks = ['story','discussion','social','transaction']
+mutual_interactions = [conversation,transaction]
+interaction_keys =[comment_story,comment_listing,create_story,create_listing,conversation,transaction,tag_commoner,tag_story,tag_listing]
+indirect_interactions = [comment_story,comment_listing]
+meta_networks = ['story','listing','social','transaction']
 #Meta-data to add to nodes and edges based on actions
-meta = {like_story:'story',
+
+meta = {
         comment_story:'story',
         create_story:'story',
-        like_post:'discussion',
-        comment_post:'discussion',
-        create_post:'discussion',
-        friendship:'social',
-        transaction:'transaction'
+        tag_story:'story',
+        comment_listing:'listing',
+        create_listing:'listing',
+        tag_listing:'listing',
+        conversation:'social',
+        transaction:'transaction',
+        tag_commoner:'social'
         }
+
 '''
 comment_key = "comment"
 share_key = "share"
@@ -64,17 +70,20 @@ direct_interaction_keys = [talk_key,give_key]
 #Weighted, directed
 
 #Story-based interactions
-weights = {like_story:(0,1),
+weights = {
+           tag_commoner:(0,2),
            comment_story:(2,2),
-           create_story:(2,0),
+           create_story:(2,2),
+           tag_story:(0,2),
 #Friendship-based interactions
-           friendship:(10,10),
+           conversation:(10,10),
 #Transaction-based interactions
            transaction:(5,5),
 #Forum-based interactions
-           create_post:(2,0),
-           like_post:(0,1),
-           comment_post:(2,2)}
+           create_listing:(2,2),
+           comment_listing:(2,2),
+           tag_listing:(0,2)
+           }
 '''           
 #Unweighted
 weights = {like_story:(1,1),

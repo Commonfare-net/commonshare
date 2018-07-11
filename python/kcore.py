@@ -11,13 +11,14 @@ from collections import Counter
 import os
 import copy
 import ast
+import xml.etree.ElementTree as ET
 from dateutil.relativedelta import *
 '''
 This module does the necessary k-core calculations and appends the results to each node in the Graph.
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
 '''
 
-def getNodeStats(G,node_id,starttime,endtime):
+def getNodeStats(G,node_id):
     edges = G.edges(node_id,data=True)
     
     stats = {}
@@ -31,7 +32,7 @@ def getNodeStats(G,node_id,starttime,endtime):
                     stats[meta][action_key] = []
                     stats[meta]["r"+action_key] = [] #This is the inverse (i.e. comment received, like received)
                 for action in c[action_key]:
-                    if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                    if str(ast.literal_eval(action[0])[0]) == str(node_id)or action_key in cf.mutual_interactions:
                         stats[meta][action_key].append(action)
                         if action[1] not in stats:
                             stats[action[1]] = {}
@@ -54,10 +55,12 @@ def getNodeStats(G,node_id,starttime,endtime):
                             stats[action[1]][meta]["r"+action_key][0] += 1 #Number of actions
                             stats[action[1]][meta]["r"+action_key][1] += cf.weights[action_key][1] #Weight of actions
                     else:
-                        stats[meta][action_key].append(action)
+                        stats[meta][action_key].append(action)                    
+
     return stats
 
-def calculate(G,startdate,enddate,granularity):   
+    
+def calculate(G,startdate,enddate):  
     user_id = 0
     
     if not os.path.exists("../json"):
@@ -65,63 +68,66 @@ def calculate(G,startdate,enddate,granularity):
         
     windowstart = startdate
     windowend = windowstart+ relativedelta(months=+1)
-
-    alpha = 0.4
     loopcount = 0
+    
     
     node_data_dict = {}
     nodeiter = G.nodes(data=True)      
     for (n,c) in nodeiter:
         node_data_dict[n] = []
-    
+  
     while(windowend < enddate):
         #Find edges which have a spell that started or ended within the bounds of a given hour/day
         #For those edges that didn't, remove them, then calculate the k-core
         ebunch = []
-        indirectedges = []
+        tagedges = []
         
-        #GCopy = G.copy()
+        #GCopy = SimpleGraph.copy()
         #Apparently the above doesn't deep copy node attributes that are lists. The documentation on this is confusing
         #as, supposedly, it's meant to be a deep copy of the graph by default. Instead, the below works just fine
         GCopy = copy.deepcopy(G)
         iter = GCopy.edges(data=True)
-
+      
         for (u,v,c) in iter:
             edgeexists = False
             for intervals in c['spells']:
-                #Cumulative                 
-                #if windowend > intervals[0]:
-                #Non-cumulative
-                if (windowstart < datetime.strptime(intervals[0],"%d/%m/%y") < windowend):
+                if (windowstart < datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
                     edgeexists = True
                     break
             if edgeexists == False:
+               
                 ebunch.append((u,v,c))
+            elif GCopy.nodes[u]["type"] == "tag" or GCopy.nodes[v]["type"] == "tag":
+                tagedges.append((u,v,c))
+                
         GCopy.remove_edges_from(ebunch)
-        
+        GCopy.remove_edges_from((tagedges))
         #Here a similar operation is done to remove nodes that do not exist at this point in time
         nbunch = []
         nodeiter = GCopy.nodes(data=True)
         for (n,c) in nodeiter:
-            c['date'] = datetime.strftime(windowstart,"%d/%m/%y")
-            for intervals in c['spells']:
-                if datetime.strptime(intervals[0],"%d/%m/%y") < windowend:
-                    break
-                else:
-                    nbunch.append(n)
+            nodeexists = False
+            c['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
+            if 'spells' in c:
+                for intervals in c['spells']:
+                    if (windowstart < datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
+                        nodeexists = True
+                        break
+            if nodeexists == False:
+                nbunch.append(n)
         GCopy.remove_nodes_from(nbunch)
-        
+            
 
         #Go through them again, remove unnecessary actions and add 'meta-data' to nodes based on their remaining actions
+        
         nodeiter = GCopy.nodes(data=True)      
         for (n,c) in nodeiter:
             nodemeta = []
             for action_key in cf.interaction_keys:
-                #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them.
                 if action_key in c:
                     actions_to_keep = []
                     for action in c[action_key]:
-                        if (windowstart < datetime.strptime(action[1],"%d/%m/%y") < windowend):
+                        if (windowstart < datetime.strptime(action[1],"%Y/%m/%d") < windowend):
                             actions_to_keep.append(action)
                     c[action_key] = actions_to_keep
                     if len(actions_to_keep) == 0:
@@ -129,29 +135,30 @@ def calculate(G,startdate,enddate,granularity):
                     if action_key not in cf.indirect_interactions:
                         nodemeta.append(cf.meta[action_key])
                     #If the user has left a comment and they are the commenter (user to resource) rather than the receiver (user to user)...
-                    #...then this node is active in the story/discussion network too
+                    #...then this node is active in the story/discussion network too                    
                     if action_key in cf.indirect_interactions and n in list(map(lambda x: str(ast.literal_eval(x[0])[0]), c[action_key])): 
                         nodemeta.append(cf.meta[action_key])
             if c['type'] == 'story':
                 nodemeta.append('story')
-            elif c['type'] == 'ForumPost':
-                nodemeta.append('discussion')
+            elif c['type'] == 'listing':
+                nodemeta.append('listing')
             c['nodemeta'] = nodemeta
                 
-        #This uses a modified core_number algorithm that takes the weights of each node's edges into account
-        #Trying it for both standard undirected graphs and my 'directed' equivalent
+                
+        #Have to remove the self-loops that have cropped up
+        GCopy.remove_edges_from(GCopy.selfloop_edges())
         (ReducedGraph,D) = dx.core_number_weighted(GCopy,windowstart,windowend,True,False)
         d1 = Counter(D.values())
-
-        
+        ReducedGraph.add_edges_from(tagedges)
         tag_globals = {}
-        loners = []
         nodeiter = ReducedGraph.nodes(data=True)
         #This adds the kcore value back into the GEXF
         for (n,c) in nodeiter:
-            
-            if D[n] == 0:
-                loners.append(n);
+            if n not in D:
+                c['kcore'] = 0
+                c['stats'] = {}
+                node_data_dict[n].append(c)
+            elif D[n] == 0:
                 c['kcore'] = 0
                 c['stats'] = {}
                 node_data_dict[n].append(c)                
@@ -159,68 +166,62 @@ def calculate(G,startdate,enddate,granularity):
                 c['kcore'] = D[n]
                 c['cumu_totals'] = {k:(v*D[n]) for k,v in c['cumu_totals'].items()}
                 c['avg_totals'] = {k:(v*D[n]) for k,v in c['avg_totals'].items()}
-                c['stats'] = getNodeStats(ReducedGraph,n,windowstart,windowend)
-                c['tags'] = c['tags'].split(",") #Turns it into an array for nice JSON reading
-                #Now accumulate tag number
-                for tag in c['tags']:
-                    if tag not in tag_globals:
-                        tag_globals[tag] = 1
-                    else:
-                        tag_globals[tag] = tag_globals[tag] + 1
+                c['stats'] = getNodeStats(ReducedGraph,n)
                 node_data_dict[n].append(c)
-        ReducedGraph.remove_nodes_from(loners)
+        
         
         network_globals = {}
         for meta in cf.meta_networks:
             network_globals[meta] = 0
         edgeiter = ReducedGraph.edges(data=True)
+        '''
         for (u,v,c) in edgeiter:
             edgemeta = []
-            starttags = ReducedGraph.nodes[u]['tags']
-            endtags = ReducedGraph.nodes[v]['tags']
-            tagintersect = [val for val in starttags if val in endtags] #intersection of tags for proper printing in D3
-            c['edgetags'] = tagintersect
+            #starttags = ReducedGraph.nodes[u]['tags']
+            #endtags = ReducedGraph.nodes[v]['tags']
+            #tagintersect = [val for val in starttags if val in endtags] #intersection of tags for proper printing in D3
+            #c['edgetags'] = tagintersect
             for action_key in cf.interaction_keys:
-                if action_key in c and action_key not in cf.indirect_interactions:
+                if action_key in c and len(c[action_key]) > 0 and action_key not in cf.indirect_interactions:
                     edgemeta.append(cf.meta[action_key])
                     network_globals[cf.meta[action_key]] +=1
-                if action_key in c and action_key in cf.indirect_interactions and (ReducedGraph.nodes[u]['type'] != 'User' or ReducedGraph.nodes[v]['type'] != 'User'):
+                if action_key in c and len(c[action_key]) > 0 and action_key in cf.indirect_interactions and (ReducedGraph.nodes[u]['type'] != 'User' or ReducedGraph.nodes[v]['type'] != 'User'):
                     edgemeta.append(cf.meta[action_key])
                     network_globals[cf.meta[action_key]] +=1
             c['edgemeta'] = edgemeta
+        '''
         #Update the 'sliding window'
         windowstart = windowend
         windowend = windowend + relativedelta(months=+1)
         loopcount = loopcount + 1
-
+        
 
         #Create JSON files as output from the 'reduced graph'
         data = json_graph.node_link_data(ReducedGraph)
         #Add the counters of tags of users this month, combined with the tags of stories and welfare provisions created
         #Also add the counters of social interactions, donations, story interactions and welfare interactions this month
-        data['network_globals'] = network_globals
-        data['tag_globals'] = tag_globals
+        #data['network_globals'] = network_globals
+        #data['tag_globals'] = tag_globals
                 
-        with open('../json/data'+str(loopcount)+'.json', 'w') as outfile:
+        with open('web/data/data'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(data))
-                  
-        for k,v in node_data_dict.items():
-            with open('../json/usersuncliquing/' + str(k) + '.json', 'w') as outfile:
-                outfile.write(json.dumps(v))              
-    #Now print out the whole history of each user
-    #nodeiter = G.nodes(data=True)
-    #for (n,c) in nodeiter:
-    #    UserG=nx.Graph()
-   #     UserG.add_node(n)
-   #     UserG.nodes[n].update(c)
-   #     UserG.add_edges_from(G.edges(n,data=True))
-   #     data = json_graph.node_link_data(UserG)
-   #     with open('../json/users/' + str(n) + '.json', 'w') as outfile:
-   #         outfile.write(json.dumps(data))
-cur_date = datetime(2018,6,1)
-start_date = cur_date
-cur_date = cur_date + cf.one_year            
-#Test reading is working properly
-G_read = nx.read_gexf("../gexf/data360.gexf")
-#Pass the start and end times of the file in, as well as the granularity at which you want the data (default 1 month)
-calculate(G_read,start_date,cur_date,"month")
+              
+    for k,v in node_data_dict.items():
+        with open('web/data/users/' + str(k) + '.json', 'w') as outfile:
+            outfile.write(json.dumps(v))              
+
+actions_dict = {}
+for key in cf.interaction_keys:
+    actions_dict[key] = []
+
+G_read = nx.read_gexf("../gexf/simulateddata.gexf")
+
+ET.register_namespace("", "http://www.gexf.net/1.2draft") 
+tree = ET.parse("../gexf/simulateddata.gexf")  
+namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
+root = tree.getroot()
+startdate = root[0].attrib['start']
+enddate = root[0].attrib['end']
+
+#Pass the start and end times of the file in (which I have copied manually but there should be a way to do so automatically
+calculate(G_read,datetime.strptime(startdate,"%Y/%m/%d"),datetime.strptime(enddate,"%Y/%m/%d"))

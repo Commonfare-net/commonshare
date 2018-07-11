@@ -12,7 +12,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     for action_key in cf.interaction_keys:
         if action_key in edge:
             for action in edge[action_key]:
-                if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
+                if (starttime < datetime.strptime(action[1],"%Y/%m/%d") < endtime):
                     #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
                     if str(ast.literal_eval(action[0])[0]) == str(n1):
                         edgeweight = edgeweight + cf.weights[action_key][0]
@@ -26,6 +26,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
 #will also need to return the weighted contribution of each interaction type
 #DJR modified this again to return the graph with the unnecessary bits removed        
 def nodeweight_directed(G,node_id,starttime,endtime):
+#def nodeweight_directed(G,node_id):
     network_globals = {}
     for meta in cf.meta_networks:
         network_globals[meta] = 0
@@ -41,9 +42,9 @@ def nodeweight_directed(G,node_id,starttime,endtime):
             if action_key in c:
                 actions_to_keep = []
                 for action in c[action_key]:
-                    if (starttime < datetime.strptime(action[1],"%d/%m/%y") < endtime):
+                    if (starttime < datetime.strptime(action[1],"%Y/%m/%d") < endtime):
                         #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                        if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                        if str(action[0][0]) == str(node_id):
                             #print 'yes node',node_id,'created this'
                             overallweight = overallweight + (cf.weights[action_key][0]*depreciating_constant)     
                             network_globals[cf.meta[action_key]] += (cf.weights[action_key][0]*depreciating_constant)
@@ -51,7 +52,7 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                             overallweight = overallweight + (cf.weights[action_key][1]*depreciating_constant)
                             network_globals[cf.meta[action_key]] += (cf.weights[action_key][1]*depreciating_constant)                            
                         actions_to_keep.append(action)
-                        depreciating_constant *= 0.75
+                        #depreciating_constant *= 0.75
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
                 
         if overallweight > 0:
@@ -62,7 +63,7 @@ def nodeweight_directed(G,node_id,starttime,endtime):
             c['edgeweight'][node_id] = overallweight
                 
     if len(edgeweights) == 0:
-        return (G,network_globals,1)
+        return (G,network_globals,0)
     mean = sum(edgeweights)/len(edgeweights)
     #normalize weights to mean
     norm = [(float(i)/mean)/(float(min(edgeweights))/mean) for i in edgeweights]
@@ -102,13 +103,13 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
         else:
             for k,v in degrees.items():
                 (G,network_globals,directed_weight) = nodeweight_directed(G,k,starttime,endtime)
+                #(G,network_globals,directed_weight) = nodeweight_directed(G,k)
                 G.nodes[k]['edgetotals'] = network_globals
                 sum_edges = float(sum(network_globals.values()))
                 avg_edges = sum_edges / len(network_globals.keys())
                 G.nodes[k]['cumu_totals'] = {e:((v/sum_edges) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
                 G.nodes[k]['avg_totals'] = {e:((v/avg_edges) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
                 degrees[k] = int(math.sqrt(math.ceil(int(v) * directed_weight)))
-               # print 'directed weight of',k,'is',directed_weight
                 if directed_weight > cf.REPUTATION_THRESHOLD:
                     nodeweights[k] = directed_weight
     else:

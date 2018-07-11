@@ -1540,9 +1540,8 @@ nouns = [
     'yesterday',
 ]
 
-def random_tags():
-  numtags = random.randrange(1,5);
-  return ",".join([tags[random.randrange(0,len(tags))] for x in range(numtags)])
+def random_tag():
+  return nouns[random.randrange(0,len(nouns))]
   
 def random_phrase():
   return " ".join([nouns[random.randrange(0, len(nouns))] for i in range(4)])

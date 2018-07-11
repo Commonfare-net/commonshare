@@ -9,6 +9,7 @@ import kcore
 import os
 import sys
 import copy
+import xml.etree.ElementTree as ET
 
 from graphclasses import *
 
@@ -28,7 +29,7 @@ def get_users(need_two_users):
         return random.sample(cf.colluding_nodes,2)
       else:
           users = random.sample(G.nodes(),2)
-          if type[users[0]] == 'user' and type[users[1]] == 'user' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes:
+          if type[users[0]] == 'commoner' and type[users[1]] == 'commoner' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes:
             if cf.SHOULD_CLIQUE == True: #Nodes should only talk if they have similar tags
                 user1tags = tags[users[0]].split(',')
                 user2tags = tags[users[1]].split(',')
@@ -38,10 +39,9 @@ def get_users(need_two_users):
                 break
     else:
       users = random.sample(G.nodes(),1)
-      if type[users[0]] == 'user':
+      if type[users[0]] == 'commoner':
         break     
   #This just randomly updates the tags of our selected user (maybe they're interested in different things this month or whatever
-  G.nodes[users[0]]['tags'] = User().__get_tags__()
   return users    
 
 
@@ -50,7 +50,6 @@ def get_users(need_two_users):
 
 def create_object(user,objtype):
   global G
-  e = Edge()
   object = str_to_class(objtype)()
   G.add_node(object)
   G = nx.convert_node_labels_to_integers(G)
@@ -61,21 +60,31 @@ def create_object(user,objtype):
   nx.set_node_attributes(G,{obj_node: dict})
   #Spells can be used to determine how long an action contributes to a user's commonfare for
   G.nodes[obj_node]['spells'] = [(s_today,s_fortnight)]
+  G.nodes[user]['spells'].append((s_today,s_fortnight))
   G.add_edge(user,obj_node)
+  G[user][obj_node]['spells'] = [(s_today,s_fortnight)]
+  while True:
+    tag = random.sample(G.nodes(),1)
+    if G.nodes[tag[0]]['type'] == 'tag':
+        break
+  tag_assign(obj_node,tag[0])
   for x in actions_dict:
     G[user][obj_node][x] = []
-  
-  #G.nodes[user]['create_'+objtype].append(([user,obj_node],s_today,s_today))    
-  G[user][obj_node]['spells'] = [(s_today,s_fortnight)]
-  if cf.SHOULD_CLIQUE:
-    tags = G.nodes[user]['tags'].split(',')
-    numtags = len(tags)
-    G.nodes[obj_node]['tags'] = tags[random.randrange(0,numtags)] #Gives story a random tag from this user
-  else:
-    G.nodes[obj_node]['tags'] = object.__get_tags__()
+  #print G.nodes[user]
   update(user,obj_node,'create_'+objtype)
-  
-#What kind of interactions might users have? Conversation? 
+
+#Make an edge between a tag node and a commoner, story, or listing 
+def tag_assign(thing,tag):
+    if G.has_edge(thing,tag) == False:
+        G.add_edge(thing,tag)
+        for x in actions_dict:
+            G[thing][tag][x] = []
+        G[thing][tag]['spells'] = []
+    #Add the spells
+    G[thing][tag]['spells'].append((s_today,s_fortnight))
+    update(thing,tag,'tag_' + G.nodes[thing]['type'])  
+    
+
 def user_interact(interaction):
   pair = get_users(True)
   source = pair[0]
@@ -100,16 +109,6 @@ def object_interact(objtype,interaction):
   for object in G.neighbors(target):
     #Pick a random story of the target user
     if type[object] == objtype and len(G[target][object]['create_'+objtype]) > 0:
-      with open('out.txt', 'a') as f:
-        print >> f, 'create_',objtype,' is in G[',target,'][',object,']'
-        print >> f, 'because it is ',G[target][object]
-      #print 'create_'+objtype + ' is in G[',target,'][',object,']'
-     # if cf.SHOULD_CLIQUE == True: #If we're 'cliquing', only want users to interact with stories with which they share a tag
-     #   usertags = tags[source].split(',')
-     #   objtags = tags[object].split(',')
-     #   if len([val for val in usertags if val in objtags]) == 0: #If there are no shared tags between user and story,  carry on
-     #       continue
-    #  print source,'read story',story,'of user',target
       #Is this the first time source user has interacted with this story?
       if G.has_edge(source,object) == False:
         G.add_edge(source,object)
@@ -136,36 +135,49 @@ def update(source,target,interaction):
     G.nodes[source][interaction].append(([source,target],s_today,s_fortnight))    
     G.nodes[target][interaction].append(([source,target],s_today,s_fortnight))    
 
+def add_tag():
+    global G
+    mytag = tag()
+    G.add_node(mytag)
+    G = nx.convert_node_labels_to_integers(G)  
+    tag_node = nx.number_of_nodes(G) -1    
+    dict = copy.deepcopy(actions_dict)
+    dict['type'] = 'tag'
+    dict['name'] = str(mytag)
+    nx.set_node_attributes(G,{tag_node: dict})
+    G.nodes[tag_node]['spells'] = [(s_today,None)]
+    
 def add_user():
     global G
-    user = User()
-    G.add_node(user)
+    myuser = user()
+    G.add_node(myuser)
+    G = nx.convert_node_labels_to_integers(G)  
+    user_node = nx.number_of_nodes(G) -1
     dict = copy.deepcopy(actions_dict)
-    dict['type'] = 'user'
-    dict['name'] = str(user)
-    nx.set_node_attributes(G,{user: dict})
-    G.nodes[user]['spells'] = [(s_today,None)]
-    G.nodes[user]['tags'] = user.__get_tags__()
-    G = nx.convert_node_labels_to_integers(G)
+    dict['type'] = 'commoner'
+    dict['name'] = str(myuser)
+    nx.set_node_attributes(G,{user_node: dict})
+    G.nodes[user_node]['spells'] = [(s_today,None)]
+    while True:
+        tag = random.sample(G.nodes(),1)
+        if G.nodes[tag[0]]['type'] == 'tag':
+            break
+    tag_assign(user_node,tag[0])
 
 #TODO: Figure out how user's 'accepting' another user's forum post answer might work
 def do_random_thing():
-  num = random.randint(1,11)
+  num = random.randint(1,9)
   if num == 1:
-    create_object(get_users(False)[0],'Story')
+    create_object(get_users(False)[0],'story')
   elif num == 2:
-    create_object(get_users(False)[0],'ForumPost')
-  elif num == 3:
-    object_interact('Story','comment')
-  elif num == 4 or num == 11:
-    object_interact('ForumPost','comment')
-  elif num == 5 or num == 9:
-    object_interact('Story','like')
-  elif num == 6 or num == 10:
-    object_interact('ForumPost','like')
-  elif num == 7:
-    user_interact('friendship')
-  elif num == 8:
+    create_object(get_users(False)[0],'listing')
+  elif num == 3 or num == 4:
+    object_interact('story','comment')
+  elif num == 5 or num == 6:
+    object_interact('listing','comment')
+  elif num == 7 or num == 8:
+    user_interact('conversation')
+  elif num == 9:
     user_interact('transaction')
 
 cur_date = datetime.datetime(2018,6,1)
@@ -185,33 +197,43 @@ if not os.path.exists("../gexf"):
 
 while counter < cf.DAYS:
   cur_date = cur_date + cf.one_day
-  s_today = cur_date.strftime("%d/%m/%y")
-  s_fortnight = (cur_date+cf.two_weeks).strftime("%d/%m/%y")
+  s_today = cur_date.strftime("%Y/%m/%d")
+  s_fortnight = (cur_date+cf.two_weeks).strftime("%Y/%m/%d")
   counter = counter + 1
   G = nx.convert_node_labels_to_integers(G)
+  
+  #Seed some tags and users to get things started
+  while len(G.nodes()) < cf.TAGS:
+    add_tag()
+  
   while len(G.nodes()) < cf.INITIAL_USERS:
     add_user()
+
+    G = nx.convert_node_labels_to_integers(G)
     
     if len(G.nodes()) == cf.INITIAL_USERS-1:
-        cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS)
+        cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS) 
         #So they have something to interact with
         for i in range(cf.NUM_COLLUDERS):
             print 'colluder is ',cf.colluding_nodes[i]
-            create_object(cf.colluding_nodes[i],'Story')
+            create_object(cf.colluding_nodes[i],'story')
             
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
-  #if counter % 3 == 0:
-  #  add_user()
   G = nx.convert_node_labels_to_integers(G)
 
-  if counter % 30 == 0:
+  if counter % 360 == 0:
     edge_labels = {}
     filename = "../gexf/data"+str(counter)+".gexf"
     print 'filename is ',filename
     nx.write_gexf(G, filename)
 
-#Test reading is working properly
-G_read = nx.read_gexf("../gexf/data360.gexf")
-#Pass the start and end times of the file in, as well as the granularity at which you want the data (default 1 month)
-kcore.calculate(G_read,start_date,cur_date,"month")
+start_date = datetime.datetime(2018,6,1)
+end_date = start_date + cf.one_year
+ET.register_namespace("", "http://www.gexf.net/1.2draft") 
+tree = ET.parse("../gexf/data360.gexf")  
+namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
+root = tree.getroot()
+root[0].set('start',datetime.datetime.strftime(start_date,"%Y/%m/%d"))
+root[0].set('end',datetime.datetime.strftime(end_date,"%Y/%m/%d"))
+tree.write('../gexf/simulateddata.gexf')  
