@@ -57,7 +57,7 @@ var div = d3.select("body").append("div")
 
 //Ensure all JSON files are loaded before initiating visualisation    
 var q = d3.queue();
-d3.json('data/users/'+userid+'.json',function(results){
+d3.json('data/userdata/usersmonthly/'+userid+'.json',function(results){
     data = results;
   //  plotcalendars(userid,months[0]);
     plotcommonshare(userid);

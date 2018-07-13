@@ -1,9 +1,15 @@
 import xml.etree.ElementTree as ET
 import config as cf
+import sys
+import os
 from datetime import datetime
 
+if len(sys.argv) < 2:
+    print 'Missing filename'
+    sys.exit()
+filename = sys.argv[1]
 ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-tree = ET.parse('pietroall.gexf')  
+tree = ET.parse(filename)  
 namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
 root = tree.getroot()
 
@@ -66,11 +72,14 @@ nodeattrs = root[0].find('xmlns:attributes',namespaces)
 nodes = root[0].find('xmlns:nodes',namespaces)
 edges = root[0].find('xmlns:edges',namespaces)
 
-nodeattrs.set('mode','dynamic')
+nodeattrs.set('mode','static')
 #Add the node and edge attribute values
+attrib = {'class':'node','mode':'dynamic'}
+dnodeattrs = root[0].makeelement('attributes',attrib)
 attrib = {'class':'edge','mode':'dynamic'}
+root[0].insert(1,dnodeattrs)
 edgeattrs = root[0].makeelement('attributes',attrib)
-root[0].insert(1,edgeattrs)
+root[0].insert(2,edgeattrs)
 count = 5
 
 mindate = datetime(3333,10,1)
@@ -81,7 +90,7 @@ attrdict = {}
 for key in cf.interaction_keys:
     attrib = {'id':str(count),'type':'string','title':key} 
     attr = edgeattrs.makeelement('attribute',attrib)
-    nodeattrs.append(attr)
+    dnodeattrs.append(attr)
     edgeattrs.append(attr)
     attrdict[key] = str(count)
     count +=1
@@ -147,5 +156,6 @@ for dupliedge in edgestodelete:
     edges.remove(dupliedge) 
 root[0].set('start',datetime.strftime(mindate,"%Y/%m/%d"))
 root[0].set('end',datetime.strftime(maxdate,"%Y/%m/%d"))
-tree.write('pietroallduplicate.gexf')  
+filename = os.path.splitext(filename)[0]
+tree.write(filename+"parsed.gexf")  
 

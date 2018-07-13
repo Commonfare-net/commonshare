@@ -13,7 +13,14 @@
   margin: 0 0; 
   width: 400px;
 }
-  
+
+#list-group{
+    max-height: 500px;
+    margin-bottom: 10px;
+    overflow:scroll;
+    -webkit-overflow-scrolling: touch;
+} 
+
 .bigchart {
     display: inline-block;
     width: auto;
