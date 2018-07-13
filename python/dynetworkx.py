@@ -12,7 +12,7 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     for action_key in cf.interaction_keys:
         if action_key in edge:
             for action in edge[action_key]:
-                if (starttime < datetime.strptime(action[1],"%Y/%m/%d") < endtime):
+                if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
                     #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
                     if str(ast.literal_eval(action[0])[0]) == str(n1):
                         edgeweight = edgeweight + cf.weights[action_key][0]
@@ -42,13 +42,15 @@ def nodeweight_directed(G,node_id,starttime,endtime):
             if action_key in c:
                 actions_to_keep = []
                 for action in c[action_key]:
-                    if (starttime < datetime.strptime(action[1],"%Y/%m/%d") < endtime):
-                        #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                        if str(action[0][0]) == str(node_id):
-                            #print 'yes node',node_id,'created this'
+                    if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
+                        #print 'node_id is',node_id,'and createactions[0] is',action[0][0]
+                        if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                            #if node_id == 37:
+                            #print 'yes node ',node_id,' did ',action_key,' in ',action[1]
                             overallweight = overallweight + (cf.weights[action_key][0]*depreciating_constant)     
                             network_globals[cf.meta[action_key]] += (cf.weights[action_key][0]*depreciating_constant)
                         else:
+                            #print 'no node ',node_id,' did not do ',action_key,' in ',action[1]                
                             overallweight = overallweight + (cf.weights[action_key][1]*depreciating_constant)
                             network_globals[cf.meta[action_key]] += (cf.weights[action_key][1]*depreciating_constant)                            
                         actions_to_keep.append(action)

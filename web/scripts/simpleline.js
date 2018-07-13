@@ -23,12 +23,13 @@ var kcoreline = d3.line()
     .curve(d3.curveMonotoneX)
     .x(function(d) { return x(parseTime(d.date)); })
     .y(function(d) { return y(d.kcore); });
-    
+    var keys;
     var kcorelist = []
     var avg_total_object = []
+    console.log(data);
     for (var month in data){
         var avg_totals = data[month].avg_totals; 
-        var keys = Object.keys(avg_totals);        
+        keys = Object.keys(avg_totals);        
         for (var name in avg_totals){
             if(avg_totals.hasOwnProperty(name)){
                 if(!(name in avg_total_object))

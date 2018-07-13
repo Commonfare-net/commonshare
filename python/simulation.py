@@ -224,16 +224,16 @@ while counter < cf.DAYS:
 
   if counter % 360 == 0:
     edge_labels = {}
-    filename = "../gexf/data"+str(counter)+".gexf"
+    filename = "gexf/data"+str(counter)+".gexf"
     print 'filename is ',filename
     nx.write_gexf(G, filename)
 
 start_date = datetime.datetime(2018,6,1)
 end_date = start_date + cf.one_year
 ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-tree = ET.parse("../gexf/data360.gexf")  
+tree = ET.parse("gexf/data360.gexf")  
 namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
 root = tree.getroot()
 root[0].set('start',datetime.datetime.strftime(start_date,"%Y/%m/%d"))
 root[0].set('end',datetime.datetime.strftime(end_date,"%Y/%m/%d"))
-tree.write('../gexf/simulateddata.gexf')  
+tree.write('gexf/simulateddata.gexf')  

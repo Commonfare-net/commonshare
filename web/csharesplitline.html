@@ -58,7 +58,7 @@ var div = d3.select("body").append("div")
     .style("opacity", 0);
 
 //Ensure all JSON files are loaded before initiating visualisation    
-d3.json('data/users/'+userid+'.json',function(results){
+d3.json('data/userdata/usersmonthly/'+userid+'.json',function(results){
     data = results;
     plotcommonshare(userid);
 });
