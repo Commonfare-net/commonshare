@@ -1,1 +1,1 @@
-[]
+[{"kcore": 0, "stats": {}, "name": "storytelling", "tag_story": [["[7427,7790]", "2018/06/11", "2018/06/11"], ["[7430,7790]", "2018/06/15", "2018/06/15"]], "tags": [], "label": "tag_389", "cumu_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "edgetotals": {"transaction": 0, "story": 0, "social": 0, "listing": 0}, "date": "2018/06/01", "avg_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "nodemeta": ["story"], "type": "tag", "id": "389", "spells": [["2018/06/11", "2018/06/11"], ["2018/06/15", "2018/06/15"]]}]

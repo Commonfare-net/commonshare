@@ -116,7 +116,7 @@ def filternodes(G,start,end):
             if action_key in c:
                 actions_to_keep = []
                 for action in c[action_key]:
-                    if (start < datetime.strptime(action[1],"%Y/%m/%d") < end):
+                    if (start <= datetime.strptime(action[1],"%Y/%m/%d") < end):
                         actions_to_keep.append(action)
                 c[action_key] = actions_to_keep
                 if len(actions_to_keep) == 0:
@@ -253,6 +253,9 @@ def calculate(G,startdate,enddate):
             monthnodeexists = False
             yearnodeexists = False
             cumunodeexists = False
+            monthCopy.nodes[n]['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
+            yearCopy.nodes[n]['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
+            cumuCopy.nodes[n]['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
             c['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
             if 'spells' in c:
                 for intervals in c['spells']:
@@ -271,12 +274,19 @@ def calculate(G,startdate,enddate):
         monthCopy.remove_nodes_from(mbunch)
         yearCopy.remove_nodes_from(ybunch)
         cumuCopy.remove_nodes_from(cbunch)            
-
+  
         #Go through them again, remove unnecessary actions and add 'meta-data' to nodes based on their remaining actions
         monthCopy = filternodes(monthCopy,windowstart,windowend)
         yearCopy = filternodes(yearCopy,windowstart,yearwindowend)
         cumuCopy = filternodes(cumuCopy,datetime(1,1,1),windowend)
-        
+        '''
+        if startdate == windowstart:
+            print 'yes this is at the start'
+            for (n,c) in nodeiter:
+                if n == '45':
+                    print 'n is',n
+                    print 'c is',c
+        '''            
         monthCopy = filteredges(monthCopy,windowstart,windowend)
         yearCopy = filteredges(yearCopy,windowstart,yearwindowend)
         cumuCopy = filteredges(cumuCopy,datetime(1,1,1),windowend)
@@ -284,12 +294,13 @@ def calculate(G,startdate,enddate):
         monthCopy.remove_edges_from(monthCopy.selfloop_edges())        
         yearCopy.remove_edges_from(yearCopy.selfloop_edges())        
         cumuCopy.remove_edges_from(cumuCopy.selfloop_edges())        
-        
+      
         #Have to remove the self-loops that have cropped up
         #GCopy.remove_edges_from(GCopy.selfloop_edges())
         (MGraph,MD) = dx.core_number_weighted(monthCopy,windowstart,windowend,True,False)
         (YGraph,YD) = dx.core_number_weighted(yearCopy,windowstart,yearwindowend,True,False)
         (CGraph,CD) = dx.core_number_weighted(cumuCopy,datetime(1,1,1),windowend,True,False)
+
         
         MGraph.add_edges_from(mtagedges)
         YGraph.add_edges_from(ytagedges)

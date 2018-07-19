@@ -1,30 +1,25 @@
 
 function plotcirclechart(user){
 
-var chart = d3.select("#circlechart"),
-    margin = {top: 20, right: 20, bottom: 70, left: 100},
-    chartwidth = +chart.attr("width") - margin.left - margin.right,
-    chartheight = +chart.attr("height") - margin.top - margin.bottom,
-    chartg = chart.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-var xScale = d3.scaleLinear()
-    .domain([200,200+chartwidth]).range([200,200+chartwidth]);
-var yScale = d3.scaleLinear()
-    .domain([0,400]).range([0,400]);
-var zoom =d3.zoom().on("zoom",zoomFunction);
-chart.call(zoom);
+    var chart = d3.select("#circlechart"),
+        chartg = chart.append("g");
 
-//Zooming function
-function zoomFunction(){
-    var new_xScale = d3.event.transform.rescaleX(xScale)
-    var new_yScale = d3.event.transform.rescaleY(yScale)
-    chartg.attr("transform", d3.event.transform)
-};
-function children(d) {
-  return d.cumu_array;
-}
- function summer(total, num) {
-    return isNaN(num) ? total : total + num;
-}
+     $("#circlechart").bind("wheel mousewheel", function(e) {e.preventDefault()});
+       
+    var zoom = d3.zoom()
+        .scaleExtent([0.33,2])
+        .translateExtent([[0,0],[chart.attr('width'),chart.attr("height")]])
+        .on('zoom',zoomed);
+    function zoomed() {
+        chartg.attr("transform", d3.event.transform);
+    }
+
+    function children(d) {
+      return d.cumu_array;
+    }
+     function summer(total, num) {
+        return (isNaN(num) || num instanceof Date) ? total : total + num;
+    }
   
     var mincore = 9999, maxcore = 0;
     var cumu_total_object = []
@@ -34,31 +29,49 @@ function children(d) {
         var keys = Object.keys(cumu_totals);
         mincore = data[month].kcore < mincore ? data[month].kcore : mincore;
         maxcore = data[month].kcore > maxcore ? data[month].kcore : maxcore;
-        data[month]["overall"] = Object.values(cumu_totals).reduce(summer,0);
-
-        data[month]["cumu_array"] = cumu_array;
+        cumu_totals["overall"] = Object.values(cumu_totals).reduce(summer,0);
+        cumu_totals["kcore"] = data[month].kcore;
+        cumu_totals["cumu_array"] = cumu_array;
         cumu_totals["date"] = data[month].date;
         cumu_totals["stats"] = data[month].stats;
+         if(month != 0){
+              var cumu_array = d3.keys(cumu_totals).map(function(key){return {"name":key,"total":0,"kcore":0,"stats":{}};});
+              var monthsWithZero = d3.timeMonth.count(data[month-1].date,data[month].date) -1;
+              for(var i = 0; i < monthsWithZero; i++){
+                  totals = {};
+                  for(var j in keys){
+                    totals[keys[j]] = 0;
+                  }
+                  totals['overall'] = 0;
+                  totals['cumu_array'] = cumu_array;
+                  totals['stats'] = {}
+                    console.log(d3.timeMonth.offset(data[month-1].date,i+1));
+                    totals['date'] = d3.timeMonth.offset(data[month-1].date,i+1);
+                    console.log(totals);
+                    cumu_total_object.push(totals); 
+              }
+        } 
         cumu_total_object.push(cumu_totals);
     
     }
+
     var months = cumu_total_object.map(function(d) { return d.date; });
     var xdisplacements = [];
     var ydisplacements = [];
     var count = 0;
     var total = 0;
     var maxdiameter = 0;
-    for(var month in data){
+    for(var month in cumu_total_object){
        xdisplacements[count] = total;
-       var diameter = data[month]["cumu_array"][0].kcore * 9 + 50;
+       var diameter = cumu_total_object[month]["cumu_array"][0].kcore * 9 + 50;
        total = total + diameter;
        count++;
        if(diameter > maxdiameter)
           maxdiameter = diameter;
     };
     count = 0;
-    for(var month in data){
-        var diameter = data[month]["cumu_array"][0].kcore * 9;
+    for(var month in cumu_total_object){
+        var diameter = cumu_total_object[month]["cumu_array"][0].kcore * 9;
         ydisplacements[count] = (maxdiameter/2) - (diameter/2);
         count++;
     }
@@ -68,29 +81,30 @@ function children(d) {
     var x = d3.scaleOrdinal()
       .domain(months)
       .range(xdisplacements);
-      
-var monthname = d3.timeFormat("%b");
+          
+    var monthname = d3.timeFormat("%b");
 
-//This is silly but because the pack layout size can't be updated dynamically, we have to make one for every circle we're using
-var packs = [];
-for (var i = 0; i < months.length; i++){
-    var size = data[i]["cumu_array"][0].kcore;
-    var scaledsize = size*9 + 30;
-    packs[i] = d3.pack()
-    .size([scaledsize,scaledsize])
-    .padding(2);  
-     if(data[i]["overall"] == 0) //Even though a node's kcore might be 1, they still might not have contributed any meaningful actions
-        packs[i].radius(function(){return 0;});
-}
-  
+    //This is silly but because the pack layout size can't be updated dynamically, we have to make one for every circle we're using
+    var packs = [];
+    console.log(cumu_total_object);
+    for (var i = 0; i < months.length; i++){
+        var size = cumu_total_object[i]["cumu_array"][0].kcore;
+        var scaledsize = size*9 + 30;
+        packs[i] = d3.pack()
+        .size([scaledsize,scaledsize])
+        .padding(2);  
+         if(cumu_total_object[i]["overall"] == 0) //Even though a node's kcore might be 1, they still might not have contributed any meaningful actions
+            packs[i].radius(function(){return 0;});
+    }
+      
   var monthpack = chartg.append("g")
     .selectAll("g")
-    .data(data)
+    .data(cumu_total_object)
     .enter().append("g")
     .selectAll(".node")
     .data(function(d){
-            return packs[data.indexOf(d)](d3.hierarchy(d,children)
-                    .sum(function(e) { return e.total; })
+            return packs[cumu_total_object.indexOf(d)](d3.hierarchy(d,children)
+                    .sum(function(e) {if(e.name == "date" || e.name == "stats")return 0; return e.total; })
                     .sort(function(a, b) { return b.value - a.value; }))
                   .descendants();
           })
@@ -130,13 +144,17 @@ for (var i = 0; i < months.length; i++){
            .duration(500)		
            .style("opacity", 0);
       });
-         monthpack.append("text")
+      
+    monthpack.append("text")
         .attr("dx",function(d){return  -14;})
-        .attr("dy", function(d){return d.children ? d.data.kcore*5 + 30 : 0;})
-	    .text(function(d){return d.children ? monthname(parseTime(d.data.date)) : "";});
- var element = chartg.node();
-        var elementwidth = element.getBoundingClientRect().width;
-        chart.call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(chart.attr("width")/elementwidth));
+        .attr("dy", function(d){return d.children && d.data.kcore != null ? d.data.kcore*5 + 30 : 0;})
+	    .text(function(d){return d.children ? monthname(d.data.date) : "";});
+    
+    var element = chartg.node();
+    var elementwidth = element.getBoundingClientRect().width;
+    var elementheight = element.getBoundingClientRect().height;
+    zoom.translateExtent([[0,0],[elementwidth,elementheight]])
+    zoom.scaleBy(chartg,1);
+    chart.call(zoom);
 
-      //  chartg.attr("transform", "translate(" + ((800)-(elementwidth/2)) + "," + margin.top + ")");
 }
