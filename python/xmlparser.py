@@ -54,6 +54,8 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     if edgetype == "comment":
        original_comment = edges.findall("*/[@label='"+label+"']")
        print 'found ',len(original_comment)
+       if len(original_comment) == 1:
+        return None
        for edge in original_comment:
             if edge.attrib['id'] != edgeid: #Then we've found the correct edge
                 targettype = nodes.find("*/[@id='" + edge.attrib['target'] +"']/*/*[@for='1']").attrib['value']
@@ -144,9 +146,14 @@ for elem in edges:
     
     sourceattrs = nodes.find("*/[@id='" + sourceid +"']/*")
     targetattrs = nodes.find("*/[@id='" + targetid +"']/*")
-    sourceattrs.append(attvalue)
-    targetattrs.append(attvalue)
-    if edgeid not in existingedges and altedgeid not in existingedges:
+    if edgetype != None:
+        sourceattrs.append(attvalue)
+        targetattrs.append(attvalue)
+    #Happens when for whatever reason, only one edge exists for a particular comment
+    if edgetype == None:
+        print 'getting rid of ',elem.attrib['id']
+        edgestodelete.append(elem)
+    elif edgeid not in existingedges and altedgeid not in existingedges:
         existingedges[edgeid] = elem
     else:
         edgestodelete.append(elem)
