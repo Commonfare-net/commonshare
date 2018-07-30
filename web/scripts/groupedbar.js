@@ -1,7 +1,19 @@
 
-function plotgroupedbar(user) {
+function plotgroupedbar(user,varnodedata,vargraphdata,divid) {
 
-	var chart = d3.select("#groupedbarchart"),
+    if(varnodedata == null)
+        varnodedata = node_data;
+    if(vargraphdata == null)
+        vargraphdata = graph_data;
+    if(divid == null)
+        divid = "groupedbarchart";
+    
+	var chart = d3.select("#"+divid).on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
 	margin = {
 		top: 20,
 		right: 20,
@@ -20,6 +32,9 @@ function plotgroupedbar(user) {
 		.padding(0.05);
 	var y = d3.scaleLinear()
 		.rangeRound([chartheight, 0]);
+    color = d3.scaleOrdinal() // D3 Version 4
+		.domain(mykeys)
+		.range(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']);    
 	color.domain(mykeys);
 
 	var zoom = d3.zoom()
@@ -27,7 +42,7 @@ function plotgroupedbar(user) {
 		.translateExtent([[0, 0], [chart.attr('width') * 4, chart.attr("height")]])
 		.on('zoom', zoomed);
 
-	$("#groupedbarchart").bind("wheel mousewheel", function (e) {
+	$("#"+divid).bind("wheel mousewheel", function (e) {
 		e.preventDefault()
 	});
 	var currentMonthGap = 1;
@@ -54,7 +69,7 @@ function plotgroupedbar(user) {
 		});
 
 		rects.attr("x", function (d) {
-			return xz(d.date) + 40 + x1(d.key);
+			return xz(d.date) + 40 + x1(d.key) - (100 * scale);
 		});
 		rects.attr("width", 50 * scale);
 	
@@ -78,22 +93,22 @@ function plotgroupedbar(user) {
 	var avg_total_object = []
 	var kcore_vals = []
 	for (var month in data) {
-		var avg_totals = data[month].avg_totals;
+		var avg_totals = varnodedata[month].avg_totals;
 		var keys = Object.keys(avg_totals);
-		avg_totals["date"] = data[month].date;
-		avg_totals["stats"] = data[month].stats;
+		avg_totals["date"] = varnodedata[month].date;
+		avg_totals["stats"] = varnodedata[month].stats;
 
 		if (month != 0) {
 
-			var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+			var monthsWithZero = d3.timeMonth.count(varnodedata[month - 1].date, varnodedata[month].date) - 1;
 			for (var i = 0; i < monthsWithZero; i++) {
 				totals = {};
 				for (var j in keys) {
 					totals[keys[j]] = 0;
 				}
 				totals['stats'] = {}
-				console.log(d3.timeMonth.offset(data[month - 1].date, i + 1));
-				totals['date'] = d3.timeMonth.offset(data[month - 1].date, i + 1);
+				console.log(d3.timeMonth.offset(varnodedata[month - 1].date, i + 1));
+				totals['date'] = d3.timeMonth.offset(varnodedata[month - 1].date, i + 1);
 				console.log(totals);
 				avg_total_object.push(totals);
 			}
@@ -101,8 +116,8 @@ function plotgroupedbar(user) {
 
 		avg_total_object.push(avg_totals);
 		kcore_vals.push({
-			"kcore": data[month].kcore,
-			"date": data[month].date
+			"kcore": varnodedata[month].kcore,
+			"date": varnodedata[month].date
 		});
 
 	}
@@ -147,7 +162,7 @@ function plotgroupedbar(user) {
 		})
 		.enter().append("rect")
 		.attr("x", function (d) {
-			return x0(d.date) + x1(d.key) + 40;
+			return x0(d.date) + x1(d.key) -60;
 		})
 		.attr("y", function (d) {
 			return y(d.value);
@@ -162,31 +177,21 @@ function plotgroupedbar(user) {
 			return color(d.key);
 		})
 		.attr("clip-path", "url(#clip)")
-
 		.on("mouseover", function (d) {
-			var html_content = "";
-			for (var meta in d.stats) {
-				if (meta == d.key) { //If this holds the interactions of this particular type
-					for (var statistic in d.stats[meta]) {
-						if (d.stats[meta][statistic].length > 0)
-							html_content += prettyKeys[statistic] + ": " + d.stats[meta][statistic].length + "<br/>";
-					}
-				}
-			}
-			d3.select(this).style("opacity", 0.7);
-			div.transition()
+			d3.select(this).style("cursor", "pointer");
+		})
+		.on("mouseout", function (d) {
+		})
+		.on("click", function (d, i) {
+			drawTooltipGraph(d.date, d.key,null,vargraphdata);
+
+			div
+			.transition()
 			.duration(200)
-			.style("opacity", .9);
-			div.html(html_content)
+			.style("opacity", .9)
 			.style("left", (d3.event.pageX) + "px")
 			.style("top", (d3.event.pageY - 28) + "px");
 		})
-		.on("mouseout", function () {
-			d3.select(this).style("opacity", 1);
-			div.transition()
-			.duration(500)
-			.style("opacity", 0);
-		});
 
 	var linepath = chartg.append("path")
 		.datum(kcore_vals)

@@ -1,17 +1,28 @@
-function plotsimpleline(user) {
+function plotsimpleline(user,varnodedata,vargraphdata,divid) {
 
+    if(varnodedata == null)
+        varnodedata = node_data;
+    if(vargraphdata == null)
+        vargraphdata = graph_data;
+    if(divid == null)
+        divid = "linechart";
 	var margin = {
 		top: 20,
 		right: 20,
 		bottom: 70,
 		left: 50
 	},
-	chart = d3.select("#linechart"),
+	chart = d3.select("#"+divid).on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
 	chartwidth = +chart.attr("width") - margin.left - margin.right,
 	chartheight = +chart.attr("height") - margin.top - margin.bottom,
 	chartg = chart.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	$("#linechart").bind("wheel mousewheel", function (e) {
+	$("#"+divid).bind("wheel mousewheel", function (e) {
 		e.preventDefault()
 	});
 
@@ -25,6 +36,7 @@ function plotsimpleline(user) {
 		.on('zoom', zoomed);
 
 	var currentMonthGap = 1;
+
 	function zoomed() {
 		var xz = d3.event.transform.rescaleX(x);
 		gX.call(xAxis.scale(xz));
@@ -78,9 +90,8 @@ function plotsimpleline(user) {
 	var avg_total_object = []
 	console.log(data);
 	for (var month in data) {
-		var avg_totals = data[month].avg_totals;
-
-		data[month].date = parseTime(data[month].date);
+		var avg_totals = varnodedata[month].avg_totals;
+		//data[month].date = parseTime(data[month].date);
 		keys = Object.keys(avg_totals);
 		for (var name in avg_totals) {
 			if (avg_totals.hasOwnProperty(name)) {
@@ -88,46 +99,46 @@ function plotsimpleline(user) {
 					avg_total_object[name] = [];
 				//Add in necessary zero values here too
 				if (month != 0) {
-					var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+					var monthsWithZero = d3.timeMonth.count(varnodedata[month - 1].date, varnodedata[month].date) - 1;
 					for (var i = 0; i < monthsWithZero; i++) {
 						avg_total_object[name].push({
 							"id": name,
 							"stats": {},
-							"date": d3.timeMonth.offset(data[month - 1].date, i + 1),
+							"date": d3.timeMonth.offset(varnodedata[month - 1].date, i + 1),
 							"total": 0
 						});
 					}
 				}
 				avg_total_object[name].push({
 					"id": name,
-					"stats": data[month].stats,
-					"date": data[month].date,
+					"stats": varnodedata[month].stats,
+					"date": varnodedata[month].date,
 					"total": avg_totals[name]
 				});
 			}
 		};
-		data[month].kcore = +data[month].kcore;
+		varnodedata[month].kcore = +varnodedata[month].kcore;
 		console.log("month is " + month);
 		//Add in necessary zero values
 		if (month != 0) {
-			var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+			var monthsWithZero = d3.timeMonth.count(varnodedata[month - 1].date, varnodedata[month].date) - 1;
 			for (var i = 0; i < monthsWithZero; i++) {
 				kcorelist.push({
-					"date": d3.timeMonth.offset(data[month - 1].date, i + 1),
+					"date": d3.timeMonth.offset(varnodedata[month - 1].date, i + 1),
 					"kcore": 0
 				});
 			}
 		}
 		kcorelist.push({
-			"date": data[month].date,
-			"kcore": data[month].kcore
+			"date": varnodedata[month].date,
+			"kcore": varnodedata[month].kcore
 		});
 	}
 
 	var avgdata_list = Object.keys(avg_total_object).map(function (k) {
 			return {
 				"id": k,
-				"date": data[month].date,
+				"date": varnodedata[month].date,
 				"values": avg_total_object[k]
 			};
 		});
@@ -177,11 +188,13 @@ function plotsimpleline(user) {
 		.attr("class", "meta");
 
 	var metapath = meta.append("path")
-		.attr("class", "line")
 		.attr("clip-path", "url(#clip)")
 		.attr("id", function (d) {
 			return d.id;
 		})
+        .attr("class", function (d) {
+            return "line " + d.id;
+        })
 		.attr("d", function (d) {
 			return line(d.values);
 		})
@@ -207,7 +220,7 @@ function plotsimpleline(user) {
 	var dots = chartg.selectAll(".dots")
 		.data(avgdata_list)
 		.enter().append("g")
-		.attr("class", "dots")
+		.attr("class",function(d){return "dots " + d.id})
 		.selectAll("circle")
 		.data(function (d) {
 			return d.values;
@@ -231,28 +244,21 @@ function plotsimpleline(user) {
 			return y(d.total);
 		})
 		.on("mouseover", function (d) {
-			var html_content = "";
-			for (var meta in d.stats) {
-				if (meta == d.id) { //If this holds the interactions of this particular type
-					for (var statistic in d.stats[meta]) {
-						if (d.stats[meta][statistic].length > 0)
-							html_content += prettyKeys[statistic] + ": " + d.stats[meta][statistic].length + "<br/>";
-					}
-				}
-			}
 			d3.select(this).attr("r", 8);
-			div.transition()
-			.duration(200)
-			.style("opacity", .9);
-			div.html(html_content)
-			.style("left", (d3.event.pageX) + "px")
-			.style("top", (d3.event.pageY - 28) + "px");
+			d3.select(this).style("cursor", "pointer");
 		})
 		.on("mouseout", function (d) {
 			d3.select(this).attr("r", 4);
-			div.transition()
-			.duration(500)
-			.style("opacity", 0);
+		})
+		.on("click", function (d, i) {
+			drawTooltipGraph(d.date, d.id,null,vargraphdata);
+
+			div
+			.transition()
+			.duration(200)
+			.style("opacity", .9)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY - 28) + "px");
 		});
 
 	var xAxis = d3.axisBottom(x).tickFormat(anotherFormat).ticks(d3.timeMonth.every(1));
@@ -276,7 +282,6 @@ function plotsimpleline(user) {
 	.attr("text-anchor", "end")
 	.text("Commonshare");
 
-	
 	//Adapted from http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
 	var legendRectSize = 18;
 	var legendSpacing = 4;
@@ -321,12 +326,12 @@ function plotsimpleline(user) {
 		return 'translate(' + (horz) + ',' + vert + ')';
 	});
 	function legendclick(d) {
-		if (d3.select("#" + d).style("visibility") == "visible") {
-			d3.select("#" + d).style("visibility", "hidden");
+		if (d3.selectAll("." + d).style("visibility") == "visible") {
+			d3.selectAll("." + d).style("visibility", "hidden");
 			d3.selectAll(".mydot" + d).style("visibility", "hidden");
 			opacity = 0.5;
 		} else {
-			d3.select("#" + d).style("visibility", "visible");
+			d3.selectAll("." + d).style("visibility", "visible");
 			d3.selectAll(".mydot" + d).style("visibility", "visible");
 			opacity = 1;
 		}

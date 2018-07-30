@@ -1,9 +1,20 @@
 var startYear;
 var cellSize = 25;
 
-function plotcalendars(user) {
+function plotcalendars(user,varnodedata,vargraphdata,divid) {
 
-	var chart = d3.select("#calendarchart"),
+    if(varnodedata == null)
+        varnodedata = node_data;
+    if(vargraphdata == null)
+        vargraphdata = graph_data;
+    if(divid == null)
+        divid = "calendarchart";
+	var chart = d3.select("#"+divid).on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
 	chartg = chart.append("g");
 
 	var zoom = d3.zoom()
@@ -23,20 +34,20 @@ function plotcalendars(user) {
 	var monthdates = [];
 	var keys = [];
 	for (var month in data) {
-		var cumu_totals = data[month].cumu_totals;
+		var cumu_totals = varnodedata[month].cumu_totals;
 		keys = Object.keys(cumu_totals);
 		if (month != 0) {
-			var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+			var monthsWithZero = d3.timeMonth.count(varnodedata[month - 1].date, varnodedata[month].date) - 1;
 			for (var i = 0; i < monthsWithZero; i++) {
 				monthdates.push({
-					'date': d3.timeMonth.offset(data[month - 1].date, i + 1),
+					'date': d3.timeMonth.offset(varnodedata[month - 1].date, i + 1),
 					'stats': {}
 				});
 			}
 		}
 		monthdates.push({
-			'date': data[month].date,
-			'stats': data[month].stats
+			'date': varnodedata[month].date,
+			'stats': varnodedata[month].stats
 		});
 	}
 
@@ -101,9 +112,26 @@ function plotcalendars(user) {
 	.attr("y", function (d) {
 		var week_diff = formatWeek(d.date) - formatWeek(new Date(formatYear(d.date), formatMonth(d.date) - 1, 1));
 		return d.date.getDay() * cellSize;
-	});
+	})
+    .on("mouseover", function (d) {
+			d3.select(this).style("cursor", "pointer");
+		})
+		.on("mouseout", function (d) {
+		})
+		.on("click", function (d, i) {
+            console.log("date is " + d.date);
+            d.date.setDate(1);
+			drawTooltipGraph(d.date, "all",null,vargraphdata);
+
+			div
+			.transition()
+			.duration(200)
+			.style("opacity", .9)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY - 28) + "px");
+		});
 	rect.selectAll(".minirect")
-	.data(data, function (d) {
+	.data(varnodedata, function (d) {
 		return d.stats;
 	})
 	.enter().append("rect")
@@ -122,7 +150,11 @@ function plotcalendars(user) {
 	})
 	.text(function (d) {
 		return formatDayOfMonth(d.date);
-	});
+	}) 
+    .style("pointer-events","none")
+    .on("mouseover", function (d) {
+			d3.select(this).style("cursor", "pointer");
+		});
 
 	rect.filter(function (d) {
 		return d.sumval > 0;
@@ -143,8 +175,10 @@ function plotcalendars(user) {
 	.select("title")
 	.text(function (d) {
 		return d + ": ";
-	});
+	})
+    		;
 
+    /*
 	rect.filter(function (d) {
 		return d.sumval > 0;
 	}).on("mouseover", mouseover);
@@ -173,7 +207,7 @@ function plotcalendars(user) {
 		.duration(500)
 		.style("opacity", 0);
 	}
-
+*/
 	chartg.append("g")
 	.attr("fill", "none")
 	.attr("stroke", "#000")

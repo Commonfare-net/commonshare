@@ -38,6 +38,14 @@ def getNodeStats(G,node_id):
                 for action in c[action_key]:
                         
                     if str(ast.literal_eval(action[0])[0]) == str(node_id)or action_key in cf.mutual_interactions:
+                        other_id = ""
+                        if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                            other_id = str(ast.literal_eval(action[0])[1])
+                        else:
+                            other_id = str(ast.literal_eval(action[0])[0])
+                        if other_id not in stats:
+                            stats[other_id] = []
+                        stats[other_id].append((action_key,action[1]))
                         #print str(node_id), " is " + str(ast.literal_eval(action[0])[0])
                         stats[meta][action_key].append(action)
                         if action[1] not in stats:
@@ -50,6 +58,10 @@ def getNodeStats(G,node_id):
                             stats[action[1]][meta][action_key][0] += 1 #Number of actions
                             stats[action[1]][meta][action_key][1] += cf.weights[action_key][0] #Weight of actions
                     elif action_key in cf.indirect_interactions:
+                        other_id = str(ast.literal_eval(action[0])[0])
+                        if other_id not in stats:
+                            stats[other_id] = []
+                        stats[other_id].append(("r" + action_key,action[1]))                            
                         stats[meta]["r"+action_key].append(action)
                         if action[1] not in stats:
                             stats[action[1]] = {}
@@ -69,20 +81,42 @@ def addStats(G,D,data_dict):
     nodeiter = G.nodes(data=True)
     #This adds the kcore value back into the GEXF
     for (n,c) in nodeiter:
-        if n not in D:
-            c['kcore'] = 0
-            c['stats'] = {}
-            data_dict[n].append(c)
-        elif D[n] == 0:
-            c['kcore'] = 0
-            c['stats'] = {}
-            data_dict[n].append(c)                
+        if n not in D or D[n] == 0:
+            NewG = nx.Graph()
+            NewG.add_node(n,**c)
+            NewG.nodes[n]['kcore'] = 0
+            NewG.nodes[n]['stats'] = {}
+#            c['kcore'] = 0
+#            c['stats'] = {}
+#            data_dict[n].append(c)           
+            mdata = json_graph.node_link_data(NewG)
+            data_dict[n].append(mdata)
         else:
-            c['kcore'] = D[n]
-            c['cumu_totals'] = {k:(v*D[n]) for k,v in c['cumu_totals'].items()}
-            c['avg_totals'] = {k:(v*D[n]) for k,v in c['avg_totals'].items()}
-            c['stats'] = getNodeStats(G,n)
-            data_dict[n].append(c)
+            edges = G.edges(n,data=True)
+            NewG = nx.Graph()
+            NewG.add_node(n,**c)
+            NewG.nodes[n]['kcore'] = D[n]
+            NewG.nodes[n]['cumu_totals'] = {k:(v*D[n]) for k,v in c['cumu_totals'].items()}
+            NewG.nodes[n]['avg_totals'] = {k:(v*D[n]) for k,v in c['avg_totals'].items()}
+            NewG.nodes[n]['stats'] = getNodeStats(G,n)
+            NewG.add_edges_from(edges)
+            for node in G.neighbors(n):
+                G.nodes[node]['kcore'] = D[node]
+                G.nodes[node]['stats'] = getNodeStats(G,node)
+                NewG.add_node(node,**G.nodes[node])
+            all_edges = G.edges(NewG.nodes,data=True)
+            for (u,v,c) in all_edges:
+                if u in NewG.nodes and v in NewG.nodes:
+                    NewG.add_edge(u,v,**c)
+            #NewG.add_node(n,**c)  
+            mdata = json_graph.node_link_data(NewG)
+            data_dict[n].append(mdata)
+#            c['kcore'] = D[n]
+#            c['cumu_totals'] = {k:(v*D[n]) for k,v in c['cumu_totals'].items()}
+#            c['avg_totals'] = {k:(v*D[n]) for k,v in c['avg_totals'].items()}
+#            c['stats'] = getNodeStats(G,n)
+#            data_dict[n].append(c)
+    
     return (G,data_dict)
  
 def filteredges(G,start,end):

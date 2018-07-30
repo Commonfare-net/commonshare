@@ -1,85 +1,3 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<head>
-<link rel="stylesheet" type="text/css" href="css/commonfare.css">
-<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-</head>
-<body>
-<div style="width: 100%; text-align:center;">
-    <!--Simple line chart div-->
-    <div class="bigchart">
-        <h5>Your Commonshare</h5>    
-        <svg id="linechart" width="600" height="200"></svg>
-    </div>
-    <!--Split line chart div-->
-    <div class="minicharts">  
-        <div>    
-            <h6 class="commonchart-title"></h6>
-            <svg class="commonchart" width="400" height="80"></svg>
-        </div>
-        <div>    
-            <h6 class="commonchart-title"></h6>        
-            <svg class="commonchart" width="400" height="80"></svg>
-        </div>
-        <div>    
-            <h6 class="commonchart-title"></h6>        
-            <svg class="commonchart" width="400" height="80"></svg>
-        </div>
-        <div>    
-            <h6 class="commonchart-title"></h6>        
-            <svg class="commonchart" width="400" height="80"></svg>
-        </div>
-    </div>
-    <!--Simple area chart div-->
-    <div class="bigchart">    
-        <svg id="areachart" width="600" height="200"></svg>
-    </div>
-    <!--Split area chart div-->
-    <div class="minicharts">
-        <div>
-            <h6 class="splitarea-title"></h6>
-            <svg class="splitareachart" width="400" height="80"></svg>
-        </div>
-        <div>
-            <h6 class="splitarea-title"></h6>        
-            <svg class="splitareachart" width="400" height="80"></svg>
-        </div>
-        <div>
-            <h6 class="splitarea-title"></h6>        
-            <svg class="splitareachart" width="400" height="80"></svg>
-        </div>
-        <div>
-            <h6 class="splitarea-title"></h6>        
-            <svg class="splitareachart" width="400" height="80"></svg>
-        </div>
-    </div>
-    <!--Stacked bar chart div-->
-    <div class="bigchart">   
-        <svg id="stackedbarchart" width="600" height="200"></svg>
-    </div>    
-    <!--Grouped bar chart div-->
-    <div class="bigchart">    
-        <svg id="groupedbarchart" width="600" height="200"></svg>
-    </div>   
-    <!--Circle chart div-->
-    <div class="bigchart">
-        <svg id="circlechart" width="800" height="200" style="margin-left:50px"></svg>
-    </div>
-    <!--Calendar chart div-->
-    <div class="bigchart">
-        <svg id="calendarchart" width="800" height="200" style="margin-left:50px"></svg>
-    </div>        
-</div>
-</body>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
-<script>
-//These forces are tweaked to attract connected nodes to the center
-
-var datafilecounter = 1;
-var drawn = {};
-
 var prettyKeys = {
 	"create_story": "Wrote this story",
 	"comment_story": "Left a comment",
@@ -101,15 +19,16 @@ var anotherFormat = d3.timeFormat("%b'%y");
 var tooltipFormat = d3.timeFormat("%b %d");
 var urlParams = new URLSearchParams(window.location.search);
 var userid = urlParams.get('userid'); // "edit"
-
+var datafilecounter = 1;
+var drawn = {};
 var data = {};
 var node_data = {};
 var graph_data = {};
 var numticks = 0;
 function monthLetter(date) {
-	var str = formatDate(date);
-	return str.substr(0, 2);
-}
+  var str = formatDate(date);
+  return str.substr(0,2);
+}   
 //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
 var div = d3.select("body").append("div")
 	.attr("class", "tooltip").style("width", "150px").style("height", "150px")
@@ -120,7 +39,7 @@ var infotooltip = d3.select("body").append("div")
 	.style("opacity", 0);
 var overtooltip = false;
 var overnode = false;
-    
+
 var divsvg = div.append("svg").attr("width", 150).attr("height", 150),
 link = divsvg.append("g").attr("stroke", "#000").selectAll(".link"),
 node = divsvg.append("g").attr("id", "nodeg").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node"),
@@ -137,26 +56,6 @@ function getTranslation(transform) {
 
 	return [matrix.e, matrix.f];
 }
-
-//Ensure all JSON files are loaded before initiating visualisation
-d3.json('data/userdata/usersmonthly/' + userid + '.json', function (results) {
-	data = results;
-	for (var month in results) {
-		node_data[month] = results[month]['nodes'].find(findNode);
-		node_data[month].date = parseTime(node_data[month].date);
-		graph_data[node_data[month].date] = results[month];
-	}
-
-	numticks = results.length;
-	plotsimpleline(userid,node_data,graph_data,"linechart");
-	plotsplitline(userid);
-	plotsimplearea(userid);
-	plotsplitarea(userid);
-	plotstackedbar(userid);
-	plotgroupedbar(userid);
-	plotcirclechart(userid);
-	plotcalendars(userid);
-});
 
 //Updates to make on simulation 'tick'
 function ticked() {
@@ -334,12 +233,3 @@ function drawTooltipGraph(date, filtertype, graphindex,vargraphdata) {
 	var elementheight = element.getBoundingClientRect().height;
 	console.log("width and height are " + elementwidth + "," + elementheight);
 }
-</script>
-<script src="scripts/simpleline.js"></script>
-<script src="scripts/splitline.js"></script>
-<script src="scripts/simplearea.js"></script>
-<script src="scripts/splitarea.js"></script>
-<script src="scripts/stackedbar.js"></script>
-<script src="scripts/groupedbar.js"></script>
-<script src="scripts/circles.js"></script>
-<script src="scripts/calendar.js"></script>

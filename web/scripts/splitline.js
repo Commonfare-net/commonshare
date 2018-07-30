@@ -1,6 +1,11 @@
 function plotsplitline(user) {
 
-	var charts = d3.selectAll(".commonchart"),
+	var charts = d3.selectAll(".commonchart").on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
 	margin = {
 		top: 5,
 		right: 50,
@@ -81,32 +86,33 @@ function plotsplitline(user) {
 	var transactionlist = []
 
 	for (var month in data) {
-		var avg_totals = data[month].avg_totals;
+        
+		var avg_totals = node_data[month].avg_totals;
 		var keys = Object.keys(avg_totals);
 		for (var name in avg_totals) {
 			if (avg_totals.hasOwnProperty(name)) {
 				if (!(name in lists_of_metas))
 					lists_of_metas[name] = [];
 				if (month != 0) {
-					var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+					var monthsWithZero = d3.timeMonth.count(node_data[month - 1].date, node_data[month].date) - 1;
 					for (var i = 0; i < monthsWithZero; i++) {
 						lists_of_metas[name].push({
 							"id": name,
 							"stats": {},
-							"date": d3.timeMonth.offset(data[month - 1].date, i + 1),
+							"date": d3.timeMonth.offset(node_data[month - 1].date, i + 1),
 							"total": 0
 						});
 					}
 				}
 				lists_of_metas[name].push({
 					"id": name,
-					"date": data[month].date,
-					"stats": data[month].stats,
+					"date": node_data[month].date,
+					"stats": node_data[month].stats,
 					"total": avg_totals[name]
 				});
 			}
 		};
-		data[month].kcore = +data[month].kcore
+		node_data[month].kcore = +node_data[month].kcore
 
 	}
 
@@ -189,28 +195,21 @@ function plotsplitline(user) {
 			return y(d.total);
 		})
 		.on("mouseover", function (d) {
-			var html_content = "";
-			for (var meta in d.stats) {
-				if (meta == d.id) { //If this holds the interactions of this particular type
-					for (var statistic in d.stats[meta]) {
-						if (d.stats[meta][statistic].length > 0)
-							html_content += prettyKeys[statistic] + ": " + d.stats[meta][statistic].length + "<br/>";
-					}
-				}
-			}
 			d3.select(this).attr("r", 8);
-			div.transition()
-			.duration(200)
-			.style("opacity", .9);
-			div.html(html_content)
-			.style("left", (d3.event.pageX) + "px")
-			.style("top", (d3.event.pageY - 28) + "px");
+			d3.select(this).style("cursor", "pointer");
 		})
 		.on("mouseout", function (d) {
 			d3.select(this).attr("r", 4);
-			div.transition()
-			.duration(500)
-			.style("opacity", 0);
+		})
+		.on("click", function (d, i) {
+			drawTooltipGraph(d.date, d.id);
+
+			div
+			.transition()
+			.duration(200)
+			.style("opacity", .9)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY - 28) + "px");
 		});
 
 	var clip = charts.append("clipPath")

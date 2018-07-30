@@ -1,6 +1,11 @@
 function plotsimplearea(user) {
 
-	var chart = d3.select("#areachart"),
+	var chart = d3.select("#areachart").on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
 	margin = {
 		top: 20,
 		right: 20,
@@ -49,7 +54,9 @@ function plotsimplearea(user) {
 			return xz(d.data.date) + 20;
 		})
 	}
-
+	color = d3.scaleOrdinal() // D3 Version 4
+		.domain(mykeys)
+		.range(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']);
 	color.domain(mykeys);
 	var area = d3.area()
 		.x(function (d) {
@@ -65,20 +72,21 @@ function plotsimplearea(user) {
 	var stack = d3.stack();
 	var cumu_total_object = []
 	for (var month in data) {
-		var cumu_totals = data[month].cumu_totals;
+
+		var cumu_totals = node_data[month].cumu_totals;
 		var keys = Object.keys(cumu_totals);
-		cumu_totals["date"] = data[month].date;
-		cumu_totals["stats"] = data[month].stats;
+		cumu_totals["date"] = node_data[month].date;
+		cumu_totals["stats"] = node_data[month].stats;
 		if (month != 0) {
 
-			var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+			var monthsWithZero = d3.timeMonth.count(node_data[month - 1].date, node_data[month].date) - 1;
 			for (var i = 0; i < monthsWithZero; i++) {
 				var mytotals = {};
 				for (var j in keys) {
 					mytotals[keys[j]] = 0;
 				}
 				mytotals['stats'] = {}
-				mytotals['date'] = d3.timeMonth.offset(data[month - 1].date, i + 1);
+				mytotals['date'] = d3.timeMonth.offset(node_data[month - 1].date, i + 1);
 				console.log(mytotals['date']);
 				cumu_total_object.push(mytotals);
 			}
@@ -116,7 +124,7 @@ function plotsimplearea(user) {
 		.attr("class", "meta");
 
 	var metapath = meta.append("path")
-		.attr("class", "area")
+		.attr("class", function(d){return "area "+ d.key;})
 		.attr("clip-path", "url(#clip)")
 		.attr("d", area)
 		.style("fill", function (d) {
@@ -130,6 +138,9 @@ function plotsimplearea(user) {
 		.attr("id", function (d) {
 			return d.key;
 		})
+        .attr("class", function (d) {
+            return d.key;
+        })
 		.selectAll("circle")
 		.data(function (d, index) {
 			return d;
@@ -150,28 +161,21 @@ function plotsimplearea(user) {
 			return y(d[1]);
 		})
 		.on("mouseover", function (d) {
-			var html_content = "";
-			for (var meta in d.data.stats) {
-				if (meta == d3.select(this.parentNode).attr("id")) { //If this holds the interactions of this particular type
-					for (var statistic in d.data.stats[meta]) {
-						if (d.data.stats[meta][statistic].length > 0)
-							html_content += prettyKeys[statistic] + ": " + d.data.stats[meta][statistic].length + "<br/>";
-					}
-				}
-			}
 			d3.select(this).attr("r", 8);
-			div.transition()
-			.duration(200)
-			.style("opacity", .9);
-			div.html(html_content)
-			.style("left", (d3.event.pageX) + "px")
-			.style("top", (d3.event.pageY - 28) + "px");
+			d3.select(this).style("cursor", "pointer");
 		})
 		.on("mouseout", function (d) {
 			d3.select(this).attr("r", 4);
-			div.transition()
-			.duration(500)
-			.style("opacity", 0);
+		})
+		.on("click", function (d, i) {
+			drawTooltipGraph(d.date, d.id);
+
+			div
+			.transition()
+			.duration(200)
+			.style("opacity", .9)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY - 28) + "px");
 		});
 
 	var xAxis = d3.axisBottom(x).tickFormat(anotherFormat).ticks(d3.timeMonth.every(1));
@@ -247,12 +251,12 @@ function plotsimplearea(user) {
 	});
 
 	function legendclick(d) {
-		if (d3.select("#" + d).style("visibility") == "visible") {
-			d3.select("#" + d).style("visibility", "hidden");
+		if (d3.selectAll("." + d).style("visibility") == "visible") {
+			d3.selectAll("." + d).style("visibility", "hidden");
 			d3.selectAll(".mydot" + d).style("visibility", "hidden");
 			opacity = 0.5;
 		} else {
-			d3.select("#" + d).style("visibility", "visible");
+			d3.selectAll("." + d).style("visibility", "visible");
 			d3.selectAll(".mydot" + d).style("visibility", "visible");
 			opacity = 1;
 		}

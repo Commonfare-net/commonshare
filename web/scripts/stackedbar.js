@@ -1,7 +1,12 @@
 
 function plotstackedbar(user) {
 
-	var chart = d3.select("#stackedbarchart"),
+	var chart = d3.select("#stackedbarchart").on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
 	margin = {
 		top: 20,
 		right: 20,
@@ -18,6 +23,9 @@ function plotstackedbar(user) {
 
 	var y = d3.scaleLinear()
 		.rangeRound([chartheight, 0]);
+    color = d3.scaleOrdinal() // D3 Version 4
+		.domain(mykeys)
+		.range(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']);
 	color.domain(mykeys);
 	var zoom = d3.zoom()
 		.scaleExtent([0.33, 1])
@@ -57,7 +65,7 @@ function plotstackedbar(user) {
 	var stack = d3.stack();
 	var cumu_total_object = []
 	for (var month in data) {
-		var cumu_totals = data[month].cumu_totals;
+		var cumu_totals = node_data[month].cumu_totals;
 		var keys = Object.keys(cumu_totals);
 		var index = keys.indexOf("date");
 		if (index > -1) {
@@ -67,18 +75,18 @@ function plotstackedbar(user) {
 		if (index > -1) {
 			keys.splice(index, 1);
 		}
-		cumu_totals["date"] = data[month].date;
-		cumu_totals["stats"] = data[month].stats;
+		cumu_totals["date"] = node_data[month].date;
+		cumu_totals["stats"] = node_data[month].stats;
 		if (month != 0) {
 
-			var monthsWithZero = d3.timeMonth.count(data[month - 1].date, data[month].date) - 1;
+			var monthsWithZero = d3.timeMonth.count(node_data[month - 1].date, node_data[month].date) - 1;
 			for (var i = 0; i < monthsWithZero; i++) {
 				totals = {};
 				for (var j in keys) {
 					totals[keys[j]] = 0;
 				}
 				totals['stats'] = {}
-				totals['date'] = d3.timeMonth.offset(data[month - 1].date, i + 1);
+				totals['date'] = d3.timeMonth.offset(node_data[month - 1].date, i + 1);
 				cumu_total_object.push(totals);
 			}
 		}
@@ -121,7 +129,6 @@ function plotstackedbar(user) {
 		.attr("clip-path", "url(#clip)")
 		.selectAll("rect")
 		.data(function (d) {
-			console.log(d);
 			return d;
 		})
 		.enter().append("rect")
@@ -136,29 +143,21 @@ function plotstackedbar(user) {
 		})
 		.attr("width", 50)
 		.on("mouseover", function (d) {
-			var html_content = "";
-			for (var meta in d.data.stats) {
-				if (meta == d3.select(this.parentNode).attr("id")) { //If this holds the interactions of this particular type
-					for (var statistic in d.data.stats[meta]) {
-						if (d.data.stats[meta][statistic].length > 0)
-							html_content += prettyKeys[statistic] + ": " + d.data.stats[meta][statistic].length + "<br/>";
-					}
-				}
-			}
-			d3.select(this).style("opacity", 0.7);
-			div.transition()
+			d3.select(this).style("cursor", "pointer");
+		})
+		.on("mouseout", function (d) {
+		})
+		.on("click", function (d, i) {
+            var type = d3.select(this.parentNode).attr("id");
+			drawTooltipGraph(d.data.date, type);
+
+			div
+			.transition()
 			.duration(200)
-			.style("opacity", .9);
-			div.html(html_content)
+			.style("opacity", .9)
 			.style("left", (d3.event.pageX) + "px")
 			.style("top", (d3.event.pageY - 28) + "px");
 		})
-		.on("mouseout", function () {
-			d3.select(this).style("opacity", 1);
-			div.transition()
-			.duration(500)
-			.style("opacity", 0);
-		});
 
 	var clip = chartg.append("clipPath")
 		.attr("id", "clip");
