@@ -66,14 +66,14 @@ var div = d3.select("body").append("div")
 //Ensure all JSON files are loaded before initiating visualisation    
 var q = d3.queue();
 for (var i = 1; i < 12; i++) {
-    q.defer(d3.json, 'data/data'+i+'.json');
+    q.defer(d3.json, 'data/userdata/usersmonthly/'+i+'.json');
 }
 q.awaitAll(function(error,results) {
     if (error) throw error;
     else{
         for(var i = 0; i < results.length; i++){
-            data[months[i]] = results[i];
-            drawn[months[i]] = false;
+            data[i] = results[i];
+            drawn[i] = false;
         }
     draw(0,'all');
   //  plotcommonshare(random_id);
@@ -82,8 +82,8 @@ q.awaitAll(function(error,results) {
 
 //zoom transform from https://bl.ocks.org/mbostock/b783fbb2e673561d214e09c7fb5cedee allows clicked node to be zoomed in on
 function transform() {
-  translatex = d3.select("#n" + random_id).attr("cx");
-  translatey = d3.select("#n" + random_id).attr("cy");
+  translatex = d3.select("#n37").attr("cx");
+  translatey = d3.select("#n37").attr("cy");
   console.log("transforming to " + translatex + " , " + translatey);
   return d3.zoomIdentity
       .translate(width / 2, height / 2)
@@ -93,7 +93,7 @@ function transform() {
 
 function draw(index){
        // plotcalendars(random_id,months[index]);
-    graph = data[months[index]];
+    graph = data[index];
     selected_node = "";
     //These commented lines filter nodes and links by tag so they aren't rendered at all
     /*
@@ -107,7 +107,7 @@ function draw(index){
     */
     link = link.data(graph.links);
     node = node.data(graph.nodes);
-
+    console.log(link);
 
     var nodes_to_show = [];
             //Reset previously clicked node's colour
@@ -273,7 +273,6 @@ function draw(index){
 }
 
 //Temporary hack because I know the month names
-var months = ['2018-06','2018-07','2018-08','2018-09','2018-10','2018-11','2018-12','2019-01','2019-02','2019-03','2019-04']
 
 /*-------------COMMONSHARE AREA CHART---------------*/
 

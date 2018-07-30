@@ -72,7 +72,6 @@ h5 {
 .line {
   fill: none;
   stroke: black;
-  stroke-width: 1.5px;
 }
 .axis path, .axis line {
 	fill: none;
@@ -105,12 +104,16 @@ div.tooltip {
   position: absolute;           
   text-align: center;           
   padding: 2px;             
-  font: 14px sans-serif;        
+  font-size: 14px;        
   background: lightsteelblue;   
   border: 0px;      
   border-radius: 8px;           
   pointer-events: none;         
 }
+div.tooltip > svg {
+  pointer-events: auto;
+}
+
 .inline { float:left; }
 .clearBoth { clear:both; }
 

@@ -1,6 +1,11 @@
 function plotsplitarea(user){
 
-    var charts = d3.selectAll(".splitareachart"),
+    var charts = d3.selectAll(".splitareachart").on("click", function (d) {
+			div
+			.style("opacity", 0)
+			.style("left", "0px")
+			.style("top", "0px");
+		}),
     margin = {top: 5, right: 50, bottom: 20, left: 40},
     chartwidth = +charts.attr("width") - margin.left - margin.right,
     chartheight = +charts.attr("height") - margin.top - margin.bottom,
@@ -51,22 +56,22 @@ var area = d3.area()
     var friendshiplist = []
     var transactionlist = []
  //   lists_of_metas["kcore"] = []
-    for (var month in data){
-        var cumu_totals = data[month].cumu_totals;    
+    for (var month in data){    
+        var cumu_totals = node_data[month].cumu_totals;    
         for (var name in cumu_totals){
             if(cumu_totals.hasOwnProperty(name)){
                 if(!(name in lists_of_metas))
                     lists_of_metas[name] = [];
                  if(month != 0){
-                              var monthsWithZero = d3.timeMonth.count(data[month-1].date,data[month].date) -1;
+                              var monthsWithZero = d3.timeMonth.count(node_data[month-1].date,node_data[month].date) -1;
                               for(var i = 0; i < monthsWithZero; i++){
-                                lists_of_metas[name].push({"id": name, "stats": {}, "date":d3.timeMonth.offset(data[month-1].date,i+1), "total": 0}); 
+                                lists_of_metas[name].push({"id": name, "stats": {}, "date":d3.timeMonth.offset(node_data[month-1].date,i+1), "total": 0}); 
                               }
                         } 
-                lists_of_metas[name].push({"id": name, "date":data[month].date, "stats":data[month].stats, "total": cumu_totals[name]}); 
+                lists_of_metas[name].push({"id": name, "date":node_data[month].date, "stats":node_data[month].stats, "total": cumu_totals[name]}); 
             }
         };
-        data[month].kcore = +data[month].kcore
+        node_data[month].kcore = +node_data[month].kcore
         
     }
  
@@ -118,31 +123,23 @@ var area = d3.area()
       .attr("clip-path","url(#clip)")
       .attr("cx", function(d) {return x(d.date)+20; } )
       .attr("cy", function(d) {return y(d.total); } )
-      .on("mouseover", function(d) {
-            var html_content = "";
-            for(var meta in d.stats){
-                if(meta == d.id){ //If this holds the interactions of this particular type
-                    for(var statistic in d.stats[meta]){
-                        if(d.stats[meta][statistic].length > 0)
-                            html_content += prettyKeys[statistic] + ": " + d.stats[meta][statistic].length + "<br/>";
-                    }
-                }
-            }
-            d3.select(this).attr("r",8);
-            div.transition()		
-                .duration(200)		
-                .style("opacity", .9);		
-            div	.html(html_content)	
-                .style("left", (d3.event.pageX) + "px")		
-                .style("top", (d3.event.pageY - 28) + "px");	
-            })					
-        .on("mouseout", function(d) {	
-            d3.select(this).attr("r",4);
-            div.transition()		
-                .duration(500)		
-                .style("opacity", 0);	
-       }) 
-      ;
+ 		.on("mouseover", function (d) {
+			d3.select(this).attr("r", 8);
+			d3.select(this).style("cursor", "pointer");
+		})
+		.on("mouseout", function (d) {
+			d3.select(this).attr("r", 4);
+		})
+		.on("click", function (d, i) {
+			drawTooltipGraph(d.date, d.id);
+
+			div
+			.transition()
+			.duration(200)
+			.style("opacity", .9)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY - 28) + "px");
+		});
 
       var clip = charts.append("clipPath")
         .attr("id", "clip");
