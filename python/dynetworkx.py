@@ -14,7 +14,8 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
             for action in edge[action_key]:
                 if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
                     #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                    if str(ast.literal_eval(action[0])[0]) == str(n1):
+                    #if str(ast.literal_eval(action[0])[0]) == str(n1):
+                    if action[0] == str(n1):
                         edgeweight = edgeweight + cf.weights[action_key][0]
                         frequency = frequency + 1
     #print 'freq',n1,'-',n2,'=',frequency,'and % is',((edgeweight/n2_weight)*100)
@@ -44,7 +45,8 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                 for action in c[action_key]:
                     if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
                         #print 'node_id is',node_id,'and createactions[0] is',action[0][0]
-                        if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                        #if str(ast.literal_eval(action[0])[0]) == str(node_id):
+                        if action[0] == str(node_id):
                             #if node_id == 37:
                             #print 'yes node ',node_id,' did ',action_key,' in ',action[1]
                             overallweight = overallweight + (cf.weights[action_key][0]*depreciating_constant)     
