@@ -113,7 +113,16 @@ div.tooltip {
 div.tooltip > svg {
   pointer-events: auto;
 }
-
+div.transaction {
+  content:url(images/transaction.png);
+    position: absolute;           
+  text-align: center;           
+  padding: 2px;             
+  font-size: 14px;        
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;
+}
 .inline { float:left; }
 .clearBoth { clear:both; }
 

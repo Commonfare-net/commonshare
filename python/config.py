@@ -36,6 +36,7 @@ tag_commoner="tag_commoner"
 mutual_interactions = [conversation,transaction]
 interaction_keys =[comment_story,comment_listing,create_story,create_listing,conversation,transaction,tag_commoner,tag_story,tag_listing]
 indirect_interactions = [comment_story,comment_listing]
+temporary_interactions = [conversation,transaction,comment_story,comment_listing] #Actions that should not be fixed over time (like story creation or tag assignment)
 meta_networks = ['story','listing','social','transaction']
 #Meta-data to add to nodes and edges based on actions
 

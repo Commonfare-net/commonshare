@@ -1,1 +1,1 @@
-[{"directed": false, "graph": {}, "nodes": [{"nodemeta": ["story"], "stats": {}, "name": "sfruttamento", "tag_story": [["[7449,7843]", "2018/07/10", "2018/07/10"]], "tags": [], "label": "tag_448", "cumu_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "edgetotals": {"transaction": 0, "story": 0, "social": 0, "listing": 0}, "date": "2018/07/01", "avg_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "kcore": 0, "type": "tag", "id": "7843", "spells": [["2018/07/10", "2018/07/10"]]}], "links": [], "multigraph": false}]
+[]

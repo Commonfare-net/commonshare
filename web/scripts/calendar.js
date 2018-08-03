@@ -113,23 +113,7 @@ function plotcalendars(user,varnodedata,vargraphdata,divid) {
 		var week_diff = formatWeek(d.date) - formatWeek(new Date(formatYear(d.date), formatMonth(d.date) - 1, 1));
 		return d.date.getDay() * cellSize;
 	})
-    .on("mouseover", function (d) {
-			d3.select(this).style("cursor", "pointer");
-		})
-		.on("mouseout", function (d) {
-		})
-		.on("click", function (d, i) {
-            console.log("date is " + d.date);
-            d.date.setDate(1);
-			drawTooltipGraph(d.date, "all",null,vargraphdata);
-
-			div
-			.transition()
-			.duration(200)
-			.style("opacity", .9)
-			.style("left", (d3.event.pageX) + "px")
-			.style("top", (d3.event.pageY - 28) + "px");
-		});
+    ;
 	rect.selectAll(".minirect")
 	.data(varnodedata, function (d) {
 		return d.stats;
@@ -172,6 +156,25 @@ function plotcalendars(user,varnodedata,vargraphdata,divid) {
 		return color(k);
 
 	})
+    .on("mouseover", function (d) {
+			d3.select(this).style("cursor", "pointer");
+		})
+		.on("mouseout", function (d) {
+		})
+		.on("click", function (d, i) {
+            console.log("date is " + d.date);
+            var old_date = new Date(d.date.getTime());
+            var new_date = new Date(d.date.getTime());
+            new_date.setDate(1);
+			drawTooltipGraph(new_date, old_date,null,vargraphdata);
+
+			div
+			.transition()
+			.duration(200)
+			.style("opacity", .9)
+			.style("left", (d3.event.pageX) + "px")
+			.style("top", (d3.event.pageY - 28) + "px");
+		})
 	.select("title")
 	.text(function (d) {
 		return d + ": ";

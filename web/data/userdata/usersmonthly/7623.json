@@ -1,1 +1,1 @@
-[{"directed": false, "graph": {}, "nodes": [{"kcore": 0, "stats": {}, "name": "free", "tag_story": [["[7392,7623]", "2018/01/04", "2018/01/04"]], "tags": [], "label": "tag_195", "cumu_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "edgetotals": {"transaction": 0, "story": 0, "social": 0, "listing": 0}, "date": "2018/01/01", "avg_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "nodemeta": ["story"], "type": "tag", "id": "7623", "spells": [["2018/01/04", "2018/01/04"]]}], "links": [], "multigraph": false}]
+[]

@@ -23,9 +23,10 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     targetnode = nodes.find("*/[@id='" + target +"']");
     sourceattr = nodes.find("*/[@id='" + source +"']/*/*[@for='1']")
     targetattr = nodes.find("*/[@id='" + target +"']/*/*[@for='1']")
+    sourcetitle = nodes.find("*/[@id='" + source +"']/*/*[@for='4']")
+    targettitle = nodes.find("*/[@id='" + target +"']/*/*[@for='4']")
     sourcetype = sourceattr.attrib['value']
     targettype = targetattr.attrib['value']
-    
     attrs = {"start":actionstart,"end":actionend}
     if sourcenode.find("spells") == None:
         spells = sourcenode.makeelement("spells",{})
@@ -47,14 +48,18 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     
     if sourcetype == "listing" or targettype == "listing":
         edgetype = edgetype+ "_listing"
-    elif sourcetype == "story" or targettype == "story":
+    elif sourcetype == "story" or targettype == "story": #Here we'll do checks to remove blank stories and their associated edges
+        #if sourcetype == "story" and sourcetitle.attrib['value'] == '':
+        #    return None
+        #if targettype == "story" and targettitle.attrib['value'] == '':
+        #    return None
         edgetype = edgetype+ "_story"
     elif edgetype == "tag": 
         edgetype = edgetype + "_commoner" #This is just to be clear that the tag refers to that of a commoner    
     if edgetype == "comment":
        original_comment = edges.findall("*/[@label='"+label+"']")
        print 'found ',len(original_comment)
-       if len(original_comment) == 1:
+       if len(original_comment) == 1: #This happens when a comment is received on a story but somehow the 
         return None
        for edge in original_comment:
             if edge.attrib['id'] != edgeid: #Then we've found the correct edge
@@ -139,8 +144,9 @@ for elem in edges:
         else:
             attvalues = existingedges[altedgeid].find('attvalues')
             
-    list = '[' + elem.attrib['source'] + ',' + elem.attrib['target'] + ']'
-    attrib = {'value':list,'for':edgetype,'start':actionstart,'end':actionend}
+    #list = '[' + elem.attrib['source'] + ',' + elem.attrib['target'] + ']'
+    #Here I think it's best if we store just the source node as the value of the edge
+    attrib = {'value': elem.attrib['source'],'for':edgetype,'start':actionstart,'end':actionend}
     attvalue = attvalues.makeelement('attvalue',attrib)
     attvalues.append(attvalue)
     

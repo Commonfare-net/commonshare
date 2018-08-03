@@ -1,1 +1,1 @@
-[]
+[{"directed": false, "graph": {}, "nodes": [{"kcore": 0, "stats": {}, "name": "soprasotto", "tag_story": [["7414", "2018/02/20", "2018/02/20"]], "tags": [], "label": "tag_131", "cumu_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "edgetotals": {"transaction": 0, "story": 0, "social": 0, "listing": 0}, "date": "2018/02/07", "avg_totals": {"listing": 0, "story": 0, "transaction": 0, "social": 0}, "nodemeta": ["story"], "type": "tag", "id": "7578", "spells": [["2018/02/20", "2018/02/20"]]}], "links": [], "multigraph": false}]
