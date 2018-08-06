@@ -170,8 +170,10 @@ def calculate(G,startdate,enddate):
     global commoner_comment_edges
     user_id = 0
     
-    windowstart = startdate
-    windowend = windowstart+ relativedelta(weeks=+2)
+    windowend = enddate
+    windowstart = windowend+ relativedelta(weeks=-2)
+    #windowstart = startdate
+    #windowend = windowstart+ relativedelta(weeks=+2)
     loopcount = 0
     
     
@@ -184,11 +186,11 @@ def calculate(G,startdate,enddate):
         c["tags"] = []
     creation_edges = {}
           
-    while(windowstart < enddate):
+    while(windowstart > startdate):
         mtagcounts = {}
         #ytagcounts = {}
         ctagcounts = {}
-        print 'windowstart is',datetime.strftime(windowstart,"%Y/%m/%d")
+        print 'windowend is',datetime.strftime(windowend,"%Y/%m/%d")
         #Find edges which have a spell that started or ended within the bounds of a given hour/day
         #For those edges that didn't, remove them, then calculate the k-core
         mbunch = []
@@ -217,13 +219,15 @@ def calculate(G,startdate,enddate):
                     monthedgeexists = True
                     if G.nodes[u]["type"] == "story":
                         included_objects.append(u)
-                        if cf.create_story in c:
-                            creation_edges[u] = (u,v,c)
+                        if cf.create_story in G.nodes[u]:
+                            story_creator = G.nodes[u][cf.create_story][0][0]
+                            creation_edges[u] = (u,story_creator,G.edges[u,story_creator])                            
                             G.nodes[v]['nodemeta'] = ['story']
                     elif G.nodes[v]["type"] == "story":
                         included_objects.append(v)     
-                        if cf.create_story in c:
-                            creation_edges[v] = (u,v,c)
+                        if cf.create_story in G.nodes[v]:
+                            story_creator = G.nodes[v][cf.create_story][0][0]
+                            creation_edges[v] = (story_creator,v,G.edges[story_creator,v])
                             G.nodes[u]['nodemeta'] = ['story']
                 
                 if datetime.strptime(intervals[0],"%Y/%m/%d") < windowend:
@@ -318,8 +322,10 @@ def calculate(G,startdate,enddate):
 
         #Now add the creation edges back in
         for node in included_objects:
-            creation_edges[node][2]['edgemeta'] = ['story']
-            MGraph.add_edge(creation_edges[node][0],creation_edges[node][1],**creation_edges[node][2])
+            print 'included object is ',node
+            if node in creation_edges:
+                creation_edges[node][2]['edgemeta'] = ['story']
+                MGraph.add_edge(creation_edges[node][0],creation_edges[node][1],**creation_edges[node][2])
         
         
         
@@ -342,8 +348,8 @@ def calculate(G,startdate,enddate):
         cdata['tagcount'] = ctagcounts
         
         #Update the 'sliding window'
-        windowstart = windowend
-        windowend = windowend + relativedelta(weeks=+2)
+        windowend = windowstart
+        windowstart = windowend + relativedelta(weeks=-2)
 
         loopcount = loopcount + 1
 
