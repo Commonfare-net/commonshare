@@ -13,8 +13,6 @@ tree = ET.parse(filename)
 namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
 root = tree.getroot()
 
-unknown_edges = []
-edge_data_dict = {}
 def parseLabel(edgeid,source,target,label,actionstart,actionend):
     edgevals = label.split("+")
     edgetype = edgevals[0].split("_")[0]
@@ -23,8 +21,7 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     targetnode = nodes.find("*/[@id='" + target +"']");
     sourceattr = nodes.find("*/[@id='" + source +"']/*/*[@for='1']")
     targetattr = nodes.find("*/[@id='" + target +"']/*/*[@for='1']")
-    sourcetitle = nodes.find("*/[@id='" + source +"']/*/*[@for='4']")
-    targettitle = nodes.find("*/[@id='" + target +"']/*/*[@for='4']")
+
     sourcetype = sourceattr.attrib['value']
     targettype = targetattr.attrib['value']
     attrs = {"start":actionstart,"end":actionend}
@@ -48,11 +45,7 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     
     if sourcetype == "listing" or targettype == "listing":
         edgetype = edgetype+ "_listing"
-    elif sourcetype == "story" or targettype == "story": #Here we'll do checks to remove blank stories and their associated edges
-        #if sourcetype == "story" and sourcetitle.attrib['value'] == '':
-        #    return None
-        #if targettype == "story" and targettitle.attrib['value'] == '':
-        #    return None
+    elif sourcetype == "story" or targettype == "story": 
         edgetype = edgetype+ "_story"
     elif edgetype == "tag": 
         edgetype = edgetype + "_commoner" #This is just to be clear that the tag refers to that of a commoner    
