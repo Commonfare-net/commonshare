@@ -1,20 +1,14 @@
 import networkx as nx
 import dynetworkx as dx
-import time
-import math
-import random
 from datetime import datetime
-from datetime import date
 import config as cf
 import json
 from networkx.readwrite import json_graph
-from collections import Counter
-import os
 import copy
-import ast
 import sys
 import xml.etree.ElementTree as ET
 from dateutil.relativedelta import *
+
 '''
 This module does the necessary k-core calculations and appends the results to each node in the Graph.
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
@@ -35,14 +29,7 @@ def getNodeStats(G,node_id):
                     stats[meta][action_key] = []
                     stats[meta]["r"+action_key] = [] #This is the inverse (i.e. comment received, like received)
                 for action in c[action_key]:
-                    #if str(ast.literal_eval(action[0])[0]) == str(node_id)or action_key in cf.mutual_interactions:
                     if action[0] == str(node_id)or action_key in cf.mutual_interactions:
-                        #other_id = ""
-                        #if str(ast.literal_eval(action[0])[0]) == str(node_id):
-                        #if action[0] == str(node_id):
-                        #    other_id = str(ast.literal_eval(action[0])[1])
-                        #else:
-                        #    other_id = str(ast.literal_eval(action[0])[0])
                         if other_id not in stats:
                             stats[other_id] = []
                         stats[other_id].append((action_key,action[1]))
@@ -57,7 +44,6 @@ def getNodeStats(G,node_id):
                             stats[action[1]][meta][action_key][0] += 1 #Number of actions
                             stats[action[1]][meta][action_key][1] += cf.weights[action_key][0] #Weight of actions
                     elif action_key in cf.indirect_interactions:
-                        #other_id = str(ast.literal_eval(action[0])[0])
                         if other_id not in stats:
                             stats[other_id] = []
                         stats[other_id].append(("r" + action_key,action[1]))                            
@@ -84,8 +70,7 @@ def addStats(G,D,data_dict):
             NewG = nx.Graph()
             G.nodes[n]['kcore'] = 0
             G.nodes[n]['stats'] = {}
-            #if n in nx.isolates(G):
-            #    G.remove_node(n)
+
             NewG.add_node(n,**c)        
             mdata = json_graph.node_link_data(NewG)
             data_dict[n].append(mdata)
@@ -134,7 +119,6 @@ def filteredges(G):
         c['edgemeta'] = edgemeta
         if G.nodes[u]['type'] == 'commoner' and G.nodes[v]['type'] == 'commoner' and ('transaction' not in edgemeta) and ('social' not in edgemeta):
             commoner_comment_edges.append((u,v,c))
-            print 'appending!'
     return G
     
             
@@ -151,10 +135,8 @@ def filternodes(G,start,end):
                 c[action_key] = actions_to_keep
                 if len(actions_to_keep) == 0:
                     continue
-                #if action_key not in cf.indirect_interactions:
                 nodemeta.append(cf.meta[action_key])                  
-                #if action_key in cf.indirect_interactions and n in list(map(lambda x: str(ast.literal_eval(x[0])[0]), c[action_key])): 
-                 #   nodemeta.append(cf.meta[action_key])
+
         if c['type'] == 'story':
             nodemeta.append('story')
         elif c['type'] == 'listing':
@@ -168,12 +150,10 @@ def filternodes(G,start,end):
     
 def calculate(G,startdate,enddate): 
     global commoner_comment_edges
-    user_id = 0
     
     windowend = enddate
     windowstart = windowend+ relativedelta(weeks=-2)
-    #windowstart = startdate
-    #windowend = windowstart+ relativedelta(weeks=+2)
+
     loopcount = 0
     
     
@@ -188,7 +168,6 @@ def calculate(G,startdate,enddate):
           
     while(windowstart > startdate):
         mtagcounts = {}
-        #ytagcounts = {}
         ctagcounts = {}
         print 'windowend is',datetime.strftime(windowend,"%Y/%m/%d")
         #Find edges which have a spell that started or ended within the bounds of a given hour/day
@@ -210,7 +189,6 @@ def calculate(G,startdate,enddate):
       #There's getting to be a lot of repetition in here but it works 
         for (u,v,c) in iter:
             monthedgeexists = False
-            #yearedgeexists = False
             cumuedgeexists = False
             
             for intervals in c['spells']:
@@ -322,7 +300,6 @@ def calculate(G,startdate,enddate):
 
         #Now add the creation edges back in
         for node in included_objects:
-            print 'included object is ',node
             if node in creation_edges:
                 creation_edges[node][2]['edgemeta'] = ['story']
                 MGraph.add_edge(creation_edges[node][0],creation_edges[node][1],**creation_edges[node][2])
@@ -375,7 +352,6 @@ G_read = nx.read_gexf(filename)
 
 ET.register_namespace("", "http://www.gexf.net/1.2draft") 
 tree = ET.parse(filename)  
-namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
 root = tree.getroot()
 startdate = root[0].attrib['start']
 enddate = root[0].attrib['end']

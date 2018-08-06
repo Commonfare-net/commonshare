@@ -2,7 +2,6 @@ import math
 import config as cf
 from datetime import datetime
 import networkx as nx
-import ast
 def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if G.has_edge(n1,n2) == False:
         return False
@@ -13,12 +12,9 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
         if action_key in edge:
             for action in edge[action_key]:
                 if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
-                    #print 'node_id is',node_id,'and createactions[0] is',createactions[0]
-                    #if str(ast.literal_eval(action[0])[0]) == str(n1):
                     if action[0] == str(n1):
                         edgeweight = edgeweight + cf.weights[action_key][0]
                         frequency = frequency + 1
-    #print 'freq',n1,'-',n2,'=',frequency,'and % is',((edgeweight/n2_weight)*100)
     if frequency > cf.FREQUENCY_THRESHOLD and ((edgeweight/n2_weight)*100) > cf.PERCENTAGE_THRESHOLD:
         return True
     return False
@@ -27,7 +23,6 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
 #will also need to return the weighted contribution of each interaction type
 #DJR modified this again to return the graph with the unnecessary bits removed        
 def nodeweight_directed(G,node_id,starttime,endtime):
-#def nodeweight_directed(G,node_id):
     network_globals = {}
     for meta in cf.meta_networks:
         network_globals[meta] = 0
@@ -44,15 +39,10 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                 actions_to_keep = []
                 for action in c[action_key]:
                     if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
-                        #print 'node_id is',node_id,'and createactions[0] is',action[0][0]
-                        #if str(ast.literal_eval(action[0])[0]) == str(node_id):
                         if action[0] == str(node_id):
-                            #if node_id == 37:
-                            #print 'yes node ',node_id,' did ',action_key,' in ',action[1]
                             overallweight = overallweight + (cf.weights[action_key][0]*depreciating_constant)     
                             network_globals[cf.meta[action_key]] += (cf.weights[action_key][0]*depreciating_constant)
                         else:
-                            #print 'no node ',node_id,' did not do ',action_key,' in ',action[1]                
                             overallweight = overallweight + (cf.weights[action_key][1]*depreciating_constant)
                             network_globals[cf.meta[action_key]] += (cf.weights[action_key][1]*depreciating_constant)                            
                         actions_to_keep.append(action)
@@ -79,7 +69,6 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
     if G.is_multigraph():
         raise nx.NetworkXError(
                 'MultiGraph and MultiDiGraph types not supported.')
-
     if G.number_of_selfloops()>0:
         raise nx.NetworkXError(
                 'Input graph has self loops; the core number is not defined.',
