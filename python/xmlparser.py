@@ -52,9 +52,12 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     if edgetype == "comment":
        original_comment = edges.findall("*/[@label='"+label+"']")
        print 'found ',len(original_comment)
+       commoner = target
        if len(original_comment) == 1: #This happens when a comment is received on a story but somehow the 
         return None
        for edge in original_comment:
+            if edge.attrib['id'] == edgeid:
+                print 'woo',targettype
             if edge.attrib['id'] != edgeid: #Then we've found the correct edge
                 targettype = nodes.find("*/[@id='" + edge.attrib['target'] +"']/*/*[@for='1']").attrib['value']
                 print targettype
@@ -62,6 +65,7 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
                     edgetype = edgetype+ "_listing"
                 elif targettype == "story":
                     edgetype = edgetype+ "_story"
+                print 'commoner is ',commoner,' and story/listing is ',edge.attrib['target']
                 break
     return attrdict[edgetype]
 

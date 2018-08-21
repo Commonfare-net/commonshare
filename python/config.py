@@ -1,9 +1,9 @@
 import datetime
 
 DAYS = 365
-TAGS = 50
-INITIAL_USERS = 500
-ACTIONS_PER_DAY = 30
+TAGS = 70
+INITIAL_USERS = 50
+ACTIONS_PER_DAY = 10
 
 #Collusion things
 
@@ -12,7 +12,7 @@ SHOULD_COLLUDE = True
 NUM_COLLUDERS = 3
 FREQUENCY_THRESHOLD = 5
 REPUTATION_THRESHOLD = 30
-PERCENTAGE_THRESHOLD = 36
+PERCENTAGE_THRESHOLD = 35
 oneyear = 365*24*3600
 two_weeks = datetime.timedelta(days=14)
 one_day = datetime.timedelta(days=1)
@@ -43,7 +43,7 @@ meta = {
         tag_listing:'listing',
         conversation:'social',
         transaction:'transaction',
-        tag_commoner:'social'
+        tag_commoner:''
         }
 
 #Story-based interactions
@@ -53,9 +53,9 @@ weights = {
            create_story:(2,2),
            tag_story:(0,2),
 #Friendship-based interactions
-           conversation:(10,10),
+           conversation:(4,4),
 #Transaction-based interactions
-           transaction:(5,5),
+           transaction:(4,4),
 #Forum-based interactions
            create_listing:(2,2),
            comment_listing:(2,2),

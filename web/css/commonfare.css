@@ -15,7 +15,7 @@
 }
 
 #list-group{
-    max-height: 500px;
+    max-height: 250px;
     margin-bottom: 10px;
     overflow:scroll;
     -webkit-overflow-scrolling: touch;
@@ -28,6 +28,21 @@
 .bigchart svg{
     display: inline-block;
     width: auto;   
+}
+.datepicker{
+    display: block;
+    width:auto;
+    vertical-align:middle;
+        font-size:40px;
+
+}
+.arrow{
+    vertical-align:middle;
+    color:red;
+}
+.arrow:hover{
+    text-shadow: 2px 2px 5px red;
+    cursor: pointer;
 }
 .minicharts {
   display: inline-block;

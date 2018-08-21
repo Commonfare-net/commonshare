@@ -18,7 +18,7 @@ def getNodeStats(G,node_id):
     edges = G.edges(node_id,data=True)
     
     stats = {}
-    other_id = ""
+    #other_id = ""
     for (u,v,c) in edges:
         for action_key in cf.interaction_keys:
             if action_key in c:
@@ -30,9 +30,10 @@ def getNodeStats(G,node_id):
                     stats[meta]["r"+action_key] = [] #This is the inverse (i.e. comment received, like received)
                 for action in c[action_key]:
                     if action[0] == str(node_id)or action_key in cf.mutual_interactions:
-                        if other_id not in stats:
-                            stats[other_id] = []
-                        stats[other_id].append((action_key,action[1]))
+                        #if other_id not in stats:
+                        #    stats[other_id] = []
+                        #print 'other_id: ',other_id
+                        #stats[other_id].append((action_key,action[1]))
                         stats[meta][action_key].append(action)
                         if action[1] not in stats:
                             stats[action[1]] = {}
@@ -44,9 +45,9 @@ def getNodeStats(G,node_id):
                             stats[action[1]][meta][action_key][0] += 1 #Number of actions
                             stats[action[1]][meta][action_key][1] += cf.weights[action_key][0] #Weight of actions
                     elif action_key in cf.indirect_interactions:
-                        if other_id not in stats:
-                            stats[other_id] = []
-                        stats[other_id].append(("r" + action_key,action[1]))                            
+                        #if other_id not in stats:
+                        #    stats[other_id] = []
+                        #stats[other_id].append(("r" + action_key,action[1]))                            
                         stats[meta]["r"+action_key].append(action)
                         if action[1] not in stats:
                             stats[action[1]] = {}
@@ -65,16 +66,21 @@ def getNodeStats(G,node_id):
 def addStats(G,D,data_dict):
     nodeiter = G.nodes(data=True)
     #This adds the kcore value back into the GEXF
+    
+
     for (n,c) in nodeiter:
         if n not in D or D[n] == 0:
             NewG = nx.Graph()
             G.nodes[n]['kcore'] = 0
             G.nodes[n]['stats'] = {}
-
+            
             NewG.add_node(n,**c)        
-            mdata = json_graph.node_link_data(NewG)
-            data_dict[n].append(mdata)
+           # print n,c
+            if c['type'] == 'commoner':
+                mdata = json_graph.node_link_data(NewG)
+                data_dict[n].append(mdata)
         else:
+            #print c
             edges = G.edges(n,data=True)
             NewG = nx.Graph()
             NewG.add_node(n,**c)
@@ -88,34 +94,34 @@ def addStats(G,D,data_dict):
                 G.nodes[node]['stats'] = getNodeStats(G,node)
                 NewG.add_node(node,**G.nodes[node])
             all_edges = G.edges(NewG.nodes,data=True)
-            for (u,v,c) in all_edges:
+            for (u,v,x) in all_edges:
                 if u in NewG.nodes and v in NewG.nodes:
-                    NewG.add_edge(u,v,**c)
+                    NewG.add_edge(u,v,**x)
             #NewG.add_node(n,**c)  
-            mdata = json_graph.node_link_data(NewG)
-            data_dict[n].append(mdata)
+            if c['type'] == 'commoner':
+                mdata = json_graph.node_link_data(NewG)
+                data_dict[n].append(mdata)
     
     return (G,data_dict)
 
 #Comment edges from commoner to commoner that are necessary for k-core calculation but clutter up the graph
 commoner_comment_edges = []
 
-def filteredges(G):
+def filteredges(G,start,end):
     global commoner_comment_edges
-    network_globals = {}
-    for meta in cf.meta_networks:
-        network_globals[meta] = 0
     edgeiter = G.edges(data=True)
     
     for (u,v,c) in edgeiter:
         edgemeta = []
         for action_key in cf.interaction_keys:
             if action_key in c and len(c[action_key]) > 0 and action_key not in cf.indirect_interactions:
-                edgemeta.append(cf.meta[action_key])
-                network_globals[cf.meta[action_key]] +=1
+                for action in c[action_key]:
+                    if (start <= datetime.strptime(action[1],"%Y/%m/%d") < end):                
+                        edgemeta.append(cf.meta[action_key])
             if action_key in c and len(c[action_key]) > 0 and action_key in cf.indirect_interactions and (G.nodes[u]['type'] != 'commoner' or G.nodes[v]['type'] != 'commoner'):
-                edgemeta.append(cf.meta[action_key])
-                network_globals[cf.meta[action_key]] +=1
+                for action in c[action_key]:
+                    if (start <= datetime.strptime(action[1],"%Y/%m/%d") < end):                
+                        edgemeta.append(cf.meta[action_key])
         c['edgemeta'] = edgemeta
         if G.nodes[u]['type'] == 'commoner' and G.nodes[v]['type'] == 'commoner' and ('transaction' not in edgemeta) and ('social' not in edgemeta):
             commoner_comment_edges.append((u,v,c))
@@ -159,11 +165,18 @@ def calculate(G,startdate,enddate):
     
     m_data_dict = {}
     c_data_dict = {}
-    nodeiter = G.nodes(data=True)      
+    nodeiter = G.nodes(data=True)   
+    commonercount = 0
+    noncount = 0
     for (n,c) in nodeiter:
-        m_data_dict[n] = []
-        c_data_dict[n] = []
+        if c['type'] == 'commoner':
+            m_data_dict[n] = []
+            c_data_dict[n] = []
+            commonercount +=1
+        else:
+            noncount +=1
         c["tags"] = []
+    print 'commoners: ',commonercount,'. Non-commoners: ',noncount    
     creation_edges = {}
           
     while(windowstart > startdate):
@@ -184,7 +197,11 @@ def calculate(G,startdate,enddate):
         cumuCopy = copy.deepcopy(G)
 
         iter = G.edges(data=True)
-      
+        for (u,v,c) in iter:
+            monthCopy.nodes[u]['nodemeta'] = []
+            monthCopy.nodes[v]['nodemeta'] = []
+            cumuCopy.nodes[u]['nodemeta'] = []
+            cumuCopy.nodes[v]['nodemeta'] = []
         included_objects = []
       #There's getting to be a lot of repetition in here but it works 
         for (u,v,c) in iter:
@@ -198,13 +215,13 @@ def calculate(G,startdate,enddate):
                     if G.nodes[u]["type"] == "story":
                         included_objects.append(u)
                         if cf.create_story in G.nodes[u]:
-                            story_creator = G.nodes[u][cf.create_story][0][0]
+                            story_creator = str(G.nodes[u][cf.create_story][0][0])
                             creation_edges[u] = (u,story_creator,G.edges[u,story_creator])                            
                             G.nodes[v]['nodemeta'] = ['story']
                     elif G.nodes[v]["type"] == "story":
                         included_objects.append(v)     
                         if cf.create_story in G.nodes[v]:
-                            story_creator = G.nodes[v][cf.create_story][0][0]
+                            story_creator = str(G.nodes[v][cf.create_story][0][0])
                             creation_edges[v] = (story_creator,v,G.edges[story_creator,v])
                             G.nodes[u]['nodemeta'] = ['story']
                 
@@ -284,8 +301,8 @@ def calculate(G,startdate,enddate):
         cumuCopy = filternodes(cumuCopy,datetime(1,1,1),windowend)
          
         commoner_comment_edges = [] 
-        monthCopy = filteredges(monthCopy)
-        cumuCopy = filteredges(cumuCopy)
+        monthCopy = filteredges(monthCopy,windowstart,windowend)
+        cumuCopy = filteredges(cumuCopy,datetime(1,1,1),windowend)
 
         monthCopy.remove_edges_from(monthCopy.selfloop_edges())        
         cumuCopy.remove_edges_from(cumuCopy.selfloop_edges())        
@@ -294,24 +311,29 @@ def calculate(G,startdate,enddate):
         (MGraph,MD) = dx.core_number_weighted(monthCopy,windowstart,windowend,True,False)
         (CGraph,CD) = dx.core_number_weighted(cumuCopy,datetime(1,1,1),windowend,True,False)
 
+        
         #Add the tags back in
         MGraph.add_edges_from(mtagedges)
         CGraph.add_edges_from(ctagedges)
 
         #Now add the creation edges back in
+        #Because whenever a story is interacted with, we want to put the original creator back in, in order to show this
+        '''
         for node in included_objects:
             if node in creation_edges:
+                if MGraph.has_edge(creation_edges[node][0],creation_edges[node][1]) == False:
+                    creation_edges[node][2]['manually_added'] = 'true'
                 creation_edges[node][2]['edgemeta'] = ['story']
                 MGraph.add_edge(creation_edges[node][0],creation_edges[node][1],**creation_edges[node][2])
-        
-        
+        '''
+        #And finally remove the commoner-commoner commenting edges
+        MGraph.remove_edges_from(commoner_comment_edges)
+        CGraph.remove_edges_from(commoner_comment_edges)        
         
         (MGraph,m_data_dict) = addStats(MGraph,MD,m_data_dict)
         (CGraph,c_data_dict) = addStats(CGraph,CD,c_data_dict)
 
-        #And finally remove the commoner-commoner commenting edges
-        MGraph.remove_edges_from(commoner_comment_edges)
-        CGraph.remove_edges_from(commoner_comment_edges)
+
         
         mdata = json_graph.node_link_data(MGraph)
         mdata['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
@@ -336,9 +358,14 @@ def calculate(G,startdate,enddate):
             outfile.write(json.dumps(cdata))
             
     for k,v in m_data_dict.items():
-        with open('../web/data/userdata/usersmonthly/' + str(k) + '.json', 'w') as outfile:
-            outfile.write(json.dumps(v))              
-
+        print 'k is ',k
+        if len(v) > 0:
+            with open('../web/data/userdata/usersmonthly/' + str(k) + '.json', 'w') as outfile:
+                outfile.write(json.dumps(v))              
+    for k,v in c_data_dict.items():
+        if len(v) > 0:
+            with open('../web/data/userdata/userscumulative/' + str(k) + '.json', 'w') as outfile:
+                outfile.write(json.dumps(v))  
 actions_dict = {}
 for key in cf.interaction_keys:
     actions_dict[key] = []

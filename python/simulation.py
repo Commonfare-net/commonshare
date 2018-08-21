@@ -5,7 +5,7 @@ import dynetworkx as dx
 import time
 import math
 import random
-import kcore
+#import kcore
 import os
 import sys
 import copy
@@ -25,7 +25,7 @@ def get_users(need_two_users):
   random_no = random.randint(1,20)
   while True:
     if need_two_users:
-      if cf.SHOULD_COLLUDE and random_no > 19:
+      if cf.SHOULD_COLLUDE and random_no > 17:
         return random.sample(cf.colluding_nodes,2)
       else:
           users = random.sample(G.nodes(),2)
@@ -63,11 +63,11 @@ def create_object(user,objtype):
   G.nodes[user]['spells'].append((s_today,s_fortnight))
   G.add_edge(user,obj_node)
   G[user][obj_node]['spells'] = [(s_today,s_fortnight)]
-  while True:
-    tag = random.sample(G.nodes(),1)
-    if G.nodes[tag[0]]['type'] == 'tag':
-        break
-  tag_assign(obj_node,tag[0])
+  #while True:
+  #  tag = random.sample(G.nodes(),1)
+  #  if G.nodes[tag[0]]['type'] == 'tag':
+  #      break
+  #tag_assign(obj_node,tag[0])
   for x in actions_dict:
     G[user][obj_node][x] = []
   #print G.nodes[user]
@@ -131,9 +131,11 @@ def object_interact(objtype,interaction):
       return
     
 def update(source,target,interaction):
-    G[source][target][interaction].append(([source,target],s_today,s_fortnight))
-    G.nodes[source][interaction].append(([source,target],s_today,s_fortnight))    
-    G.nodes[target][interaction].append(([source,target],s_today,s_fortnight))    
+    G[source][target][interaction].append((source,s_today,s_fortnight))
+    G.nodes[source][interaction].append((source,s_today,s_fortnight))    
+    G.nodes[target][interaction].append((source,s_today,s_fortnight))  
+    G.nodes[source]['spells'].append((s_today,s_fortnight))
+    G.nodes[target]['spells'].append((s_today,s_fortnight))
 
 def add_tag():
     global G
@@ -158,11 +160,11 @@ def add_user():
     dict['name'] = str(myuser)
     nx.set_node_attributes(G,{user_node: dict})
     G.nodes[user_node]['spells'] = [(s_today,None)]
-    while True:
-        tag = random.sample(G.nodes(),1)
-        if G.nodes[tag[0]]['type'] == 'tag':
-            break
-    tag_assign(user_node,tag[0])
+    #while True:
+    #    tag = random.sample(G.nodes(),1)
+    #    if G.nodes[tag[0]]['type'] == 'tag':
+    #        break
+    #tag_assign(user_node,tag[0])
 
 #TODO: Figure out how user's 'accepting' another user's forum post answer might work
 def do_random_thing():
@@ -180,7 +182,7 @@ def do_random_thing():
   elif num == 9:
     user_interact('transaction')
 
-cur_date = datetime.datetime(2018,6,1)
+cur_date = datetime.datetime(2016,6,1)
 start_date = cur_date
 G=nx.Graph()
 counter = 0
@@ -202,10 +204,7 @@ while counter < cf.DAYS:
   counter = counter + 1
   G = nx.convert_node_labels_to_integers(G)
   
-  #Seed some tags and users to get things started
-  while len(G.nodes()) < cf.TAGS:
-    add_tag()
-  
+
   while len(G.nodes()) < cf.INITIAL_USERS:
     add_user()
 
@@ -217,18 +216,22 @@ while counter < cf.DAYS:
         for i in range(cf.NUM_COLLUDERS):
             print 'colluder is ',cf.colluding_nodes[i]
             create_object(cf.colluding_nodes[i],'story')
-            
+
+  #Seed some tags and users to get things started
+  while len(G.nodes()) < cf.TAGS:
+    add_tag()
+              
   for i in range(cf.ACTIONS_PER_DAY):
     do_random_thing()
   G = nx.convert_node_labels_to_integers(G)
 
-  if counter % 360 == 0:
+  if counter % 30 == 0:
     edge_labels = {}
     filename = "gexf/data"+str(counter)+".gexf"
     print 'filename is ',filename
     nx.write_gexf(G, filename)
 
-start_date = datetime.datetime(2018,6,1)
+start_date = datetime.datetime(2016,6,1)
 end_date = start_date + cf.one_year
 ET.register_namespace("", "http://www.gexf.net/1.2draft") 
 tree = ET.parse("gexf/data360.gexf")  

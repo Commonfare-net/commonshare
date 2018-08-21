@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="css/commonfare.css"></head>
+        
+<body>
+    <div id="transactiontooltip" class="transaction" style="opacity:0;width:25px;height:25px;"></div>
+    <div id="chattooltip" style="opacity:0;width:50px;height:50px"></div>
+    <!--Container for the network viz-->
+    <svg style="width:80%; float:left; display:inline-block;" class="bigvis" width="1000" height="1000">
+
+    </svg>
+    
+</body>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+//All this stuff is for the network viz
+var xScale = d3.scaleLinear()
+    .domain([0,1000]).range([0,1000]);
+var yScale = d3.scaleLinear()
+    .domain([0,1000]).range([0, 1000]);
+
+//Zooming function
+function zoomFunction(){
+    var new_xScale = d3.event.transform.rescaleX(xScale)
+    var new_yScale = d3.event.transform.rescaleY(yScale)
+    g.attr("transform", d3.event.transform)
+};
+var zoom = d3.zoom().on("zoom", zoomFunction);
+var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
+svg.call(zoom);
+
+//These forces are tweaked to attract connected nodes to the center
+var simulation = d3.forceSimulation()
+    .alphaDecay(0.05)
+    .force("charge", d3.forceManyBody().strength(function(d){return -400;}))
+    .force("link", d3.forceLink().distance(function(d){if('tag_story' in d || 'tag_listing' in d || 'tag_commoner' in d)return 50; return 128;}).id(function(d){return d.id;})) //Need the function here to draw links between nodes based on their ID rather than their index
+    .force("x", d3.forceX().x(function(d){if(d.kcore == 0)return 100; return width/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
+    .force("y", d3.forceY().y(function(d){if(d.kcore == 0)return 100; return height/2;}).strength(function(d){if(d.kcore == 0)return 0.4; return 0.1;}))
+    .stop();
+    
+var g = svg.append("g").attr("transform", "translate(250,250) scale (.35,.35)"),
+    link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
+    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
+svg.call(zoom.transform, d3.zoomIdentity.translate(250, 250).scale(0.35));
+
+var linktooltip = d3.select("body").append("div")
+    .style("opacity",0);
+//Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html    
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
+   
+    $.ajax({       
+        url: "data/cumudata56.json",
+        type:'GET',
+        success: function(data){
+        console.log(data);
+        draw(data);}
+    });
+
+function draw(graph){
+    console.log(graph);
+    node = node.data(graph.nodes,function(d) {return d.id;});
+    link = link.data(graph.links,function(d) { return d.source + "-" + d.target;});
+
+   nodetypes = {};
+    node.exit().transition()
+    .attr("r", 0)
+    .remove();
+
+    node = node.enter().append("circle")
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended))
+    .merge(node)
+    .each(function(d){nodetypes[d.id] = d.type;})
+    .attr("id", function(d) { return "n"+d.id; }) //Now each datum can be accessed as a DOM element
+    .attr("meta", function(d) { return "n" + JSON.stringify(d.type);})    
+    .attr("r", function(d) {return (d.kcore*2) + 6;})
+    .attr("fill", function(d) {
+        if(d.type == "commoner") return d3.color("steelblue");
+        if(d.type == "listing") return d3.color("purple");
+        if(d.type=="tag") return d3.color("limegreen");
+        return d3.color("red"); }) //Coloured based on their type
+    //Node and link highlighting
+    .on("mouseover", function(d) {
+        selected_node = d.id;
+        d3.select(this).attr("fill",d3.color("orange"));
+        sourcelinks = link.filter(function(d){return d.source.id == selected_node || d.target.id == selected_node;});
+        //Style links of hovered node
+        sourcelinks.each(function(d){
+            d3.select(this).attr("oldstrokeval",d3.select(this).style("stroke-width"));
+            d3.select(this).attr("oldcolourval",d3.select(this).style("stroke"));
+            d3.select(this).style("stroke",'green');
+
+        });
+
+        div.transition()        
+            .duration(200)      
+            .style("opacity", .9); 
+        if(d.type == "tag" || d.type=="commoner"){
+            div.html(d.name)  
+               .style("left", (d3.event.pageX) + "px")     
+               .style("top", (d3.event.pageY - 28) + "px")
+               .style("background",function(){if(d.type=="commoner")return "lightsteelblue";return "limegreen";});    
+        }
+        else{
+            div.html(d.title)  
+               .style("left", (d3.event.pageX) + "px")     
+               .style("top", (d3.event.pageY - 28) + "px")
+               .style("background", "pink");    
+        }
+    })                  
+    .on("mouseout", function(d) {
+        //Set the colour of links back to black, and the thickness to its original value
+        d3.select(this).attr("fill", function(d) {if(d.type == "commoner") return d3.color("steelblue"); if(d.type == "listing") return d3.color("purple"); if(d.type=="tag") return d3.color("lightgreen"); return d3.color("red"); });
+        sourcelinks.each(function(d){d3.select(this).style("stroke",d3.select(this).attr("oldcolourval"));});
+        sourcelinks.each(function(d){d3.select(this).style("stroke-width",d3.select(this).attr("oldstrokeval"));
+        });
+        div.transition()        
+            .duration(500)      
+            .style("opacity", 0);   
+    });
+
+   //Arrowheads that show the direction of the interaction. Have to be drawn manually
+    svg.selectAll("defs").remove();
+    svg.append("defs").selectAll("marker")
+    .data(graph.links)
+    .enter().append("marker")
+    .each(function(d){if('create_story' in d || 'create_listing' in d)d.size = 2;else d.size=1;})
+    .attr("id", function(d) { return "mend" + d.source + "-" + d.target; })
+    .attr("viewBox",function(d){console.log(d.size);if(d.size==2)return "0 -10 20 20";return "0 -5 10 10"})
+    .attr("refX", function(d){
+        if(d.target == null)return 10; 
+        radius = d3.select("#n"+d.target).attr("r");
+        return (d.size*10) + parseInt(radius);})
+    .attr("markerUnits","userSpaceOnUse")
+    .attr("markerWidth",function(d){return d.size*10;})
+    .attr("markerHeight", function(d){return d.size*10;})
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", function(d){if(d.size == 2)return "M0,-10L20,0L0,10"; return "M0,-5L10,0L0,5"})
+    .style("fill",function(d){
+            if('edgemeta' in d && d.edgemeta.includes('story'))
+                return 'red';
+            if('edgemeta' in d && d.edgemeta.includes('social'))
+                return 'orange';
+            if('edgemeta' in d && d.edgemeta.includes('listing'))
+                return 'purple';
+            if('edgemeta' in d && d.edgemeta.includes('transaction'))    
+                return 'darkblue';
+            return 'black';
+        });
+     
+    svg.append("defs").selectAll("marker")
+    .data(graph.links)
+    .enter().append("marker")
+    .each(function(d){if('create_story' in d || 'create_listing' in d)d.size = 2;else d.size=1;})    
+    .attr("id", function(d) { return "mstart" + d.source + "-" + d.target; })
+    .attr("viewBox",function(d){if(d.size==2)return "-20 -10 20 20";return "-10 -5 10 10"})
+    .attr("refX", function(d){
+        if(d.source == null)return 10; 
+        radius = d3.select("#n"+d.source).attr("r");
+        return -(d.size*10) - parseInt(radius);})
+    .attr("markerUnits","userSpaceOnUse")
+    .attr("markerWidth",function(d){return d.size*10;})
+    .attr("markerHeight", function(d){return d.size*10;})
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", function(d){if(d.size == 2)return "M0,-10L-20,0L0,10";return "M0,-5L-10,0L0,5"})
+    .style("fill",function(d){
+            if('edgemeta' in d && d.edgemeta.includes('story'))
+                return 'red';
+            if('edgemeta' in d && d.edgemeta.includes('social'))
+                return 'orange';
+            if('edgemeta' in d && d.edgemeta.includes('listing'))
+                return 'purple';
+            if('edgemeta' in d && d.edgemeta.includes('transaction'))    
+                return 'darkblue';
+            return 'black';
+        });
+    
+    //Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
+    link.exit()
+      .remove();
+    link = link.enter().append("line")
+      .attr("class","line")
+      .merge(link)
+      .attr("stroke-width",function(d){
+        if('create_story' in d || 'create_listing' in d)
+            return 4.5;
+        else if('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
+            return 0.25;
+        return 2;
+      })
+      .attr("edgemeta", function(d){return d.id + JSON.stringify(d.edgemeta);})
+    
+        .style("stroke",function(d){
+            if('edgemeta' in d && d.edgemeta.includes('story'))
+                return 'red';
+            if('edgemeta' in d && d.edgemeta.includes('social'))
+                return 'orange';
+            if('edgemeta' in d && d.edgemeta.includes('listing'))
+                return 'purple';
+            if('edgemeta' in d && d.edgemeta.includes('transaction'))    
+                return 'darkblue';
+            return 'black';
+        })
+         .attr("marker-end", function(d){
+       if((nodetypes[d.source] == 'commoner' && nodetypes[d.target] != 'tag')){
+            return "url(#mend" + d.source + "-" + d.target + ")";
+            }
+        return null; 
+    })
+    .attr("marker-start", function(d){
+       if((nodetypes[d.target] == 'commoner' && nodetypes[d.source] != 'tag')){
+            return "url(#mstart" + d.source + "-" + d.target + ")";
+            }
+        return null;
+       });
+        
+
+    //Updates to make on simulation 'tick'
+    function ticked() {
+        link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+        node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+    }
+
+    //Dragging functions
+    function dragstarted(d) {
+        d3.event.sourceEvent.stopPropagation();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+        d.x = d3.event.x;
+        d.y = d3.event.y;
+        ticked();
+    }
+
+    function dragended(d) {
+        d.fx = null;
+        d.fy = null;
+    }
+
+    d3.timeout(function(){    
+        // Update and restart the simulation.
+        simulation.nodes(graph.nodes);
+        //Manually update the simulation so it doesn't take a long time to do its thing
+        simulation.force("link").links(graph.links);
+            simulation.alpha(1);
+            for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
+                simulation.tick();
+            }
+        link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+        node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+        //If we've clicked on a node, maintain its focus while going through the different months
+    });
+
+}
+</script>

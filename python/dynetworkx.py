@@ -33,6 +33,8 @@ def nodeweight_directed(G,node_id,starttime,endtime):
     for (u,v,c) in edges:
         depreciating_constant = 1.0
         overallweight = 0
+        #print 'node_id: ',node_id
+        #print 'u and v: ',u,', ',v
         for action_key in cf.interaction_keys:
             #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them.
             if action_key in c:
@@ -48,7 +50,6 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                         actions_to_keep.append(action)
                         #depreciating_constant *= 0.75
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
-                
         if overallweight > 0:
             edgeweights.append(overallweight)
             #Adds it as a nice attribute

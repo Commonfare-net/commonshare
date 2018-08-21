@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="css/commonfare.css">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css?family=Dosis:800" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<div style="width: 100%; text-align:center;">
+        <h5>Your Commonshare</h5>    
+    <!--Very simple circle-->
+    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
+        <div class="bigchart border" style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+            <svg id="minigraph"  width="200" height="200"></svg>
+        </div>
+        <div class="datepicker" style="line-height:100%">
+            <i class="fa fa-arrow-left arrow" onclick="updateMiniGraph(-1)"></i>
+            <b id="minigraphdate" style="font-size:24px;font-family:Dosis"></b>
+            <i class="fa fa-arrow-right arrow" onclick="updateMiniGraph(1)"></i>
+        </div>
+    </div>
+    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
+        <div class="bigchart border"  style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+            <svg id="cookie" width="200" height="200"></svg>
+        </div> 
+        <div class="datepicker" style="line-height:100%">
+            <i class="fa fa-arrow-left arrow" onclick="updateCookie(-1)"></i>
+            <b id="cookiedate" style="font-size:24px;font-family:Dosis"></b>
+            <i class="fa fa-arrow-right arrow" onclick="updateCookie(1)"></i>
+        </div>
+    </div>
+    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
+        <div class="bigchart border" style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+            <svg id="bunches" width="200" height="200"  ></svg>
+        </div>  
+        <div class="datepicker" style="line-height:100%">
+            <i class="fa fa-arrow-left arrow" onclick="updateBunches(-1)"></i>
+            <b id="bunchesdate" style="font-size:24px;font-family:Dosis"></b>
+            <i class="fa fa-arrow-right arrow" onclick="updateBunches(1)"></i>
+        </div>
+    </div>
+    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
+        <div class="bigchart border">
+            <svg id="donut" width="200" height="200" ></svg>
+        </div>    
+        <div class="datepicker" style="line-height:100%">
+            <i class="arrow fa fa-arrow-left" onclick="updateDonut(-1)"></i>
+            <b id="donutdate" style="font-size:24px;font-family:Dosis"></b>
+            <i class="arrow fa fa-arrow-right" onclick="updateDonut(1)"></i>
+        </div>   
+    </div>
+</div>
+</body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="scripts/minigraph.js"></script>
+
+<script>
+//These forces are tweaked to attract connected nodes to the center
+
+function updateDonut(value){
+    if(value == -1)
+        if(currentdonut == maxindex-1)return; 
+        else currentdonut++;
+    else
+        if(currentdonut == 0)return;
+        else currentdonut --;
+    plotdonut(node_data[currentdonut]);
+    $('#donutdate').text(getDateText(node_data[currentdonut]));
+}
+function updateCookie(value){
+    if(value == -1)
+        if(currentcookie == maxindex-1)return;
+        else currentcookie++;
+    else
+        if(currentcookie == 0)return;
+        else currentcookie --;
+    plotcookie(node_data[currentcookie]);
+    $('#cookiedate').text(getDateText(node_data[currentcookie]));
+    
+}
+function updateBunches(value){
+    if(value == -1)
+        if(currentbunches == maxindex-1)return;
+        else currentbunches++;
+    else
+        if(currentbunches == 0)return;
+        else currentbunches --;
+    plotbunches(graph_data[currentbunches]);
+    $('#bunchesdate').text(getDateText(node_data[currentbunches]));
+    
+}
+function updateMiniGraph(value){
+    if(value == -1)
+        if(currentmini == maxindex-1)return;
+        else currentmini++;
+    else
+        if(currentmini == 0)return;
+        else currentmini--;
+    plotminigraph(graph_data[currentmini]);
+    $('#minigraphdate').text(getDateText(node_data[currentmini]));
+    
+}
+var datafilecounter = 1;
+var drawn = {};
+
+var prettyKeys = {
+	"create_story": "Wrote this story",
+	"comment_story": "Left a comment",
+	"rcomment_story": "Received a comment",
+	"create_listing": "Created this listing",
+	"comment_listing": "Left a comment",
+	"rcomment_listing": "Received a comment",
+	"transaction": "Completed a transaction",
+	"rtransaction": "Completed a transaction",
+	"conversation": "Started a conversation",
+	"rconversation": "Started a conversation"
+};
+var color; //The colour scale, gets set in the simple line part and then used everywhere else
+var mykeys = ['social','story','transaction','listing'];
+
+var parseTime = d3.timeParse("%Y/%m/%d");
+var formatTime = d3.timeFormat("%Y/%m/%d");
+var formatDate = d3.timeFormat("%b-%y");
+var anotherFormat = d3.timeFormat("%b'%y");
+var tooltipFormat = d3.timeFormat("%b %d");
+var urlParams = new URLSearchParams(window.location.search);
+var userid = urlParams.get('userid'); // "edit"
+
+var data = {};
+var node_data = {};
+var graph_data = {};
+var numticks = 0;
+function monthLetter(date) {
+	var str = formatDate(date);
+	return str.substr(0, 2);
+}
+//Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+//var div = d3.select("body").append("div")
+//	.attr("class", "tooltip").style("width", "150px").style("height", "150px")
+//	.style("opacity", 0);
+
+var infotooltip = d3.select("body").append("div")
+	.attr("class", "tooltip")
+	.style("opacity", 0);
+var overtooltip = false;
+var overnode = false;
+    
+function findNode(node) {
+	return node['id'] == userid;
+}
+var currentmini = 0;
+var currentcookie = 0;
+var currentbunches = 0;
+var currentdonut = 0;
+var maxindex = 0;
+d3.json('data/userdata/usersmonthly/' + userid + '.json', function (results) {
+	data = results;
+   // latestdate = parseTime(data[0]['nodes'][0]['date']);
+	for (var fortnight in results) {
+		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
+		node_data[fortnight].date = parseTime(node_data[fortnight].date);
+		graph_data[fortnight] = results[fortnight];
+        
+        maxindex++;
+	}
+	numticks = results.length;
+	plotminigraph(graph_data[0]);
+	plotcookie(node_data[0]);
+	plotbunches(graph_data[0]);
+	plotdonut(node_data[0]);
+    
+    $('#donutdate').text(getDateText(node_data[currentdonut]));
+    $('#minigraphdate').text(getDateText(node_data[currentmini]));
+    $('#cookiedate').text(getDateText(node_data[currentcookie]));
+    $('#bunchesdate').text(getDateText(node_data[currentbunches]));
+
+    
+});
+
+function getDateText(data){
+    return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
+}
+
+</script>
+<!--<script src="scripts/circles.js"></script>-->
+<script src="scripts/cookie.js"></script>
+<script src="scripts/bunches.js"></script>
+<script src="scripts/donut.js"></script>
