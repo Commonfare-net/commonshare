@@ -118,8 +118,8 @@ function plotcirclechart(user,varnodedata,vargraphdata,divid){
     .selectAll(".node")
     .data(function(d){
             return packs[cumu_total_object.indexOf(d)](d3.hierarchy(d,children)
-                    .sum(function(e) {if(e.name == "date" || e.name == "stats")return 0; return e.total; })
-                    .sort(function(a, b) { return b.value - a.value; }))
+                    .sum(function(e) {console.log(e);if(e.name == "date" || e.name == "stats")return 0; return e.total; })
+                    .sort(function(a, b) {console.log(a);console.log(b);return b.value - a.value; }))
                   .descendants();
           })
     .enter().append("g")
