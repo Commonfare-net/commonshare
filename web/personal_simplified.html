@@ -31,7 +31,7 @@
         </div>
     </div>
     <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
-        <div class="bigchart border" style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+        <div class="bigchart border" id="bunchdiv" style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
             <svg id="bunches" width="200" height="200"  ></svg>
         </div>  
         <div class="datepicker" style="line-height:100%">
@@ -42,7 +42,7 @@
     </div>
     <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
         <div class="bigchart border">
-            <svg id="donut" width="200" height="200" ></svg>
+            <svg id="donut" width="240" height="240" ></svg>
         </div>    
         <div class="datepicker" style="line-height:100%">
             <i class="arrow fa fa-arrow-left" onclick="updateDonut(-1)"></i>
@@ -76,7 +76,7 @@ function updateCookie(value){
     else
         if(currentcookie == 0)return;
         else currentcookie --;
-    plotcookie(node_data[currentcookie]);
+    plotcookie(graph_data[currentcookie],node_data[currentcookie]);
     $('#cookiedate').text(getDateText(node_data[currentcookie]));
     
 }
@@ -105,21 +105,24 @@ function updateMiniGraph(value){
 var datafilecounter = 1;
 var drawn = {};
 
-var prettyKeys = {
-	"create_story": "Wrote this story",
-	"comment_story": "Left a comment",
-	"rcomment_story": "Received a comment",
-	"create_listing": "Created this listing",
-	"comment_listing": "Left a comment",
-	"rcomment_listing": "Received a comment",
-	"transaction": "Completed a transaction",
-	"rtransaction": "Completed a transaction",
-	"conversation": "Started a conversation",
-	"rconversation": "Started a conversation"
+var keytypes = {
+    "story": ['create_story','comment_story'],
+    "listing": ['create_listing','comment_listing'],
+    "transaction": ['transaction'],
+    "social": ['conversation']
 };
-var color; //The colour scale, gets set in the simple line part and then used everywhere else
 var mykeys = ['social','story','transaction','listing'];
+var range = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c'];
 
+var nodetypes = ['commoner','story','listing'];
+var noderange = ['lightsteelblue','red','purple'];
+
+nodecolor = d3.scaleOrdinal()
+.domain(nodetypes)
+.range(noderange);
+color = d3.scaleOrdinal() // D3 Version 4
+		.domain(mykeys)
+		.range(range);
 var parseTime = d3.timeParse("%Y/%m/%d");
 var formatTime = d3.timeFormat("%Y/%m/%d");
 var formatDate = d3.timeFormat("%b-%y");
@@ -162,12 +165,13 @@ d3.json('data/userdata/usersmonthly/' + userid + '.json', function (results) {
 		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
 		node_data[fortnight].date = parseTime(node_data[fortnight].date);
 		graph_data[fortnight] = results[fortnight];
-        
+        //This is necessary for D3 to map source and target indices to their respective nodes 
+        plotminigraph(graph_data[fortnight]);
         maxindex++;
 	}
 	numticks = results.length;
 	plotminigraph(graph_data[0]);
-	plotcookie(node_data[0]);
+	plotcookie(graph_data[0],node_data[0]);
 	plotbunches(graph_data[0]);
 	plotdonut(node_data[0]);
     

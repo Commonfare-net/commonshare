@@ -177,7 +177,7 @@ def calculate(G,startdate,enddate):
             noncount +=1
         c["tags"] = []
     print 'commoners: ',commonercount,'. Non-commoners: ',noncount    
-    creation_edges = {}
+    #creation_edges = {}
           
     while(windowstart > startdate):
         mtagcounts = {}
@@ -215,14 +215,14 @@ def calculate(G,startdate,enddate):
                     if G.nodes[u]["type"] == "story":
                         included_objects.append(u)
                         if cf.create_story in G.nodes[u]:
-                            story_creator = str(G.nodes[u][cf.create_story][0][0])
-                            creation_edges[u] = (u,story_creator,G.edges[u,story_creator])                            
+                            #story_creator = str(G.nodes[u][cf.create_story][0][0])
+                            #creation_edges[u] = (u,story_creator,G.edges[u,story_creator])                            
                             G.nodes[v]['nodemeta'] = ['story']
                     elif G.nodes[v]["type"] == "story":
                         included_objects.append(v)     
                         if cf.create_story in G.nodes[v]:
-                            story_creator = str(G.nodes[v][cf.create_story][0][0])
-                            creation_edges[v] = (story_creator,v,G.edges[story_creator,v])
+                            #story_creator = str(G.nodes[v][cf.create_story][0][0])
+                            #creation_edges[v] = (story_creator,v,G.edges[story_creator,v])
                             G.nodes[u]['nodemeta'] = ['story']
                 
                 if datetime.strptime(intervals[0],"%Y/%m/%d") < windowend:

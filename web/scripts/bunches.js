@@ -4,39 +4,56 @@ function zoomBunch() {
 	var chartsWidth = (2 * center) * d3.event.transform.k;
 	d3.event.transform.x = center - chartsWidth / 2;
 	d3.event.transform.y = center - chartsWidth / 2;
-	bunchg.attr("transform", d3.event.transform)
+		bunchcircles.attr("transform", d3.event.transform)
 };
 var bunchzoom = d3.zoom()
 	.scaleExtent([0.5, 2])
 	.on("zoom", zoomBunch);
-var bunchchart;
-function plotbunches(mydata) {
-
 	bunchchart = d3.select("#bunches"),
-	bunchg = bunchchart.append("g");
-	bunchchart.call(bunchzoom);
+    labelsg = bunchchart.append("g").attr("class","bunchlabels");
+	bunchg = bunchchart.append("g").attr('class','bunchpack');
+    
+
+  
+
+function plotbunches(mydata) {
+        d3.select(".bunchpack").html("");
+
 	$("#bunches").bind("wheel mousewheel", function (e) {
 		e.preventDefault()
 	});
 
 	var width = 200,
-	height = 200,
-	color = d3.scaleOrdinal()
-		.domain(mykeys)
-		.range(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']);
+	height = 200;
 
+    var innerwidth = 180;
+    var innerheight = 180;
+    
 	var centroid = {
 		"source": "0",
 		"target": "0",
 		"edgemeta": ["story"],
 		"centroid": "true"
 	};
+    
+    bunchg.append("clipPath")       // define a clip path
+    .attr("id", "ellipse-clip") // give the clipPath an ID
+  .append("ellipse")          // shape it as an ellipse
+    .attr("cx", 100)         // position the x-centre
+    .attr("cy", 100)         // position the y-centre
+    .attr("rx", 80)         // set the x radius
+    .attr("ry", 80);         // set the y radius
+    
 	bunchnode = bunchg.append("g").attr("id", "bunchg").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
+    	bunchg.call(bunchzoom);
+
 	bunchnode = bunchnode.data(mydata.links.concat([centroid]), function (d) {
 			return d.source + '-' + d.target;
 		});
 	bunchnode = bunchnode
-		.enter().append("g");
+		.enter().append("g")
+                .attr("clip-path", "url(#ellipse-clip)")
+;
 
 	bunchcircles = bunchnode
 		.append("circle")
@@ -121,7 +138,109 @@ function plotbunches(mydata) {
 	// Update and restart the simulation.
 	//simulation.force("link").links(mydata.links);
 	//cluster.force("drag").links(mydata.links);
+      labelsg.append("path")
+    .attr("id", "bcirclepath") //Unique id of the path
+    .attr("d", "M 100,15 A 85,85 0 0,1 185,100") //SVG path
+    .style("fill", "none")
+    .style("stroke", "none");  
+  
 
+
+  labelsg.append("path")
+    .attr("id", "blistingpath") //Unique id of the path
+    .attr("d", "M 100,195 A 95,95 0 0,0 195,100") //SVG path
+    .style("fill", "none")
+    .style("stroke", "none");  
+  
+
+
+  labelsg.append("path")
+    .attr("id", "btransactionpath") //Unique id of the path
+    .attr("d", "M 15,100 A 85,85 0 0,1 100,15") //SVG path
+    .style("fill", "none")
+    .style("stroke", "none");  
+  
+
+    
+  labelsg.append("path")
+    .attr("id", "bsocialpath") //Unique id of the path
+    .attr("d", "M 0,100 A 95,95 0 0,0 100,195") //SVG path
+    .style("fill", "none")
+    .style("stroke", "none");  
+      var blabels = labelsg.append("text")
+      .attr("class","labeltext")
+      
+   .append("textPath") //append a textPath to the text element
+    .attr("xlink:href", "#bcirclepath") //place the ID of the path here
+    .style("text-anchor","middle") //place the text halfway on the arc
+    .attr("startOffset", "50%")
+    .text("stories")
+    .on("mouseover", function(d) {
+        d3.select(this).style("cursor", "pointer"); 
+        d3.select(this).style("fill", "#E7472E"); 
+      })    
+      .on("mouseout",function(d){
+         d3.select(this).style("fill",color("story"));          
+      })      
+    .style("fill",color("story"))
+    
+      var blistinglabels = labelsg.append("text")
+      .attr("class","labeltext")
+   .append("textPath") //append a textPath to the text element
+    .attr("xlink:href", "#blistingpath") //place the ID of the path here
+    .style("text-anchor","middle") //place the text halfway on the arc
+    .attr("startOffset", "50%")
+    .text("listings")
+    .on("mouseover", function(d) {
+        d3.select(this).style("cursor", "pointer");
+        d3.select(this).style("fill", "#E7472E"); 
+        
+      })   
+      .on("mouseout",function(d){
+         d3.select(this).style("fill",color("listing"));          
+      })      
+    .style("font-size","18px")
+    .style("fill",color("listing"))
+    .style("font-weight","bold"); 
+    
+    var btransactionlabels = labelsg.append("text")
+       .attr("class","labeltext")
+   
+   .append("textPath") //append a textPath to the text element
+    .attr("xlink:href", "#btransactionpath") //place the ID of the path here
+    .style("text-anchor","middle") //place the text halfway on the arc
+    .attr("startOffset", "50%")
+    .text("transactions")
+    .on("mouseover", function(d) {
+        d3.select(this).style("cursor", "pointer"); 
+        d3.select(this).style("fill", "#E7472E"); 
+      })
+         .on("mouseout",function(d){
+         d3.select(this).style("fill",color("transaction"));          
+      })   
+    .style("font-size","18px")
+    .style("fill",color("transaction"))
+    .style("font-weight","bold");     
+
+    var bsociallabels = labelsg.append("text")
+      .attr("class","labeltext")
+    
+   .append("textPath") //append a textPath to the text element
+    .attr("xlink:href", "#bsocialpath") //place the ID of the path here
+    .style("text-anchor","middle") //place the text halfway on the arc
+    .attr("startOffset", "50%")
+    .text("social")
+    .on("mouseover", function(d) {
+        d3.select(this).style("cursor", "pointer");
+        d3.select(this).style("fill", "#E7472E"); 
+        
+      })
+      .on("mouseout",function(d){
+         d3.select(this).style("fill",color("social"));          
+      })      
+    .style("font-size","18px")
+    .style("fill",color("social"))
+    .style("font-weight","bold"); 
 
 }
 // Move d to be adjacent to the cluster node.

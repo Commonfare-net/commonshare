@@ -29,45 +29,43 @@ minichart = chartdiv.append("g");
 var textnode;
 chartdiv.call(zoom);
 var central_core;
-var minisim = d3.forceSimulation()
-	.alphaDecay(0.05)
-	.force("charge", d3.forceManyBody().strength(function (d) {
-			return -300;
-		}))
-	.force("link", d3.forceLink().distance(60).iterations(10).id(function (d) {
-			return d.id;
-		})) //Need the function here to draw links between nodes based on their ID rather than their index
-	.force("x", d3.forceX().x(function (d) {
-			return 100;
-		}).strength(function (d) {
-			if (d.kcore == 0)
-				return 0.4;
-			return 0.1;
-		}))
-	.force("y", d3.forceY().y(function (d) {
-			return 100;
-		}).strength(function (d) {
-			if (d.kcore == 0)
-				return 0.4;
-			return 0.1;
-		}));
-var links = minichart.append("g").attr("stroke", "#000").selectAll(".link");
-var nodes = minichart.append("g").attr("id", "nodeg").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
-var minitextnode = minichart.append("text")
-	.attr("stroke", "white")
-	.attr("text-anchor", "middle")
-	.style("font-family", "'Dosis', sans-serif")
-	.attr("x", 100);
-function plotminigraph(mydata) {
 
+function plotminigraph(mydata) {
+	d3.select("#nodeg").remove();
+	d3.select("#linkg").remove();
+	var links = minichart.append("g").attr("id", "linkg").attr("stroke", "#000").selectAll(".link");
+	var nodes = minichart.append("g").attr("id", "nodeg").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
+	var minisim = d3.forceSimulation()
+		.alphaDecay(0.05)
+		.force("charge", d3.forceManyBody().strength(function (d) {
+				return -300;
+			}))
+            .force('collision', d3.forceCollide().radius(function(d) {
+    return d3.select("#circ"+d.id).attr("r");
+  }))
+		.force("link", d3.forceLink().distance(80).id(function (d) {
+				return d.id;
+			})) //Need the function here to draw links between nodes based on their ID rather than their index
+		.force("x", d3.forceX().x(function (d) {
+				return 100;
+			}).strength(function (d) {
+				if (d.kcore == 0)
+					return 0.4;
+				return 0.1;
+			}))
+		.force("y", d3.forceY().y(function (d) {
+				return 100;
+			}).strength(function (d) {
+				if (d.kcore == 0)
+					return 0.4;
+				return 0.1;
+			}));
 	$("#minigraph").bind("wheel mousewheel", function (e) {
 		e.preventDefault()
 	});
 
 	var width = 200,
-	height = 200,
-	color = d3.scaleOrdinal()
-		.range(["#7A99AC", "#E4002B"]);
+	height = 200;
 
 	nodes =
 		nodes.data(mydata.nodes, function (d) {
@@ -80,46 +78,78 @@ function plotminigraph(mydata) {
 			return d.id;
 		});
 
+	console.log(nodes);
 	nodes.exit().remove();
 
-	nodes = nodes.enter().append("circle").attr("class", "node")
+	nodes = nodes.enter().append("g").attr("class", "node")
+		.attr("transform", function (d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		})
 		.attr("id", function (d) {
+            console.log("PERSON DATA");
 			return "n" + d.id;
 		}) //Now each datum can be accessed as a DOM element
 		.attr("meta", function (d) {
 			return "n" + JSON.stringify(d.type);
-		})
-		.attr("r", function (d) {
-			return d.kcore * 2 + 5;
-		})
-		.attr("fill", function (d) {
-			if (d.id == userid)
-				return d3.color("white");
-			if (d.type == "commoner")
-				return d3.color("steelblue");
-			if (d.type == "listing")
-				return d3.color("purple");
-			if (d.type == "tag")
-				return d3.color("lightgreen");
-			return d3.color("red");
-		})
-		.on("mouseout", function (d) {
-			infotooltip.transition()
-			.duration(500)
-			.style("opacity", 0);
 		});
 
+	nodes.append('circle')
+	.attr("r", function (d) {
+        		if (d.id == userid)
+                    return 1;
+		return Math.max(d.kcore * 2 + 5,16);
+	})
+    .attr("id", function (d) {
+            console.log("PERSON DATA");
+			return "circ" + d.id;
+		}) 
+	.attr("fill", function (d) {
+		if (d.id == userid)
+			return "none";
+        return 'white';
+		if (d.type == "commoner")
+			return d3.color("steelblue");
+		if (d.type == "listing")
+			return d3.color("purple");
+		if (d.type == "tag")
+			return d3.color("lightgreen");
+		return d3.color("red");
+	})
+    .attr("stroke", function(d){
+     if (d.id == userid)
+			return "none";
+		if (d.type == "commoner")
+			return "#33a02c";
+		if (d.type == "listing")
+			return d3.color("purple");
+		if (d.type == "tag")
+			return d3.color("lightgreen");
+		return "#1f78b4";   
+    })
+    .attr("stroke-width","3")
+	.on("mouseout", function (d) {
+		infotooltip.transition()
+		.duration(500)
+		.style("opacity", 0);
+	});
+
 	links = links.data(mydata.links, function (d) {
+			if (d.source.id == undefined)
+				return d.source + "-" + d.target;
 			return d.source.id + "-" + d.target.id;
 		});
 	links.exit().remove();
-	links = links.enter().append("line")
+	links = links.enter().append("g");
+    
+    linklines = links.append("line")
 		.attr("class", "line")
 		.attr("id", function (d) {
+			if (d.source.id == undefined)
+				return d.source + "-" + d.target;
 			return d.source.id + "-" + d.target.id;
 		})
 		.attr("stroke-width", function (d) {
-			if (typeof d.edgeweight !== "undefined") {
+			/*if (typeof d.edgeweight !== "undefined") {
 				var sum = 0;
 				for (var key in d.edgeweight) {
 					if (d.edgeweight.hasOwnProperty(key)) {
@@ -127,13 +157,26 @@ function plotminigraph(mydata) {
 					}
 				};
 				return Math.sqrt(sum);
-			}
-			return 1.5;
+			}*/
+			return 3;
 		})
 		.attr("edgemeta", function (d) {
 			return d.id + JSON.stringify(d.edgemeta);
 		})
-		.style("stroke", "green");
+		.style("stroke", function(d){
+             var nodetouse;
+             if(d.source.id != undefined && d.source.id != userid)
+                 nodetouse = d.source.id;
+             else if(d.target.id != undefined && d.target.id != userid)
+                 nodetouse = d.target.id;
+             else if(d.source != userid)
+                 nodetouse = d.source;
+             else
+                 nodetouse = d.target;
+             console.log(nodetouse);
+             console.log(d3.select("#circ"+nodetouse).attr("r"));
+             return d3.select("#circ"+nodetouse).attr("stroke");
+        });
 	minisim.nodes(mydata.nodes).on("tick", ticked);
 	minisim.force("link").links(mydata.links);
 	minisim.alpha(1).restart();
@@ -154,20 +197,64 @@ function plotminigraph(mydata) {
 		var interaction_data = "";
 		//Find the relevant interactions between them
 		if (interacting_type == "commoner") { //Transactions and conversations
-			if ("conversation" in d)
-				interaction_data += "Had a conversation</br>";
-			if ("transaction" in d)
-				interaction_data += "Completed transactions</br>";
+            var numicons = 0;
+			if ("conversation" in d && d["conversation"].length > 0)
+                numicons++;
+ 			if ("transaction" in d && d["transaction"].length > 0)
+                numicons++;
+            
+			if ("conversation" in d && d["conversation"].length > 0)
+				d3.select("#n" + interacting_node)
+				.append("svg:image")
+                .attr('x',function(){return numicons == 2 ? -24 : -12}).attr('y',-15)
+				.attr('width', 25).attr('height', 30)
+				.attr('class','linkimage').attr("xlink:href", "icons/forceconversation.svg");
+			if ("transaction" in d && d["transaction"].length > 0)
+				d3.select("#n" + interacting_node)
+				.append("svg:image")
+				                .attr('x',function(){return numicons == 2 ? 0 : -12}).attr('y',-15)
+
+                .attr('width', 25).attr('height', 30)
+				.attr('class','linkimage').attr("xlink:href", "icons/forcetransaction.svg");
 		} else if (interacting_type == "story") { //Creations and comments
-			if ("create_story" in d)
-				interaction_data += "Wrote this story</br>";
-			if ("comment_story" in d)
-				interaction_data += "Left a comment</br>";
+                    var numicons = 0;
+			if ("create_story" in d && d["create_story"].length > 0)
+                numicons++;
+ 			if ("comment_story" in d && d["comment_story"].length > 0)
+                numicons++;
+			if ("create_story" in d && d["create_story"].length > 0)
+				d3.select("#n" + interacting_node)
+				.append("svg:image")
+                                .attr('x',function(){return numicons == 2 ? -24 : -12}).attr('y',-15)
+
+				.attr('width', 25).attr('height', 30)
+				.attr('class','linkimage').attr("xlink:href", "icons/forceauthorstory.svg");
+			if ("comment_story" in d && d["comment_story"].length > 0)
+				d3.select("#n" + interacting_node)
+				.append("svg:image")
+                                .attr('x',function(){return numicons == 2 ? 0 : -12}).attr('y',-15)
+
+				.attr('width', 20).attr('height', 23)
+				.attr('class','linkimage').attr("xlink:href", "icons/forcecommentstory.svg")
 		} else if (interacting_type == "listing") { //Creations and comments
-			if ("create_listing" in d)
-				interaction_data += "Created this listing</br>";
-			if ("comment_listing" in d)
-				interaction_data += "Left a comment</br>";
+                    var numicons = 0;
+			if ("create_listing" in d && d["create_listing"].length > 0)
+                numicons++;
+ 			if ("comment_listing" in d && d["comment_listing"].length > 0)
+                numicons++;
+			if ("create_listing" in d && d["create_listing"].length > 0)
+				d3.select("#n" + interacting_node)
+				.append("svg:image")
+                                .attr('x',function(){return numicons == 2 ? -24 : -12}).attr('y',-15)
+
+				.attr('width', 25).attr('height', 30)
+				.attr('class','linkimage').attr("xlink:href", "icons/forceauthorlisting.svg");
+			if ("comment_listing" in d && d["comment_listing"].length > 0)
+				d3.select("#n" + interacting_node)
+				.append("svg:image")                .attr('x',function(){return numicons == 2 ? 0 : -12}).attr('y',-15)
+
+				.attr('width', 20).attr('height', 23)
+				.attr('class','linkimage').attr("xlink:href", "icons/forcecommentlisting.svg")
 		}
 		d3.select("#n" + interacting_node)
 		.on("mouseover", function (d) {
@@ -177,22 +264,27 @@ function plotminigraph(mydata) {
 			var name;
 			if (d.type == "commoner") {
 				name = "<b>" + d.name + "</b>";
-				infotooltip.style("background", "lightsteelblue");
+				infotooltip.style("background", "lightgrey");
 			} else if (d.type == "story") {
 				name = "<b>" + d.title + "</b>";
 				infotooltip.style("background", "pink");
 			} else if (d.type == "listing") {
 				name = "<b>" + d.title + "</b>";
-				infotooltip.style("background", "lightpurple");
+				infotooltip.style("background", "mediumpurple");
 			}
 			infotooltip.html(name + "</br><div>" + interaction_data + "</div>")
 			.style("left", (d3.event.pageX) + "px")
 			.style("top", (d3.event.pageY - 28) + "px")
+		})
+        .on("mouseout", function (d) {
+			infotooltip.transition()
+			.duration(500)
+			.style("opacity", 0);
 		});
 
 	});
 	function ticked() {
-		links
+		linklines
 		.attr("x1", function (d) {
 			return d.source.x;
 		})
@@ -206,14 +298,24 @@ function plotminigraph(mydata) {
 			return d.target.y;
 		});
 
-		nodes
-		.attr("cx", function (d) {
-			return d.x;
+
+		nodes.attr("transform", function (d) {
+			return "translate(" + d.x + "," + d.y + ")";
+		});
+		/*		.attr("cx", function (d) {
+		return d.x;
 		})
 		.attr("cy", function (d) {
-			return d.y;
-		});
+		return d.y;
+		});*/
 	}
+	d3.select("#minitext").remove();
+	var minitextnode = minichart.append("text")
+		.attr("id", "minitext")
+		.attr("stroke", "white")
+		.attr("text-anchor", "middle")
+		.style("font-family", "'Dosis', sans-serif")
+		.attr("x", 100);
 
 	minitextnode.style("font-size", Math.max(50, central_core * 3 + 6))
 	.text(central_core);

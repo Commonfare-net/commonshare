@@ -52,12 +52,13 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     if edgetype == "comment":
        original_comment = edges.findall("*/[@label='"+label+"']")
        print 'found ',len(original_comment)
-       commoner = target
        if len(original_comment) == 1: #This happens when a comment is received on a story but somehow the 
         return None
+        
+       
        for edge in original_comment:
             if edge.attrib['id'] == edgeid:
-                print 'woo',targettype
+                commoner_commoner_edge = edge                    
             if edge.attrib['id'] != edgeid: #Then we've found the correct edge
                 targettype = nodes.find("*/[@id='" + edge.attrib['target'] +"']/*/*[@for='1']").attrib['value']
                 print targettype
@@ -65,8 +66,10 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
                     edgetype = edgetype+ "_listing"
                 elif targettype == "story":
                     edgetype = edgetype+ "_story"
-                print 'commoner is ',commoner,' and story/listing is ',edge.attrib['target']
-                break
+                object_target = edge.attrib['target']
+       #Here we replace the comment sender-comment receiver edge with a story-comment receiver edge
+       if sourcenode != targetnode:
+            commoner_commoner_edge.set('source',object_target)       
     return attrdict[edgetype]
 
 
@@ -99,7 +102,7 @@ for key in cf.interaction_keys:
     attrdict[key] = str(count)
     count +=1
 
-edgestodelete = []   
+edgestodelete = []
 for elem in edges:  
     label = elem.attrib['label']
     edgevals = label.split("+")    
@@ -113,8 +116,17 @@ for elem in edges:
         mindate = parseddate
     if maxdate < parseddate:
         maxdate = parseddate
+   
+ 
+    sourceid = elem.attrib['source']
+    targetid = elem.attrib['target']
+    
+        
+    edgetype = parseLabel(elem.attrib['id'],sourceid,targetid,label,actionstart,actionend)
+    
     edgeid = elem.attrib['source'] + '-' + elem.attrib['target']
     altedgeid = elem.attrib['target'] + '-' + elem.attrib['source']
+    #Somewhere around here I'll have to do the bit where I replace the commoner-commoner edge
     if edgeid not in existingedges and altedgeid not in existingedges:
         spells = elem.makeelement('spells',{})
         elem.append(spells)
@@ -128,9 +140,7 @@ for elem in edges:
     spell = spells.makeelement('spell',attrib)
     spells.append(spell)
     
-    sourceid = elem.attrib['source']
-    targetid = elem.attrib['target']
-    edgetype = parseLabel(elem.attrib['id'],sourceid,targetid,label,actionstart,actionend)
+
     
     if edgeid not in existingedges and altedgeid not in existingedges:
         attvalues = elem.makeelement('attvalues', {})
@@ -162,8 +172,10 @@ for elem in edges:
         edgestodelete.append(elem)
 
 for dupliedge in edgestodelete:
-    print 'removing edge ',dupliedge.attrib['id'],' from edges'
-    edges.remove(dupliedge) 
+   # print 'removing edge ',dupliedge.attrib['id'],' from edges'
+    if dupliedge in edges:
+        edges.remove(dupliedge) 
+
 root[0].set('start',datetime.strftime(mindate,"%Y/%m/%d"))
 root[0].set('end',datetime.strftime(maxdate,"%Y/%m/%d"))
 filename = os.path.splitext(filename)[0]
