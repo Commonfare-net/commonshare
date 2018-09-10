@@ -9,10 +9,12 @@
 <body>
 <div style="width: 100%; text-align:center;">
         <h5>Your Commonshare</h5>    
-    <!--Very simple circle-->
     <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
-        <div class="bigchart border" style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+        <div class="bigchart border" style="position:relative;border-radius: 50%;">
+            <svg id="minilabels" width="210" height="210" style="position:absolute;top:-5px;right:-5px" ></svg>
             <svg id="minigraph"  width="200" height="200"></svg>
+            <div id="minidescription" style="display: flex;justify-content: center; align-items: center;text-align: center;position:absolute;width:100%;margin: auto auto; height: 75%; top:0;left: 0;pointer-events:none;font-family:'Dosis';font-size:16px">
+            </div>
         </div>
         <div class="datepicker" style="line-height:100%">
             <i class="fa fa-arrow-left arrow" onclick="updateMiniGraph(-1)"></i>
@@ -20,9 +22,11 @@
             <i class="fa fa-arrow-right arrow" onclick="updateMiniGraph(1)"></i>
         </div>
     </div>
-    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
-        <div class="bigchart border"  style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+    <div style="text-align:center;display:inline-block;width:auto;position:relative;margin:0px 30px 5px 30px;">
+        <div class="bigchart border"  style="display:table;border-style: solid; border-color: #E7472E; border-width: 3px; border-radius: 50%; overflow: hidden">
             <svg id="cookie" width="200" height="200"></svg>
+            <div id="cookiedescription" style="display: flex;justify-content: center; align-items: center;text-align: center;position:absolute;width:100%;margin: auto auto; height: 75%; top:0;left: 0;pointer-events:none;font-family:'Dosis';font-size:16px">        
+            </div>
         </div> 
         <div class="datepicker" style="line-height:100%">
             <i class="fa fa-arrow-left arrow" onclick="updateCookie(-1)"></i>
@@ -30,9 +34,12 @@
             <i class="fa fa-arrow-right arrow" onclick="updateCookie(1)"></i>
         </div>
     </div>
-    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
-        <div class="bigchart border" id="bunchdiv" style="border-style: solid; border-color: #E7472E; border-width: 5px; border-radius: 50%; overflow: hidden">
+    <div style="text-align:center;display:inline-block;width:auto;position:relative;margin:0px 30px 5px 30px;">
+        <div class="bigchart border" id="bunchdiv" style="position:relative;border-radius: 50%;overflow: visible">
+            <svg id="bunchlabels" width="210" height="210" style="position:absolute;top:-5px;right:-5px" ></svg>
             <svg id="bunches" width="200" height="200"  ></svg>
+            <div id="bunchesdescription" style="display: flex;justify-content: center; align-items: center;text-align: center;position:absolute;width:100%;margin: auto auto; height: 75%; top:0;left: 0;pointer-events:none;font-family:'Dosis';font-size:16px">
+            </div>
         </div>  
         <div class="datepicker" style="line-height:100%">
             <i class="fa fa-arrow-left arrow" onclick="updateBunches(-1)"></i>
@@ -40,9 +47,11 @@
             <i class="fa fa-arrow-right arrow" onclick="updateBunches(1)"></i>
         </div>
     </div>
-    <div style="text-align:center;display:inline-block;width:auto;margin:0px 30px 5px 30px;">
-        <div class="bigchart border">
-            <svg id="donut" width="240" height="240" ></svg>
+    <div style="text-align:center;display:inline-block;width:auto;position:relative;margin:0px 30px 5px 30px;">
+        <div class="bigchart border" style="display:table">
+            <svg id="donut" width="240" height="240"></svg>
+            <div id="donutdescription" style="display: flex;justify-content: center; align-items: center;text-align: center;position:absolute;width:100%;margin: auto auto; height: 75%; top:0;left: 0;pointer-events:none;font-family:'Dosis';font-size:16px">
+            </div>
         </div>    
         <div class="datepicker" style="line-height:100%">
             <i class="arrow fa fa-arrow-left" onclick="updateDonut(-1)"></i>
@@ -51,6 +60,7 @@
         </div>   
     </div>
 </div>
+
 </body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -66,7 +76,7 @@ function updateDonut(value){
     else
         if(currentdonut == 0)return;
         else currentdonut --;
-    plotdonut(node_data[currentdonut]);
+    plotdonut(graph_data[currentdonut],node_data[currentdonut]);
     $('#donutdate').text(getDateText(node_data[currentdonut]));
 }
 function updateCookie(value){
@@ -114,8 +124,9 @@ var keytypes = {
 var mykeys = ['social','story','transaction','listing'];
 var range = ['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c'];
 
+var brightrange = [d3.rgb('#a6cee3').brighter(0.3),d3.rgb('#1f78b4').brighter(0.3),d3.rgb('#b2df8a').brighter(0.3),d3.rgb('#33a02c').brighter(0.3)];
 var nodetypes = ['commoner','story','listing'];
-var noderange = ['lightsteelblue','red','purple'];
+var noderange = ['#33a02c','#1f78b4','purple'];
 
 nodecolor = d3.scaleOrdinal()
 .domain(nodetypes)
@@ -123,6 +134,9 @@ nodecolor = d3.scaleOrdinal()
 color = d3.scaleOrdinal() // D3 Version 4
 		.domain(mykeys)
 		.range(range);
+brightercolor = d3.scaleOrdinal()
+        .domain(mykeys)
+        .range(brightrange);
 var parseTime = d3.timeParse("%Y/%m/%d");
 var formatTime = d3.timeFormat("%Y/%m/%d");
 var formatDate = d3.timeFormat("%b-%y");
@@ -135,21 +149,7 @@ var data = {};
 var node_data = {};
 var graph_data = {};
 var numticks = 0;
-function monthLetter(date) {
-	var str = formatDate(date);
-	return str.substr(0, 2);
-}
-//Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
-//var div = d3.select("body").append("div")
-//	.attr("class", "tooltip").style("width", "150px").style("height", "150px")
-//	.style("opacity", 0);
 
-var infotooltip = d3.select("body").append("div")
-	.attr("class", "tooltip")
-	.style("opacity", 0);
-var overtooltip = false;
-var overnode = false;
-    
 function findNode(node) {
 	return node['id'] == userid;
 }
@@ -166,15 +166,18 @@ d3.json('data/userdata/usersmonthly/' + userid + '.json', function (results) {
 		node_data[fortnight].date = parseTime(node_data[fortnight].date);
 		graph_data[fortnight] = results[fortnight];
         //This is necessary for D3 to map source and target indices to their respective nodes 
+        plotcookie(graph_data[fortnight],node_data[fortnight]);
+        plotdonut(graph_data[fortnight],node_data[fortnight]);
         plotminigraph(graph_data[fortnight]);
+        plotbunches(graph_data[fortnight]);
         maxindex++;
 	}
 	numticks = results.length;
 	plotminigraph(graph_data[0]);
 	plotcookie(graph_data[0],node_data[0]);
 	plotbunches(graph_data[0]);
-	plotdonut(node_data[0]);
-    
+	plotdonut(graph_data[0],node_data[0]);
+
     $('#donutdate').text(getDateText(node_data[currentdonut]));
     $('#minigraphdate').text(getDateText(node_data[currentmini]));
     $('#cookiedate').text(getDateText(node_data[currentcookie]));
@@ -187,6 +190,31 @@ function getDateText(data){
     return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
 }
 
+function getUrl(type, name){
+    var prefix;
+    if(type == 'commoner' || type == 'transaction' || type == 'social')
+        prefix = "https://commonfare.net/en/commoners/";
+    if(type == 'listing')
+        prefix = "https://commonfare.net/en/listings/";
+    if(type == 'story')
+        prefix = "https://commonfare.net/en/stories/";
+    
+    name = name.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+            name = name.replace(/[^a-z0-9/s _-]/gi, '').toLowerCase();
+
+        name = name.split(' ');
+        var result = '';
+        for (var i = 0; i < name.length; i++) {
+            if ((name.length - 1) == i) {
+                result += name[i];
+            } else {
+                result += name[i] + '-';
+            }
+        }
+        result = result.replace('---','-');
+        var storyurl = prefix + result;
+        return storyurl;
+}
 </script>
 <!--<script src="scripts/circles.js"></script>-->
 <script src="scripts/cookie.js"></script>

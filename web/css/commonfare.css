@@ -21,6 +21,12 @@
 .labeltext:hover{
    color: #E7472E;
 }
+.overlay{
+  background: rgba(255, 255, 255, 0.75);
+  color: black;
+  margin: 0;
+  padding: 4px 8px;
+}
 #list-group{
     max-height: 250px;
     margin-bottom: 10px;

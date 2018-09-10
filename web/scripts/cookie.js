@@ -1,10 +1,3 @@
-function zoomCookie() {
-	var center = getBoundingBoxCenterX(cookiechart); //rect is the charts parent which expands while zooming
-	var chartsWidth = (2 * center) * d3.event.transform.k;
-	d3.event.transform.x = center - chartsWidth / 2;
-	d3.event.transform.y = center - chartsWidth / 2;
-	cookieg.attr("transform", d3.event.transform)
-};
 
 var width = 200,
 height = 200;
@@ -13,6 +6,19 @@ var cookiechart = d3.select("#cookie").on("click", function () {
 		zoom(root);
 	}),
 cookieg = cookiechart.append("g");
+var defs = cookieg.append("defs");
+
+//Filter for the outside glow
+var filter = defs.append("filter")
+    .attr("id","glow");
+filter.append("feGaussianBlur")
+    .attr("stdDeviation","3.5")
+    .attr("result","coloredBlur");
+var feMerge = filter.append("feMerge");
+feMerge.append("feMergeNode")
+    .attr("in","coloredBlur");
+feMerge.append("feMergeNode")
+    .attr("in","SourceGraphic");
 var monthpack = cookieg.append("g").attr("class", "cookiepack")
 	.attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")")
 	.on("click", function () {
@@ -32,6 +38,7 @@ var labels = cookieg.append("text")
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
 	.text("stories")
+    .attr("id","cookiestorylabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
 		d3.select(this).style("fill", "#E7472E");
@@ -57,6 +64,7 @@ var listinglabels = cookieg.append("text")
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
 	.text("listings")
+    .attr("id","cookielistinglabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
 		d3.select(this).style("fill", "#E7472E");
@@ -83,6 +91,7 @@ var transactionlabels = cookieg.append("text")
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
 	.text("transactions")
+    .attr("id","cookietransactionlabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
 		d3.select(this).style("fill", "#E7472E");
@@ -109,6 +118,7 @@ var sociallabels = cookieg.append("text")
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
 	.text("social")
+    .attr("id","cookiesociallabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
 		d3.select(this).style("fill", "#E7472E");
@@ -124,19 +134,25 @@ var sociallabels = cookieg.append("text")
 cookietext = cookieg.append("text")
 	.attr("text-anchor", "middle")
 	.attr("stroke", "white")
-	.style("font-size", "70")
+	.style("font-size", "50")
 	.style("font-family", "'Dosis', sans-serif");
-var circles;
 var view, margin = 20;
 var labellist = [labels, sociallabels, transactionlabels, listinglabels];
+var newplot = false;
+	
 function plotcookie(graphdata, mydata) {
-
+    newplot = true;
 	d3.select(".cookiepack").html("");
 
 	$("#cookie").bind("wheel mousewheel", function (e) {
 		e.preventDefault()
 	});
 
+  //Have to do the manual mapping
+  graphdata.links.forEach(function(e) {
+    e.source = isNaN(e.source) ? e.source : graphdata.nodes.filter(function(d) {console.log(d.id + '-' + e.source); return d.id == e.source; })[0];
+    e.target = isNaN(e.target) ? e.target : graphdata.nodes.filter(function(d) { return d.id == e.target; })[0];
+  });
 	function children(d) {
 		return d.children;
 	}
@@ -148,14 +164,16 @@ function plotcookie(graphdata, mydata) {
 		var type_links = [];
 		for (var link in data.links) {
 			if (data.links[link].edgemeta.includes(key)) {
-
-				data.links[link]["children"] = [];
+                if(newplot || data.links[link]["children"] == undefined)
+                    data.links[link]["children"] = [];
 				for (var x in linktypes) {
 					if (linktypes[x]in data.links[link]) {
 						var array = data.links[link][linktypes[x]];
 						for (var y = 0; y < array.length; y++) {
-							data.links[link]["children"].push([linktypes[x]].concat(array[y]));
+                            var childtopush = [linktypes[x]].concat(array[y]);
+                                data.links[link]["children"].push(childtopush);
 						}
+                        data.links[link]["type"] = key;
 					}
 				}
 				type_links.push(data.links[link]);
@@ -168,13 +186,15 @@ function plotcookie(graphdata, mydata) {
 	var cumu_array = d3.keys(cumu_totals).map(function (key) {
 			return {
 				"id": mydata.id,
-				"name": key,
+				"type": key,
 				"children": links_of_type(graphdata, key),
 				"total": cumu_totals[key],
 				"kcore": mydata.kcore,
 				"stats": mydata.stats
 			};
 		});
+        newplot = false;
+        
 	// cumu_array.push({"name":"commonshare","total":1,"kcore":mydata.kcore});
 	var keys = Object.keys(cumu_totals);
 	cumu_totals["overall"] = Object.values(cumu_totals).reduce(summer, 0);
@@ -197,17 +217,28 @@ function plotcookie(graphdata, mydata) {
 		.padding(function(d){return 5;});
 	root = d3.hierarchy(cumu_totals, children);
 	var focus = root;
-	console.log("ROOOOOT");
-	console.log(root);
 	circles = monthpack.selectAll('.cookiecircle').data(circlepack(root
+                .each(function(d){
+                    if(d.children == undefined){
+                        var parentnode = d.parent.parent;
+                        if(parentnode != null && keytypes[parentnode.data.type].includes(d.data[0]) == false){
+                           var parentchild = d.parent.children;
+                           var index = parentchild.indexOf(d);
+                           parentchild[index] = {"value" : 0};
+                        }
+                    }
+                })
 				//Will need to figure out another way of resizing things
 				.sum(function (e) {
-					if (e.name == "date" || e.name == "stats")
+                    if(e == undefined)
+                    return 0;
+					if (e.type == "date" || e.type == "stats")
 						return 0;
 					if (e.total != null)
 						return e.total;
                     if (e.children)
-                        return 1
+                        return 1;
+                                        
                     return 0.5;
 				})
 				.sort(function (a, b) {
@@ -218,84 +249,116 @@ function plotcookie(graphdata, mydata) {
 		var interaction_data = "";
 
 	circles.append("circle")
-	.attr("class", "cookiecircle")
+    .style("pointer-events",function(d){
+      if(d.children == undefined)
+            return "none";
+      return "auto";
+    })
+	.attr("class", function(d){
+        if(d.parent == root || d.parent == null){
+            console.log(d);
+            return "cookiecircle parental";
+        }
+       
+        if(d.children == null)
+            return "cookiecircle cookiechild cookie" + d.parent.data.type;
+        else
+            return "cookiecircle cookiechild cookie" + d.data.type;
+            
+    })
 	.on("click", function (d) {
+        if(d.children != undefined && d.parent != root && d.parent != undefined){
+            var nodename = d.data.name;
+            if(d.data.type == 'commoner')
+                nodename = d.label.split('_')[1];
+            var url = getUrl(d.data.type,nodename);
+            var win = window.open(url, '_blank');
+            return;
+        }
 		if (focus !== d)
 			zoom(d), d3.event.stopPropagation();
 	})
-    
+    .style("visibility",function(d){
+      if(d.parent == root || d.parent == undefined)
+            return "visible";
+        return  "hidden";
+    })
 	.style("fill", function (d) {
-        if (d.children == null)
-            return "white";
 		if (d.children != null && d.parent != null)
-			return color(d.data.name);
-		if (d.parent != null)
-			return color(d.parent.data.name);
-		return "none";
+			return color(d.data.type);
+		return "white";
 	})
 	.style("opacity", function (d) {
 		return d.children ? 0.7 : 1;
 	})
 	.on("mouseover", function (d) {
-		d3.select(this).style("cursor", "pointer");
-
+		
 		var name;
-        console.log(d.data.target);
         var datasource;
-        if(d.data.target == undefined && d.parent.data.target == undefined)
-            return null;
-		if (d.data.target == undefined)
+        if(d.parent == undefined)
+            return;
+        if(d.data.target == undefined && d.parent == root)
+            datasource = d.data;
+		else if (d.data.target == undefined)
            datasource = d.parent.data;
         else
             datasource = d.data;
-        infotooltip.transition()
-		.duration(200)
-		.style("opacity", .9);
+        d3.select(this).style("cursor", "pointer");
+        console.log(datasource);
+        labelToHighlight = "#cookie"+datasource.type + "label";
+       
+            d3.select(this).style("cursor", "pointer");
+            oldLabelColour = d3.select(labelToHighlight).style("fill");
+            d3.select(labelToHighlight).style("fill", "#E7472E");
+            
+                     d3.select(this).style("filter","url(#glow)");
         var target;
+        if(datasource.target == undefined)return;
         if(datasource.target.id == userid)
             target = datasource.source;
         else
             target = datasource.target;
-		if (target.type == 'commoner') {
-			name = "<b>" + target.name + "</b>";
-			infotooltip.style("background", "lightgrey");
-		} else if (target.type == "story") {
-			name = "<b>" + target.title + "</b>";
-			infotooltip.style("background", "pink");
-		} else if (target.type == "listing") {
-			name = "<b>" + target.title + "</b>";
-			infotooltip.style("background", "mediumpurple");
-		}
-		infotooltip.html(name + "</br><div>" + interaction_data + "</div>")
-		.style("left", (d3.event.pageX) + "px")
-		.style("top", (d3.event.pageY - 28) + "px")
+		if (target.type == 'commoner')
+			name = target.name;
+		 else
+			name = target.title;
+        $("#cookiedescription").html("<h5 class='overlay'>"+name+"</h5>");
+
 	})
 	.on("mouseout", function (d) {
-		infotooltip.transition()
-		.duration(500)
-		.style("opacity", 0);
-	});
-
+	    $("#cookiedescription").html("");
+            d3.select(this).style("filter","")
+            d3.select(labelToHighlight).style("fill",oldLabelColour);
+    })
+    ;
+    var labelToHighlight;
+    var oldLabelColour;
     cookieimages = circles.append("svg:image")
 				.attr('x', function(d){return -d.r})
 				.attr('y', function(d){return -d.r})
+                .attr("class",function(d){if(d.data == undefined)return "cookieimage"; return "cookieimage cookiechild cookie"+d.data.name;})
 				.attr('width', function(d){return d.children ? 0 : d.r*2})
 				.attr('height', function(d){return d.children ? 0 : d.r*2})
 				.attr("xlink:href", function(d){
+                    if(d.data == undefined)
+                        return "";
                     if(d.data[0] == 'create_story')
-                        return "icons/authorstory.svg";
+                        return "icons/authorstory.png";
                     if(d.data[0] == 'create_listing')
-                        return "icons/authorlisting.svg";
+                        return "icons/authorlisting.png";
                     if(d.data[0] == 'comment_story')
-                        return "icons/commentstory.svg";
+                        return "icons/commentstory.png";
                     if(d.data[0] == 'comment_listing')
-                        return "icons/commentlisting.svg";
+                        return "icons/commentlisting.png";
                     if(d.data[0] == 'transaction')
-                        return "icons/transaction.svg";
+                        return "icons/transaction.png";
                     if(d.data[0] == 'conversation')
-                        return "icons/conversation.svg";                    
+                        return "icons/conversation.png";                    
                 })
+                .style("visibility","hidden")
                 .style("pointer-events","none");
+                	zoomTo([root.x, root.y, root.r * 2 + margin]);
+
 	cookietext.text(size)
 	.attr("x", function () {
 		return width / 2;
@@ -307,17 +370,34 @@ function plotcookie(graphdata, mydata) {
 	.transition().duration(400)
     .style("pointer-events","none")
 	.style("opacity", "1");
-	zoomTo([root.x, root.y, root.r * 2 + margin]);
+    zoom(root);
 
 }
 function zoom(d) {
 	var focus0 = focus;
 	focus = d;
-    if(d == root)
-        cookietext.style("display","inline-block");
-    else
+    console.log(d);
+    if(d == root){
+        
+        d3.selectAll(".cookiechild").style("visibility","hidden");
+        cookietext.style("display","inline-block")
+        	.attr("x", function () {
+		return width / 2;
+	})
+    .attr("y", function () {
+		return height / 2 + (cookietext.node().getBoundingClientRect().height / 4);
+	});
+       // cookieimages.style("visibility","hidden");
+    }
+    else{
+        d3.selectAll(".cookie"+d.data.type).style("visibility","visible");
+        cookieimages.style("visibility","visible")
+                        //.style("filter","url(#glow)")
+
+        ;
         cookietext.style("display","none");
-	var transition = d3.transition()
+	}
+    var transition = d3.transition()
 		.duration(750)
 		.tween("zoom", function (d) {
 			var i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2 + margin]);
