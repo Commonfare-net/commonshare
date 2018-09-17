@@ -29,14 +29,14 @@ def get_users(need_two_users):
         return random.sample(cf.colluding_nodes,2)
       else:
           users = random.sample(G.nodes(),2)
-          if type[users[0]] == 'commoner' and type[users[1]] == 'commoner' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes:
-            if cf.SHOULD_CLIQUE == True: #Nodes should only talk if they have similar tags
-                user1tags = tags[users[0]].split(',')
-                user2tags = tags[users[1]].split(',')
-                if len([val for val in user1tags if val in user2tags]) > 0:
-                    break
-            else:
-                break
+          if type[users[0]] == 'commoner' and type[users[1]] == 'commoner' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes and users[0] != cf.SPAMMERID:
+            #if cf.SHOULD_CLIQUE == True: #Nodes should only talk if they have similar tags
+            #    user1tags = tags[users[0]].split(',')
+            #    user2tags = tags[users[1]].split(',')
+            #    if len([val for val in user1tags if val in user2tags]) > 0:
+            #        break
+            #else:
+            break
     else:
       users = random.sample(G.nodes(),1)
       if type[users[0]] == 'commoner':
@@ -116,18 +116,18 @@ def object_interact(objtype,interaction):
             G[source][object][x] = []
         G[source][object]['spells'] = []
       #Is this the first time source user has interacted with the target user?
-      if G.has_edge(source,target) == False:
-        G.add_edge(source,target)
+      if G.has_edge(object,target) == False:
+        G.add_edge(object,target)
         for x in actions_dict:
-            G[source][target][x] = []
-        G[source][target]['spells'] = []
+            G[object][target][x] = []
+        G[object][target]['spells'] = []
     #add the spells
         
-      G[source][target]['spells'].append((s_today,s_fortnight))
+      G[object][target]['spells'].append((s_today,s_fortnight))
       G[source][object]['spells'].append((s_today,s_fortnight))
       
       update(source,object,interaction)
-      update(source,target,interaction)
+      update(object,target,interaction)
       return
     
 def update(source,target,interaction):
@@ -168,7 +168,7 @@ def add_user():
 
 #TODO: Figure out how user's 'accepting' another user's forum post answer might work
 def do_random_thing():
-  num = random.randint(1,9)
+  num = random.randint(1,10)
   if num == 1:
     create_object(get_users(False)[0],'story')
   elif num == 2:
@@ -181,7 +181,11 @@ def do_random_thing():
     user_interact('conversation')
   elif num == 9:
     user_interact('transaction')
-
+  else:
+    num = random.randint(1,3)
+    if num == 1:
+        create_object(cf.SPAMMERID,'story')
+    
 cur_date = datetime.datetime(2016,6,1)
 start_date = cur_date
 G=nx.Graph()

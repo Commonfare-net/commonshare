@@ -138,5 +138,15 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 nodes[bin_start],nodes[pos]=nodes[pos],nodes[bin_start]
                 bin_boundaries[core[u]]+=1
                 core[u]-=1
+    #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
+
+    if len(core.values()) > 0:
+        mincore = min(core.values())
+        maxcore = max(core.values())
+        if maxcore == mincore:
+            maxcore = maxcore+1
+        for k,v in core.items():
+            core[k] = int(math.ceil((float(v-mincore)/(maxcore-mincore))*9))+1
+    print 'and now'
     return (G,core)
  

@@ -152,6 +152,7 @@ function plotcookie(graphdata, mydata) {
   graphdata.links.forEach(function(e) {
     e.source = isNaN(e.source) ? e.source : graphdata.nodes.filter(function(d) {console.log(d.id + '-' + e.source); return d.id == e.source; })[0];
     e.target = isNaN(e.target) ? e.target : graphdata.nodes.filter(function(d) { return d.id == e.target; })[0];
+    e["children"] = [];
   });
 	function children(d) {
 		return d.children;
@@ -163,24 +164,23 @@ function plotcookie(graphdata, mydata) {
 		var linktypes = keytypes[key];
 		var type_links = [];
 		for (var link in data.links) {
-			if (data.links[link].edgemeta.includes(key)) {
-                if(newplot || data.links[link]["children"] == undefined)
-                    data.links[link]["children"] = [];
-				for (var x in linktypes) {
-					if (linktypes[x]in data.links[link]) {
-						var array = data.links[link][linktypes[x]];
-						for (var y = 0; y < array.length; y++) {
-                            var childtopush = [linktypes[x]].concat(array[y]);
-                                data.links[link]["children"].push(childtopush);
-						}
-                        data.links[link]["type"] = key;
-					}
-				}
-				type_links.push(data.links[link]);
-			}
+            if(data.links[link].source.id == userid || data.links[link].target.id == userid)
+                if ("edgemeta" in data.links[link] && data.links[link].edgemeta.includes(key)) {
+                    for (var x in linktypes) {
+                        if (linktypes[x]in data.links[link]) {
+                            var array = data.links[link][linktypes[x]];
+                            for (var y = 0; y < array.length; y++) {
+                                var childtopush = [linktypes[x]].concat(array[y]);
+                                    data.links[link]["children"].push(childtopush);
+                            }
+                        }
+                    }
+                    type_links.push(data.links[link]);
+                }
 		}
 		return type_links;
 	}
+        
 
 	var cumu_totals = JSON.parse(JSON.stringify(mydata.cumu_totals));
 	var cumu_array = d3.keys(cumu_totals).map(function (key) {
@@ -193,7 +193,6 @@ function plotcookie(graphdata, mydata) {
 				"stats": mydata.stats
 			};
 		});
-        newplot = false;
         
 	// cumu_array.push({"name":"commonshare","total":1,"kcore":mydata.kcore});
 	var keys = Object.keys(cumu_totals);
@@ -207,8 +206,10 @@ function plotcookie(graphdata, mydata) {
 
 	var monthname = d3.timeFormat("%b");
 	var circlepack;
-	//This is silly but because the pack layout size can't be updated dynamically, we have to make one for every circle we're using
+
 	var size = cumu_totals["children"][0].kcore;
+    console.log("WOOAH");
+    console.log(cumu_totals);
 	//var scaledsize = size*9 + 30;
 	//Here I'll try to make the size consistent
 	var scaledsize = Math.max(size * 9 + 30, 150);
@@ -230,14 +231,15 @@ function plotcookie(graphdata, mydata) {
                 })
 				//Will need to figure out another way of resizing things
 				.sum(function (e) {
+                    console.log(e);
                     if(e == undefined)
                     return 0;
 					if (e.type == "date" || e.type == "stats")
 						return 0;
+                    
 					if (e.total != null)
 						return e.total;
-                    if (e.children)
-                        return 1;
+                    
                                         
                     return 0.5;
 				})
@@ -285,7 +287,10 @@ function plotcookie(graphdata, mydata) {
     })
 	.style("fill", function (d) {
 		if (d.children != null && d.parent != null)
-			return color(d.data.type);
+			if(d.data.type != null)
+                return color(d.data.type);
+            else
+                return color(d.parent.data.type);
 		return "white";
 	})
 	.style("opacity", function (d) {
@@ -305,8 +310,11 @@ function plotcookie(graphdata, mydata) {
             datasource = d.data;
         d3.select(this).style("cursor", "pointer");
         console.log(datasource);
-        labelToHighlight = "#cookie"+datasource.type + "label";
-       
+        if(datasource.type == undefined)
+            labelToHighlight = "#cookie"+d.parent.data.type + "label";
+        else
+            labelToHighlight = "#cookie"+datasource.type + "label";
+            
             d3.select(this).style("cursor", "pointer");
             oldLabelColour = d3.select(labelToHighlight).style("fill");
             d3.select(labelToHighlight).style("fill", "#E7472E");
@@ -390,7 +398,7 @@ function zoom(d) {
        // cookieimages.style("visibility","hidden");
     }
     else{
-        d3.selectAll(".cookie"+d.data.type).style("visibility","visible");
+        d3.selectAll(".cookiechild").style("visibility","visible");
         cookieimages.style("visibility","visible")
                         //.style("filter","url(#glow)")
 

@@ -112,8 +112,6 @@ function updateMiniGraph(value){
     $('#minigraphdate').text(getDateText(node_data[currentmini]));
     
 }
-var datafilecounter = 1;
-var drawn = {};
 
 var keytypes = {
     "story": ['create_story','comment_story'],
@@ -138,9 +136,6 @@ brightercolor = d3.scaleOrdinal()
         .domain(mykeys)
         .range(brightrange);
 var parseTime = d3.timeParse("%Y/%m/%d");
-var formatTime = d3.timeFormat("%Y/%m/%d");
-var formatDate = d3.timeFormat("%b-%y");
-var anotherFormat = d3.timeFormat("%b'%y");
 var tooltipFormat = d3.timeFormat("%b %d");
 var urlParams = new URLSearchParams(window.location.search);
 var userid = urlParams.get('userid'); // "edit"
@@ -216,7 +211,6 @@ function getUrl(type, name){
         return storyurl;
 }
 </script>
-<!--<script src="scripts/circles.js"></script>-->
 <script src="scripts/cookie.js"></script>
 <script src="scripts/bunches.js"></script>
 <script src="scripts/donut.js"></script>
