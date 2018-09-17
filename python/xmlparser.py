@@ -69,7 +69,9 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
                 object_target = edge.attrib['target']
        #Here we replace the comment sender-comment receiver edge with a story-comment receiver edge
        if sourcenode != targetnode:
-            commoner_commoner_edge.set('source',object_target)       
+            commoner_commoner_edge.set('source',object_target)  
+       else:
+            print 'source and target are both ',source
     return attrdict[edgetype]
 
 
@@ -121,6 +123,9 @@ for elem in edges:
     sourceid = elem.attrib['source']
     targetid = elem.attrib['target']
     
+    if sourceid == targetid:
+        edgestodelete.append(elem)
+        continue
         
     edgetype = parseLabel(elem.attrib['id'],sourceid,targetid,label,actionstart,actionend)
     

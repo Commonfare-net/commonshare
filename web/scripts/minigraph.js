@@ -85,7 +85,7 @@ function plotminigraph(mydata) {
 	height = 200;
 
 	nodes =
-		nodes.data(mydata.nodes, function (d) {
+		nodes.data(mydata.nodes.filter(function(d){console.log(d);return d.type != "tag";}), function (d) {
 			if (d.id == userid) {
 				d.fx = width / 2;
 				d.fy = height / 2;
@@ -147,7 +147,7 @@ function plotminigraph(mydata) {
 		.style("opacity", 0);
 	});
 
-	links = links.data(mydata.links, function (d) {
+    links = links.data(mydata.links.filter(function(d){console.log(d);return "edgemeta" in d;}), function (d) {
 			if (d.source.id == undefined)
 				return d.source + "-" + d.target;
 			return d.source.id + "-" + d.target.id;
@@ -178,8 +178,8 @@ function plotminigraph(mydata) {
 				nodetouse = d.target;
 			return d3.select("#circ" + nodetouse).attr("stroke");
 		});
-	minisim.nodes(mydata.nodes).on("tick", ticked);
-	minisim.force("link").links(mydata.links);
+	minisim.nodes(mydata.nodes.filter(function(d){console.log(d);return d.type != "tag";})).on("tick", ticked);
+	minisim.force("link").links(mydata.links.filter(function(d){console.log(d);return "edgemeta" in d;}));
 	minisim.alpha(1).restart();
 
 	links.each(function (d) {

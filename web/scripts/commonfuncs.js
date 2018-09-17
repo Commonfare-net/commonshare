@@ -4,8 +4,8 @@ var node_data = {};
 var graph_data = {};
 
 var keytypes = {
-    "story": ['create_story','comment_story'],
-    "listing": ['create_listing','comment_listing'],
+    "story": ['create_story','comment_story','rcomment_story'],
+    "listing": ['create_listing','comment_listing','rcomment_listing'],
     "transaction": ['transaction'],
     "social": ['conversation']
 };

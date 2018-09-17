@@ -48,7 +48,7 @@ function plotbunches(mydata) {
 	bunchchart.call(bunchzoom);
 	bunchlinks = bunchg.append("g").attr("id", "bunchlinks").selectAll(".link");
 
-	bunchnode = bunchnode.data(mydata.nodes, function (d) {
+	bunchnode = bunchnode.data(mydata.nodes.filter(function(d){console.log(d);return d.type != "tag";}), function (d) {
 			return d.id;
 		});
 	bunchnode.exit().remove();
@@ -115,7 +115,7 @@ function plotbunches(mydata) {
 		.attr("r", function (d) {
 			if (d.id == userid)
 				return Math.max(d.kcore * 5, 20);
-			return Math.max(d.kcore * 4, 15);
+			return Math.max(d.kcore * 2, 15);
 		})
 		.attr("fill", function (d) {
 			if (d.id == userid)
@@ -134,7 +134,7 @@ function plotbunches(mydata) {
 		.attr("stroke-width", "3")
         
 
-	bunchlinks = bunchlinks.data(mydata.links, function (d) {
+	bunchlinks = bunchlinks.data(mydata.links.filter(function(d){console.log(d);return "edgemeta" in d;}), function (d) {
 			if (d.source.id == undefined)
 				return d.source + "-" + d.target;
 			return d.source.id + "-" + d.target.id;
@@ -257,11 +257,11 @@ function plotbunches(mydata) {
 		.alphaDecay(0.05)
 		.velocityDecay(0.2)
 
-		.nodes(mydata.nodes)
+		.nodes(mydata.nodes.filter(function(d){console.log(d);return d.type != "tag";}))
 		.force("collide", d3.forceCollide().radius(function (d) {
 				if (d.id == userid)
 					return Math.max(d.kcore * 5, 22);
-				return Math.max(d.kcore * 4, 15);
+				return Math.max(d.kcore * 2, 15);
 			}).iterations(2))
 		//Need the function here to draw links between nodes based on their ID rather than their index
 		.force("x", d3.forceX().x(width / 2).strength(function (d) {
