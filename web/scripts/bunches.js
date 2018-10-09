@@ -106,7 +106,7 @@ function plotbunches(mydata) {
             if(d.type == 'commoner')
                 nodename = d.label.split('_')[1];
             var url = getUrl(d.type,nodename);
-            var win = window.open(url, '_blank');
+        //    var win = window.open(url, '_blank');
         })
 			var nodename;
 
@@ -165,7 +165,7 @@ function plotbunches(mydata) {
 	textnode = bunchg.append("text")
 		.attr("stroke", "white")
 		.attr("text-anchor", "middle")
-		.style("font-size", "48")
+		.style("font-size", "48px")
 		.style("font-family", "'Dosis', sans-serif")
 		.text(mydata.nodes.find(findNode).kcore)
 		.style("pointer-events", "none");

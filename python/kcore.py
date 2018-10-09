@@ -14,6 +14,25 @@ This module does the necessary k-core calculations and appends the results to ea
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
 '''
 
+loopcount = 0
+m_data_dict = {}
+c_data_dict = {}
+object_data_dict = {}
+if len(sys.argv) < 2:
+    print 'Missing filename'
+    sys.exit()
+filename = sys.argv[1]
+
+G_read = nx.read_gexf(filename)
+ET.register_namespace("", "http://www.gexf.net/1.2draft") 
+tree = ET.parse(filename)  
+root = tree.getroot()
+startdate = root[0].attrib['start']
+enddate = root[0].attrib['end']
+
+#Pass the start and end times of the file in
+calculate(G_read,datetime.strptime(startdate,"%Y/%m/%d"),datetime.strptime(enddate,"%Y/%m/%d"))
+
 def getNodeStats(G,node_id):
     edges = G.edges(node_id,data=True)
     
@@ -55,37 +74,82 @@ def getNodeStats(G,node_id):
                         stats[meta][action_key].append(action)                    
 
     return stats
+#https://stackoverflow.com/questions/22742754/finding-the-n-degree-neighborhood-of-a-node
+def neighbourPaths(G, node):
+    path_lengths = nx.shortest_path_length(G, node)
+    all_paths = {}
+    #return [(neighbour,distance) for neighbour,distance in path_lengths.iteritems() if distance <= n]
+    for neighbour, length in path_lengths.iteritems():
+        if length ==2:
+            all_paths[neighbour] = [p[1] for p in nx.all_shortest_paths(G,node,neighbour)]
+        elif length == 1:
+            all_paths[neighbour] = []
+    return all_paths
 
-def addStats(G,D,data_dict):
+def addStats(G,D,PR,data_dict):
+    global loopcount
+    global m_data_dict
+    global c_data_dict
+    global object_data_dict
     nodeiter = G.nodes(data=True)
     #This adds the kcore value back into the GEXF
     
 
-    for (n,c) in nodeiter:
+    for (n,c) in nodeiter:    
         if n not in D or D[n] == 0:
             NewG = nx.Graph()
             G.nodes[n]['kcore'] = 0
+            G.nodes[n]['pagerank'] = 0
             G.nodes[n]['stats'] = {}
-            
             NewG.add_node(n,**c)        
             #Here we append a blank fortnight for this commoner 
             if c['type'] == 'commoner':
                 mdata = json_graph.node_link_data(NewG)
                 data_dict[n].append(mdata)
         else:
-            #print c
-            edges = G.edges(n,data=True)
+        
+            #If this is the all-time cumulative graph, for each user include all the nodes and surrounding edges
+            if loopcount == 0 and data_dict != m_data_dict:
+                #TWO DEGREES OF SEPARATION
+                neighbours_and_inbetweens = neighbourPaths(G,n)
+
+                surrounding_nodes = neighbours_and_inbetweens.keys()
+                edges = G.edges(surrounding_nodes,data=True)
+            else:
+                edges = G.edges(n,data=True)
+                surrounding_nodes = G.neighbors(n)
+              
             NewG = nx.Graph()
             NewG.add_node(n,**c)
             NewG.nodes[n]['kcore'] = D[n]
+            NewG.nodes[n]['pagerank'] = PR[n]
             NewG.nodes[n]['cumu_totals'] = {k:(v*D[n]) for k,v in c['cumu_totals'].items()}
             NewG.nodes[n]['avg_totals'] = {k:(v*D[n]) for k,v in c['avg_totals'].items()}
             NewG.nodes[n]['stats'] = getNodeStats(G,n)
             NewG.add_edges_from(edges)
-            for node in G.neighbors(n):
-                G.nodes[node]['kcore'] = D[node]
-                G.nodes[node]['stats'] = getNodeStats(G,node)
-                NewG.add_node(node,**G.nodes[node])
+            if loopcount == 0 and data_dict != m_data_dict:
+                for node,inbetweens in neighbours_and_inbetweens.iteritems():
+                    G.nodes[node]['kcore'] = D[node]
+                    G.nodes[n]['pagerank'] = PR[n]
+                    #Don't bother with the stats as it'll just start clogging things up
+                    #G.nodes[node]['stats'] = getNodeStats(G,node)
+                    G.nodes[node]['inbetweens'] = inbetweens
+                    closeness = 0
+                    for inbetweener in inbetweens:
+                        if G.nodes[inbetweener]['type'] == 'commoner':
+                            closeness = closeness + 3
+                        elif G.nodes[inbetweener]['type'] == 'story':
+                            closeness = closeness + 2
+                        else:
+                            closeness = closeness + 2
+                    G.nodes[node]['closeness'] = closeness
+                    NewG.add_node(node,**G.nodes[node])
+            else:
+                for node in surrounding_nodes:
+                    G.nodes[node]['kcore'] = D[node]
+                    G.nodes[node]['pagerank'] = PR[node]
+                    G.nodes[node]['stats'] = getNodeStats(G,node)
+                    NewG.add_node(node,**G.nodes[node])
             all_edges = G.edges(NewG.nodes,data=True)
             for (u,v,x) in all_edges:
                 if u in NewG.nodes and v in NewG.nodes:
@@ -94,6 +158,9 @@ def addStats(G,D,data_dict):
             if c['type'] == 'commoner':
                 mdata = json_graph.node_link_data(NewG)
                 data_dict[n].append(mdata)
+            elif loopcount == 0 and data_dict != m_data_dict:
+                mdata = json_graph.node_link_data(NewG)
+                object_data_dict[n].append(mdata)
     
     return (G,data_dict)
 
@@ -142,15 +209,16 @@ def filternodes(G,start,end):
         
     return G
     
+
+    
 def calculate(G,startdate,enddate):     
+    global loopcount
+    global m_data_dict
+    global c_data_dict
+    global object_data_dict
+    
     windowend = enddate
     windowstart = windowend+ relativedelta(weeks=-2)
-
-    loopcount = 0
-    
-    
-    m_data_dict = {}
-    c_data_dict = {}
     nodeiter = G.nodes(data=True)   
     commonercount = 0
     noncount = 0
@@ -160,6 +228,7 @@ def calculate(G,startdate,enddate):
             c_data_dict[n] = []
             commonercount +=1
         else:
+            object_data_dict[n] = []
             noncount +=1
         c["tags"] = []
     print 'commoners: ',commonercount,'. Non-commoners: ',noncount    
@@ -194,7 +263,6 @@ def calculate(G,startdate,enddate):
         for (u,v,c) in iter:
             monthedgeexists = False
             cumuedgeexists = False
-            
             for intervals in c['spells']:
 
                 if (windowstart <= datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
@@ -215,6 +283,8 @@ def calculate(G,startdate,enddate):
             elif G.nodes[u]["type"] == "tag" or G.nodes[v]["type"] == "tag":
                 mtagedges.append((u,v,c))
                 tagname = G.nodes[u]["name"] if G.nodes[u]["type"] == "tag" else G.nodes[v]["name"]
+                monthCopy.nodes[u]["tags"].append(tagname)
+                monthCopy.nodes[v]["tags"].append(tagname)
                 if tagname not in mtagcounts:
                     mtagcounts[tagname] = 0
                 mtagcounts[tagname] +=1
@@ -224,6 +294,8 @@ def calculate(G,startdate,enddate):
             elif G.nodes[u]["type"] == "tag" or G.nodes[v]["type"] == "tag":
                 ctagedges.append((u,v,c))
                 tagname = G.nodes[u]["name"] if G.nodes[u]["type"] == "tag" else G.nodes[v]["name"]
+                cumuCopy.nodes[u]["tags"].append(tagname)
+                cumuCopy.nodes[v]["tags"].append(tagname)                
                 if tagname not in ctagcounts:
                     ctagcounts[tagname] = 0
                 ctagcounts[tagname] +=1                 
@@ -241,6 +313,10 @@ def calculate(G,startdate,enddate):
         cbunch = []
         nodeiter = G.nodes(data=True)
         for (n,c) in nodeiter:
+            if c['type'] == 'story' or c['type'] == 'listing':
+                monthCopy.nodes[n]['title'] = c['title'].replace("'","")
+            else:
+                monthCopy.nodes[n]['name'] = c['name'].replace("'","")
             monthnodeexists = False
             cumunodeexists = False
             monthCopy.nodes[n]['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
@@ -268,16 +344,29 @@ def calculate(G,startdate,enddate):
         cumuCopy = filteredges(cumuCopy,datetime(1,1,1),windowend)
 
 
+        
         (MGraph,MD) = dx.core_number_weighted(monthCopy,windowstart,windowend,True,False)
         (CGraph,CD) = dx.core_number_weighted(cumuCopy,datetime(1,1,1),windowend,True,False)
-
-  
+        
+        MMGraph = nx.MultiDiGraph()
+        MMGraph.add_nodes_from(MGraph.nodes())
+        for (u,v,c) in MGraph.edges(data=True):
+            MMGraph.add_edge(u,v,**c)
+            MMGraph.add_edge(v,u,**c)
+        iter = MMGraph.edges(data=True)
+        for (u,v,c) in iter:
+            c['edgeweight'] = c['edgeweight'][u]
+        mPageRank = nx.pagerank_numpy(MMGraph, alpha=0.85,weight='edgeweight')
+        #cPageRank = nx.pagerank_numpy(MMGraph, alpha=0.85)
         #Add the tags back in
         MGraph.add_edges_from(mtagedges)
-        CGraph.add_edges_from(ctagedges)
+        #CGraph.add_edges_from(ctagedges)
 
-        (MGraph,m_data_dict) = addStats(MGraph,MD,m_data_dict)
-        (CGraph,c_data_dict) = addStats(CGraph,CD,c_data_dict)
+        MGraph.remove_nodes_from(list(nx.isolates(MGraph)))
+        #CGraph.remove_nodes_from(list(nx.isolates(CGraph)))
+
+        (MGraph,m_data_dict) = addStats(MGraph,MD,mPageRank,m_data_dict)
+        #(CGraph,c_data_dict) = addStats(CGraph,CD,cPageRank,c_data_dict)
 
         mdata = json_graph.node_link_data(MGraph)
         mdata['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
@@ -285,10 +374,10 @@ def calculate(G,startdate,enddate):
         mdata['tagcount'] = mtagcounts
         
         
-        cdata = json_graph.node_link_data(CGraph)
-        cdata['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
-        ctagcounts = sorted(ctagcounts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
-        cdata['tagcount'] = ctagcounts
+        #cdata = json_graph.node_link_data(CGraph)
+        #cdata['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
+        #ctagcounts = sorted(ctagcounts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
+        #cdata['tagcount'] = ctagcounts
         
         #Update the 'sliding window'
         windowend = windowstart
@@ -298,33 +387,19 @@ def calculate(G,startdate,enddate):
 
         with open('../web/data/graphdata/graphmonthly/monthdata'+str(loopcount)+'.json', 'w') as outfile:
             outfile.write(json.dumps(mdata))
-        with open('../web/data/graphdata/graphcumulative/cumudata'+str(loopcount)+'.json', 'w') as outfile:
-            outfile.write(json.dumps(cdata))
+        #with open('../web/data/graphdata/graphcumulative/cumudata'+str(loopcount)+'.json', 'w') as outfile:
+        #    outfile.write(json.dumps(cdata))
             
     for k,v in m_data_dict.items():
         if len(v) > 0:
             with open('../web/data/userdata/usersmonthly/' + str(k) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(v))              
-    for k,v in c_data_dict.items():
+    #for k,v in c_data_dict.items():
+    #    if len(v) > 0:
+    #        with open('../web/data/userdata/userscumulative/' + str(k) + '.json', 'w') as outfile:
+    #            outfile.write(json.dumps(v[0]))
+    for k,v in object_data_dict.items():
         if len(v) > 0:
-            with open('../web/data/userdata/userscumulative/' + str(k) + '.json', 'w') as outfile:
-                outfile.write(json.dumps(v))  
-actions_dict = {}
-for key in cf.interaction_keys:
-    actions_dict[key] = []
+            with open('../web/data/objectdata/' + str(k) + '.json', 'w') as outfile:
+                outfile.write(json.dumps(v[0]))        
 
-if len(sys.argv) < 2:
-    print 'Missing filename'
-    sys.exit()
-filename = sys.argv[1]
-
-G_read = nx.read_gexf(filename)
-
-ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-tree = ET.parse(filename)  
-root = tree.getroot()
-startdate = root[0].attrib['start']
-enddate = root[0].attrib['end']
-
-#Pass the start and end times of the file in (which I have copied manually but there should be a way to do so automatically
-calculate(G_read,datetime.strptime(startdate,"%Y/%m/%d"),datetime.strptime(enddate,"%Y/%m/%d"))

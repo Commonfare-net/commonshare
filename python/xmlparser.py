@@ -126,9 +126,14 @@ for elem in edges:
     if sourceid == targetid:
         edgestodelete.append(elem)
         continue
-        
+    
     edgetype = parseLabel(elem.attrib['id'],sourceid,targetid,label,actionstart,actionend)
     
+    if (sourceid == '1' or targetid == '1') and edgetype == attrdict['transaction']:
+        print 'A pietro transaction appears'
+        edgestodelete.append(elem)
+        continue
+   
     edgeid = elem.attrib['source'] + '-' + elem.attrib['target']
     altedgeid = elem.attrib['target'] + '-' + elem.attrib['source']
     #Somewhere around here I'll have to do the bit where I replace the commoner-commoner edge

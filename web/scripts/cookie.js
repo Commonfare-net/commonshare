@@ -134,7 +134,7 @@ var sociallabels = cookieg.append("text")
 cookietext = cookieg.append("text")
 	.attr("text-anchor", "middle")
 	.attr("stroke", "white")
-	.style("font-size", "50")
+	.style("font-size", "50px")
 	.style("font-family", "'Dosis', sans-serif");
 var view, margin = 20;
 var labellist = [labels, sociallabels, transactionlabels, listinglabels];
@@ -274,7 +274,7 @@ function plotcookie(graphdata, mydata) {
             if(d.data.type == 'commoner')
                 nodename = d.label.split('_')[1];
             var url = getUrl(d.data.type,nodename);
-            var win = window.open(url, '_blank');
+          //  var win = window.open(url, '_blank');
             return;
         }
 		if (focus !== d)

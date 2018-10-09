@@ -30,17 +30,18 @@ feMerge.append("feMergeNode")
 var arcs = chartg.selectAll(".arc");
 var donut_labels = chartg.selectAll(".donutText");
 var kcoretext = chartg.append("text")
-	.style("font-size", "70")
+    .attr("id","kcoretext")
+	.style("font-size", "70px")
 	.style("font-family", "'Dosis', sans-serif");
 
 var returntext = chartg.append("text")
-	.style("font-size", "16")
+	.style("font-size", "16px")
 	.style("font-family", "'Dosis', sans-serif");
 var typetext = chart.append("text")
-	.style("font-size", "28")
+	.style("font-size", "28px")
 	.style("font-family", "'Dosis', sans-serif");
 var descriptiontext = chart.append("text")
-	.style("font-size", "14")
+	.style("font-size", "14px")
 	.style("font-family", "'Dosis', sans-serif");
 function links_of_type(data, key) {
 	var linktypes = keytypes[key];
@@ -224,7 +225,7 @@ function makearcs(piesegments, areChildren) {
 				else
 					nodename = d.data.name;
 				var url = getUrl(d.data.type, nodename);
-				var win = window.open(url, '_blank');
+			//	var win = window.open(url, '_blank');
 				return;
 			}
 			donut_defined = false;
