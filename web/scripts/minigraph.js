@@ -302,7 +302,7 @@ function plotminigraph(mydata) {
             if(d.type == 'commoner')
                 nodename = d.label.split('_')[1];
             var url = getUrl(d.type,nodename);
-            var win = window.open(url, '_blank');
+          //  var win = window.open(url, '_blank');
         })
         ;
 
@@ -411,7 +411,7 @@ function plotminigraph(mydata) {
 		.style("font-family", "'Dosis', sans-serif")
 		.attr("x", 100);
 
-	minitextnode.style("font-size", Math.max(50, central_core * 3 + 6))
+	minitextnode.style("font-size", Math.max(50, central_core * 3 + 6) + "px")
 	.text(central_core);
 	minitextnode.attr("y", 100 + (minitextnode.node().getBoundingClientRect().height / 4));
 

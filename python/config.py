@@ -50,15 +50,15 @@ meta = {
 #Story-based interactions
 weights = {
            tag_commoner:(0,2),
-           comment_story:(2,2),
-           create_story:(2,2),
+           comment_story:(1,2),
+           create_story:(2,1),
            tag_story:(0,2),
 #Friendship-based interactions
            conversation:(4,4),
 #Transaction-based interactions
-           transaction:(4,4),
+           transaction:(4,2),
 #Forum-based interactions
-           create_listing:(2,2),
-           comment_listing:(2,2),
+           create_listing:(2,1),
+           comment_listing:(1,2),
            tag_listing:(0,2)
            }

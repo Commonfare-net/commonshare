@@ -88,6 +88,7 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
     degrees=G.degree()
     
     nodeweights = {}
+    sumofedges = {}
     degrees = dict(G.degree())
     if directed:
         if ignore_indirect:
@@ -100,6 +101,7 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 #(G,network_globals,directed_weight) = nodeweight_directed(G,k)
                 G.nodes[k]['edgetotals'] = network_globals
                 sum_edges = float(sum(network_globals.values()))
+                sumofedges[k] = sum_edges                
                 avg_edges = sum_edges / len(network_globals.keys())
                 G.nodes[k]['cumu_totals'] = {e:((v/sum_edges) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
                 G.nodes[k]['avg_totals'] = {e:((v/avg_edges) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
@@ -146,7 +148,10 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
         if maxcore == mincore:
             maxcore = maxcore+1
         for k,v in core.items():
-            core[k] = int(math.ceil((float(v-mincore)/(maxcore-mincore))*9))+1
+            if sumofedges[k] > 0:
+                core[k] = int(math.ceil((float(v-mincore)/(maxcore-mincore))*9))+1
+            else:
+                core[k] = 0
     print 'and now'
     return (G,core)
  
