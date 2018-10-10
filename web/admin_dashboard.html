@@ -14,8 +14,8 @@
         Interactions view
     </div>
    <div style="display:block; text-align: center;" >
-    	<button onclick="loadDataFiles(d3.queue(),'monthly')" class="button button--ujarak button--border-thin button--text-thick">By month</button>
-		<button onclick="loadDataFiles(d3.queue(),'cumulative')" class="button button--ujarak button--border-thin button--text-thick">Cumulative</button>       
+    	<button onclick="view='monthly';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">By month</button>
+		<button onclick="view='cumulative';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">Cumulative</button>       
     </div>
     
     <!--Date slider-->
@@ -64,11 +64,11 @@ svg.call(zoom);
 
 //These forces are tweaked to attract connected nodes to the center
 var simulation = d3.forceSimulation()
-	.alphaDecay(0.2)
+	//.alphaDecay(0.1)
 	.force("charge", d3.forceManyBody().strength(function (d) {
 			return -300;
 		}))
-	.force("link", d3.forceLink().distance(75).iterations(10).id(function (d) {
+	.force("link", d3.forceLink().distance(100).id(function (d) {
 			return d.id;
 		})) //Need the function here to draw links between nodes based on their ID rather than their index
 	.force("x", d3.forceX().x(function (d) {
@@ -102,12 +102,19 @@ var div = d3.select("body").append("div")
 	.style("opacity", 0);
 
 var slideradded = false;
-function loadDataFiles(queue, view) {
+function loadDataFiles(queue) {
 	var url = "";
 	if (view == "monthly")
-		url = "data/graphdata/graphmonthly/monthdata" + datafilecounter + ".json";
-	else
-		url = "data/graphdata/graphcumulative/cumudata" + datafilecounter + ".json";
+		url = "data/graphdata/biweekly/biweekly" + datafilecounter + ".json";
+	else{
+		d3.json("data/graphdata/biweekly/biweekly0.json",function(error,results){
+            data[0] = results;
+            drawn[0] = false;
+            d3.select(".myslider").style('display','none');
+            draw(0, 0, 'all');
+        });
+        return;
+    }
 	$.ajax({
 
 		url: url,
@@ -133,20 +140,21 @@ function loadDataFiles(queue, view) {
 					}
 				}
 			});
+        d3.select(".myslider").style('display','inline-block');
 		},
 		success: function () {
-			console.log("Must try and load data/data" + datafilecounter + ".json!");
 			queue.defer(d3.json, url);
 			datafilecounter++;
 			loadDataFiles(queue, view);
 		}
 	});
 }
+var view = "monthly";
 //Ensure all JSON files are loaded before initiating visualisation
 var q = d3.queue();
 
 var datafilecounter = 1;
-loadDataFiles(q, 'monthly');
+loadDataFiles(q);
 
 //The node that's been clicked on to maintain focus across different months
 clicked_node = "";
@@ -155,7 +163,6 @@ clicked_node = "";
 function transform() {
 	translatex = d3.select("#n" + clicked_node).attr("cx");
 	translatey = d3.select("#n" + clicked_node).attr("cy");
-	console.log("transforming to " + translatex + " , " + translatey);
 	return d3.zoomIdentity
 	.translate(width / 2, height / 2)
 	.scale(4)
@@ -193,9 +200,11 @@ function draw(indexstart, tag, filtertype) {
 		$('a').click(function (e) {
 			e.preventDefault();
 			var content = $(this).ignore("span").text(); // or var clickedBtnID = this.id
-			console.log("text is " + content);
-			draw(sliderpos, content, "tag");
-			return false;
+            if(view == 'monthly')
+                draw(sliderpos, content, "tag");
+			else
+                draw(0, content, "tag");
+            return false;
 		});
 	}
 
@@ -339,7 +348,6 @@ function draw(indexstart, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.target.id == null)
 			return 10;
-        console.log("Id is " + d.target.id);
 		radius = d3.select("#n" + d.target.id).attr("r");
 		return (d.size * 10) + parseInt(radius);
 	})
@@ -589,8 +597,11 @@ function nwfilter(nwname, button) {
 		currentbutton.style.background = '#fff';
 		currentbutton.style.color = '#37474f';
 	}
-	draw(sliderpos, networkvalue, "network");
-	button.style.color = "#fff";
+    if(view == 'monthly')
+        draw(sliderpos, networkvalue, "network");
+	else
+        draw(0,networkvalue,"network");
+    button.style.color = "#fff";
 	button.style.borderColor = "#37474f";
 	button.style.background = "#37474f";
 }
@@ -605,14 +616,19 @@ function filter(tagname, button) {
 		currentbutton.style.background = '#fff';
 		currentbutton.style.color = '#37474f';
 	}
-	draw(sliderpos, tagvalue, "tag");
-	button.style.color = "#fff";
+    if(view == 'monthly')
+        draw(sliderpos, tagvalue, "tag");
+	else
+        draw(0,tagvalue,"tag");
+    button.style.color = "#fff";
 	button.style.borderColor = "#37474f";
 	button.style.background = "#37474f";
 }
 var sliderpos = 0;
 var sliderhandle;
 //New date slider code (adapted from https://bl.ocks.org/mbostock/6452972)
+
+
 function addDateSlider() {
 	slideradded = true;
 	var s = document.getElementById("myslider");
@@ -665,7 +681,6 @@ function addDateSlider() {
 
 	ticktext.append("text")
 	.text(function (d, i) {
-		console.log(data[d]);
 		if (i % 2 == 1)
 			return "";
 		return formatWeek(parseTime(data[d].date));
@@ -682,7 +697,6 @@ function addDateSlider() {
 				var selected_date = Math.round(slidex.invert(d3.event.x));
 				if (selected_date != sliderpos) {
 					sliderpos = selected_date;
-					console.log("date is " + selected_date);
 					d3.selectAll(".ticktext")
 					.style("fill", "black")
 					.style("font-weight", "normal");

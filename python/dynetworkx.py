@@ -2,6 +2,11 @@ import math
 import config as cf
 from datetime import datetime
 import networkx as nx
+
+FREQUENCY_THRESHOLD = 5
+REPUTATION_THRESHOLD = 10
+PERCENTAGE_THRESHOLD = 35
+#Basic collusion checking algorithm
 def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if G.has_edge(n1,n2) == False:
         return False
@@ -12,47 +17,39 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
         if action_key in edge:
             for action in edge[action_key]:
                 if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
-                    if action[0] == str(n1):
-                        edgeweight = edgeweight + cf.weights[action_key][0]
-                        frequency = frequency + 1
-    if frequency > cf.FREQUENCY_THRESHOLD and ((edgeweight/n2_weight)*100) > cf.PERCENTAGE_THRESHOLD:
+                    edgeweight = edgeweight + cf.weights[action_key]
+                    frequency = frequency + 1
+    if frequency > FREQUENCY_THRESHOLD and ((edgeweight/n2_weight)*100) > PERCENTAGE_THRESHOLD:
         return True
     return False
 
-#Rather than just return a sum of all the weighted edges of the node, this 
-#will also need to return the weighted contribution of each interaction type
-#DJR modified this again to return the graph with the unnecessary bits removed        
+'''
+This method finds the weight corresponding to the interactions at the particular point in time
+'''
 def nodeweight_directed(G,node_id,starttime,endtime):
     network_globals = {}
     for meta in cf.meta_networks:
         network_globals[meta] = 0
-    #Here finds the weight corresponding to the interactions at the particular point in time
     edges = G.edges(node_id,data=True)
     edgeweights = []
     
     for (u,v,c) in edges:
-        depreciating_constant = 1.0
+        depreciating_constant = 1.0 #One for now, but it should probably be smaller
         overallweight = 0
-        #print 'node_id: ',node_id
-        #print 'u and v: ',u,', ',v
         for action_key in cf.interaction_keys:
-            #Here instead, we need to iterate over the actions 'read', 'commented' and 'shared' and see who did them.
+            #Here we need to iterate over the actions and see who did them.
             if action_key in c:
                 actions_to_keep = []
                 for action in c[action_key]:
                     if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
-                        if action[0] == str(node_id):
-                            overallweight = overallweight + (cf.weights[action_key][0]*depreciating_constant)     
-                            network_globals[cf.meta[action_key]] += (cf.weights[action_key][0]*depreciating_constant)
-                        else:
-                            overallweight = overallweight + (cf.weights[action_key][1]*depreciating_constant)
-                            network_globals[cf.meta[action_key]] += (cf.weights[action_key][1]*depreciating_constant)                            
+                        overallweight = overallweight + (cf.weights[action_key]*depreciating_constant)     
+                        network_globals[cf.interaction_types[action_key]] += (cf.weights[action_key]*depreciating_constant)                          
                         actions_to_keep.append(action)
-                        #depreciating_constant *= 0.75
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
+        
         if overallweight > 0:
             edgeweights.append(overallweight)
-            #Adds it as a nice attribute
+            #Adds the edge's weight as an attribute
             if 'edgeweight' not in c:
                 c['edgeweight'] = {}
             c['edgeweight'][node_id] = overallweight
@@ -67,57 +64,33 @@ def nodeweight_directed(G,node_id,starttime,endtime):
 #DJR Modified this method to return the modified graph for spitting out JSON
 def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
 
-    if G.is_multigraph():
-        raise nx.NetworkXError(
-                'MultiGraph and MultiDiGraph types not supported.')
-    if G.number_of_selfloops()>0:
-        raise nx.NetworkXError(
-                'Input graph has self loops; the core number is not defined.',
-                'Consider using G.remove_edges_from(G.selfloop_edges()).')
-
-    if G.is_directed():
-        import itertools
-        def neighbors(v):
-            return itertools.chain.from_iterable([G.predecessors_iter(v),
-                                                  G.successors_iter(v)])
-    else:
-        neighbors=G.neighbors
-    
-
-
+    neighbors=G.neighbors
     degrees=G.degree()
     
     nodeweights = {}
     sumofedges = {}
     degrees = dict(G.degree())
-    if directed:
-        if ignore_indirect:
-            for k,v in degrees.items():
-                degrees[k] = int(math.sqrt(math.ceil(int(v) * nodeweight_directed_ignore_indirect_links(G,k,starttime,endtime))))  
-              
-        else:
-            for k,v in degrees.items():
-                (G,network_globals,directed_weight) = nodeweight_directed(G,k,starttime,endtime)
-                #(G,network_globals,directed_weight) = nodeweight_directed(G,k)
-                G.nodes[k]['edgetotals'] = network_globals
-                sum_edges = float(sum(network_globals.values()))
-                sumofedges[k] = sum_edges                
-                avg_edges = sum_edges / len(network_globals.keys())
-                G.nodes[k]['cumu_totals'] = {e:((v/sum_edges) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
-                G.nodes[k]['avg_totals'] = {e:((v/avg_edges) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
-                degrees[k] = int(math.sqrt(math.ceil(int(v) * directed_weight)))
-                if directed_weight > cf.REPUTATION_THRESHOLD:
-                    nodeweights[k] = directed_weight
-    else:
-        for k,v in degrees.items():
-            degrees[k] = int(math.sqrt(math.ceil(int(v) * nodeweight_undirected(G,k,starttime,endtime))))  
+    for k,v in degrees.items():
+        (G,network_globals,directed_weight) = nodeweight_directed(G,k,starttime,endtime)
+        G.nodes[k]['edgetotals'] = network_globals
+        sum_edges = float(sum(network_globals.values()))
+        sumofedges[k] = sum_edges                
+        avg_edges = sum_edges / len(network_globals.keys())
+        G.nodes[k]['cumu_totals'] = {e:((v/sum_edges) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
+        G.nodes[k]['avg_totals'] = {e:((v/avg_edges) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
+        #Here's where the weighting gets put in
+        degrees[k] = int(math.sqrt(math.ceil(int(v) * directed_weight)))
+        if directed_weight > REPUTATION_THRESHOLD: #Is this node particularly reputable?
+            nodeweights[k] = directed_weight
 
+    #Do the collusion check
     activenodes = list(nodeweights.keys())
     for i in activenodes:
         for j in activenodes:
             if (i != j) and check_collusion(G,i,j,nodeweights[j],starttime,endtime) and check_collusion(G,j,i,nodeweights[i],starttime,endtime):
                 print i,'and',j,'might be colluding'
-                
+    
+    #This bit is the k-core algorithm directly taken from the networkx module
     nodes=sorted(degrees,key=degrees.get)
     bin_boundaries=[0]
     curr_degree=0
@@ -140,8 +113,9 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 nodes[bin_start],nodes[pos]=nodes[pos],nodes[bin_start]
                 bin_boundaries[core[u]]+=1
                 core[u]-=1
+                
+                
     #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
-
     if len(core.values()) > 0:
         mincore = min(core.values())
         maxcore = max(core.values())

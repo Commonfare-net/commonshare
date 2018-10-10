@@ -27,12 +27,8 @@ var userid = urlParams.get('userid');
 //All this stuff is for the network viz
 var graph = {};
 
-function loadDataFiles(view) {
-	var url = "";
-	if (view == "monthly")
-		url = "data/userdata/usersmonthly/"+userid+".json";
-	else
-		url = "data/userdata/userscumulative/"+userid+".json";
+function loadDataFiles() {
+	var url = "data/userdata/"+userid+".json";
 	$.ajax({
 
 		url: url,
@@ -40,7 +36,7 @@ function loadDataFiles(view) {
 		error: function () {},
 		success: function () {
 			d3.json(url, function (results) {
-                graph = results;
+                graph = results[0];
             	draw(0, 'all');    
                 
             });
@@ -48,7 +44,7 @@ function loadDataFiles(view) {
 	});
 }
 
-loadDataFiles('cumulative');
+loadDataFiles();
 
 function draw(tag, filtertype) {
 	nodetypes = {};
@@ -58,14 +54,19 @@ function draw(tag, filtertype) {
 		return this.clone().find(sel || ">*").remove().end();
 	};
 
+    console.log(graph);
 	selected_node = "";
 	node = node.data(graph.nodes, function (d) {
+            console.log(d);
 			return d.id;
 		});
 	link = link.data(graph.links, function (d) {
+                console.log(d);
+
 			return d.source + "-" + d.target;
 		});
 	tagcounts = graph.tagcount;
+            console.log("eddo");
 
 	node.exit().transition()
 	.attr("r", 0)
