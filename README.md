@@ -6,7 +6,7 @@ NetworkX 2.2 (and the random names generator if running the simulation). Install
 pip install networkx==2.2
 pip install names
 
-<b style="font-size:20px">Important Contents:</b>
+<h3>Important Contents:</h3>
 
 <b>python/</b>
 
@@ -35,7 +35,8 @@ Classes for simulation:
   
 - <b>objectdata/...</b>: Similar to userdata, with a file for each entity (i.e. listings and stories) named <OBJECT_ID>.json
 
-Instructions:
+<h3>Instructions for use:</h3>
+
 1. Put GEXF file in the python/gexf directory
 2. Run 'python parsegexf <YOUR_FILE_NAME>'
 3. JSON files will be output into the web/data/ directory as described above
