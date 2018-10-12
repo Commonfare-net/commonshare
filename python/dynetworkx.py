@@ -126,6 +126,5 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 core[k] = int(math.ceil((float(v-mincore)/(maxcore-mincore))*9))+1
             else:
                 core[k] = 0
-    print 'and now'
     return (G,core)
  
