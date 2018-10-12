@@ -112,10 +112,24 @@ def neighbourPaths(G, node):
             all_paths[neighbour] = []
     return all_paths
 
+def personalisedPageRank(core_graph,node):
+ #Do the pagerank calculations 
+    multi_di_graph = nx.MultiDiGraph()
+    multi_di_graph.add_nodes_from(core_graph.nodes())
+    for (u,v,c) in core_graph.edges(data=True):
+        multi_di_graph.add_edge(u,v,**c)
+        multi_di_graph.add_edge(v,u,**c)
+    iter = multi_di_graph.edges(data=True)
+    for (u,v,c) in iter:
+        if 'edgeweight' in c:
+            c['edgeweight'] = c['edgeweight'][u]
+        else:
+            c['edgeweight'] = 1
+    return nx.pagerank_numpy(multi_di_graph,personalization={node:1},alpha=0.85,weight='edgeweight')
 '''
 This method creates the individual commoner/object graphs
 '''
-def createEntityGraphs(core_graph,core_values,page_rank):
+def createEntityGraphs(core_graph,core_values):
     global loopcount
     global commoner_graphs
     global object_graphs
@@ -132,25 +146,25 @@ def createEntityGraphs(core_graph,core_values,page_rank):
                 commoner_graphs[n].append(commoner_data)
         else:
             #If this is the all-time cumulative graph, for each user include all the nodes and surrounding edges
-            if loopcount == 0:
-                neighbours_and_inbetweens = neighbourPaths(core_graph,n)
-                surrounding_nodes = neighbours_and_inbetweens.keys()
-                edges = core_graph.edges(surrounding_nodes,data=True)
-            else:
-                edges = core_graph.edges(n,data=True)
-                surrounding_nodes = core_graph.neighbors(n)
+            #if loopcount == 0:
+            #    neighbours_and_inbetweens = neighbourPaths(core_graph,n)
+            #    surrounding_nodes = neighbours_and_inbetweens.keys()
+            #    edges = core_graph.edges(surrounding_nodes,data=True)
+           # else:
+            edges = core_graph.edges(n,data=True)
+            surrounding_nodes = core_graph.neighbors(n)
               
             entity_graph = nx.Graph()
             entity_graph.add_node(n,**c)
             entity_graph.nodes[n]['kcore'] = core_values[n]
-            entity_graph.nodes[n]['pagerank'] = page_rank[n]
             entity_graph.nodes[n]['cumu_totals'] = {k:(v*core_values[n]) for k,v in c['cumu_totals'].items()}
             entity_graph.nodes[n]['avg_totals'] = {k:(v*core_values[n]) for k,v in c['avg_totals'].items()}
             entity_graph.nodes[n]['stats'] = getNodeStats(core_graph,n)
             entity_graph.add_edges_from(edges)
-            
+            '''
             if loopcount == 0:
                 #Do a 'closeness' calculation of each surrounding node base 
+                page_rank_values = personalisedPageRank(core_graph,n)
                 for node,inbetweens in neighbours_and_inbetweens.iteritems():
                     closeness = 0
                     for inbetweener in inbetweens:
@@ -163,12 +177,18 @@ def createEntityGraphs(core_graph,core_values,page_rank):
                     entity_graph.add_node(node,**core_graph.nodes[node])
                     entity_graph.nodes[node]['closeness'] = closeness
                     entity_graph.nodes[node]['inbetweens'] = inbetweens                
+                    entity_graph.nodes[node]['pagerank'] = page_rank_values[node]
                     
             else:
-                for node in surrounding_nodes:
-                    core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
-                    entity_graph.add_node(node,**core_graph.nodes[node])
-            
+            '''
+            #if loopcount == 0:
+            #    page_rank_values = personalisedPageRank(core_graph,n)            
+            for node in surrounding_nodes:
+                core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
+                entity_graph.add_node(node,**core_graph.nodes[node])
+           #    if loopcount == 0:
+           #         entity_graph.nodes[node]['pagerank'] = page_rank_values[node]
+           
             #Now that all relevant nodes have been added, need to make sure that appropriate edges are drawn between them 
             all_edges = core_graph.edges(entity_graph.nodes,data=True)
             for (u,v,x) in all_edges:
@@ -292,16 +312,7 @@ def calculate(G,windowstart,windowend):
     #Do the kcore calculations
     (core_graph,core_values) = dx.core_number_weighted(graph_copy,windowstart,windowend,True,False)
 
-    #Do the pagerank calculations 
-    multi_di_graph = nx.MultiDiGraph()
-    multi_di_graph.add_nodes_from(core_graph.nodes())
-    for (u,v,c) in core_graph.edges(data=True):
-        multi_di_graph.add_edge(u,v,**c)
-        multi_di_graph.add_edge(v,u,**c)
-    iter = multi_di_graph.edges(data=True)
-    for (u,v,c) in iter:
-        c['edgeweight'] = c['edgeweight'][u]
-    page_rank = nx.pagerank_numpy(multi_di_graph, alpha=0.85,weight='edgeweight')
+   
 
     #Add the tags back in
     core_graph.add_edges_from(tag_edges)
@@ -314,8 +325,8 @@ def calculate(G,windowstart,windowend):
     #Can add the k-core and page-rank stats here
     for (n,c) in nodeiter:
         core_graph.nodes[n]['kcore'] = core_values[n]
-        core_graph.nodes[n]['pagerank'] = page_rank[n]  
-    core_graph = createEntityGraphs(core_graph,core_values,page_rank)
+        #core_graph.nodes[n]['pagerank'] = page_rank[n]  
+    core_graph = createEntityGraphs(core_graph,core_values)
 
     core_graph_json = json_graph.node_link_data(core_graph)
     core_graph_json['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
@@ -328,18 +339,22 @@ def calculate(G,windowstart,windowend):
 #Initialisation code            
 loopcount = 0
 commoner_graphs = {}
-object_graphs = {}
-if len(sys.argv) < 2:
-    print 'Missing filename'
-    sys.exit()
-filename = sys.argv[1]
+object_graphs = {}    
+def init(filename):
+    
+    G_read = nx.read_gexf(filename)
+    ET.register_namespace("", "http://www.gexf.net/1.2draft") 
+    tree = ET.parse(filename)  
+    root = tree.getroot()
+    unparsed_startdate = root[0].attrib['start']
+    unparsed_enddate = root[0].attrib['end']
 
-G_read = nx.read_gexf(filename)
-ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-tree = ET.parse(filename)  
-root = tree.getroot()
-unparsed_startdate = root[0].attrib['start']
-unparsed_enddate = root[0].attrib['end']
+    #Pass the start and end times of the file in
+    createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"))  
 
-#Pass the start and end times of the file in
-createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"))  
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print 'Missing filename'
+        sys.exit()
+    filename = sys.argv[1]
+    init(filename)

@@ -210,7 +210,7 @@ var simulation = d3.forceSimulation()
             else
                 continue;
 //                source = "icons/tagicon.svg";
-			listContainer.append('<a href="#" class="list-group-item" type="' + closestnodes[i].type + '"id="'+closestnodes[i].id+'">' + tagname + '<img src="'+source+'" height="30" width="30"/>');
+			listContainer.append('<a href="#" class="list-group-item" type="' + closestnodes[i].type + '"id="'+closestnodes[i].id+'">' + tagname + '<img src="'+source+'" height="30" width="30"/>' + closestnodes[i].pagerank);
 		}
         $('a').mouseover(function(e){
             var node = d3.select("#n"+$(this).attr("id"));

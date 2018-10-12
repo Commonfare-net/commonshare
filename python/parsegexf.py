@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import config as cf
 import sys
 import os
+import kcore
 from datetime import datetime
 
 if len(sys.argv) < 2:
@@ -51,7 +52,6 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
         edgetype = edgetype + "_commoner" #This is just to be clear that the tag refers to that of a commoner    
     if edgetype == "comment":
        original_comment = edges.findall("*/[@label='"+label+"']")
-       print 'found ',len(original_comment)
        if len(original_comment) == 1: #This happens when a comment is received on a story but somehow the 
         return None
         
@@ -61,7 +61,6 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
                 commoner_commoner_edge = edge                    
             if edge.attrib['id'] != edgeid: #Then we've found the correct edge
                 targettype = nodes.find("*/[@id='" + edge.attrib['target'] +"']/*/*[@for='1']").attrib['value']
-                print targettype
                 if targettype == "listing":
                     edgetype = edgetype+ "_listing"
                 elif targettype == "story":
@@ -70,8 +69,6 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
        #Here we replace the comment sender-comment receiver edge with a story-comment receiver edge
        if sourcenode != targetnode:
             commoner_commoner_edge.set('source',object_target)  
-       else:
-            print 'source and target are both ',source
     return attrdict[edgetype]
 
 
@@ -129,8 +126,8 @@ for elem in edges:
     
     edgetype = parseLabel(elem.attrib['id'],sourceid,targetid,label,actionstart,actionend)
     
+    #Delete Pietro's Basic Income transactions
     if (sourceid == '1' or targetid == '1') and edgetype == attrdict['transaction']:
-        print 'A pietro transaction appears'
         edgestodelete.append(elem)
         continue
    
@@ -174,7 +171,6 @@ for elem in edges:
         targetattrs.append(attvalue)
     #Happens when for whatever reason, only one edge exists for a particular comment
     if edgetype == None:
-        print 'getting rid of ',elem.attrib['id']
         edgestodelete.append(elem)
     elif edgeid not in existingedges and altedgeid not in existingedges:
         existingedges[edgeid] = elem
@@ -189,5 +185,7 @@ for dupliedge in edgestodelete:
 root[0].set('start',datetime.strftime(mindate,"%Y/%m/%d"))
 root[0].set('end',datetime.strftime(maxdate,"%Y/%m/%d"))
 filename = os.path.splitext(filename)[0]
-tree.write(filename+"parsed.gexf")  
+parsedfilename = filename + "parsed.gexf"
+tree.write(parsedfilename)  
 
+kcore.init(parsedfilename)
