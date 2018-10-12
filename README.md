@@ -18,7 +18,7 @@ Contents:
 
 - kcore.py: Uses the methods in dynetworkx.py to calculate Commonshare values for each node in the graph every two weeks. Outputs JSON files, described below. 
 
-- gexf/...: Directory for GEXF files. 
+- <b>gexf/...</b>: Directory for GEXF files. 
 
 Classes for simulation:
 - graphclasses.py: Base classes that represent entities in the simulation
@@ -28,12 +28,12 @@ Classes for simulation:
 
 <b>web/data/</b>
 
-  <b>graphdata/biweekly/...</b>: Contains graph-based JSON files representing every two weeks of Commonfare interactions, with Commonshare values calculated for each node (biweekly1.json ... biweeklyX.json)
+- <b>graphdata/biweekly/...</b>: Contains graph-based JSON files representing every two weeks of Commonfare interactions, with Commonshare values calculated for each node (biweekly1.json ... biweeklyX.json)
     Also contains a cumulative graph-based JSON file of every interaction made in Commonfare since its initiation (biweekly0.json)
 
-  <b>userdata/...</b>: Contains a file for every user, named <USER_ID>.json, which represents their entire interaction history
+- <b>userdata/...</b>: Contains a file for every user, named <USER_ID>.json, which represents their entire interaction history
   
-  <b>objectdata/...</b>: Similar to userdata, with a file for each entity (i.e. listings and stories) named <OBJECT_ID>.json
+- <b>objectdata/...</b>: Similar to userdata, with a file for each entity (i.e. listings and stories) named <OBJECT_ID>.json
 
 Instructions:
 1. Put GEXF file in the python/gexf directory
