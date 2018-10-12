@@ -8,9 +8,9 @@ pip install names
 
 Contents:
 
-python/
+<b>python/</b>
 
--parsegexf.py: Main class for parsing GEXF file, which then calls kcore.py to calculate commonshare and output JSON files.
+- parsegexf.py: Main class for parsing GEXF file, which then calls kcore.py to calculate commonshare and output JSON files.
 
 - config.py: Contains key constants used in the simulation. Values in here can be adjusted to determine how many users are generated, the number of actions per day, and how many days the simulation runs for. It now also contains constants to allow adjustment of collusion detection.
 
@@ -26,14 +26,14 @@ Classes for simulation:
 - phrases.py: Generates story 'names' in the simulation by picking four random words from a dictionary
 - simulation.py: Run 'python simulation.py' from the Python directory to generate simulated data (this gets stored in gexf/simulateddata.gexf)
 
-web/
-  data/
-    graphdata/biweekly/...: Contains graph-based JSON files representing every two weeks of Commonfare interactions, with Commonshare values calculated for each node (biweekly1.json ... biweeklyX.json)
+<b>web/data/</b>
+
+  <b>graphdata/biweekly/...</b>: Contains graph-based JSON files representing every two weeks of Commonfare interactions, with Commonshare values calculated for each node (biweekly1.json ... biweeklyX.json)
     Also contains a cumulative graph-based JSON file of every interaction made in Commonfare since its initiation (biweekly0.json)
 
-  userdata/...: Contains a file for every user, named <USER_ID>.json, which represents their entire interaction history
+  <b>userdata/...</b>: Contains a file for every user, named <USER_ID>.json, which represents their entire interaction history
   
-  objectdata/...: Similar to userdata, with a file for each entity (i.e. listings and stories) named <OBJECT_ID>.json
+  <b>objectdata/...</b>: Similar to userdata, with a file for each entity (i.e. listings and stories) named <OBJECT_ID>.json
 
 Instructions:
 1. Put GEXF file in the python/gexf directory
