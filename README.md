@@ -32,5 +32,3 @@ python/
 public.html: Contains a network visualization of the simulated data. The visualised month can be toggled with a drop-down menu. Because this accesses external JSON files, it will not run locally and must be hosted on a web server. It can be seen working at:
 personal.html: Will contain visualizations for an individual user's dashboard
 admin.html: Will allow full access to all information for the admin dashboard
-
-https://djr53.host.cs.st-andrews.ac.uk/commonfare/public.html
