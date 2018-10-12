@@ -6,7 +6,7 @@ NetworkX 2.2 (and the random names generator if running the simulation). Install
 pip install networkx==2.2
 pip install names
 
-Contents:
+<b style="font-size:20px">Important Contents:</b>
 
 <b>python/</b>
 
