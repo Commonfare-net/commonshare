@@ -172,6 +172,7 @@ function plotcookie(graphdata, mydata) {
                             for (var y = 0; y < array.length; y++) {
                                 var childtopush = [linktypes[x]].concat(array[y]);
                                     data.links[link]["children"].push(childtopush);
+                                    console.log("PUSHING " + childtopush);
                             }
                         }
                     }
@@ -208,8 +209,8 @@ function plotcookie(graphdata, mydata) {
 	var circlepack;
 
 	var size = cumu_totals["children"][0].kcore;
-    console.log("WOOAH");
-    console.log(cumu_totals);
+  //  console.log("WOOAH");
+  //  console.log(cumu_totals);
 	//var scaledsize = size*9 + 30;
 	//Here I'll try to make the size consistent
 	var scaledsize = Math.max(size * 9 + 30, 150);

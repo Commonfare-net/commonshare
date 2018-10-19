@@ -6,6 +6,7 @@ import json
 from networkx.readwrite import json_graph
 import copy
 import sys
+import operator
 import xml.etree.ElementTree as ET
 from dateutil.relativedelta import *
 
@@ -36,7 +37,8 @@ def createGraphs(G,startdate,enddate):
     windowstart = windowend+relativedelta(weeks=-2)
     
     #Makes the cumulative graph
-    calculate(G,startdate,enddate)
+    G_new = calculate(G,startdate,enddate)
+
     loopcount += 1
     #Makes the fortnightly graphs
     while(windowstart > startdate):
@@ -54,7 +56,8 @@ def createGraphs(G,startdate,enddate):
     for k,v in object_graphs.items():
         if len(v) > 0:
             with open('../web/data/objectdata/' + str(k) + '.json', 'w') as outfile:
-                outfile.write(json.dumps(v[0]))      
+                outfile.write(json.dumps(v[0]))  
+    return G 
 '''
 For each node, store the interactions it has been involved with by their type, and by their date
 '''
@@ -85,7 +88,7 @@ def getNodeStats(core_graph,node_id):
                         stats[interaction_type][action_key].append(action)                    
                         continue
                     
-                    stats[interaction_type][action_key].append(action)    
+                    #stats[interaction_type][action_key].append(action)    
                     #Interactions also indexed by the date on which they occurred. This initialises necessary data structures 
                     if action[1] not in stats: #action[1] is the date of the interaction
                         stats[action[1]] = {}
@@ -146,14 +149,18 @@ def createEntityGraphs(core_graph,core_values):
                 commoner_graphs[n].append(commoner_data)
         else:
             #If this is the all-time cumulative graph, for each user include all the nodes and surrounding edges
-            #if loopcount == 0:
-            #    neighbours_and_inbetweens = neighbourPaths(core_graph,n)
-            #    surrounding_nodes = neighbours_and_inbetweens.keys()
-            #    edges = core_graph.edges(surrounding_nodes,data=True)
-           # else:
+            '''
+            if loopcount == 0:
+                neighbours_and_inbetweens = neighbourPaths(core_graph,n)
+                surrounding_nodes = neighbours_and_inbetweens.keys()
+                edges = core_graph.edges(surrounding_nodes,data=True)
+            else:
+                edges = core_graph.edges(n,data=True)
+                surrounding_nodes = core_graph.neighbors(n)
+            '''
             edges = core_graph.edges(n,data=True)
-            surrounding_nodes = core_graph.neighbors(n)
-              
+            surrounding_nodes = core_graph.neighbors(n)    
+            
             entity_graph = nx.Graph()
             entity_graph.add_node(n,**c)
             entity_graph.nodes[n]['kcore'] = core_values[n]
@@ -164,7 +171,7 @@ def createEntityGraphs(core_graph,core_values):
             '''
             if loopcount == 0:
                 #Do a 'closeness' calculation of each surrounding node base 
-                page_rank_values = personalisedPageRank(core_graph,n)
+                #page_rank_values = personalisedPageRank(core_graph,n)
                 for node,inbetweens in neighbours_and_inbetweens.iteritems():
                     closeness = 0
                     for inbetweener in inbetweens:
@@ -177,18 +184,24 @@ def createEntityGraphs(core_graph,core_values):
                     entity_graph.add_node(node,**core_graph.nodes[node])
                     entity_graph.nodes[node]['closeness'] = closeness
                     entity_graph.nodes[node]['inbetweens'] = inbetweens                
-                    entity_graph.nodes[node]['pagerank'] = page_rank_values[node]
                     
             else:
-            '''
+            
             #if loopcount == 0:
-            #    page_rank_values = personalisedPageRank(core_graph,n)            
+            #    page_rank_values = personalisedPageRank(core_graph,n) 
+            #    sorted_rank = sorted(page_rank_values.items(), key=operator.itemgetter(1),reverse=True)
+            #    print 'best matches for ',n,' are ',sorted_rank[0],sorted_rank[1],sorted_rank[2]
+                for node in surrounding_nodes:
+                    core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
+                    entity_graph.add_node(node,**core_graph.nodes[node])
+           #    if loopcount == 0:
+           #         entity_graph.nodes[node]['pagerank'] = page_rank_values[node]
+            '''
+            
             for node in surrounding_nodes:
                 core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
                 entity_graph.add_node(node,**core_graph.nodes[node])
-           #    if loopcount == 0:
-           #         entity_graph.nodes[node]['pagerank'] = page_rank_values[node]
-           
+                    
             #Now that all relevant nodes have been added, need to make sure that appropriate edges are drawn between them 
             all_edges = core_graph.edges(entity_graph.nodes,data=True)
             for (u,v,x) in all_edges:
@@ -197,9 +210,9 @@ def createEntityGraphs(core_graph,core_values):
             if c['type'] == 'commoner':
                 commoner_json = json_graph.node_link_data(entity_graph)
                 commoner_graphs[n].append(commoner_json)
-            elif loopcount == 0:
-                object_json = json_graph.node_link_data(entity_graph)
-                object_graphs[n].append(object_json)
+            #elif loopcount == 0:
+            #    object_json = json_graph.node_link_data(entity_graph)
+            #    object_graphs[n].append(object_json)
     
     return core_graph
 
@@ -247,6 +260,8 @@ def filter_spells(G,start,end):
     
 
 def calculate(G,windowstart,windowend):
+    global unparsed_startdate
+    global unparsed_enddate
     edges_to_remove = []    
     tag_edges = []
     tag_counts = {} #Holds counts of each of the tags      
@@ -317,8 +332,10 @@ def calculate(G,windowstart,windowend):
     #Add the tags back in
     core_graph.add_edges_from(tag_edges)
 
-    #Remove any isolated nodes that exist from removing Basic Income interactions 
-    core_graph.remove_nodes_from(list(nx.isolates(core_graph)))
+
+ 
+ 
+
     
     nodeiter = core_graph.nodes(data=True)
 
@@ -326,8 +343,35 @@ def calculate(G,windowstart,windowend):
     for (n,c) in nodeiter:
         core_graph.nodes[n]['kcore'] = core_values[n]
         #core_graph.nodes[n]['pagerank'] = page_rank[n]  
+    #if loopcount > 0:
     core_graph = createEntityGraphs(core_graph,core_values)
+    if loopcount == 0:
+        nodeiter = core_graph.nodes(data=True)
+        for (n,c) in nodeiter:
+            if 'nodemeta' in c:
+                c['nodemeta'] = ','.join(c['nodemeta'])
+            if 'tags' in c:
+                c['tags'] = ','.join(c['tags'])
+        edgeiter = core_graph.edges(data=True)
+        for (u,v,c) in edgeiter:
+            if 'edgemeta' in c:
+                c['edgemeta'] = ','.join(c['edgemeta'])
+            last_time_activated = datetime.strptime(c['spells'][0][1],"%Y/%m/%d")
+            for spell in c['spells']:
+                if datetime.strptime(spell[1],"%Y/%m/%d") > last_time_activated:
+                    last_time_activated = datetime.strptime(spell[1],"%Y/%m/%d")
+            c['last_date'] = datetime.strftime(last_time_activated,"%Y/%m/%d")                 
+                
+        nx.write_gexf(core_graph,"newdata.gexf")
+        tree = ET.parse("newdata.gexf")  
+        root = tree.getroot()
+        root[0].set('start',unparsed_startdate)
+        root[0].set('end',unparsed_enddate)
+        root[0].set('timeformat', 'date') 
+        tree.write("newdata.gexf")      
 
+    #Remove any isolated nodes that exist from removing Basic Income interactions 
+    core_graph.remove_nodes_from(list(nx.isolates(core_graph)))
     core_graph_json = json_graph.node_link_data(core_graph)
     core_graph_json['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
     tag_list = sorted(tag_counts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
@@ -335,13 +379,19 @@ def calculate(G,windowstart,windowend):
     
     with open('../web/data/graphdata/biweekly/biweekly'+ str(loopcount) +'.json', 'w') as outfile:
         outfile.write(json.dumps(core_graph_json))
-
+    return core_graph
+    
 #Initialisation code            
 loopcount = 0
 commoner_graphs = {}
-object_graphs = {}    
-def init(filename):
-    
+object_graphs = {}
+filename = ""   
+ 
+def init(file):
+    global filename
+    global unparsed_startdate
+    global unparsed_enddate
+    filename = file
     G_read = nx.read_gexf(filename)
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
@@ -351,8 +401,9 @@ def init(filename):
 
     #Pass the start and end times of the file in
     createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"))  
-
+   
 if __name__ == "__main__":
+    global filename
     if len(sys.argv) < 2:
         print 'Missing filename'
         sys.exit()

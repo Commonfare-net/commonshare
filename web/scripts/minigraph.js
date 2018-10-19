@@ -140,12 +140,7 @@ function plotminigraph(mydata) {
 			return d3.color("lightgreen");
 		return "#1f78b4";
 	})
-	.attr("stroke-width", "3")
-	.on("mouseout", function (d) {
-		infotooltip.transition()
-		.duration(500)
-		.style("opacity", 0);
-	});
+	.attr("stroke-width", "3");
 
     links = links.data(mydata.links.filter(function(d){console.log(d);return "edgemeta" in d;}), function (d) {
 			if (d.source.id == undefined)
@@ -271,20 +266,20 @@ function plotminigraph(mydata) {
 		}
 		d3.select("#n" + interacting_node)
 		.on("mouseover", function (d) {
-			infotooltip.transition()
-			.duration(200)
-			.style("opacity", .9);
+		//	infotooltip.transition()
+		//	.duration(200)
+		//	.style("opacity", .9);
 			if (d.type == "commoner") {
 				nodename = d.name;
-				infotooltip.style("background", "lightgrey");
+		//		infotooltip.style("background", "lightgrey");
 				labelToHighlight = "#minicommonerlabel";
 			} else if (d.type == "story") {
 				nodename = d.title;
-				infotooltip.style("background", "pink");
+		//		infotooltip.style("background", "pink");
 				labelToHighlight = "#ministorylabel";
 			} else if (d.type == "listing") {
 				nodename = d.title;
-				infotooltip.style("background", "mediumpurple");
+		//		infotooltip.style("background", "mediumpurple");
 				labelToHighlight = "#minilistinglabel";
 			}
 			d3.select(this).select('circle').style("filter", "url(#glow)");

@@ -6,6 +6,8 @@
 <link rel="stylesheet" type="text/css" href="css/commonfare.css"></head>
         
 <body>
+<?php echo $_GET["userid"]; ?><br>
+
     <!--Container for the network viz-->
     <svg style="width:40%; float:left; display:inline-block;" class="bigvis" width="500" height="500"></svg>
     <div class="card" style="margin-top:50px;display:inline-block;float:left;width: 300px;">
@@ -29,7 +31,7 @@ var graph = {};
 
  
 function loadDataFiles(view) {
-	var url = "data/objectdata/"+userid+".json";
+	var url = "recommender_data/objectdata/"+userid+".json";
 	$.ajax({
 
 		url: url,

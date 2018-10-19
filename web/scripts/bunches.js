@@ -68,9 +68,9 @@ function plotbunches(mydata) {
 			return "bunch" + d.id
 		})
 		.on("mouseover", function (d) {
-			infotooltip.transition()
-			.duration(200)
-			.style("opacity", .9);
+		//	infotooltip.transition()
+	//		.duration(200)
+	//		.style("opacity", .9);
 			if (d.type == "commoner")
 				nodename = d.name;
 			else
@@ -83,7 +83,7 @@ function plotbunches(mydata) {
 			else if (d.type == "listing") 
                 labelToHighlight = "#buncheslistinglabel";			
             
-			infotooltip.style("background", "lightsteelblue");
+	//		infotooltip.style("background", "lightsteelblue");
             d3.select(this).select('circle').style("filter","url(#glow)");
             d3.select(this).style("cursor", "pointer");
             d3.select(labelToHighlight).style("fill", "#E7472E");

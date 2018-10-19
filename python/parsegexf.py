@@ -75,10 +75,21 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
 root[0].set('mode', 'dynamic')  
 root[0].set('timeformat', 'date')  
 nodeattrs = root[0].find('xmlns:attributes',namespaces)
+nodeidattr = nodeattrs.find("*/[@title='id']")
+nodeid_id = nodeidattr.attrib['id']
+
+nodeattrs.remove(nodeidattr)
 nodes = root[0].find('xmlns:nodes',namespaces)
 edges = root[0].find('xmlns:edges',namespaces)
 
 nodeattrs.set('mode','static')
+
+for n in nodes:
+    attvalues = n.find('xmlns:attvalues',namespaces)
+    idattr = attvalues.find("*/[@for='"+str(nodeid_id)+"']")
+    attvalues.remove(idattr)
+    #n.remove(this_id)
+    
 #Add the node and edge attribute values
 attrib = {'class':'node','mode':'dynamic'}
 dnodeattrs = root[0].makeelement('attributes',attrib)

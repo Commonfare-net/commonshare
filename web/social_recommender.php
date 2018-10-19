@@ -6,6 +6,8 @@
 <link rel="stylesheet" type="text/css" href="css/commonfare.css"></head>
         
 <body>
+<?php echo $_GET["userid"]; ?><br>
+
    <svg style="width:40%; float:left; display:inline-block;" class="bigvis" width="500" height="500"></svg>
     <div class="card" style="margin-top:50px;display:inline-block;float:left;width: 300px;">
       <div class="card-body">
@@ -17,13 +19,14 @@
     </div>        
 </body>
 
+<?php echo '
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="scripts/recommenderfuncs.js"></script>
 
 <script>
 var urlParams = new URLSearchParams(window.location.search);
-var userid = urlParams.get('userid'); 
+var userid = urlParams.get("userid"); 
 //All this stuff is for the network viz
 var graph = {};
 
@@ -32,12 +35,12 @@ function loadDataFiles() {
 	$.ajax({
 
 		url: url,
-		type: 'HEAD',
+		type: "HEAD",
 		error: function () {},
 		success: function () {
 			d3.json(url, function (results) {
                 graph = results[0];
-            	draw(0, 'all');    
+            	draw(0, "all");    
                 
             });
 		}
@@ -81,7 +84,7 @@ function draw(tag, filtertype) {
         .attr("class","circlenode")
 		.each(function (d) {
 			nodetypes[d.id] = d.type;
-            nodenames[d.id] = (d.type == 'story') ? d.title : d.name;
+            nodenames[d.id] = (d.type == "story") ? d.title : d.name;
         })
 
 		.attr("id", function (d) {
@@ -111,7 +114,7 @@ function draw(tag, filtertype) {
 				return d3.color("lightgreen");
 			return d3.color("red");
 		}) //Coloured based on their type
-		.style("opacity", function (d) { //Make nodes and links transparent if they aren't linked to tags
+		.style("opacity", function (d) { //Make nodes and links transparent if they arent linked to tags
 			if((d.inbetweens != undefined && d.inbetweens.length > 0 && d.type != "tag") || d.id == userid)
             return 1;
             d3.select(this).style("pointer-events","none");
@@ -119,10 +122,10 @@ function draw(tag, filtertype) {
 		})
 		.on("click", function (od) {
 			            if(od.type == "commoner")
-            	window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/social_recommender.html?userid=' + od.id, '_blank');
+            	window.open("https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/social_recommender.html?userid=" + od.id, "_blank");
             else if(od.type == "listing" || od.type == "story")
-            				window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/object_recommender.html?objectid=' + od.id, '_blank');
-            //Reset previously clicked node's colour
+            				window.open("https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/object_recommender.html?objectid=" + od.id, "_blank");
+            //Reset previously clicked nodes colour
 			if (userid != "")
 				d3.select("#n" + userid).attr("fill", function (d) {
 					if (d.type == "commoner")
@@ -133,7 +136,7 @@ function draw(tag, filtertype) {
 						return d3.color("lightgreen");
 					return d3.color("red");
 				}) //Coloured based on their type
-				window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/cshareall.html?userid=' + od.id, '_blank');
+				window.open("https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/cshareall.html?userid=" + od.id, "_blank");
 
 		})
 		//Node and link highlighting
@@ -145,9 +148,10 @@ function draw(tag, filtertype) {
 
         renderList();
        simulation.nodes(graph.nodes)
-              .on('tick',ticked);
+              .on("tick",ticked);
     simulation.force("link").links(graph.links);
         
 }
 
-</script>
+</script>'
+?>

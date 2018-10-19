@@ -17,7 +17,9 @@
     	<button onclick="view='monthly';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">By month</button>
 		<button onclick="view='cumulative';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">Cumulative</button>       
     </div>
-    
+     <div style="width:45%;display:inline-block;" class="sectiontitle">
+        Dates
+     </div>   
     <!--Date slider-->
     <svg id="myslider" class="myslider" style="width:100%;display:block;" height="120"></svg>
     <div style="width:45%;display:inline-block;" class="sectiontitle">
@@ -35,7 +37,11 @@
 		<button onclick="nwfilter('story',this)" class="button button--ujarak button--border-thin button--text-thick">Stories</button>
 		<button onclick="nwfilter('transaction',this)" class="button button--ujarak button--border-thin button--text-thick">Transactions</button>             
 	</div>
-    
+    <div style="width:45%;display:inline-block;" class="sectiontitle">
+        Minimum link strength: <b id="strength"></b>
+    </div>
+     <!--Date slider-->
+    <svg id="strengthslider" class="strengthslider" style="width:100%;display:block;" height="60"></svg>
     </div>
 
 </body>
@@ -130,8 +136,10 @@ function loadDataFiles(queue) {
 						drawn[i] = false;
 					}
 					draw(0, 0, 'all');
-					if (slideradded == false)
+					if (slideradded == false){
 						addDateSlider();
+                        addStrengthSlider();
+                    }
 					else {
 						sliderhandle.attr("cx", 0);
 						d3.selectAll(".ticktext")
@@ -170,7 +178,7 @@ function transform() {
 }
 
 var taglistindex;
-function draw(indexstart, tag, filtertype) {
+function draw(indexstart, strengthslider, tag, filtertype) {
 	nodetypes = {};
 
 	//https://stackoverflow.com/questions/11347779/jquery-exclude-children-from-text
@@ -180,10 +188,12 @@ function draw(indexstart, tag, filtertype) {
 
 	graph = data[indexstart];
 	selected_node = "";
-	node = node.data(graph.nodes, function (d) {
+    var maxval = 0;
+	node = node.data(graph.nodes.filter(function(d){return d.maxweight >= strengthslider}), function (d) {
 			return d.id;
 		});
-	link = link.data(graph.links, function (d) {
+        
+	link = link.data(graph.links.filter(function(d){return d.maxweight >= strengthslider}), function (d) {
 			return d.source.id + "-" + d.target.id;
 		});
 	tagcounts = graph.tagcount;
@@ -201,9 +211,9 @@ function draw(indexstart, tag, filtertype) {
 			e.preventDefault();
 			var content = $(this).ignore("span").text(); // or var clickedBtnID = this.id
             if(view == 'monthly')
-                draw(sliderpos, content, "tag");
+                draw(sliderpos, strengthsliderpos, content, "tag");
 			else
-                draw(0, content, "tag");
+                draw(0, strengthsliderpos, content, "tag");
             return false;
 		});
 	}
@@ -220,6 +230,7 @@ function draw(indexstart, tag, filtertype) {
 		.merge(node)
 		.each(function (d) {
 			nodetypes[d.id] = d.type;
+                        maxval = Math.max(maxval,d.maxweight);
 		})
 
 		.attr("id", function (d) {
@@ -289,7 +300,7 @@ function draw(indexstart, tag, filtertype) {
 			.duration(200)
 			.style("opacity", .9);
 			if (d.type == "commoner" || d.type == "tag") {
-				div.html(d.name + "</br>" + d.pagerank  + "</br>" + d.kcore)
+				div.html(d.name + "</br>" + d.kcore)
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY - 28) + "px")
 				.style("background", function () {
@@ -298,7 +309,7 @@ function draw(indexstart, tag, filtertype) {
 					return "lightgreen";
 				});
 			} else {
-				div.html(d.title + "</br>" + d.pagerank + "</br>" + d.kcore)
+				div.html(d.title + "</br>" + d.kcore)
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY - 28) + "px")
 				.style("background", "pink");
@@ -325,6 +336,7 @@ function draw(indexstart, tag, filtertype) {
 			.duration(500)
 			.style("opacity", 0);
 		});
+    updateStrengthSlider(strengthslider,maxval);
 
 	//Arrowheads that show the direction of the interaction. Have to be drawn manually
 	svg.selectAll("defs").remove();
@@ -348,6 +360,8 @@ function draw(indexstart, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.target.id == null)
 			return 10;
+        if(d3.select("#n" + d.target.id).empty())
+            return 10;
 		radius = d3.select("#n" + d.target.id).attr("r");
 		return (d.size * 10) + parseInt(radius);
 	})
@@ -397,6 +411,8 @@ function draw(indexstart, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.source.id == null)
 			return 10;
+                if(d3.select("#n" + d.source.id).empty())
+            return 10;    
 		radius = d3.select("#n" + d.source.id).attr("r");
 		return  - (d.size * 10) - parseInt(radius);
 	})
@@ -541,10 +557,10 @@ function draw(indexstart, tag, filtertype) {
 			//Here we continue to draw the graph for each month until they're all done
 			if ((datafilecounter - 1) > (indexstart + 1)) {
 				indexstart++;
-				draw(indexstart, indexstart, 'all');
+				draw(indexstart,0, indexstart, 'all');
 			} else {
 				monthvalue = 0;
-				draw(0, 0, 'all');
+				draw(0,0, 0, 'all');
 				datafilecounter = 1;
 			}
 		}
@@ -598,9 +614,9 @@ function nwfilter(nwname, button) {
 		currentbutton.style.color = '#37474f';
 	}
     if(view == 'monthly')
-        draw(sliderpos, networkvalue, "network");
+        draw(sliderpos, strengthsliderpos, networkvalue, "network");
 	else
-        draw(0,networkvalue,"network");
+        draw(0, strengthsliderpos,networkvalue,"network");
     button.style.color = "#fff";
 	button.style.borderColor = "#37474f";
 	button.style.background = "#37474f";
@@ -617,22 +633,159 @@ function filter(tagname, button) {
 		currentbutton.style.color = '#37474f';
 	}
     if(view == 'monthly')
-        draw(sliderpos, tagvalue, "tag");
+        draw(sliderpos, strengthsliderpos, tagvalue, "tag");
 	else
-        draw(0,tagvalue,"tag");
+        draw(0, strengthsliderpos,tagvalue,"tag");
     button.style.color = "#fff";
 	button.style.borderColor = "#37474f";
 	button.style.background = "#37474f";
 }
+var strengthsliderpos = 0;
 var sliderpos = 0;
+var linksliderhandle;
 var sliderhandle;
 //New date slider code (adapted from https://bl.ocks.org/mbostock/6452972)
 
+function updateStrengthSlider(currentpos,maxval){
+    var strengthslider = document.getElementById("strengthslider");
+    var strengthslidersvg = d3.select(".strengthslider");
+	margin = {
+		right: 50,
+		left: 50,
+		top: 100,
+		bottom: 50
+	},
+	height = +strengthslidersvg.attr("height");
+	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
+	var slidex = d3.scaleLinear()
+		.domain([0, maxval])
+		.range([0, sliderwidth])
+		.clamp(true);
+        
+	var ticks = d3.select(".strengthslider").select(".ticks").selectAll(".ticktext");
+    ticks = ticks.data(slidex.ticks(maxval));
+    
+    console.log("Updating with " + maxval);
+    
+    ticks.exit().remove();
+	
+    ticks = ticks
+		.enter().append("g")
+		.attr("class", "ticktext")
+		.attr("id", function (d,i) {
+			return "tick" + i;
+		})
+        .merge(ticks)
+		.attr("transform", function (d, i) {
+			return "translate(" + slidex(i) + ",0)";
+		});    
+
+	ticks.append("text")
+	.text(function (d, i) {
+		if (i % 2 == 1)
+			return "";
+		return i;
+	})
+	.attr("class", "tickz")
+	.style("text-anchor", "end");
+
+    var strengthsliderhandle = strengthslidersvg.select(".handle")
+    .call(d3.drag()
+			.on("drag", function () {
+                var linkstrength = Math.round(slidex.invert(d3.event.x));
+                console.log("Link strength is " + linkstrength);
+				if (linkstrength != strengthsliderpos) {
+					strengthsliderpos = linkstrength;
+                    d3.select("#strength").text(strengthsliderpos);
+					if (currentfilter == "tag")
+						draw(sliderpos, strengthsliderpos,tagvalue, "tag");
+					else
+						draw(sliderpos, strengthsliderpos,networkvalue, "network");
+				}
+				strengthsliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
+			})); 
+    strengthsliderhandle.attr("cx", slidex(Math.min(currentpos,maxval)));            
+}
+function addStrengthSlider(){
+    var strengthslider = document.getElementById("strengthslider");
+    var strengthslidersvg = d3.select(".strengthslider");
+	margin = {
+		right: 50,
+		left: 50,
+		top: 100,
+		bottom: 50
+	},
+	height = +strengthslidersvg.attr("height");
+	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
+	var slidex = d3.scaleLinear()
+		.domain([1, 10])
+		.range([0, sliderwidth])
+		.clamp(true);
+
+    var slider = strengthslidersvg.append("g")
+		.attr("class", "slider")
+		.attr("transform", "translate(" + margin.left + "," + height / 2 + ")");
+    
+    slider.append("line")
+	.attr("class", "track")
+	.attr("x1", slidex.range()[0])
+	.attr("x2", slidex.range()[1])
+	.select(function () {
+		return this.parentNode.appendChild(this.cloneNode(true));
+	})
+	.attr("class", "track-inset")
+	.select(function () {
+		return this.parentNode.appendChild(this.cloneNode(true));
+	})
+	.attr("class", "track-overlay");  
+
+	var ticks = slider.insert("g", ".track-overlay")
+		.attr("class", "ticks")
+		.attr("transform", "translate(0," + 18 + ")");
+
+	var ticktext = ticks.selectAll(".ticktext")
+		.data(slidex.ticks(10))
+		.enter().append("g")
+		.attr("class", "ticktext")
+		.attr("id", function (d,i) {
+			return "tick" + i;
+		})
+		.attr("transform", function (d, i) {
+			return "translate(" + slidex(i) + ",0)";
+		});    
+
+	ticktext.append("text")
+	.text(function (d, i) {
+		if (i % 2 == 1)
+			return "";
+		return i;
+	})
+	.attr("class", "tickz")
+	.style("text-anchor", "end");  
+
+    var  strengthsliderhandle = slider.append("circle")
+		.attr("class", "handle")
+		.attr("r", 9)
+		.call(d3.drag()
+			.on("drag", function () {
+                var linkstrength = Math.round(slidex.invert(d3.event.x));
+                console.log("Link strength is " + linkstrength);
+				if (linkstrength != strengthsliderpos) {
+					strengthsliderpos = linkstrength;
+                    d3.select("#strength").text(strengthsliderpos);
+					if (currentfilter == "tag")
+						draw(sliderpos, strengthsliderpos,tagvalue, "tag");
+					else
+						draw(sliderpos, strengthsliderpos,networkvalue, "network");
+				}
+				strengthsliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
+			}));    
+}
 
 function addDateSlider() {
 	slideradded = true;
 	var s = document.getElementById("myslider");
-
+    
 	var slidesvg = d3.select(".myslider"),
 	margin = {
 		right: 50,
@@ -704,9 +857,9 @@ function addDateSlider() {
 					.style("fill", "orange")
 					.style("font-weight", "bold");
 					if (currentfilter == "tag")
-						draw(sliderpos, tagvalue, "tag");
+						draw(sliderpos,  0,tagvalue, "tag");
 					else
-						draw(sliderpos, networkvalue, "network");
+						draw(sliderpos, 0, networkvalue, "network");
 				}
 				sliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
 			}));

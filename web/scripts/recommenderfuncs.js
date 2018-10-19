@@ -73,7 +73,8 @@ var simulation = d3.forceSimulation()
             if(d.closeness == undefined || d.closeness == 0)
                 return 0.05;
             return Math.min(0.05*d.closeness,0.35);
-            }));
+            }))
+            ;
  function mouseovernode(d,node){
             var selection;
 			selected_node = d.id;
@@ -210,7 +211,7 @@ var simulation = d3.forceSimulation()
             else
                 continue;
 //                source = "icons/tagicon.svg";
-			listContainer.append('<a href="#" class="list-group-item" type="' + closestnodes[i].type + '"id="'+closestnodes[i].id+'">' + tagname + '<img src="'+source+'" height="30" width="30"/>' + closestnodes[i].pagerank);
+			listContainer.append('<a href="#" class="list-group-item" type="' + closestnodes[i].type + '"id="'+closestnodes[i].id+'">' + tagname + '<img src="'+source+'" height="30" width="30"/>');
 		}
         $('a').mouseover(function(e){
             var node = d3.select("#n"+$(this).attr("id"));

@@ -33,6 +33,7 @@ def nodeweight_directed(G,node_id,starttime,endtime):
     edges = G.edges(node_id,data=True)
     edgeweights = []
     
+    maxweight = 0
     for (u,v,c) in edges:
         depreciating_constant = 1.0 #One for now, but it should probably be smaller
         overallweight = 0
@@ -42,8 +43,12 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                 actions_to_keep = []
                 for action in c[action_key]:
                     if (starttime <= datetime.strptime(action[1],"%Y/%m/%d") < endtime):
-                        overallweight = overallweight + (cf.weights[action_key]*depreciating_constant)     
-                        network_globals[cf.interaction_types[action_key]] += (cf.weights[action_key]*depreciating_constant)                          
+                        if node_id == action[0]:
+                            edge_weight = cf.weights[action_key]
+                        else:
+                            edge_weight = cf.weights["r"+action_key]
+                        overallweight = overallweight + (edge_weight*depreciating_constant)     
+                        network_globals[cf.interaction_types[action_key]] += (edge_weight*depreciating_constant)                          
                         actions_to_keep.append(action)
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
         
@@ -52,7 +57,12 @@ def nodeweight_directed(G,node_id,starttime,endtime):
             #Adds the edge's weight as an attribute
             if 'edgeweight' not in c:
                 c['edgeweight'] = {}
+                c['maxweight'] = overallweight
             c['edgeweight'][node_id] = overallweight
+            c['maxweight'] = max(c['maxweight'],overallweight)
+            maxweight = max(c['maxweight'],maxweight)
+        G.nodes[u]['maxweight'] = c['maxweight'] if 'maxweight' not in G.nodes[u] else max(G.nodes[u]['maxweight'],c['maxweight'])
+        G.nodes[v]['maxweight'] = c['maxweight'] if 'maxweight' not in G.nodes[v] else max(G.nodes[v]['maxweight'],c['maxweight'])
                 
     if len(edgeweights) == 0:
         return (G,network_globals,0)
@@ -114,7 +124,7 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 bin_boundaries[core[u]]+=1
                 core[u]-=1
                 
-                
+    print 'and now'          
     #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
     if len(core.values()) > 0:
         mincore = min(core.values())

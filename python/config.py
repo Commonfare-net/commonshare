@@ -27,13 +27,21 @@ rcreate_story="rcreate_story"
 create_listing="create_listing"
 rcreate_listing="rcreate_listing"
 conversation="conversation"
+rconversation="rconversation"
 transaction="transaction"
+rtransaction="rtransaction"
 tag_story="tag_story"
 tag_listing="tag_listing"
 tag_commoner="tag_commoner"
 mutual_interactions = [conversation,transaction]
 
-interaction_keys =[comment_story,rcomment_story,comment_listing,rcomment_listing,create_story,rcreate_story,create_listing,rcreate_listing,conversation,transaction,tag_commoner,tag_story,tag_listing]
+interaction_keys =[comment_story,rcomment_story,
+comment_listing,rcomment_listing,
+create_story,rcreate_story,
+create_listing,rcreate_listing,
+conversation,rconversation,
+transaction,rtransaction,
+tag_commoner,tag_story,tag_listing]
 indirect_interactions = [comment_story,comment_listing]
 meta_networks = ['story','listing','social','transaction']
 
@@ -44,13 +52,15 @@ interaction_types = {
         create_story:'story',
         rcreate_story:'story',
         tag_story:'story',
-        comment_listing:'transaction',
-        rcomment_listing:'transaction',
-        create_listing:'transaction',
-        rcreate_listing:'transaction',
-        tag_listing:'transaction',
+        comment_listing:'listing',
+        rcomment_listing:'listing',
+        create_listing:'listing',
+        rcreate_listing:'listing',
+        tag_listing:'listing',
         conversation:'social',
+        rconversation:'social',
         transaction:'transaction',
+        rtransaction:'transaction',
         tag_commoner:''
         }
 
@@ -63,9 +73,11 @@ weights = {
            rcreate_story:1,
            tag_story:0,
 #Friendship-based interactions
-           conversation:4,
+           conversation:6,
+           rconversation:3,
 #Transaction-based interactions
-           transaction:4,
+           transaction:6,
+           rtransaction:3,
 #Forum-based interactions
            create_listing:2,
            rcreate_listing:1,

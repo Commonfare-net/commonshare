@@ -153,8 +153,10 @@ var currentcookie = 0;
 var currentbunches = 0;
 var currentdonut = 0;
 var maxindex = 0;
-d3.json('data/userdata/usersmonthly/' + userid + '.json', function (results) {
+d3.json('data/userdata/' + userid + '.json', function (results) {
 	data = results;
+    console.log("HELLOOOOOOO");
+    console.log(data[0]);
    // latestdate = parseTime(data[0]['nodes'][0]['date']);
 	for (var fortnight in results) {
 		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
