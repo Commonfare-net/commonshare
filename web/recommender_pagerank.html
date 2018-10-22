@@ -19,10 +19,10 @@
 
 <script>
 var urlParams = new URLSearchParams(window.location.search);
-var userid = urlParams.get("userid"); 
 //All this stuff is for the network viz
 var graph = {};
-
+    var userid = 0;
+    var storyid = 0;
 function loadDataFiles() {
 	var url = "data/graphdata/biweekly/biweekly0.json";
 	$.ajax({
@@ -73,6 +73,7 @@ function draw(tag, filtertype) {
 	.attr("r", 0)
 	.remove();
 
+
     var php_data = "";
 	node = node.enter().append("circle")
 		.call(d3.drag()
@@ -107,20 +108,36 @@ function draw(tag, filtertype) {
 		}) //Coloured based on their type
 		.style("opacity",0.15)
 		.on("click", function (od) {
+            if(od.type == 'commoner')
+                userid = od.id;
+            else if(od.type == 'story')
+                storyid = od.id;
+            else
+                return;
+          node.style("opacity", function (d) { //Make nodes and links transparent if they arent linked to tags
+                                    if(d.id == userid || d.id == storyid)
+                                    return 1;
+                                    return 0.15;
+                                });
+            if(storyid == 0 || userid == 0)
+                return;
+                
                 $.ajax({
                    url: "pagerank.php",
                    type: "GET",
-                   data: {userid: od.id},
+                   data: {userid: userid, storyid: storyid},
                    success: function(data){
                         php_data = data;
-                        node.attr("fill", function (d) {
-                                    pagerank_vals = {};
+                        pagerank_vals = {};
                                     var pageranks = php_data.replace("[","").replace("]","").replace(/\s/g,"").replace(/\'/g,"").split(",");
                                     for(var x in pageranks){
                                         var id_and_rank = pageranks[x].split(":");
                                         pagerank_vals[id_and_rank[0]] = id_and_rank[1];
                                     }
-                                    if (d.id == od.id)
+                        node.attr("fill", function (d) {
+                                    if(d.id in pagerank_vals && pagerank_vals[d.id] == 'neglected')
+                                        return d3.color("blue");
+                                    if (d.id == storyid)
                                         return d3.color("orange");           
                                     if (d.type == "commoner")
                                         return d3.color("steelblue");
@@ -132,7 +149,7 @@ function draw(tag, filtertype) {
                                     return d3.color("red");
                                 }) //Coloured based on their type
                                 .style("opacity", function (d) { //Make nodes and links transparent if they arent linked to tags
-                                    if(d.id == od.id || d.id in pagerank_vals)
+                                    if(d.id == userid || d.id == storyid || d.id in pagerank_vals)
                                     return 1;
                                     return 0.15;
                                 });

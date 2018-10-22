@@ -144,7 +144,7 @@ def createEntityGraphs(core_graph,core_values):
             entity_graph = nx.Graph()
             entity_graph.add_node(n,kcore=0,pagerank=0,stats={})        
             #Here we append a blank fortnight for this commoner 
-            if c['type'] == 'commoner':
+            if c['type'] == 'commoner'and loopcount > 0:
                 commoner_data = json_graph.node_link_data(entity_graph)
                 commoner_graphs[n].append(commoner_data)
         else:
@@ -207,7 +207,7 @@ def createEntityGraphs(core_graph,core_values):
             for (u,v,x) in all_edges:
                 if u in entity_graph.nodes and v in entity_graph.nodes:
                     entity_graph.add_edge(u,v,**x)
-            if c['type'] == 'commoner':
+            if c['type'] == 'commoner' and loopcount > 0:
                 commoner_json = json_graph.node_link_data(entity_graph)
                 commoner_graphs[n].append(commoner_json)
             #elif loopcount == 0:
@@ -338,21 +338,27 @@ def calculate(G,windowstart,windowend):
 
     
     nodeiter = core_graph.nodes(data=True)
-
+    neglected_nodes = []
     #Can add the k-core and page-rank stats here
     for (n,c) in nodeiter:
         core_graph.nodes[n]['kcore'] = core_values[n]
+        
         #core_graph.nodes[n]['pagerank'] = page_rank[n]  
     #if loopcount > 0:
     core_graph = createEntityGraphs(core_graph,core_values)
     if loopcount == 0:
         nodeiter = core_graph.nodes(data=True)
+        core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees
         for (n,c) in nodeiter:
             if 'nodemeta' in c:
                 c['nodemeta'] = ','.join(c['nodemeta'])
             if 'tags' in c:
                 c['tags'] = ','.join(c['tags'])
+            #We're calling 'neglected nodes' all stories that are less than a month old with little to no interactions
+            if core_graph.degree[n] < 2 and c['type'] == 'story' and 'create_story' in c and (datetime.now() - datetime.strptime(c['create_story'][0][1],"%Y/%m/%d")).days < 50:
+                neglected_nodes.append(n)
         edgeiter = core_graph.edges(data=True)
+        core_graph.add_edges_from(tag_edges)
         for (u,v,c) in edgeiter:
             if 'edgemeta' in c:
                 c['edgemeta'] = ','.join(c['edgemeta'])
@@ -361,10 +367,12 @@ def calculate(G,windowstart,windowend):
                 if datetime.strptime(spell[1],"%Y/%m/%d") > last_time_activated:
                     last_time_activated = datetime.strptime(spell[1],"%Y/%m/%d")
             c['last_date'] = datetime.strftime(last_time_activated,"%Y/%m/%d")                 
+
                 
         nx.write_gexf(core_graph,"newdata.gexf")
         tree = ET.parse("newdata.gexf")  
         root = tree.getroot()
+        root[0].set('neglected_nodes',' '.join(neglected_nodes))
         root[0].set('start',unparsed_startdate)
         root[0].set('end',unparsed_enddate)
         root[0].set('timeformat', 'date') 
