@@ -14,6 +14,7 @@ from random import random
 import xml.etree.ElementTree as ET
 from dateutil.relativedelta import *
 import itertools
+import os
 '''
 This module does the necessary k-core calculations and appends the results to each node in the Graph.
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
@@ -50,14 +51,13 @@ def createGraphs(G,startdate,enddate):
         loopcount += 1
         
     #Make individual historic files for each commoner and each object (i.e., story, listing)
+    directory = '../web/data/userdata/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     for k,v in commoner_graphs.items():
         if len(v) > 0:
             with open('../web/data/userdata/' + str(k) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(v))              
-    for k,v in object_graphs.items():
-        if len(v) > 0:
-            with open('../web/data/objectdata/' + str(k) + '.json', 'w') as outfile:
-                outfile.write(json.dumps(v[0]))  
     return G 
 '''
 For each node, store the interactions it has been involved with by their type, and by their date
@@ -340,8 +340,6 @@ def calculate(G,windowstart,windowend):
             c['edgeweight'] = c['edgeweight'][u]
         else:
             c['edgeweight'] = 1
-    print 'here we go'
-    print 'nodes are ',len(core_graph.nodes()),' and edges are ',len(core_graph.edges())
     #community.label_propagation_communities(core_graph)
 
     
@@ -367,6 +365,9 @@ def calculate(G,windowstart,windowend):
     tag_list = sorted(tag_counts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
     core_graph_json['tagcount'] = tag_list
     core_graph_json['communities'] = communitylist
+    directory = '../web/data/graphdata/biweekly/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     with open('../web/data/graphdata/biweekly/biweekly'+ str(loopcount) +'.json', 'w') as outfile:
         outfile.write(json.dumps(core_graph_json))
     return core_graph
