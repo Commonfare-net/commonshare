@@ -36,11 +36,8 @@ Classes for simulation:
 
 - <b>userdata/...</b>: Contains a file for every user, named <USER_ID>.json, which represents their entire interaction history
 
-- <b>objectdata/...</b>: Similar to userdata, with a file for each entity (i.e. listings and stories) named <OBJECT_ID>.json
-
 ### Instructions for use
 
 1. Put GEXF file in the `python/gexf` directory
-2. Create the directories `web/data/objectdata` and `web/data/userdata`
-3. Change directory to `python/` and run `python parsegexf <PATH_TO_YOUR_FILE_NAME>`
-4. JSON files will be output into the `web/data/` directory as described above
+2. Change directory to `python/` and run `python parsegexf <PATH_TO_YOUR_FILE_NAME>`
+3. JSON files will be output into the `web/data/` directory as described above
