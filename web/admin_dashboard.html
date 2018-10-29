@@ -121,7 +121,9 @@ function loadDataFiles(queue) {
             drawn[0] = false;
         //    
             draw(0, 0, 'all');
-        });
+if (slideradded == false){
+						addStrengthSlider();
+                    }        });
         return;
     }
 	$.ajax({
@@ -141,7 +143,6 @@ function loadDataFiles(queue) {
 					draw(2, 0, 'all');
 					if (slideradded == false){
 						addDateSlider();
-                        addStrengthSlider();
                     }
                     
 					else {
@@ -173,6 +174,7 @@ var datafilecounter = 1;
 var taglistindex;
 
 function draw(indexstart, strengthslider, tag, filtertype) {
+    sliderpos = indexstart;
 	nodetypes = {};
 	//https://stackoverflow.com/questions/11347779/jquery-exclude-children-from-text
 	$.fn.ignore = function (sel) {
@@ -264,7 +266,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			}
 		})
 		.on("click", function (od) {
-			window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/cshareall.html?userid=' + od.id, '_blank');
+			window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/personal_simplified.html?userid=' + od.id, '_blank');
 		})
 		//Node and link highlighting
 		.on("mouseover", function (d) {
@@ -666,7 +668,7 @@ function updateStrengthSlider(currentpos,maxval){
 	height = +strengthslidersvg.attr("height");
 	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
 	var slidex = d3.scaleLinear()
-		.domain([1, maxval])
+		.domain([0, maxval])
 		.range([0, sliderwidth])
 		.clamp(true);
         
