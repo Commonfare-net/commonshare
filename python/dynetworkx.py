@@ -5,7 +5,7 @@ import networkx as nx
 
 FREQUENCY_THRESHOLD = 5
 REPUTATION_THRESHOLD = 10
-PERCENTAGE_THRESHOLD = 35
+PERCENTAGE_THRESHOLD = 25
 #Basic collusion checking algorithm
 def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
     if G.has_edge(n1,n2) == False:

@@ -35,8 +35,79 @@ var tooltipFormat = d3.timeFormat("%b %d");
 function getDateText(data){
     return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
 }
+function getItalianDateText(data){
+    return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)))
+}
+function getCroatianDateText(data){
+    return croatianDate(tooltipFormat(data.date)) + "-" + croatianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)))
+}
 function findNode(node) {
 	return node['id'] == userid;
+}
+
+function italianDate(date){
+    var monthabb = date.split(" ")[0];
+    var ital;
+    switch(monthabb){
+        case "Jan":
+            ital = "gen";break;
+        case "Feb":
+            ital = "feb";break;
+        case "Mar":
+            ital = "mar";break;
+        case "Apr":
+            ital = "apr";break;
+        case "May":
+            ital = "mag";break;
+        case "Jun":
+            ital = "giu";break;
+        case "Jul":
+            ital = "lug";break;
+        case "Aug":
+            ital = "ago";break;
+        case "Sep":
+            ital = "set";break;
+        case "Oct":
+            ital = "ott";break;
+        case "Nov":
+            ital = "nov";break;
+        case "Dec":
+            ital = "dic";break;
+    
+    }
+    return ital + " " + date.split(" ")[1];
+}
+function croatianDate(date){
+    var monthabb = date.split(" ")[0];
+    var ital;
+    switch(monthabb){
+        case "Jan":
+            ital = "sij";break;
+        case "Feb":
+            ital = "vel";break;
+        case "Mar":
+            ital = "ožu";break;
+        case "Apr":
+            ital = "tra";break;
+        case "May":
+            ital = "svi";break;
+        case "Jun":
+            ital = "lip";break;
+        case "Jul":
+            ital = "srp";break;
+        case "Aug":
+            ital = "kol";break;
+        case "Sep":
+            ital = "ruj";break;
+        case "Oct":
+            ital = "lis";break;
+        case "Nov":
+            ital = "stu";break;
+        case "Dec":
+            ital = "pro";break;
+    
+    }
+    return ital + " " + date.split(" ")[1];
 }
 function getUrl(type, name){
     var prefix;

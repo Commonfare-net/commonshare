@@ -1,4 +1,6 @@
 import networkx as nx
+from networkx.algorithms import community
+from networkx import edge_betweenness_centrality as betweenness
 import dynetworkx as dx
 from datetime import datetime
 import config as cf
@@ -7,16 +9,15 @@ from networkx.readwrite import json_graph
 import copy
 import sys
 import operator
+from operator import itemgetter
+from random import random
 import xml.etree.ElementTree as ET
 from dateutil.relativedelta import *
-
+import itertools
 '''
 This module does the necessary k-core calculations and appends the results to each node in the Graph.
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
 '''
-
-
-
 
 def createGraphs(G,startdate,enddate):     
     global loopcount
@@ -148,16 +149,6 @@ def createEntityGraphs(core_graph,core_values):
                 commoner_data = json_graph.node_link_data(entity_graph)
                 commoner_graphs[n].append(commoner_data)
         else:
-            #If this is the all-time cumulative graph, for each user include all the nodes and surrounding edges
-            '''
-            if loopcount == 0:
-                neighbours_and_inbetweens = neighbourPaths(core_graph,n)
-                surrounding_nodes = neighbours_and_inbetweens.keys()
-                edges = core_graph.edges(surrounding_nodes,data=True)
-            else:
-                edges = core_graph.edges(n,data=True)
-                surrounding_nodes = core_graph.neighbors(n)
-            '''
             edges = core_graph.edges(n,data=True)
             surrounding_nodes = core_graph.neighbors(n)    
             
@@ -168,35 +159,6 @@ def createEntityGraphs(core_graph,core_values):
             entity_graph.nodes[n]['avg_totals'] = {k:(v*core_values[n]) for k,v in c['avg_totals'].items()}
             entity_graph.nodes[n]['stats'] = getNodeStats(core_graph,n)
             entity_graph.add_edges_from(edges)
-            '''
-            if loopcount == 0:
-                #Do a 'closeness' calculation of each surrounding node base 
-                #page_rank_values = personalisedPageRank(core_graph,n)
-                for node,inbetweens in neighbours_and_inbetweens.iteritems():
-                    closeness = 0
-                    for inbetweener in inbetweens:
-                        if core_graph.nodes[inbetweener]['type'] == 'commoner':
-                            closeness = closeness + 3
-                        elif core_graph.nodes[inbetweener]['type'] == 'story':
-                            closeness = closeness + 2
-                        else:
-                            closeness = closeness + 2
-                    entity_graph.add_node(node,**core_graph.nodes[node])
-                    entity_graph.nodes[node]['closeness'] = closeness
-                    entity_graph.nodes[node]['inbetweens'] = inbetweens                
-                    
-            else:
-            
-            #if loopcount == 0:
-            #    page_rank_values = personalisedPageRank(core_graph,n) 
-            #    sorted_rank = sorted(page_rank_values.items(), key=operator.itemgetter(1),reverse=True)
-            #    print 'best matches for ',n,' are ',sorted_rank[0],sorted_rank[1],sorted_rank[2]
-                for node in surrounding_nodes:
-                    core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
-                    entity_graph.add_node(node,**core_graph.nodes[node])
-           #    if loopcount == 0:
-           #         entity_graph.nodes[node]['pagerank'] = page_rank_values[node]
-            '''
             
             for node in surrounding_nodes:
                 core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
@@ -210,9 +172,6 @@ def createEntityGraphs(core_graph,core_values):
             if c['type'] == 'commoner' and loopcount > 0:
                 commoner_json = json_graph.node_link_data(entity_graph)
                 commoner_graphs[n].append(commoner_json)
-            #elif loopcount == 0:
-            #    object_json = json_graph.node_link_data(entity_graph)
-            #    object_graphs[n].append(object_json)
     
     return core_graph
 
@@ -327,15 +286,9 @@ def calculate(G,windowstart,windowend):
     #Do the kcore calculations
     (core_graph,core_values) = dx.core_number_weighted(graph_copy,windowstart,windowend,True,False)
 
-   
-
+  
     #Add the tags back in
     core_graph.add_edges_from(tag_edges)
-
-
- 
- 
-
     
     nodeiter = core_graph.nodes(data=True)
     neglected_nodes = []
@@ -380,11 +333,40 @@ def calculate(G,windowstart,windowend):
 
     #Remove any isolated nodes that exist from removing Basic Income interactions 
     core_graph.remove_nodes_from(list(nx.isolates(core_graph)))
+    
+    iter = core_graph.edges(data=True)
+    for (u,v,c) in iter:
+        if 'edgeweight' in c:
+            c['edgeweight'] = c['edgeweight'][u]
+        else:
+            c['edgeweight'] = 1
+    print 'here we go'
+    print 'nodes are ',len(core_graph.nodes()),' and edges are ',len(core_graph.edges())
+    #community.label_propagation_communities(core_graph)
+
+    
+    comp = community.girvan_newman(core_graph, most_valuable_edge=heaviest)
+    '''
+    counter = 0
+    for communities in itertools.islice(comp, 20):
+        counter +=1
+        if counter == 20:
+            print communities
+        else:
+            print 'oooh'
+    '''
+    communities = tuple(sorted(c) for c in next(comp))
+    communitylist = []
+    id_counter = 0
+    for comm in communities:
+        communitylist.append({"id":id_counter,"nodelist":comm})
+        id_counter +=1
+    
     core_graph_json = json_graph.node_link_data(core_graph)
     core_graph_json['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
     tag_list = sorted(tag_counts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
     core_graph_json['tagcount'] = tag_list
-    
+    core_graph_json['communities'] = communitylist
     with open('../web/data/graphdata/biweekly/biweekly'+ str(loopcount) +'.json', 'w') as outfile:
         outfile.write(json.dumps(core_graph_json))
     return core_graph
@@ -394,7 +376,25 @@ loopcount = 0
 commoner_graphs = {}
 object_graphs = {}
 filename = ""   
+
+def heaviest(G):
+        u, v, w = max(G.edges(data='edgeweight'), key=itemgetter(2))
+        return (u, v)
+
+def most_between(G):
+    centrality = betweenness(G, weight='weight')
+    return max(centrality, key=centrality.get)
  
+def most_central_edge(G):
+     centrality = edge_betweenness_centrality(G)
+     max_cent = max(centrality.values())
+     # Scale the centrality values so they are between 0 and 1,
+     # and add some random noise.
+     centrality = {e: c / max_cent for e, c in centrality.items()}
+     # Add some random noise.
+     centrality = {e: c + random() for e, c in centrality.items()}
+     return max(centrality, key=centrality.get) 
+
 def init(file):
     global filename
     global unparsed_startdate

@@ -16,7 +16,7 @@ var arc = d3.arc()
 	.innerRadius(70);
 var defs = chart.append("defs");
 
-var myReturnText = "return";
+var myReturnText = "ritorna";
 
 //Filter for the outside glow
 var filter = defs.append("filter")
@@ -188,21 +188,21 @@ function makearcs(piesegments, areChildren) {
 						create_story += childdata['create_story'].length;
 					if (childdata['comment_story'] != undefined)
 						comment_story += childdata['comment_story'].length;
-					$("#donutdescription").html("Stories created: " + create_story + "</br>Story comments: " + comment_story);
+					$("#donutdescription").html("storie create: " + create_story + "</br>commenti di storia: " + comment_story);
 				} else if (donutParent == 'listing') {
 					if (childdata['create_listing'] != undefined)
 						create_listing += childdata['create_listing'].length;
 					if (childdata['comment_listing'] != undefined)
 						comment_listing += childdata['comment_listing'].length;
-					$("#donutdescription").html("Listings created: " + create_listing + "</br>Listing comments: " + comment_listing);
+					$("#donutdescription").html("inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing);
 				} else if (donutParent == 'transaction') {
 					if (childdata['transaction'] != undefined)
 						transaction += childdata['transaction'].length;
-					$("#donutdescription").html("Transactions: " + transaction);
+					$("#donutdescription").html("transazioni: " + transaction);
 				} else if (donutParent == 'social') {
 					if (childdata['conversation'] != undefined)
 						conversation += childdata['conversation'].length;
-					$("#donutdescription").html("Conversations: " + conversation);
+					$("#donutdescription").html("conversazioni: " + conversation);
 				}
 			};
 			var descwidth = $("#donutdescription").outerWidth(true);
@@ -247,21 +247,21 @@ function makearcs(piesegments, areChildren) {
 						create_story += childdata['create_story'].length;
 					if (childdata['comment_story'] != undefined)
 						comment_story += childdata['comment_story'].length;
-					$("#donutdescription").html("Stories created: " + create_story + "</br>Story comments: " + comment_story);
+					$("#donutdescription").html("storie create: " + create_story + "</br>commenti di storia: " + comment_story);
 				} else if (donutParent == 'listing') {
 					if (childdata['create_listing'] != undefined)
 						create_listing += childdata['create_listing'].length;
 					if (childdata['comment_listing'] != undefined)
 						comment_listing += childdata['comment_listing'].length;
-					$("#donutdescription").html("Listings created: " + create_listing + "</br>Listing comments: " + comment_listing);
+					$("#donutdescription").html("inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing);
 				} else if (donutParent == 'transaction') {
 					if (childdata['transaction'] != undefined)
 						transaction += childdata['transaction'].length;
-					$("#donutdescription").html("Transactions: " + transaction);
+					$("#donutdescription").html("transazioni: " + transaction);
 				} else if (donutParent == 'social') {
 					if (childdata['conversation'] != undefined)
 						conversation += childdata['conversation'].length;
-					$("#donutdescription").html("Conversations: " + conversation);
+					$("#donutdescription").html("conversazioni: " + conversation);
 				}
 			};
 			var descwidth = $("#donutdescription").outerWidth(true);
@@ -352,6 +352,16 @@ function makeTextNode(thetext, thereturntext) {
 	returntext.attr("class", "returntext");
 }
 var original_segments;
+
+function translate(english){
+    if(english == "social")
+        return "sociali";
+    if(english == "transaction")
+        return "transazioni";
+    if(english == "listing")
+        return "inserzione";
+    return "storie";
+}
 function plotdonut(graphdata, mydata) {
 
 	$("#donut").bind("wheel mousewheel", function (e) {
@@ -400,7 +410,7 @@ function plotdonut(graphdata, mydata) {
 	donut_labels.append("textPath")
 	.text(function (d) {
 		if (d.data.value > 0)
-			return d.data.name;
+			return translate(d.data.name);
 		return "";
 	})
 	.attr("class", "textypath")
@@ -411,7 +421,7 @@ function plotdonut(graphdata, mydata) {
 	})
 	.style("font-size", "18px")
 	.style("fill", function (d) {
-		return color(d3.select(this).text());
+		return color(d.data.name);
 	})
 
 	.style("font-weight", "bold"); ;

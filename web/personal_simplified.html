@@ -183,8 +183,40 @@ d3.json('data/userdata/' + userid + '.json', function (results) {
     
 });
 
-function getDateText(data){
-    return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
+function getItalianDateText(data){
+    return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)))
+}
+function italianDate(date){
+    var monthabb = date.split(" ")[0];
+    var ital;
+    switch(monthabb){
+        case "Jan":
+            ital = "gen";break;
+        case "Feb":
+            ital = "feb";break;
+        case "Mar":
+            ital = "mar";break;
+        case "Apr":
+            ital = "apr";break;
+        case "May":
+            ital = "mag";break;
+        case "Jun":
+            ital = "giu";break;
+        case "Jul":
+            ital = "lug";break;
+        case "Aug":
+            ital = "ago";break;
+        case "Sep":
+            ital = "set";break;
+        case "Oct":
+            ital = "ott";break;
+        case "Nov":
+            ital = "nov";break;
+        case "Dec":
+            ital = "dic";break;
+    
+    }
+    return ital + " " + date.split(" ")[1];
 }
 
 function getUrl(type, name){
@@ -213,6 +245,6 @@ function getUrl(type, name){
         return storyurl;
 }
 </script>
-<script src="scripts/cookie.js"></script>
-<script src="scripts/bunches.js"></script>
-<script src="scripts/donut.js"></script>
+<script src="scripts/italiancookie.js"></script>
+<script src="scripts/italianbunches.js"></script>
+<script src="scripts/italiandonut.js"></script>

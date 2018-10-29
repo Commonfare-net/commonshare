@@ -15,7 +15,7 @@
     </div>
    <div style="display:block; text-align: center;" >
     	<button onclick="view='monthly';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">By month</button>
-		<button onclick="view='cumulative';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">Cumulative</button>       
+		<button onclick="view='cumulative';d3.select('.myslider').style('display','none');loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">Cumulative</button>       
     </div>
      <div style="width:45%;display:inline-block;" class="sectiontitle">
         Dates
@@ -98,8 +98,11 @@ var simulation = d3.forceSimulation()
 	.stop();
 
 var g = svg.append("g").attr("transform", "translate(250,250) scale (.35,.35)"),
+
 link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
 node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
+hull = g.selectAll(".hull");
+    
 svg.call(zoom.transform, d3.zoomIdentity.translate(250, 250).scale(0.35));
 
 //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
@@ -116,7 +119,7 @@ function loadDataFiles(queue) {
 		d3.json("data/graphdata/biweekly/biweekly0.json",function(error,results){
             data[0] = results;
             drawn[0] = false;
-            d3.select(".myslider").style('display','none');
+        //    
             draw(0, 0, 'all');
         });
         return;
@@ -131,21 +134,24 @@ function loadDataFiles(queue) {
 				if (error)
 					throw error;
 				else {
-					for (var i = 0; i < results.length; i++) {
-						data[i] = results[i];
+					for (var i = 1; i < results.length; i++) {
+						data[i] = results[i-1];
 						drawn[i] = false;
 					}
-					draw(0, 0, 'all');
+					draw(2, 0, 'all');
 					if (slideradded == false){
 						addDateSlider();
                         addStrengthSlider();
                     }
+                    
 					else {
 						sliderhandle.attr("cx", 0);
 						d3.selectAll(".ticktext")
 						.style("fill", "black")
 						.style("font-weight", "normal");
 					}
+					draw(1, 0, 'all');
+                    
 				}
 			});
         d3.select(".myslider").style('display','inline-block');
@@ -157,45 +163,35 @@ function loadDataFiles(queue) {
 		}
 	});
 }
-var view = "monthly";
+loadDataFiles(q);
+
+var view = "notmonthly";
 //Ensure all JSON files are loaded before initiating visualisation
 var q = d3.queue();
 
 var datafilecounter = 1;
-loadDataFiles(q);
-
-//The node that's been clicked on to maintain focus across different months
-clicked_node = "";
-
-//zoom transform from https://bl.ocks.org/mbostock/b783fbb2e673561d214e09c7fb5cedee allows clicked node to be zoomed in on
-function transform() {
-	translatex = d3.select("#n" + clicked_node).attr("cx");
-	translatey = d3.select("#n" + clicked_node).attr("cy");
-	return d3.zoomIdentity
-	.translate(width / 2, height / 2)
-	.scale(4)
-	.translate(-translatex, -translatey);
-}
-
 var taglistindex;
+
 function draw(indexstart, strengthslider, tag, filtertype) {
 	nodetypes = {};
-
 	//https://stackoverflow.com/questions/11347779/jquery-exclude-children-from-text
 	$.fn.ignore = function (sel) {
 		return this.clone().find(sel || ">*").remove().end();
 	};
-
 	graph = data[indexstart];
+    communities = graph.communities;
+
+    console.log("SLIDER POS IS " + indexstart);
 	selected_node = "";
     var maxval = 0;
-	node = node.data(graph.nodes.filter(function(d){return d.maxweight >= strengthslider}), function (d) {
-			return d.id;
+	node = node.data(graph.nodes.filter(function(d){return d.maxweight >= strengthslider || strengthslider == 0 || d.type=='tag'}), function (d) {
+            return d.id + indexstart;
 		});
         
-	link = link.data(graph.links.filter(function(d){return d.maxweight >= strengthslider}), function (d) {
+	link = link.data(graph.links.filter(function(d){return d.maxweight >= strengthslider || strengthslider == 0 || d.label.startsWith("tag")}), function (d) {
 			return d.source.id + "-" + d.target.id;
 		});
+
 	tagcounts = graph.tagcount;
 
 	var listContainer = $('.list-group');
@@ -222,6 +218,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("r", 0)
 	.remove();
 
+    
 	node = node.enter().append("circle")
 		.call(d3.drag()
 			.on("start", dragstarted)
@@ -230,11 +227,13 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.merge(node)
 		.each(function (d) {
 			nodetypes[d.id] = d.type;
+                        if(isNaN(d.maxweight))
+                        d.maxweight = 0;
                         maxval = Math.max(maxval,d.maxweight);
-		})
+                        		})
 
 		.attr("id", function (d) {
-			return "n" + d.id;
+			return "n" + indexstart + "_" + d.id;
 		}) //Now each datum can be accessed as a DOM element
 		.attr("meta", function (d) {
 			return "n" + JSON.stringify(d.type);
@@ -243,14 +242,12 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			return (d.kcore * 2) + 5;
 		})
 		.attr("fill", function (d) {
-			if (d.id == clicked_node)
-				return d3.color("orange");
 			if (d.type == "commoner")
 				return d3.color("steelblue");
 			if (d.type == "listing")
 				return d3.color("purple");
 			if (d.type == "tag")
-				return d3.color("lightgreen");
+				return d3.color("green");
 			return d3.color("red");
 		}) //Coloured based on their type
 		.style("opacity", function (d) { //Make nodes and links transparent if they aren't linked to tags
@@ -267,19 +264,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			}
 		})
 		.on("click", function (od) {
-			//Reset previously clicked node's colour
-			if (clicked_node != "")
-				d3.select("#n" + clicked_node).attr("fill", function (d) {
-					if (d.type == "commoner")
-						return d3.color("steelblue");
-					if (d.type == "listing")
-						return d3.color("purple");
-					if (d.type == "tag")
-						return d3.color("lightgreen");
-					return d3.color("red");
-				}) //Coloured based on their type
-				window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/cshareall.html?userid=' + od.id, '_blank');
-
+			window.open('https://djr53.host.cs.st-andrews.ac.uk/commonfare/web/cshareall.html?userid=' + od.id, '_blank');
 		})
 		//Node and link highlighting
 		.on("mouseover", function (d) {
@@ -306,7 +291,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 				.style("background", function () {
 					if (d.type == "commoner")
 						return "lightsteelblue";
-					return "lightgreen";
+					return "green";
 				});
 			} else {
 				div.html(d.title + "</br>" + d.kcore)
@@ -323,7 +308,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 				if (d.type == "listing")
 					return d3.color("purple");
 				if (d.type == "tag")
-					return d3.color("lightgreen");
+					return d3.color("green");
 				return d3.color("red");
 			});
 			sourcelinks.each(function (d) {
@@ -352,6 +337,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("id", function (d) {
 		return "mend" + d.source.id + "-" + d.target.id;
 	})
+
 	.attr("viewBox", function (d) {
 		if (d.size == 2)
 			return "0 -10 20 20";
@@ -360,9 +346,9 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.target.id == null)
 			return 10;
-        if(d3.select("#n" + d.target.id).empty())
+        if(d3.select("#n" + indexstart + "_" + d.target.id).empty())
             return 10;
-		radius = d3.select("#n" + d.target.id).attr("r");
+		radius = d3.select("#n" + indexstart + "_" + d.target.id).attr("r");
 		return (d.size * 10) + parseInt(radius);
 	})
 	.attr("markerUnits", "userSpaceOnUse")
@@ -411,9 +397,9 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.source.id == null)
 			return 10;
-                if(d3.select("#n" + d.source.id).empty())
+                if(d3.select("#n" + indexstart + "_" + d.source.id).empty())
             return 10;    
-		radius = d3.select("#n" + d.source.id).attr("r");
+		radius = d3.select("#n" + indexstart + "_" + d.source.id).attr("r");
 		return  - (d.size * 10) - parseInt(radius);
 	})
 	.attr("markerUnits", "userSpaceOnUse")
@@ -430,6 +416,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			return "M0,-10L-20,0L0,10";
 		return "M0,-5L-10,0L0,5"
 	})
+
 	.style("fill", function (d) {
 		if ('edgemeta' in d && d.edgemeta.includes('story'))
 			return 'red';
@@ -442,6 +429,7 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		return 'black';
 	});
 
+
 	//Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
 	link.exit()
 	.remove();
@@ -449,12 +437,13 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.attr("class", "line")
 		.merge(link)
 		.attr("stroke-width", function (d) {
+            if ('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
+				return 0.25;
             if('edgeweight' in d)
                 return Math.min(8,d.edgeweight[d.source.id]);
 			if ('create_story' in d || 'create_listing' in d)
 				return 4.5;
-			else if ('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
-				return 0.25;
+			
 			return 2;
 		})
 		.attr("edgemeta", function (d) {
@@ -520,6 +509,8 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.attr("cy", function (d) {
 			return d.y;
 		});
+     //   hull.attr("d", function(d) {return "M" + d.vertexhull.join("L") + "Z"; })
+
 	}
 
 	//Dragging functions
@@ -542,7 +533,6 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		d.fy = null;
 	}
 
-	d3.timeout(function () {
 		// Update and restart the simulation.
 		simulation.nodes(graph.nodes);
 
@@ -554,15 +544,16 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
 				simulation.tick();
 			}
+            if(indexstart > 0){
 			//Here we continue to draw the graph for each month until they're all done
 			if ((datafilecounter - 1) > (indexstart + 1)) {
 				indexstart++;
 				draw(indexstart,0, indexstart, 'all');
 			} else {
-				monthvalue = 0;
-				draw(0,0, 0, 'all');
+			//	draw(1,0, 0, 'all');
 				datafilecounter = 1;
 			}
+            }
 		}
 		link
 		.attr("x1", function (d) {
@@ -585,11 +576,28 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.attr("cy", function (d) {
 			return d.y;
 		});
-		//If we've clicked on a node, maintain its focus while going through the different months
-		if (clicked_node != "")
-			svg.call(zoom.transform, transform);
-	});
+    var allHulls = [];
+    
+    allHulls = graph.communities.filter(function(d){return d.nodelist.length > 2;}).map(function(d){
+            var vertices = [];
+            for(var i = 0; i < d.nodelist.length;i++){
+                vertices.push([d3.select("#n" + indexstart + "_" + d.nodelist[i]).attr("cx"),d3.select("#n" + indexstart + "_" + d.nodelist[i]).attr("cy")]);                
+            }
+            d.vertexhull = vertices;
+            return d3.polygonHull(d.vertexhull);
+    });
+    
+    hull = hull.data(allHulls);
+    hull.exit().remove();
 
+        hull = hull
+        .enter().append("path")
+        .attr("class","hull")
+        .style("opacity",0.3)
+         .merge(hull)
+        .style("pointer-events","none")
+        .attr("d", function(d) {return "M" + d.join("L") + "Z"; });
+        
 }
 
 var parseMonth = d3.timeParse("%Y-%m");
@@ -641,7 +649,7 @@ function filter(tagname, button) {
 	button.style.background = "#37474f";
 }
 var strengthsliderpos = 0;
-var sliderpos = 0;
+var sliderpos = 1;
 var linksliderhandle;
 var sliderhandle;
 //New date slider code (adapted from https://bl.ocks.org/mbostock/6452972)
@@ -658,15 +666,13 @@ function updateStrengthSlider(currentpos,maxval){
 	height = +strengthslidersvg.attr("height");
 	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
 	var slidex = d3.scaleLinear()
-		.domain([0, maxval])
+		.domain([1, maxval])
 		.range([0, sliderwidth])
 		.clamp(true);
         
 	var ticks = d3.select(".strengthslider").select(".ticks").selectAll(".ticktext");
     ticks = ticks.data(slidex.ticks(maxval));
-    
-    console.log("Updating with " + maxval);
-    
+        
     ticks.exit().remove();
 	
     ticks = ticks
@@ -693,7 +699,6 @@ function updateStrengthSlider(currentpos,maxval){
     .call(d3.drag()
 			.on("drag", function () {
                 var linkstrength = Math.round(slidex.invert(d3.event.x));
-                console.log("Link strength is " + linkstrength);
 				if (linkstrength != strengthsliderpos) {
 					strengthsliderpos = linkstrength;
                     d3.select("#strength").text(strengthsliderpos);
@@ -718,7 +723,7 @@ function addStrengthSlider(){
 	height = +strengthslidersvg.attr("height");
 	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
 	var slidex = d3.scaleLinear()
-		.domain([1, 10])
+		.domain([0, 10])
 		.range([0, sliderwidth])
 		.clamp(true);
 
@@ -769,7 +774,6 @@ function addStrengthSlider(){
 		.call(d3.drag()
 			.on("drag", function () {
                 var linkstrength = Math.round(slidex.invert(d3.event.x));
-                console.log("Link strength is " + linkstrength);
 				if (linkstrength != strengthsliderpos) {
 					strengthsliderpos = linkstrength;
                     d3.select("#strength").text(strengthsliderpos);
@@ -796,7 +800,7 @@ function addDateSlider() {
 	height = +slidesvg.attr("height");
 	var sliderwidth = parseFloat(window.getComputedStyle(s).width) - margin.left - margin.right;
 	var slidex = d3.scaleLinear()
-		.domain([0, Object.keys(data).length - 1])
+		.domain([1, Object.keys(data).length - 1])
 		.range([0, sliderwidth])
 		.clamp(true);
 
@@ -829,11 +833,12 @@ function addDateSlider() {
 			return "tick" + d;
 		})
 		.attr("transform", function (d, i) {
-			return "translate(" + slidex(i) + ",0)";
+			return "translate(" + slidex(i+1) + ",0)";
 		});
 
 	ticktext.append("text")
 	.text(function (d, i) {
+        console.log('data ' + i + ' date is ' + data[d].date);
 		if (i % 2 == 1)
 			return "";
 		return formatWeek(parseTime(data[d].date));
