@@ -3,9 +3,10 @@ Python scripts for simulating Commonfare data, calculating commonshare, calculat
 
 Requirements:
 
-Python 2.x, NetworkX 2.2 (and the random names generator if running the simulation). Install with the following commands:
+Python 2.x, NetworkX 2.2, SciPy (and the random names generator if running the simulation). Install with the following commands:
 ```bash
 pip install networkx==2.2
+pip install scipy
 pip install names
 ```
 
