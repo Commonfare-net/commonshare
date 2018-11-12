@@ -9,7 +9,7 @@ ACTIONS_PER_DAY = 10
 
 SHOULD_CLIQUE = False
 SHOULD_COLLUDE = True
-NUM_COLLUDERS = 3
+NUM_COLLUDERS = 2
 SPAMMERID = 22
 
 oneyear = 365*24*3600
@@ -67,21 +67,43 @@ interaction_types = {
 #Story-based interactions
 weights = {
            tag_commoner:0,
-           comment_story:1,
+           comment_story:2,
            rcomment_story:2,
-           create_story:2,
+           create_story:3,
            rcreate_story:1,
            tag_story:0,
 #Friendship-based interactions
-           conversation:6,
-           rconversation:3,
+           conversation:5,
+           rconversation:5,
 #Transaction-based interactions
-           transaction:6,
-           rtransaction:3,
+           transaction:4,
+           rtransaction:4,
 #Forum-based interactions
            create_listing:2,
            rcreate_listing:1,
            comment_listing:1,
            rcomment_listing:2,
+           tag_listing:0
+           }
+          
+#Story-based interactions
+no_weights = {
+           tag_commoner:0,
+           comment_story:1,
+           rcomment_story:1,
+           create_story:1,
+           rcreate_story:1,
+           tag_story:0,
+#Friendship-based interactions
+           conversation:1,
+           rconversation:1,
+#Transaction-based interactions
+           transaction:1,
+           rtransaction:1,
+#Forum-based interactions
+           create_listing:1,
+           rcreate_listing:1,
+           comment_listing:1,
+           rcomment_listing:1,
            tag_listing:0
            }

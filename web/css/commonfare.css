@@ -18,6 +18,12 @@
   stroke: steelblue;
   stroke-width: 2px;
   stroke-linejoin: round;
+  opacity: 0.6;
+}
+.marker {
+  fill: orange;
+  stroke: black;
+  stroke-width: 2px;
 }
 .labeltext{
     font-size: 18px;
@@ -32,8 +38,8 @@
   margin: 0;
   padding: 4px 8px;
 }
-#list-group{
-    max-height: 250px;
+.list-group{
+    height: 150px;
     margin-bottom: 10px;
     overflow:scroll;
     -webkit-overflow-scrolling: touch;
@@ -99,7 +105,7 @@ h5 {
 
 .sectiontitle{
   text-align: center;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .line {
@@ -177,7 +183,8 @@ div.transaction {
 
 
 .ticks {
-  font: 10px sans-serif;
+  margin-top:10px;
+  font: 14px sans-serif;
 }
 
 .track,

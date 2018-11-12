@@ -2,6 +2,8 @@ import math
 import config as cf
 from datetime import datetime
 import networkx as nx
+import matplotlib.pyplot as plt
+from scipy import stats
 
 FREQUENCY_THRESHOLD = 5
 REPUTATION_THRESHOLD = 10
@@ -26,17 +28,42 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
 '''
 This method finds the weight corresponding to the interactions at the particular point in time
 '''
-def nodeweight_directed(G,node_id,starttime,endtime):
+def nodeweight_directed(G,node_id,starttime,endtime,is_cumulative):
     network_globals = {}
     for meta in cf.meta_networks:
         network_globals[meta] = 0
     edges = G.edges(node_id,data=True)
     edgeweights = []
     
+    if is_cumulative: #Will eventually replace all these with something nicer
+        active_weeks = [0] * ((endtime - starttime).days / 7) # A list of 0s representing every week from this edge to the end
+        for spell in G.nodes[node_id]['spells']:
+            nodespell = datetime.strptime(spell[1],"%Y/%m/%d")
+            index = ((nodespell-starttime).days / 7)-1
+            active_weeks[index] = 1
+        total_weeks_active = float(sum(active_weeks))
+
     maxweight = 0
+    loopcount = 1
+    influence = 0
+    maxdays = (endtime - starttime).days
     for (u,v,c) in edges:
-        depreciating_constant = 1.0 #One for now, but it should probably be smaller
-        overallweight = 0
+        depreciating_constant = 0.95 
+        overallweight = 0.0
+        
+        if is_cumulative:
+          
+            spelldate = datetime.strptime(c['spells'][0][0],"%Y/%m/%d")
+            active_weeks = [0] * ((endtime - spelldate).days / 7) # A list of 0s representing every week from this edge to the end
+            for spell in G.nodes[v]['spells']:
+                nodespell = datetime.strptime(spell[1],"%Y/%m/%d")
+                if (nodespell - spelldate).days >= 7: #If this spell happened afterwards
+                    index = ((nodespell-spelldate).days / 7)-1
+                    active_weeks[index] = 1
+            if len(active_weeks) > 0:
+                influence = float(sum(active_weeks))/len(active_weeks)
+            else:
+                influence = 0
         for action_key in cf.interaction_keys:
             #Here we need to iterate over the actions and see who did them.
             if action_key in c:
@@ -47,13 +74,21 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                             edge_weight = cf.weights[action_key]
                         else:
                             edge_weight = cf.weights["r"+action_key]
-                        overallweight = overallweight + (edge_weight*depreciating_constant)     
-                        network_globals[cf.interaction_types[action_key]] += (edge_weight*depreciating_constant)                          
                         actions_to_keep.append(action)
+                            
+                        tdelta = endtime - datetime.strptime(action[1],"%Y/%m/%d")
+                        agefraction = math.exp(-(float(tdelta.days)/50))
+                        overallweight = overallweight + (edge_weight*agefraction*depreciating_constant)     
+                        network_globals[cf.interaction_types[action_key]] += (edge_weight*agefraction*depreciating_constant)                          
+                        depreciating_constant = depreciating_constant*0.75
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
         
         if overallweight > 0:
+        
+            if is_cumulative:
+                overallweight *= min(((math.exp(influence)-1) * math.sqrt(total_weeks_active) +0.1 ),1)
             edgeweights.append(overallweight)
+            
             #Adds the edge's weight as an attribute
             if 'edgeweight' not in c:
                 c['edgeweight'] = {}
@@ -66,13 +101,11 @@ def nodeweight_directed(G,node_id,starttime,endtime):
                 
     if len(edgeweights) == 0:
         return (G,network_globals,0)
-    mean = sum(edgeweights)/len(edgeweights)
-    #normalize weights to mean
-    norm = [(float(i)/mean)/(float(min(edgeweights))/mean) for i in edgeweights]
-    return (G,network_globals,sum(norm))
 
+    return (G,network_globals,sum(edgeweights))
+    
 #DJR Modified this method to return the modified graph for spitting out JSON
-def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
+def core_number_weighted(G,starttime,endtime,is_cumulative):
 
     neighbors=G.neighbors
     degrees=G.degree()
@@ -81,16 +114,17 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
     sumofedges = {}
     degrees = dict(G.degree())
     for k,v in degrees.items():
-        (G,network_globals,directed_weight) = nodeweight_directed(G,k,starttime,endtime)
+        (G,network_globals,directed_weight) = nodeweight_directed(G,k,starttime,endtime,is_cumulative)
+
         G.nodes[k]['edgetotals'] = network_globals
         sum_edges = float(sum(network_globals.values()))
         sumofedges[k] = sum_edges                
         avg_edges = sum_edges / len(network_globals.keys())
         G.nodes[k]['cumu_totals'] = {e:((v/sum_edges) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
         G.nodes[k]['avg_totals'] = {e:((v/avg_edges) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
-        #Here's where the weighting gets put in
-        degrees[k] = int(math.sqrt(math.ceil(int(v) * directed_weight)))
-        if directed_weight > REPUTATION_THRESHOLD: #Is this node particularly reputable?
+
+        degrees[k] = int(math.sqrt(int(v)) * directed_weight)
+        if directed_weight > REPUTATION_THRESHOLD: 
             nodeweights[k] = directed_weight
 
     #Do the collusion check
@@ -124,17 +158,39 @@ def core_number_weighted(G,starttime,endtime,directed,ignore_indirect):
                 bin_boundaries[core[u]]+=1
                 core[u]-=1
                 
-    print 'and now'          
+
+    log_core = {k: v for k, v in core.iteritems() if v >0}
+    data = stats.boxcox(log_core.values(), 0)
+
+    loopcount = 0
+    for k,v in log_core.iteritems():
+        log_core[k] = data[loopcount]
+        loopcount += 1
+    
+    for k,v in core.iteritems():
+        if v == 0:
+            log_core[k] = 0
+    
+    outliers_removed_core = {k: v for k, v in log_core.iteritems() if v >0}
+    before_core = {k: v for k, v in core.iteritems() if v >0}
+
+    '''
     #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
-    if len(core.values()) > 0:
-        mincore = min(core.values())
-        maxcore = max(core.values())
+    if is_cumulative:
+        fig, axs = plt.subplots(1, 2, sharey=False, tight_layout=True)
+        axs[0].hist(outliers_removed_core.values(), 20)
+        axs[1].hist(before_core.values(), 20)
+        plt.show()
+    '''    
+    if len(log_core.values()) > 0:
+        mincore = min(log_core.values())
+        maxcore = max(log_core.values())
         if maxcore == mincore:
             maxcore = maxcore+1
-        for k,v in core.items():
+        for k,v in log_core.iteritems():
             if sumofedges[k] > 0:
-                core[k] = int(math.ceil((float(v-mincore)/(maxcore-mincore))*9))+1
+                log_core[k] = int(math.ceil((float(v-mincore)/(maxcore-mincore))*9))+1
             else:
-                core[k] = 0
-    return (G,core)
+                log_core[k] = 0
+    return (G,log_core)
  

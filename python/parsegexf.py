@@ -18,6 +18,10 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
     edgevals = label.split("+")
     edgetype = edgevals[0].split("_")[0]
     
+    #Another bit to ensure Basic Income transactions don't end up in node spells
+    if edgetype == 'transaction' and (source=='1' or target=='1'):
+        return attrdict['transaction']
+        
     sourcenode = nodes.find("*/[@id='" + source +"']");
     targetnode = nodes.find("*/[@id='" + target +"']");
     sourceattr = nodes.find("*/[@id='" + source +"']/*/*[@for='1']")
@@ -52,7 +56,7 @@ def parseLabel(edgeid,source,target,label,actionstart,actionend):
         edgetype = edgetype + "_commoner" #This is just to be clear that the tag refers to that of a commoner    
     if edgetype == "comment":
        original_comment = edges.findall("*/[@label='"+label+"']")
-       if len(original_comment) == 1: #This happens when a comment is received on a story but somehow the 
+       if len(original_comment) == 1: 
         return None
         
        
@@ -88,7 +92,6 @@ for n in nodes:
     attvalues = n.find('xmlns:attvalues',namespaces)
     idattr = attvalues.find("*/[@for='"+str(nodeid_id)+"']")
     attvalues.remove(idattr)
-    #n.remove(this_id)
     
 #Add the node and edge attribute values
 attrib = {'class':'node','mode':'dynamic'}
@@ -169,7 +172,6 @@ for elem in edges:
         else:
             attvalues = existingedges[altedgeid].find('attvalues')
             
-    #list = '[' + elem.attrib['source'] + ',' + elem.attrib['target'] + ']'
     #Here I think it's best if we store just the source node as the value of the edge
     attrib = {'value': elem.attrib['source'],'for':edgetype,'start':actionstart,'end':actionend}
     attvalue = attvalues.makeelement('attvalue',attrib)
@@ -189,7 +191,6 @@ for elem in edges:
         edgestodelete.append(elem)
 
 for dupliedge in edgestodelete:
-   # print 'removing edge ',dupliedge.attrib['id'],' from edges'
     if dupliedge in edges:
         edges.remove(dupliedge) 
 

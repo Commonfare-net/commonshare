@@ -38,11 +38,7 @@ def init(filename,storyid,userid):
     
     G_read = nx.read_gexf(filename)
     page_rank_values = personalisedPageRank(G_read,storyid)
-    
-    
-    #How influential is this node (based on kcore)?
 
-    
     sorted_rank = sorted(page_rank_values.items(), key=operator.itemgetter(1),reverse=True)
     G_untainted = nx.read_gexf(filename)
     list = []
@@ -53,9 +49,7 @@ def init(filename,storyid,userid):
     root = tree.getroot()
     neglected_nodes = root[0].attrib['neglected_nodes'].split(" ")
     
-    #neglected_nodes = G_untainted['neglected_nodes'].split(" ")   
-    #Based on their influence, throw a few new, unknown stories into the mix
-    
+    #Based on their influence, throw a few new, unknown stories into the mix    
     for i in range(min(influence,len(neglected_nodes))):
         list.append(neglected_nodes[i] + ':neglected')
     for j in range(10-influence):

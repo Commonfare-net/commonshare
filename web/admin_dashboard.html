@@ -7,32 +7,27 @@
         
 <body>
     <!--Container for the network viz-->
-    <svg style="width:45%; float:left; display:inline-block;" class="bigvis" width="500" height="600"></svg>
-   
-   <div class="filterelements" style="width:45%; text-align: center; display:inline-block">
-    <div style="display:block;" class="sectiontitle">
-        Interactions view
-    </div>
-   <div style="display:block; text-align: center;" >
-    	<button onclick="view='monthly';loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">By month</button>
-		<button onclick="view='cumulative';d3.select('.myslider').style('display','none');loadDataFiles(d3.queue())" class="button button--ujarak button--border-thin button--text-thick">Cumulative</button>       
-    </div>
-     <div style="width:45%;display:inline-block;" class="sectiontitle">
-        Dates
-     </div>   
-    <!--Date slider-->
-    <svg id="myslider" class="myslider" style="width:100%;display:block;" height="120"></svg>
-    <div style="width:45%;display:inline-block;" class="sectiontitle">
-        Tag filters
-    </div>
-    <div class="list-group" id="list-group" style="width:45%;display:block; margin: 0 auto; text-align: center">
+    <svg style="float:left;position: absolute;z-index: 2;top: 20px;" class="bigvis" width="800" height="600"></svg>
+      <div id="loadingDiv" style="position: relative;left: 320px; top: 220px; display:inline;z-index: 1;">
+        <img src="icons/ajax-loader.gif" height="160" width="160"/>
     </div>
     
-    <div style="display:block;" class="sectiontitle">
-        Network type filters
+   <div class="filterelements" style="width:45%;float:right; text-align: center; display:inline-block">
+
+     <div style="width:45%;display:inline-block;" id="datetitle" class="sectiontitle">
+      <input type="checkbox" name="vehicle1" value="Bike" onchange="doalert(this)"/> Show all interactions <br>  Date: <b id="curdate"></b>
+     </div>   
+    <!--Date slider-->
+    <svg id="myslider" class="myslider" style="width:100%;display:block;" height="55"></svg>
+    <div style="width:45%;display:inline-block;" class="sectiontitle">
+        Tag filters <a id='cleartags' href='#'>(Clear)</a>
+    </div>
+    <div class="list-group" id="list-group" style="width:45%;display:block; margin: 0 auto; text-align: center">
+    </div> 
+       <div style="display:block;" class="sectiontitle">
+        Network type filters  <a id='clearnw' href='#'>(Clear)</a>
     </div>
     <div style="display:block; text-align: center;" >
-    	<button onclick="nwfilter('all',this)" class="button button--ujarak button--border-thin button--text-thick">All</button>
 		<button onclick="nwfilter('social',this)" class="button button--ujarak button--border-thin button--text-thick">Social</button>
 		<button onclick="nwfilter('story',this)" class="button button--ujarak button--border-thin button--text-thick">Stories</button>
 		<button onclick="nwfilter('transaction',this)" class="button button--ujarak button--border-thin button--text-thick">Transactions</button>             
@@ -41,16 +36,105 @@
         Minimum link strength: <b id="strength"></b>
     </div>
      <!--Date slider-->
-    <svg id="strengthslider" class="strengthslider" style="width:100%;display:block;" height="60"></svg>
+    <svg id="strengthslider" class="strengthslider" style="width:100%;display:block;" height="55"></svg>
+       <div style="display:block; text-align: center;" >
+        <input type="checkbox" class='mybox' name="sdfg" value="hjk" onchange="docomm(this)"/> Group by clusters
     </div>
-
+     <div style="width:45%;display:block;" class="sectiontitle">
+        Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
+    </div>
+    <div class="list-group" id="comm-group" style="width:45%;display:inline-block; float:left; text-align: center;height:250px">
+    </div>
+    <div class="list-group" id="comm-members" style="width:45%;float:right;display:inline-block; text-align:center;height:250px;"></div>
+    </div>
 </body>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+<script src="scripts/widgets.js"></script>
 <script>
-//All this stuff is for the network viz
+$('#cleartags').click(function (e) {
+	e.preventDefault();
+	tag = "all";
+	draw();
+	return false;
+});
+$('#clearnw').click(function (e) {
+	e.preventDefault();
+	tag = "all";
+	draw();
+	return false;
+});
+$('#cleardyn').click(clearDyn());
+
+function clearDyn(){
+	d3.select('.hull').attr('d', 0);
+	d3.selectAll(".marker").remove();
+	c_nodes = [];    
+}
+function doalert(checkboxelem) {
+    clearDyn();
+	if (checkboxelem.checked) {
+		$("#curdate").text(formatWeek(parseTime(data[Object.keys(data).length - 1].date)) + " to " + formatWeek(parseTime(data[1].date)));
+		$('#myslider').css('opacity', 0.4);
+		$('#myslider').css('pointer-events', 'none');
+		sliderhandle.attr("cx", 0);
+		indexstart = 0;
+		draw();
+
+	} else {
+		$("#curdate").text(formatWeek(parseTime(data[1].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(data[1].date), 7)));
+		$('#myslider').css('opacity', 1);
+		$('#myslider').css('pointer-events', 'auto');
+		indexstart = 1;
+		draw();
+
+	}
+}
+function docomm(checkboxelem) {
+	if (checkboxelem.checked) 
+		active_simulation = community_sim;
+	else 
+		active_simulation = simulation;
+    
+	active_simulation.nodes(graph.nodes);
+	active_simulation.force("link").links(graph.links);
+	active_simulation.alpha(1);
+	for (var i = 0, n = Math.ceil(Math.log(active_simulation.alphaMin()) / Math.log(1 - active_simulation.alphaDecay())); i < n; ++i) {
+		active_simulation.tick();
+	}
+
+	node
+	.transition()
+	.duration(2000)
+	.attr("cx", function (d) {return d.x;})
+	.attr("cy", function (d) {return d.y;})
+
+	link
+	.transition()
+	.duration(2000)
+	.attr("x1", function (d) {return d.source.x;})
+	.attr("y1", function (d) {return d.source.y;})
+	.attr("x2", function (d) {return d.target.x;})
+	.attr("y2", function (d) {return d.target.y;});
+    
+    if(indexstart == 0){
+        var hull = d3.polygonHull(c_nodes.map(function (d) {
+            return [d3.select("#n" + indexstart + "_" + d).datum().x, d3.select("#n" + indexstart + "_" + d).datum().y];
+        }));
+        convexHull.datum(hull);
+        convexHull
+        .transition()
+        .duration(2000)
+        .attr("d", function (d) {
+            return "M" + d.join("L") + "Z";
+        });
+    }
+
+
+
+}
+
 var data = {};
 var drawn = {};
 var xScale = d3.scaleLinear()
@@ -58,161 +142,229 @@ var xScale = d3.scaleLinear()
 var yScale = d3.scaleLinear()
 	.domain([0, 600]).range([0, 600]);
 
-//Zooming function
+var dateslider;
+var dateslidex;
+var slideradded = false;
+var q = d3.queue();
+var datafilecounter = 0;
+var taglistindex;
+var indexstart = 0;
+var strengthslider = 0;
+var tag;
+var filtertype;
+var c_nodes = [];
+var global_communities = {};
+var ids_to_titles = {};
+var parseTime = d3.timeParse("%Y/%m/%d");
+var formatWeek = d3.timeFormat("%d/%m/%y");
+
 function zoomFunction() {
-	var new_xScale = d3.event.transform.rescaleX(xScale)
-		var new_yScale = d3.event.transform.rescaleY(yScale)
-		g.attr("transform", d3.event.transform)
+	var new_xScale = d3.event.transform.rescaleX(xScale);
+	var new_yScale = d3.event.transform.rescaleY(yScale);
+	g.attr("transform", d3.event.transform)
 };
 var zoom = d3.zoom().on("zoom", zoomFunction);
 var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
 svg.call(zoom);
-
-//These forces are tweaked to attract connected nodes to the center
-var simulation = d3.forceSimulation()
-	//.alphaDecay(0.1)
-	.force("charge", d3.forceManyBody().strength(function (d) {
-			return -300;
-		}))
-	.force("link", d3.forceLink().distance(100).id(function (d) {
-			return d.id;
-		})) //Need the function here to draw links between nodes based on their ID rather than their index
-	.force("x", d3.forceX().x(function (d) {
-			if (d.kcore == 0)
-				return 100;
-			return width / 2;
-		}).strength(function (d) {
-			if (d.kcore == 0)
-				return 0.4;
-			return 0.1;
-		}))
-	.force("y", d3.forceY().y(function (d) {
-			if (d.kcore == 0)
-				return 100;
-			return height / 2;
-		}).strength(function (d) {
-			if (d.kcore == 0)
-				return 0.4;
-			return 0.1;
-		}))
-	.stop();
-
 var g = svg.append("g").attr("transform", "translate(250,250) scale (.35,.35)"),
 
 link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
 node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
-hull = g.selectAll(".hull");
-    
+convexHull = g.append("path").attr("class", "hull");
 svg.call(zoom.transform, d3.zoomIdentity.translate(250, 250).scale(0.35));
+
+var simulation = d3.forceSimulation()
+	.force("link", d3.forceLink().id(function (d) {return d.id;}))
+	.force("charge", d3.forceManyBody().strength(-300))
+	.force("x", d3.forceX().x(width / 2).strength(0.1))
+	.force("y", d3.forceY().y(height / 2).strength(0.1))
+    .stop();
+
+var community_sim = d3.forceSimulation()
+	.force("charge", d3.forceManyBody().strength(-10))
+	.force("link", d3.forceLink().id(function (d) {return d.id;}).strength(0))
+	.force('center', d3.forceCenter(500 / 2, 600 / 2))
+	.force('cluster', forceCluster)
+	.force('collide', d3.forceCollide(d => d.kcore + 10).strength(0.9))
+	.stop();
+var active_simulation = simulation;
+
 
 //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
 var div = d3.select("body").append("div")
 	.attr("class", "tooltip")
 	.style("opacity", 0);
 
-var slideradded = false;
-function loadDataFiles(queue) {
-	var url = "";
-	if (view == "monthly")
-		url = "data/graphdata/biweekly/biweekly" + datafilecounter + ".json";
-	else{
-		d3.json("data/graphdata/biweekly/biweekly0.json",function(error,results){
-            data[0] = results;
-            drawn[0] = false;
-        //    
-            draw(0, 0, 'all');
-if (slideradded == false){
-						addStrengthSlider();
-                    }        });
-        return;
-    }
-	$.ajax({
 
+//https://stackoverflow.com/questions/1584370/how-to-merge-two-arrays-in-javascript-and-de-duplicate-items
+Array.prototype.unique = function () {
+	var a = this.concat();
+	for (var i = 0; i < a.length; ++i) {
+		for (var j = i + 1; j < a.length; ++j) {
+			if (a[i] === a[j])
+				a.splice(j--, 1);
+		}
+	}
+	return a;
+};
+
+function loadDataFiles(queue) {
+	var url = "data/graphdata/biweekly/monthly" + datafilecounter + ".json";
+	$.ajax({
 		url: url,
 		type: 'HEAD',
 
 		error: function () {
+
 			queue.awaitAll(function (error, results) {
 				if (error)
 					throw error;
 				else {
-					for (var i = 1; i < results.length; i++) {
-						data[i] = results[i-1];
+					for (var i = 0; i < results.length; i++) {
+						data[i] = results[i];
 						drawn[i] = false;
 					}
-					draw(2, 0, 'all');
-					if (slideradded == false){
+					draw();
+					if (slideradded == false) {
 						addDateSlider();
-                    }
-                    
-					else {
+						addStrengthSlider();
+					} else {
 						sliderhandle.attr("cx", 0);
 						d3.selectAll(".ticktext")
 						.style("fill", "black")
 						.style("font-weight", "normal");
 					}
-					draw(1, 0, 'all');
-                    
+					indexstart = 1;
+					draw();
 				}
 			});
-        d3.select(".myslider").style('display','inline-block');
 		},
 		success: function () {
 			queue.defer(d3.json, url);
 			datafilecounter++;
-			loadDataFiles(queue, view);
+			loadDataFiles(queue);
 		}
 	});
 }
+
 loadDataFiles(q);
 
-var view = "notmonthly";
-//Ensure all JSON files are loaded before initiating visualisation
-var q = d3.queue();
+function forceCluster(alpha) {
+	node.each(function (d) {
+		cluster = clusters[d.cluster];
 
-var datafilecounter = 1;
-var taglistindex;
+		if (cluster === d)
+			return;
 
-function draw(indexstart, strengthslider, tag, filtertype) {
-    sliderpos = indexstart;
+		let x = d.x - cluster.x,
+		y = d.y - cluster.y,
+		l = Math.sqrt(x * x + y * y),
+		r = d.kcore + cluster.kcore;
+
+		if (l != r) {
+			l = (l - r) / l * alpha;
+			d.x -= x *= l;
+			d.y -= y *= l;
+			cluster.x += x;
+			cluster.y += y;
+		}
+	});
+}
+
+
+function draw() {
+	$(".mybox").prop('checked', false);
 	nodetypes = {};
 	//https://stackoverflow.com/questions/11347779/jquery-exclude-children-from-text
 	$.fn.ignore = function (sel) {
 		return this.clone().find(sel || ">*").remove().end();
 	};
 	graph = data[indexstart];
-    communities = graph.communities;
+	communities = graph.communities;
 
-    console.log("SLIDER POS IS " + indexstart);
 	selected_node = "";
-    var maxval = 0;
-	node = node.data(graph.nodes.filter(function(d){return d.maxweight >= strengthslider || strengthslider == 0 || d.type=='tag'}), function (d) {
-            return d.id + indexstart;
+	var maxval = 0;
+	node = node.data(graph.nodes.filter(function (d) {
+				return d.maxweight >= strengthslider || (strengthslider == 0)
+			}), function (d) {
+			return d.id + indexstart;
 		});
-        
-	link = link.data(graph.links.filter(function(d){return d.maxweight >= strengthslider || strengthslider == 0 || d.label.startsWith("tag")}), function (d) {
+
+	link = link.data(graph.links.filter(function (d) {
+				return d.maxweight >= strengthslider || (strengthslider == 0)
+			}), function (d) {
 			return d.source.id + "-" + d.target.id;
 		});
 
 	tagcounts = graph.tagcount;
+	dc = graph.dynamic_comms;
 
-	var listContainer = $('.list-group');
+	for (var comm in dc) {
+		global_community = [];
+		dates = [];
+		for (var i = 0; i < dc[comm].length; i += 2) {
+			dates.push(dc[comm][i]);
+		}
+		for (var i = 1; i < dc[comm].length; i += 2) {
+			global_community = global_community.concat(dc[comm][i]);
+		}
+		global_communities[comm] = [global_community.unique(), dates];
+
+	}
+	var commContainer = $('#comm-group');
+	var commMembers = $('#comm-members');
+	commContainer.empty();
+
+	for (var comm in global_communities) {
+		commContainer.append('<a href="#" class="list-group-item community">' + comm + '</a>')
+	}
+	$('.community').click(function (e) {
+		e.preventDefault();
+		commMembers.empty();
+		d3.selectAll(".marker").remove();
+		name = $(this).text();
+		c_nodes = global_communities[name][0];
+		for (var i = 0; i < c_nodes.length; i++) {
+			commMembers.append('<a href="#" class="list-group-item community">' + ids_to_titles[c_nodes[i]] + '</a>')
+		}
+		for (var x = 0; x < global_communities[name][1].length; x++) {
+			var date = global_communities[name][1][x];
+			dateslider.append('path')
+			.attr('d', function (d) {
+				var x = dateslidex(date),
+				y = -10;
+				return 'M ' + x + ' ' + y + ' l -4 -8 l 8 0 z';
+			})
+			.attr('class', 'marker');
+
+		}
+		if (indexstart == 0) {
+			var hull = d3.polygonHull(c_nodes.map(function (d) {
+						return [d3.select("#n" + indexstart + "_" + d).attr("cx"), d3.select("#n" + indexstart + "_" + d).attr("cy")];
+					}));
+			convexHull.datum(hull).attr("d", function (d) {
+				return "M" + d.join("L") + "Z";
+			});
+		} else {
+			draw();
+		}
+	});
+
+	var listContainer = $('#list-group');
 	if (taglistindex != indexstart) {
 		taglistindex = indexstart;
 		listContainer.empty();
 		for (var i = 0; i < tagcounts.length; i++) {
 			var tagname = tagcounts[i][0];
 			var tagnum = tagcounts[i][1];
-			listContainer.append('<a href="#" class="list-group-item">' + tagname + '<span class="badge">' + tagnum + '</span></a>');
+			listContainer.append('<a href="#" class="list-group-item taga">' + tagname + '<span class="badge">' + tagnum + '</span></a>');
 		}
-		$('a').click(function (e) {
+		$('.taga').click(function (e) {
 			e.preventDefault();
-			var content = $(this).ignore("span").text(); // or var clickedBtnID = this.id
-            if(view == 'monthly')
-                draw(sliderpos, strengthsliderpos, content, "tag");
-			else
-                draw(0, strengthsliderpos, content, "tag");
-            return false;
+			filtertype = "tag";
+			tag = $(this).ignore("span").text(); // or var clickedBtnID = this.id
+			draw();
+			return false;
 		});
 	}
 
@@ -220,7 +372,6 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("r", 0)
 	.remove();
 
-    
 	node = node.enter().append("circle")
 		.call(d3.drag()
 			.on("start", dragstarted)
@@ -229,10 +380,10 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.merge(node)
 		.each(function (d) {
 			nodetypes[d.id] = d.type;
-                        if(isNaN(d.maxweight))
-                        d.maxweight = 0;
-                        maxval = Math.max(maxval,d.maxweight);
-                        		})
+			if (isNaN(d.maxweight))
+				d.maxweight = 0;
+			maxval = Math.max(maxval, d.maxweight);
+		})
 
 		.attr("id", function (d) {
 			return "n" + indexstart + "_" + d.id;
@@ -241,9 +392,13 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			return "n" + JSON.stringify(d.type);
 		})
 		.attr("r", function (d) {
+			if (c_nodes.indexOf(d.id) > -1)
+				return 25;
 			return (d.kcore * 2) + 5;
 		})
 		.attr("fill", function (d) {
+			if (c_nodes.indexOf(d.id) > -1)
+				return d3.color("orange");
 			if (d.type == "commoner")
 				return d3.color("steelblue");
 			if (d.type == "listing")
@@ -305,6 +460,8 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.on("mouseout", function (d) {
 			//Set the colour of links back to black, and the thickness to its original value
 			d3.select(this).attr("fill", function (d) {
+				if (c_nodes.indexOf(d.id) > -1)
+					return d3.color("orange");
 				if (d.type == "commoner")
 					return d3.color("steelblue");
 				if (d.type == "listing")
@@ -323,8 +480,21 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			.duration(500)
 			.style("opacity", 0);
 		});
-    updateStrengthSlider(strengthslider,maxval);
+	updateStrengthSlider(strengthslider, maxval);
 
+	if (indexstart == 0)
+		for (var comm in global_communities) {
+			nodeids = global_communities[comm][0];
+			for (var i = 0; i < nodeids.length; i++) {
+				var nodedata = d3.select("#n0_" + nodeids[i]).datum();
+				if ('name' in nodedata)
+					ids_to_titles[nodeids[i]] = nodedata['name'];
+				else
+					ids_to_titles[nodeids[i]] = nodedata['title'];
+
+			}
+
+		}
 	//Arrowheads that show the direction of the interaction. Have to be drawn manually
 	svg.selectAll("defs").remove();
 	svg.append("defs").selectAll("marker")
@@ -348,8 +518,8 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.target.id == null)
 			return 10;
-        if(d3.select("#n" + indexstart + "_" + d.target.id).empty())
-            return 10;
+		if (d3.select("#n" + indexstart + "_" + d.target.id).empty())
+			return 10;
 		radius = d3.select("#n" + indexstart + "_" + d.target.id).attr("r");
 		return (d.size * 10) + parseInt(radius);
 	})
@@ -368,6 +538,8 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		return "M0,-5L10,0L0,5"
 	})
 	.style("fill", function (d) {
+		if (c_nodes.indexOf(d.source.id) > -1 && c_nodes.indexOf(d.target.id) > -1)
+			return 'orange';
 		if ('edgemeta' in d && d.edgemeta.includes('story'))
 			return 'red';
 		if ('edgemeta' in d && d.edgemeta.includes('social'))
@@ -399,8 +571,8 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	.attr("refX", function (d) {
 		if (d.source.id == null)
 			return 10;
-                if(d3.select("#n" + indexstart + "_" + d.source.id).empty())
-            return 10;    
+		if (d3.select("#n" + indexstart + "_" + d.source.id).empty())
+			return 10;
 		radius = d3.select("#n" + indexstart + "_" + d.source.id).attr("r");
 		return  - (d.size * 10) - parseInt(radius);
 	})
@@ -420,6 +592,8 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 	})
 
 	.style("fill", function (d) {
+		if (c_nodes.indexOf(d.source.id) > -1 && c_nodes.indexOf(d.target.id) > -1)
+			return 'orange';
 		if ('edgemeta' in d && d.edgemeta.includes('story'))
 			return 'red';
 		if ('edgemeta' in d && d.edgemeta.includes('social'))
@@ -431,7 +605,6 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		return 'black';
 	});
 
-
 	//Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
 	link.exit()
 	.remove();
@@ -439,19 +612,21 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		.attr("class", "line")
 		.merge(link)
 		.attr("stroke-width", function (d) {
-            if ('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
+			if ('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
 				return 0.25;
-            if('edgeweight' in d)
-                return Math.min(8,d.edgeweight[d.source.id]);
+			if ('edgeweight' in d)
+				return Math.min(8, d.edgeweight[d.source.id]);
 			if ('create_story' in d || 'create_listing' in d)
 				return 4.5;
-			
+
 			return 2;
 		})
 		.attr("edgemeta", function (d) {
 			return d.id + JSON.stringify(d.edgemeta);
 		})
 		.style("stroke", function (d) {
+			if (c_nodes.indexOf(d.source.id) > -1 && c_nodes.indexOf(d.target.id) > -1)
+				return 'orange';
 			if ('edgemeta' in d && d.edgemeta.includes('story'))
 				return 'red';
 			if ('edgemeta' in d && d.edgemeta.includes('social'))
@@ -488,31 +663,16 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 			}
 		});
 
-	//Updates to make on simulation 'tick'
 	function ticked() {
 		link
-		.attr("x1", function (d) {
-			return d.source.x;
-		})
-		.attr("y1", function (d) {
-			return d.source.y;
-		})
-		.attr("x2", function (d) {
-			return d.target.x;
-		})
-		.attr("y2", function (d) {
-			return d.target.y;
-		});
+		.attr("x1", function (d) {return d.source.x;})
+		.attr("y1", function (d) {return d.source.y;})
+		.attr("x2", function (d) {return d.target.x;})
+		.attr("y2", function (d) {return d.target.y;});
 
 		node
-		.attr("cx", function (d) {
-			return d.x;
-		})
-		.attr("cy", function (d) {
-			return d.y;
-		});
-     //   hull.attr("d", function(d) {return "M" + d.vertexhull.join("L") + "Z"; })
-
+        .attr("cx", function (d) {return d.x;})
+		.attr("cy", function (d) {return d.y;});
 	}
 
 	//Dragging functions
@@ -535,340 +695,40 @@ function draw(indexstart, strengthslider, tag, filtertype) {
 		d.fy = null;
 	}
 
-		// Update and restart the simulation.
-		simulation.nodes(graph.nodes);
-
-		//Manually update the simulation so it doesn't take a long time to do its thing
-		simulation.force("link").links(graph.links);
-		if (drawn[indexstart] == false) {
-			drawn[indexstart] = true;
-			simulation.alpha(1);
-			for (var i = 0, n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())); i < n; ++i) {
-				simulation.tick();
-			}
-            if(indexstart > 0){
-			//Here we continue to draw the graph for each month until they're all done
-			if ((datafilecounter - 1) > (indexstart + 1)) {
-				indexstart++;
-				draw(indexstart,0, indexstart, 'all');
-			} else {
-			//	draw(1,0, 0, 'all');
-				datafilecounter = 1;
-			}
-            }
+	// Update and restart the simulation.
+	active_simulation.nodes(graph.nodes);
+	clusters = {};
+	node.each(function (d) {
+		var radius = d.kcore;
+		var clusterID = d.cluster;
+		if (!clusters[clusterID] || (radius > clusters[clusterID].kcore)) {
+			clusters[clusterID] = d;
 		}
-		link
-		.attr("x1", function (d) {
-			return d.source.x;
-		})
-		.attr("y1", function (d) {
-			return d.source.y;
-		})
-		.attr("x2", function (d) {
-			return d.target.x;
-		})
-		.attr("y2", function (d) {
-			return d.target.y;
-		});
-
-		node
-		.attr("cx", function (d) {
-			return d.x;
-		})
-		.attr("cy", function (d) {
-			return d.y;
-		});
-    var allHulls = [];
-    
-    allHulls = graph.communities.filter(function(d){return d.nodelist.length > 2;}).map(function(d){
-            var vertices = [];
-            for(var i = 0; i < d.nodelist.length;i++){
-                vertices.push([d3.select("#n" + indexstart + "_" + d.nodelist[i]).attr("cx"),d3.select("#n" + indexstart + "_" + d.nodelist[i]).attr("cy")]);                
-            }
-            d.vertexhull = vertices;
-            return d3.polygonHull(d.vertexhull);
-    });
-    
-    hull = hull.data(allHulls);
-    hull.exit().remove();
-
-        hull = hull
-        .enter().append("path")
-        .attr("class","hull")
-        .style("opacity",0.3)
-         .merge(hull)
-        .style("pointer-events","none")
-        .attr("d", function(d) {return "M" + d.join("L") + "Z"; });
-        
-}
-
-var parseMonth = d3.timeParse("%Y-%m");
-var parseTime = d3.timeParse("%Y/%m/%d");
-var formatMonth = d3.timeFormat("%b %y");
-var formatWeek = d3.timeFormat("%d/%m/%y");
-var formatToList = d3.timeFormat("%Y-%m");
-
-var tagvalue = "all";
-var networkvalue = "all";
-var currentfilter = "";
-
-//Functions for filtering based on tag/network type buttons
-function nwfilter(nwname, button) {
-	currentfilter = "network";
-	networkvalue = nwname;
-
-	var buttons = document.getElementsByTagName("button");
-	for (var i = 0; i < buttons.length; i++) {
-		var currentbutton = buttons[i];
-		currentbutton.style.background = '#fff';
-		currentbutton.style.color = '#37474f';
+	});
+	active_simulation.force("link").links(graph.links);
+	if (drawn[indexstart] == false) {
+		drawn[indexstart] = true;
+		active_simulation.alpha(1);
+		for (var i = 0, n = Math.ceil(Math.log(active_simulation.alphaMin()) / Math.log(1 - active_simulation.alphaDecay())); i < n; ++i) {
+			active_simulation.tick();
+		}
+		if ((datafilecounter - 1) > (indexstart + 1)) {
+			indexstart++;
+			draw();
+		} else {
+			datafilecounter = 1;
+		}
 	}
-    if(view == 'monthly')
-        draw(sliderpos, strengthsliderpos, networkvalue, "network");
-	else
-        draw(0, strengthsliderpos,networkvalue,"network");
-    button.style.color = "#fff";
-	button.style.borderColor = "#37474f";
-	button.style.background = "#37474f";
-}
+	link
+	.attr("x1", function (d) {return d.source.x;})
+	.attr("y1", function (d) {return d.source.y;})
+	.attr("x2", function (d) {return d.target.x;})
+	.attr("y2", function (d) {return d.target.y;});
 
-function filter(tagname, button) {
-	currentfilter = "tag";
-	tagvalue = tagname;
-
-	var buttons = document.getElementsByTagName("button");
-	for (var i = 0; i < buttons.length; i++) {
-		var currentbutton = buttons[i];
-		currentbutton.style.background = '#fff';
-		currentbutton.style.color = '#37474f';
-	}
-    if(view == 'monthly')
-        draw(sliderpos, strengthsliderpos, tagvalue, "tag");
-	else
-        draw(0, strengthsliderpos,tagvalue,"tag");
-    button.style.color = "#fff";
-	button.style.borderColor = "#37474f";
-	button.style.background = "#37474f";
-}
-var strengthsliderpos = 0;
-var sliderpos = 1;
-var linksliderhandle;
-var sliderhandle;
-//New date slider code (adapted from https://bl.ocks.org/mbostock/6452972)
-
-function updateStrengthSlider(currentpos,maxval){
-    var strengthslider = document.getElementById("strengthslider");
-    var strengthslidersvg = d3.select(".strengthslider");
-	margin = {
-		right: 50,
-		left: 50,
-		top: 100,
-		bottom: 50
-	},
-	height = +strengthslidersvg.attr("height");
-	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
-	var slidex = d3.scaleLinear()
-		.domain([0, maxval])
-		.range([0, sliderwidth])
-		.clamp(true);
-        
-	var ticks = d3.select(".strengthslider").select(".ticks").selectAll(".ticktext");
-    ticks = ticks.data(slidex.ticks(maxval));
-        
-    ticks.exit().remove();
-	
-    ticks = ticks
-		.enter().append("g")
-		.attr("class", "ticktext")
-		.attr("id", function (d,i) {
-			return "tick" + i;
-		})
-        .merge(ticks)
-		.attr("transform", function (d, i) {
-			return "translate(" + slidex(i) + ",0)";
-		});    
-
-	ticks.append("text")
-	.text(function (d, i) {
-		if (i % 2 == 1)
-			return "";
-		return i;
-	})
-	.attr("class", "tickz")
-	.style("text-anchor", "end");
-
-    var strengthsliderhandle = strengthslidersvg.select(".handle")
-    .call(d3.drag()
-			.on("drag", function () {
-                var linkstrength = Math.round(slidex.invert(d3.event.x));
-				if (linkstrength != strengthsliderpos) {
-					strengthsliderpos = linkstrength;
-                    d3.select("#strength").text(strengthsliderpos);
-					if (currentfilter == "tag")
-						draw(sliderpos, strengthsliderpos,tagvalue, "tag");
-					else
-						draw(sliderpos, strengthsliderpos,networkvalue, "network");
-				}
-				strengthsliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
-			})); 
-    strengthsliderhandle.attr("cx", slidex(Math.min(currentpos,maxval)));            
-}
-function addStrengthSlider(){
-    var strengthslider = document.getElementById("strengthslider");
-    var strengthslidersvg = d3.select(".strengthslider");
-	margin = {
-		right: 50,
-		left: 50,
-		top: 100,
-		bottom: 50
-	},
-	height = +strengthslidersvg.attr("height");
-	var sliderwidth = parseFloat(window.getComputedStyle(strengthslider).width) - margin.left - margin.right;
-	var slidex = d3.scaleLinear()
-		.domain([0, 10])
-		.range([0, sliderwidth])
-		.clamp(true);
-
-    var slider = strengthslidersvg.append("g")
-		.attr("class", "slider")
-		.attr("transform", "translate(" + margin.left + "," + height / 2 + ")");
+	node
+    .attr("cx", function (d) {return d.x;})
+	.attr("cy", function (d) {return d.y;});
     
-    slider.append("line")
-	.attr("class", "track")
-	.attr("x1", slidex.range()[0])
-	.attr("x2", slidex.range()[1])
-	.select(function () {
-		return this.parentNode.appendChild(this.cloneNode(true));
-	})
-	.attr("class", "track-inset")
-	.select(function () {
-		return this.parentNode.appendChild(this.cloneNode(true));
-	})
-	.attr("class", "track-overlay");  
-
-	var ticks = slider.insert("g", ".track-overlay")
-		.attr("class", "ticks")
-		.attr("transform", "translate(0," + 18 + ")");
-
-	var ticktext = ticks.selectAll(".ticktext")
-		.data(slidex.ticks(10))
-		.enter().append("g")
-		.attr("class", "ticktext")
-		.attr("id", function (d,i) {
-			return "tick" + i;
-		})
-		.attr("transform", function (d, i) {
-			return "translate(" + slidex(i) + ",0)";
-		});    
-
-	ticktext.append("text")
-	.text(function (d, i) {
-		if (i % 2 == 1)
-			return "";
-		return i;
-	})
-	.attr("class", "tickz")
-	.style("text-anchor", "end");  
-
-    var  strengthsliderhandle = slider.append("circle")
-		.attr("class", "handle")
-		.attr("r", 9)
-		.call(d3.drag()
-			.on("drag", function () {
-                var linkstrength = Math.round(slidex.invert(d3.event.x));
-				if (linkstrength != strengthsliderpos) {
-					strengthsliderpos = linkstrength;
-                    d3.select("#strength").text(strengthsliderpos);
-					if (currentfilter == "tag")
-						draw(sliderpos, strengthsliderpos,tagvalue, "tag");
-					else
-						draw(sliderpos, strengthsliderpos,networkvalue, "network");
-				}
-				strengthsliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
-			}));    
-}
-
-function addDateSlider() {
-	slideradded = true;
-	var s = document.getElementById("myslider");
-    
-	var slidesvg = d3.select(".myslider"),
-	margin = {
-		right: 50,
-		left: 50,
-		top: 100,
-		bottom: 50
-	},
-	height = +slidesvg.attr("height");
-	var sliderwidth = parseFloat(window.getComputedStyle(s).width) - margin.left - margin.right;
-	var slidex = d3.scaleLinear()
-		.domain([1, Object.keys(data).length - 1])
-		.range([0, sliderwidth])
-		.clamp(true);
-
-	var slider = slidesvg.append("g")
-		.attr("class", "slider")
-		.attr("transform", "translate(" + margin.left + "," + height / 2 + ")");
-
-	slider.append("line")
-	.attr("class", "track")
-	.attr("x1", slidex.range()[0])
-	.attr("x2", slidex.range()[1])
-	.select(function () {
-		return this.parentNode.appendChild(this.cloneNode(true));
-	})
-	.attr("class", "track-inset")
-	.select(function () {
-		return this.parentNode.appendChild(this.cloneNode(true));
-	})
-	.attr("class", "track-overlay");
-
-	var ticks = slider.insert("g", ".track-overlay")
-		.attr("class", "ticks")
-		.attr("transform", "translate(0," + 18 + ")");
-
-	var ticktext = ticks.selectAll(".ticktext")
-		.data(slidex.ticks(Object.keys(data).length - 1))
-		.enter().append("g")
-		.attr("class", "ticktext")
-		.attr("id", function (d) {
-			return "tick" + d;
-		})
-		.attr("transform", function (d, i) {
-			return "translate(" + slidex(i+1) + ",0)";
-		});
-
-	ticktext.append("text")
-	.text(function (d, i) {
-        console.log('data ' + i + ' date is ' + data[d].date);
-		if (i % 2 == 1)
-			return "";
-		return formatWeek(parseTime(data[d].date));
-	})
-	.attr("class", "tickz")
-	.attr("transform", "rotate(-65)")
-	.style("text-anchor", "end");
-
-	sliderhandle = slider.append("circle")
-		.attr("class", "handle")
-		.attr("r", 9)
-		.call(d3.drag()
-			.on("drag", function () {
-				var selected_date = Math.round(slidex.invert(d3.event.x));
-				if (selected_date != sliderpos) {
-					sliderpos = selected_date;
-					d3.selectAll(".ticktext")
-					.style("fill", "black")
-					.style("font-weight", "normal");
-					d3.select("#tick" + selected_date)
-					.style("fill", "orange")
-					.style("font-weight", "bold");
-					if (currentfilter == "tag")
-						draw(sliderpos,  0,tagvalue, "tag");
-					else
-						draw(sliderpos, 0, networkvalue, "network");
-				}
-				sliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
-			}));
+    $('#loadingDiv').css('display','none');
 }
 </script>

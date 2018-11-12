@@ -1,6 +1,4 @@
 import networkx as nx
-from networkx.algorithms import community
-from networkx import edge_betweenness_centrality as betweenness
 import dynetworkx as dx
 from datetime import datetime
 import config as cf
@@ -9,12 +7,11 @@ from networkx.readwrite import json_graph
 import copy
 import sys
 import operator
-from operator import itemgetter
-from random import random
 import xml.etree.ElementTree as ET
 from dateutil.relativedelta import *
-import itertools
 import os
+import community
+
 '''
 This module does the necessary k-core calculations and appends the results to each node in the Graph.
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
@@ -38,18 +35,15 @@ def createGraphs(G,startdate,enddate):
     windowend = enddate
     windowstart = windowend+relativedelta(weeks=-2)
     
-    #Makes the cumulative graph
-    G_new = calculate(G,startdate,enddate)
-
     loopcount += 1
     #Makes the fortnightly graphs
-    while(windowstart > startdate):
+    while(windowend > startdate):
         print 'windowend is',datetime.strftime(windowend,"%Y/%m/%d")
         calculate(G,windowstart,windowend)
         windowend = windowstart
         windowstart = windowend + relativedelta(weeks=-2)
         loopcount += 1
-        
+
     #Make individual historic files for each commoner and each object (i.e., story, listing)
     directory = '../web/data/userdata/'
     if not os.path.exists(directory):
@@ -57,7 +51,12 @@ def createGraphs(G,startdate,enddate):
     for k,v in commoner_graphs.items():
         if len(v) > 0:
             with open('../web/data/userdata/' + str(k) + '.json', 'w') as outfile:
-                outfile.write(json.dumps(v))              
+                outfile.write(json.dumps(v))   
+    
+    #Make cumulative graphs
+    loopcount = 0
+    G_new = calculate(G,startdate,enddate)
+                
     return G 
 '''
 For each node, store the interactions it has been involved with by their type, and by their date
@@ -89,47 +88,19 @@ def getNodeStats(core_graph,node_id):
                         stats[interaction_type][action_key].append(action)                    
                         continue
                     
-                    #stats[interaction_type][action_key].append(action)    
                     #Interactions also indexed by the date on which they occurred. This initialises necessary data structures 
                     if action[1] not in stats: #action[1] is the date of the interaction
                         stats[action[1]] = {}
                     if interaction_type not in stats[action[1]]:
                         stats[action[1]][interaction_type] = {}                            
                     if action_key not in stats[action[1]][interaction_type]:
-                        stats[action[1]][interaction_type][action_key] = [1,cf.weights[action_key]]
+                        stats[action[1]][interaction_type][action_key] = [1,cf.no_weights[action_key]]
                     else:
                         stats[action[1]][interaction_type][action_key][0] += 1 #Number of actions
-                        stats[action[1]][interaction_type][action_key][1] += cf.weights[action_key] #Weight of actions    
+                        stats[action[1]][interaction_type][action_key][1] += cf.no_weights[action_key] #Weight of actions    
                     stats[interaction_type][action_key].append(action)
     return stats
-#https://stackoverflow.com/questions/22742754/finding-the-n-degree-neighborhood-of-a-node
-'''
-Finds all nodes exactly two steps away from a given node - does not include those one step away 
-'''
-def neighbourPaths(G, node):
-    path_lengths = nx.shortest_path_length(G, node)
-    all_paths = {}
-    for neighbour, length in path_lengths.iteritems():
-        if length ==2:
-            all_paths[neighbour] = [p[1] for p in nx.all_shortest_paths(G,node,neighbour)]
-        elif length == 1:
-            all_paths[neighbour] = []
-    return all_paths
 
-def personalisedPageRank(core_graph,node):
- #Do the pagerank calculations 
-    multi_di_graph = nx.MultiDiGraph()
-    multi_di_graph.add_nodes_from(core_graph.nodes())
-    for (u,v,c) in core_graph.edges(data=True):
-        multi_di_graph.add_edge(u,v,**c)
-        multi_di_graph.add_edge(v,u,**c)
-    iter = multi_di_graph.edges(data=True)
-    for (u,v,c) in iter:
-        if 'edgeweight' in c:
-            c['edgeweight'] = c['edgeweight'][u]
-        else:
-            c['edgeweight'] = 1
-    return nx.pagerank_numpy(multi_di_graph,personalization={node:1},alpha=0.85,weight='edgeweight')
 '''
 This method creates the individual commoner/object graphs
 '''
@@ -217,10 +188,15 @@ def filter_spells(G,start,end):
     
     return G
     
-
+dyn_index = 0
+dc = {}   
+stepcoms = {} 
 def calculate(G,windowstart,windowend):
     global unparsed_startdate
     global unparsed_enddate
+    global dyn_index
+    global dc
+    global stepcoms
     edges_to_remove = []    
     tag_edges = []
     tag_counts = {} #Holds counts of each of the tags      
@@ -284,9 +260,9 @@ def calculate(G,windowstart,windowend):
     graph_copy = filter_spells(graph_copy,windowstart,windowend)
     
     #Do the kcore calculations
-    (core_graph,core_values) = dx.core_number_weighted(graph_copy,windowstart,windowend,True,False)
+    is_cumulative = True if loopcount == 0 else False
+    (core_graph,core_values) = dx.core_number_weighted(graph_copy,windowstart,windowend,is_cumulative)
 
-  
     #Add the tags back in
     core_graph.add_edges_from(tag_edges)
     
@@ -296,7 +272,6 @@ def calculate(G,windowstart,windowend):
     for (n,c) in nodeiter:
         core_graph.nodes[n]['kcore'] = core_values[n]
         
-        #core_graph.nodes[n]['pagerank'] = page_rank[n]  
     #if loopcount > 0:
     core_graph = createEntityGraphs(core_graph,core_values)
     if loopcount == 0:
@@ -333,68 +308,116 @@ def calculate(G,windowstart,windowend):
 
     #Remove any isolated nodes that exist from removing Basic Income interactions 
     core_graph.remove_nodes_from(list(nx.isolates(core_graph)))
-    
+
     iter = core_graph.edges(data=True)
     for (u,v,c) in iter:
         if 'edgeweight' in c:
             c['edgeweight'] = c['edgeweight'][u]
         else:
             c['edgeweight'] = 1
-    #community.label_propagation_communities(core_graph)
 
+    stepcoms = {}
+    partition = community.best_partition(core_graph,weight='edgeweight')
     
-    comp = community.girvan_newman(core_graph, most_valuable_edge=heaviest)
-    '''
-    counter = 0
-    for communities in itertools.islice(comp, 20):
-        counter +=1
-        if counter == 20:
-            print communities
+            
+    for k,v in partition.iteritems():
+        if v not in stepcoms:
+            stepcoms[v] = []
+        stepcoms[v].append(k)
+
+    print 'stepcomcounts be ',len(stepcoms)
+    #Now compare fronts to previous step communities
+    cdate = loopcount
+    if loopcount > 0:
+        if len(dc) == 0: #Bootstrapping
+            for i in range(len(stepcoms)):
+                dc[str(dyn_index)] = [cdate,stepcoms.values()[dyn_index]]
+                dyn_index += 1
+            fronts = {k:v[len(v)-1] for k,v in dc.iteritems()} 
         else:
-            print 'oooh'
-    '''
-    communities = tuple(sorted(c) for c in next(comp))
-    communitylist = []
-    id_counter = 0
-    for comm in communities:
-        communitylist.append({"id":id_counter,"nodelist":comm})
-        id_counter +=1
-    
+            #Get most recent step community of each dynamic community
+            fronts = {k:v[len(v)-1] for k,v in dc.iteritems()} 
+            print 'front length be ',len(fronts)
+            #Keep a record of how many new things have been appended onto a dynamic community
+            #If it's more than one we need to split the community
+            appendings = {k:0 for k in dc.keys()}
+            
+            for c_val in stepcoms.values():
+                matching_coms = []
+                for key,f_val in fronts.iteritems():
+                    similarity = jaccard(f_val,c_val)
+                    if similarity < 0.31:
+                        continue
+                    else:
+                        matching_coms.append(key)
+                if len(matching_coms) == 0: #Didn't find a matching dynamic community, best make a new one    
+                    dc[str(dyn_index)] = [cdate,c_val]
+                    dyn_index += 1
+                else: #Two dynamic communities match this step community, do a merge?
+                    for key in matching_coms:
+                        dc[key].append(cdate)
+                        dc[key].append(c_val)
+                        appendings[key] += 1
+                    
+                    
+            for k,v in appendings.iteritems():
+                if v > 1: #Then we need to do a split on this community
+                    length = len(dc[k])
+                    last_appended = dc[k][length-2:length]
+                    second_last_appended = dc[k][length-4:length-2]
+                    dc[k] = dc[k][0:length-5]
+                    dc[str(dyn_index)] = copy.deepcopy(dc[k])
+                    dc[str(dyn_index)].append(last_appended[0]) 
+                    dc[str(dyn_index)].append(last_appended[1]) 
+                    dyn_index += 1
+                    dc[str(dyn_index)] = copy.deepcopy(dc[k])
+                    dc[str(dyn_index)].append(second_last_appended[0])
+                    dc[str(dyn_index)].append(second_last_appended[1])
+                    dyn_index += 1
+                    #And probably retire this dynamic community
+                    dc[k].append([])
+                    
+    for n,c in nodeiter:
+        c['cluster'] = partition[n]
+
     core_graph_json = json_graph.node_link_data(core_graph)
     core_graph_json['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
     tag_list = sorted(tag_counts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
     core_graph_json['tagcount'] = tag_list
-    core_graph_json['communities'] = communitylist
+    if loopcount == 0:
+        dynamic_communities = {}
+        for k,v in dc.iteritems():
+            if len(v) > 2:
+                highcore = 0;
+                #Give this cluster a name based on the most high-profile node in it
+                for nodes in v:
+                    if type(nodes) is list:
+                        for nodeid in nodes:
+                            n = core_graph.nodes[nodeid]
+                            nodecore = n['kcore']
+                            if nodecore > highcore:
+                                central_node = n['title'].split()[0] if 'title' in n else n['name']
+                                highcore = nodecore
+                dynamic_communities[central_node + k] = v
+        core_graph_json['dynamic_comms'] = dynamic_communities
+        
     directory = '../web/data/graphdata/biweekly/'
     if not os.path.exists(directory):
         os.makedirs(directory)
-    with open('../web/data/graphdata/biweekly/biweekly'+ str(loopcount) +'.json', 'w') as outfile:
+    with open('../web/data/graphdata/biweekly/monthly'+ str(loopcount) +'.json', 'w') as outfile:
         outfile.write(json.dumps(core_graph_json))
     return core_graph
-    
-#Initialisation code            
+           
 loopcount = 0
 commoner_graphs = {}
 object_graphs = {}
 filename = ""   
 
-def heaviest(G):
-        u, v, w = max(G.edges(data='edgeweight'), key=itemgetter(2))
-        return (u, v)
-
-def most_between(G):
-    centrality = betweenness(G, weight='weight')
-    return max(centrality, key=centrality.get)
- 
-def most_central_edge(G):
-     centrality = edge_betweenness_centrality(G)
-     max_cent = max(centrality.values())
-     # Scale the centrality values so they are between 0 and 1,
-     # and add some random noise.
-     centrality = {e: c / max_cent for e, c in centrality.items()}
-     # Add some random noise.
-     centrality = {e: c + random() for e, c in centrality.items()}
-     return max(centrality, key=centrality.get) 
+def jaccard(front,stepcommunity):
+    intersection = list(set(stepcommunity) & set(front))
+    union = list(set(stepcommunity) | set(front))
+    similarity = float(len(intersection)) / float(len(union))
+    return similarity
 
 def init(file):
     global filename

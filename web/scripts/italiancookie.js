@@ -183,6 +183,7 @@ function plotcookie(graphdata, mydata) {
 	}
         
 
+    console.log(mydata.cumu_totals);
 	var cumu_totals = JSON.parse(JSON.stringify(mydata.cumu_totals));
 	var cumu_array = d3.keys(cumu_totals).map(function (key) {
 			return {

@@ -17,30 +17,30 @@ def str_to_class(classname):
     return reduce(getattr, classname.split("."), sys.modules[__name__])    
 #Run this script to generate simulated GEXF data files to be used in the modified k-core algorithm
 
-def get_users(need_two_users):
+def get_users(need_two_users,interaction_type):
   type=nx.get_node_attributes(G,'type')
+  name=nx.get_node_attributes(G,'name')
   tags=nx.get_node_attributes(G,'tags')
   all_users = False
   #Randomly determine whether colluding nodes get detected
   random_no = random.randint(1,20)
   while True:
     if need_two_users:
-      if cf.SHOULD_COLLUDE and random_no > 17:
-        return random.sample(cf.colluding_nodes,2)
-      else:
-          users = random.sample(G.nodes(),2)
-          if type[users[0]] == 'commoner' and type[users[1]] == 'commoner' and users[0] not in cf.colluding_nodes and users[1] not in cf.colluding_nodes and users[0] != cf.SPAMMERID:
-            #if cf.SHOULD_CLIQUE == True: #Nodes should only talk if they have similar tags
-            #    user1tags = tags[users[0]].split(',')
-            #    user2tags = tags[users[1]].split(',')
-            #    if len([val for val in user1tags if val in user2tags]) > 0:
-            #        break
-            #else:
-            break
+      #if cf.SHOULD_COLLUDE and random_no > 13 and interaction_type == 'user':
+      #    users = random.sample(G.nodes(),1) + random.sample(cf.colluding_nodes,1)
+      #else:
+        users = random.sample(G.nodes(),2)
+        if random_no > 5 and (users[0] in cf.colluding_nodes or users[1] in cf.colluding_nodes):
+          continue 
+        if type[users[0]] == 'commoner' and type[users[1]] == 'commoner' and name[users[0]] != name[users[1]]:
+          break
     else:
-      users = random.sample(G.nodes(),1)
-      if type[users[0]] == 'commoner':
-        break     
+        #if cf.SHOULD_COLLUDE and random_no > 18:
+        #    users = random.sample(cf.colluding_nodes,1)
+        #else:    
+        users = random.sample(G.nodes(),1)
+        if type[users[0]] == 'commoner' and (random_no > 10 or users[0] not in cf.colluding_nodes):
+            break     
   #This just randomly updates the tags of our selected user (maybe they're interested in different things this month or whatever
   return users    
 
@@ -86,7 +86,7 @@ def tag_assign(thing,tag):
     
 
 def user_interact(interaction):
-  pair = get_users(True)
+  pair = get_users(True,'user')
   source = pair[0]
   target = pair[1]
  # print source,'started talking to',target
@@ -101,7 +101,7 @@ def user_interact(interaction):
 
 def object_interact(objtype,interaction):
   interaction = interaction+'_'+objtype
-  pair = get_users(True)
+  pair = get_users(True,'object')
   source = pair[0]
   target = pair[1]
   #tags=nx.get_node_attributes(G,'tags')
@@ -168,11 +168,11 @@ def add_user():
 
 #TODO: Figure out how user's 'accepting' another user's forum post answer might work
 def do_random_thing():
-  num = random.randint(1,10)
+  num = random.randint(1,9)
   if num == 1:
-    create_object(get_users(False)[0],'story')
+    create_object(get_users(False,'object')[0],'story')
   elif num == 2:
-    create_object(get_users(False)[0],'listing')
+    create_object(get_users(False,'object')[0],'listing')
   elif num == 3 or num == 4:
     object_interact('story','comment')
   elif num == 5 or num == 6:
@@ -181,10 +181,6 @@ def do_random_thing():
     user_interact('conversation')
   elif num == 9:
     user_interact('transaction')
-  else:
-    num = random.randint(1,3)
-    if num == 1:
-        create_object(cf.SPAMMERID,'story')
     
 cur_date = datetime.datetime(2016,6,1)
 start_date = cur_date

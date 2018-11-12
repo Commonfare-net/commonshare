@@ -159,7 +159,8 @@ function plotbunches(mydata) {
 				nodetouse = d.source;
 			else
 				nodetouse = d.target;
-			return d3.select("#bunch" + nodetouse).attr("stroke");
+			console.log(d);
+            return d3.select("#bunch" + nodetouse).attr("stroke");
 		});
 
 	textnode = bunchg.append("text")

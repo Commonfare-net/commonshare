@@ -64,7 +64,7 @@ function updateDonut(value){
         if(currentdonut == 0)return;
         else currentdonut --;
     plotdonut(graph_data[currentdonut],node_data[currentdonut]);
-    $('#donutdate').text(getItalianDateText(node_data[currentdonut]));
+    $('#donutdate').text(getDateText(node_data[currentdonut]));
 }
 function updateCookie(value){
     if(value == -1)
@@ -74,7 +74,7 @@ function updateCookie(value){
         if(currentcookie == 0)return;
         else currentcookie --;
     plotcookie(graph_data[currentcookie],node_data[currentcookie]);
-    $('#cookiedate').text(getItalianDateText(node_data[currentcookie]));
+    $('#cookiedate').text(getDateText(node_data[currentcookie]));
     
 }
 function updateBunches(value){
@@ -85,7 +85,7 @@ function updateBunches(value){
         if(currentbunches == 0)return;
         else currentbunches --;
     plotbunches(graph_data[currentbunches]);
-    $('#bunchesdate').text(getItalianDateText(node_data[currentbunches]));
+    $('#bunchesdate').text(getDateText(node_data[currentbunches]));
     
 }
 
@@ -149,13 +149,16 @@ d3.json('data/userdata/' + userid + '.json', function (results) {
 	plotbunches(graph_data[0]);
 	plotdonut(graph_data[0],node_data[0]);
 
-    $('#donutdate').text(getItalianDateText(node_data[currentdonut]));
-    $('#cookiedate').text(getItalianDateText(node_data[currentcookie]));
-    $('#bunchesdate').text(getItalianDateText(node_data[currentbunches]));
+    $('#donutdate').text(getDateText(node_data[currentdonut]));
+    $('#cookiedate').text(getDateText(node_data[currentcookie]));
+    $('#bunchesdate').text(getDateText(node_data[currentbunches]));
 
     
 });
 
+function getDateText(data){
+    return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
+}
 function getItalianDateText(data){
     return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)))
 }
@@ -218,6 +221,6 @@ function getUrl(type, name){
         return storyurl;
 }
 </script>
-<script src="scripts/italiancookie.js"></script>
-<script src="scripts/italianbunches.js"></script>
-<script src="scripts/italiandonut.js"></script>
+<script src="scripts/cookie.js"></script>
+<script src="scripts/bunches.js"></script>
+<script src="scripts/donut.js"></script>
