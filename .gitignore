@@ -1,5 +1,8 @@
 **/userdata
 **/objectdata
+web/data/graphdata/biweekly/*
+web/data/graphdata/weekly/*
+web/data/graphdata/monthly/*
 biweekly*.json
 weekly*.json
 monthly*.json
