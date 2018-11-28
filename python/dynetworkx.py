@@ -3,7 +3,7 @@ import config as cf
 from datetime import datetime
 import networkx as nx
 #import matplotlib.pyplot as plt
-#from scipy import stats
+from scipy import stats
 
 FREQUENCY_THRESHOLD = 5
 #REPUTATION_THRESHOLD = 5
