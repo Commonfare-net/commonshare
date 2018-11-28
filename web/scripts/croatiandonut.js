@@ -188,21 +188,21 @@ function makearcs(piesegments, areChildren) {
 						create_story += childdata['create_story'].length;
 					if (childdata['comment_story'] != undefined)
 						comment_story += childdata['comment_story'].length;
-					$("#donutdescription").html("storie create: " + create_story + "</br>commenti di storia: " + comment_story);
+					$("#donutdescription").html("broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story);
 				} else if (donutParent == 'listing') {
 					if (childdata['create_listing'] != undefined)
 						create_listing += childdata['create_listing'].length;
 					if (childdata['comment_listing'] != undefined)
 						comment_listing += childdata['comment_listing'].length;
-					$("#donutdescription").html("inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing);
+					$("#donutdescription").html("broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing);
 				} else if (donutParent == 'transaction') {
 					if (childdata['transaction'] != undefined)
 						transaction += childdata['transaction'].length;
-					$("#donutdescription").html("transazioni: " + transaction);
+					$("#donutdescription").html("transkacije: " + transaction);
 				} else if (donutParent == 'social') {
 					if (childdata['conversation'] != undefined)
 						conversation += childdata['conversation'].length;
-					$("#donutdescription").html("conversazioni: " + conversation);
+					$("#donutdescription").html("razgovori: " + conversation);
 				}
 			};
 			var descwidth = $("#donutdescription").outerWidth(true);
@@ -247,21 +247,21 @@ function makearcs(piesegments, areChildren) {
 						create_story += childdata['create_story'].length;
 					if (childdata['comment_story'] != undefined)
 						comment_story += childdata['comment_story'].length;
-					$("#donutdescription").html("storie create: " + create_story + "</br>commenti di storia: " + comment_story);
+					$("#donutdescription").html("broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story);
 				} else if (donutParent == 'listing') {
 					if (childdata['create_listing'] != undefined)
 						create_listing += childdata['create_listing'].length;
 					if (childdata['comment_listing'] != undefined)
 						comment_listing += childdata['comment_listing'].length;
-					$("#donutdescription").html("inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing);
+					$("#donutdescription").html("broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing);
 				} else if (donutParent == 'transaction') {
 					if (childdata['transaction'] != undefined)
 						transaction += childdata['transaction'].length;
-					$("#donutdescription").html("transazioni: " + transaction);
+					$("#donutdescription").html("transkacije: " + transaction);
 				} else if (donutParent == 'social') {
 					if (childdata['conversation'] != undefined)
 						conversation += childdata['conversation'].length;
-					$("#donutdescription").html("conversazioni: " + conversation);
+					$("#donutdescription").html("razgovori: " + conversation);
 				}
 			};
 			var descwidth = $("#donutdescription").outerWidth(true);
@@ -355,12 +355,12 @@ var original_segments;
 
 function translate(english){
     if(english == "social")
-        return "sociali";
+        return "razgovori";
     if(english == "transaction")
-        return "transazioni";
+        return "transkacije";
     if(english == "listing")
-        return "inserzione";
-    return "storie";
+        return "unosi";
+    return "priče";
 }
 function plotdonut(graphdata, mydata) {
 

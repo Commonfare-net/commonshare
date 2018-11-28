@@ -26,19 +26,20 @@ def get_users(need_two_users,interaction_type):
   random_no = random.randint(1,20)
   while True:
     if need_two_users:
-      #if cf.SHOULD_COLLUDE and random_no > 13 and interaction_type == 'user':
-      #    users = random.sample(G.nodes(),1) + random.sample(cf.colluding_nodes,1)
-      #else:
-        users = random.sample(G.nodes(),2)
-        if random_no > 5 and (users[0] in cf.colluding_nodes or users[1] in cf.colluding_nodes):
-          continue 
+        if cf.SHOULD_COLLUDE and random_no > 10 and interaction_type == 'user':
+          users = random.sample(cf.colluding_nodes,2)
+        else:
+          users = random.sample(G.nodes(),2)
+          if (random_no < 10 and users[0] in cf.colluding_nodes) or (random_no > 10 and users[1] in cf.colluding_nodes):
+            continue 
         if type[users[0]] == 'commoner' and type[users[1]] == 'commoner' and name[users[0]] != name[users[1]]:
           break
     else:
-        #if cf.SHOULD_COLLUDE and random_no > 18:
+        #if cf.SHOULD_COLLUDE and random_no > 17:
         #    users = random.sample(cf.colluding_nodes,1)
         #else:    
         users = random.sample(G.nodes(),1)
+            
         if type[users[0]] == 'commoner' and (random_no > 10 or users[0] not in cf.colluding_nodes):
             break     
   #This just randomly updates the tags of our selected user (maybe they're interested in different things this month or whatever
@@ -59,10 +60,10 @@ def create_object(user,objtype):
   dict['title'] = unicode(str(object))
   nx.set_node_attributes(G,{obj_node: dict})
   #Spells can be used to determine how long an action contributes to a user's commonfare for
-  G.nodes[obj_node]['spells'] = [(s_today,s_fortnight)]
-  G.nodes[user]['spells'].append((s_today,s_fortnight))
+  G.nodes[obj_node]['spells'] = [(s_today,s_today)]
+  G.nodes[user]['spells'].append((s_today,s_today))
   G.add_edge(user,obj_node)
-  G[user][obj_node]['spells'] = [(s_today,s_fortnight)]
+  G[user][obj_node]['spells'] = [(s_today,s_today)]
   #while True:
   #  tag = random.sample(G.nodes(),1)
   #  if G.nodes[tag[0]]['type'] == 'tag':
@@ -81,7 +82,7 @@ def tag_assign(thing,tag):
             G[thing][tag][x] = []
         G[thing][tag]['spells'] = []
     #Add the spells
-    G[thing][tag]['spells'].append((s_today,s_fortnight))
+    G[thing][tag]['spells'].append((s_today,s_today))
     update(thing,tag,'tag_' + G.nodes[thing]['type'])  
     
 
@@ -96,7 +97,7 @@ def user_interact(interaction):
         G[source][target][x] = []
     G[source][target]['spells'] = []
   #Add the spells
-  G[source][target]['spells'].append((s_today,s_fortnight))
+  G[source][target]['spells'].append((s_today,s_today))
   update(source,target,interaction)
 
 def object_interact(objtype,interaction):
@@ -123,19 +124,19 @@ def object_interact(objtype,interaction):
         G[object][target]['spells'] = []
     #add the spells
         
-      G[object][target]['spells'].append((s_today,s_fortnight))
-      G[source][object]['spells'].append((s_today,s_fortnight))
+      G[object][target]['spells'].append((s_today,s_today))
+      G[source][object]['spells'].append((s_today,s_today))
       
       update(source,object,interaction)
       update(object,target,interaction)
       return
     
 def update(source,target,interaction):
-    G[source][target][interaction].append((source,s_today,s_fortnight))
-    G.nodes[source][interaction].append((source,s_today,s_fortnight))    
-    G.nodes[target][interaction].append((source,s_today,s_fortnight))  
-    G.nodes[source]['spells'].append((s_today,s_fortnight))
-    G.nodes[target]['spells'].append((s_today,s_fortnight))
+    G[source][target][interaction].append((source,s_today,s_today))
+    G.nodes[source][interaction].append((source,s_today,s_today))    
+    G.nodes[target][interaction].append((source,s_today,s_today))  
+    G.nodes[source]['spells'].append((s_today,s_today))
+    G.nodes[target]['spells'].append((s_today,s_today))
 
 def add_tag():
     global G
@@ -147,7 +148,7 @@ def add_tag():
     dict['type'] = 'tag'
     dict['name'] = str(mytag)
     nx.set_node_attributes(G,{tag_node: dict})
-    G.nodes[tag_node]['spells'] = [(s_today,None)]
+    G.nodes[tag_node]['spells'] = [(s_today,s_today)]
     
 def add_user():
     global G
@@ -159,7 +160,7 @@ def add_user():
     dict['type'] = 'commoner'
     dict['name'] = str(myuser)
     nx.set_node_attributes(G,{user_node: dict})
-    G.nodes[user_node]['spells'] = [(s_today,None)]
+    G.nodes[user_node]['spells'] = [(s_today,s_today)]
     #while True:
     #    tag = random.sample(G.nodes(),1)
     #    if G.nodes[tag[0]]['type'] == 'tag':
@@ -175,11 +176,11 @@ def do_random_thing():
     create_object(get_users(False,'object')[0],'listing')
   elif num == 3 or num == 4:
     object_interact('story','comment')
-  elif num == 5 or num == 6:
+  elif num == 5:
     object_interact('listing','comment')
-  elif num == 7 or num == 8:
+  elif num == 6 or num == 7:
     user_interact('conversation')
-  elif num == 9:
+  elif num == 8 or num == 9:
     user_interact('transaction')
     
 cur_date = datetime.datetime(2016,6,1)

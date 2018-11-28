@@ -18,20 +18,11 @@ var networkvalue = "all";
 var currentfilter = "";
 
 //Functions for filtering based on tag/network type buttons
-function nwfilter(nwname, button) {
+function nwfilter(nwname) {
     filtertype = "network";
     tag = nwname;
     
-	var buttons = document.getElementsByTagName("button");
-	for (var i = 0; i < buttons.length; i++) {
-		var currentbutton = buttons[i];
-		currentbutton.style.background = '#fff';
-		currentbutton.style.color = '#37474f';
-	}
     draw();
-	button.style.color = "#fff";
-	button.style.borderColor = "#37474f";
-	button.style.background = "#37474f";
 }
 
 var linksliderhandle;
@@ -55,7 +46,7 @@ function updateStrengthSlider(currentpos, maxval) {
 		.clamp(true);
 
 	var ticks = d3.select(".strengthslider").select(".ticks").selectAll(".ticktext");
-	ticks = ticks.data(slidex.ticks(maxval));
+	ticks = ticks.data(slidex.ticks(maxval*10));
 
 	ticks.exit().remove();
 
@@ -67,14 +58,14 @@ function updateStrengthSlider(currentpos, maxval) {
 		})
 		.merge(ticks)
 		.attr("transform", function (d, i) {
-			return "translate(" + slidex(i) + ",0)";
+			return "translate(" + slidex((i*1.0)/10.0) + ",0)";
 		});
 
 	ticks.append("text")
 	.text(function (d, i) {
-		if (i % 2 == 1)
+		if (i % 10 != 0)
 			return "";
-		return i;
+		return i/10.0;
 	})
 	.attr("class", "tickz")
 	.style("text-anchor", "end");
@@ -82,7 +73,7 @@ function updateStrengthSlider(currentpos, maxval) {
 	var strengthsliderhandle = strengthslidersvg.select(".handle")
 		.call(d3.drag()
 			.on("drag", function () {
-				var linkstrength = Math.round(slidex.invert(d3.event.x));
+				var linkstrength = Math.round( slidex.invert(d3.event.x) * 10) / 10; //Round to 1dp! Math.round(slidex.invert(d3.event.x));
 				if (linkstrength != strengthslider) {
 					strengthslider = linkstrength;
 					d3.select("#strength").text(strengthslider);
@@ -140,7 +131,7 @@ function addStrengthSlider() {
 		.attr("transform", function (d, i) {
 			return "translate(" + slidex(i) + ",0)";
 		});
-
+/*
 	ticktext.append("text")
 	.text(function (d, i) {
 		if (i % 2 == 1)
@@ -149,7 +140,7 @@ function addStrengthSlider() {
 	})
 	.attr("class", "tickz")
 	.style("text-anchor", "end");
-
+*/
 	var strengthsliderhandle = slider.append("circle")
 		.attr("class", "handle")
 		.attr("r", 9)
@@ -165,7 +156,8 @@ function addStrengthSlider() {
 				strengthsliderhandle.attr("cx", slidex(slidex.invert(d3.event.x)));
 			}));
 }
-
+var currentDate;
+var dateslidex;
 function addDateSlider() {
 	slideradded = true;
 	var s = document.getElementById("myslider");
@@ -180,7 +172,7 @@ function addDateSlider() {
 	height = +slidesvg.attr("height");
 	var sliderwidth = parseFloat(window.getComputedStyle(s).width) - margin.left - margin.right;
 	dateslidex = d3.scaleLinear()
-		.domain([1, Object.keys(data).length - 1])
+		.domain([0, datalist.length-1])
 		.range([0, sliderwidth])
 		.clamp(true);
 
@@ -213,32 +205,37 @@ function addDateSlider() {
 			return "tick" + d;
 		})
 		.attr("transform", function (d, i) {
-			return "translate(" + dateslidex((i*(Object.keys(data).length))/5) + ",0)";
+			return "translate(" + dateslidex((i*datalist.length)/5) + ",0)";
 		});
 
 	ticktext.append("text")
 	.text(function (d, i) {
         if(i == 0)
-            return formatWeek(parseTime(data[1].date));
+            return formatWeek(parseTime(datalist[0].date));
         else{
-            index = Math.round((Object.keys(data).length - 1) * (i/5.0))
-            return formatWeek(parseTime(data[index].date));
+            index = Math.round((datalist.length) * (i/5.0));
+            if(i > 5)
+                return "";
+            return formatWeek(parseTime(datalist[index-1].date));
         }
     })
 	.attr("class", "tickz")
 	.style("text-anchor", "middle");
-    $("#curdate").text(formatWeek(parseTime(data[1].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(data[1].date),7)));
-
+    $("#curdate").text(formatWeek(parseTime(datalist[0].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[0].date),14)));
+    currentDate = datalist[ Object.keys(data).length-2].date;
 	sliderhandle = dateslider.append("circle")
 		.attr("class", "handle")
 		.attr("r", 9)
 		.call(d3.drag()
 			.on("drag", function () {
 				var selected_date = Math.round(dateslidex.invert(d3.event.x));
-				if (selected_date != indexstart) {
+				var actual_date = Object.keys(data).length - selected_date - 1;
+                if (actual_date != indexstart) {
 					//sliderpos = selected_date;
-					indexstart = selected_date;
-                    $("#curdate").text(formatWeek(parseTime(data[indexstart].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(data[indexstart].date),7)));
+                   
+					indexstart = actual_date;
+                     currentDate = datalist[selected_date].date;
+                    $("#curdate").text(formatWeek(d3.utcDay.offset(parseTime(datalist[selected_date].date),-14)) + " to " + formatWeek(parseTime(datalist[selected_date].date))  );
                     draw();
 				}
 				sliderhandle.attr("cx", dateslidex(dateslidex.invert(d3.event.x)));

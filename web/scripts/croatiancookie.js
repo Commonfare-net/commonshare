@@ -37,7 +37,7 @@ var labels = cookieg.append("text")
 	.attr("xlink:href", "#circlepath") //place the ID of the path here
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
-	.text("storie")
+	.text("priče")
     .attr("id","cookiestorylabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
@@ -63,7 +63,7 @@ var listinglabels = cookieg.append("text")
 	.attr("xlink:href", "#listingpath") //place the ID of the path here
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
-	.text("inserzione")
+	.text("unosi")
     .attr("id","cookielistinglabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
@@ -90,7 +90,7 @@ var transactionlabels = cookieg.append("text")
 	.attr("xlink:href", "#transactionpath") //place the ID of the path here
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
-	.text("transazioni")
+	.text("transkacije")
     .attr("id","cookietransactionlabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
@@ -117,7 +117,7 @@ var sociallabels = cookieg.append("text")
 	.attr("xlink:href", "#socialpath") //place the ID of the path here
 	.style("text-anchor", "middle") //place the text halfway on the arc
 	.attr("startOffset", "50%")
-	.text("sociali")
+	.text("razgovori")
     .attr("id","cookiesociallabel")
 	.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");

@@ -301,7 +301,7 @@ function plotbunches(mydata) {
 		.attr("xlink:href", "#bcirclepath") //place the ID of the path here
 		.style("text-anchor", "middle") //place the text halfway on the arc
 		.attr("startOffset", "50%")
-		.text("commoners")
+		.text("commoneri")
         .attr("id","bunchescommonerlabel")
 		.on("mouseover", function (d) {
 			d3.select(this).style("cursor", "pointer");
@@ -318,7 +318,7 @@ function plotbunches(mydata) {
 		.attr("xlink:href", "#blistingpath") //place the ID of the path here
 		.style("text-anchor", "middle") //place the text halfway on the arc
 		.attr("startOffset", "50%")
-		.text("oglasi")
+		.text("unosi")
         .attr("id","buncheslistinglabel")
 		.on("mouseover", function (d) {
 			d3.select(this).style("cursor", "pointer");

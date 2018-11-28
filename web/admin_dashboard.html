@@ -7,46 +7,56 @@
         
 <body>
     <!--Container for the network viz-->
-    <svg style="float:left;position: absolute;z-index: 2;top: 20px;" class="bigvis" width="800" height="600"></svg>
+    <svg style="float:left;position: absolute;z-index: 2;top: 20px;" class="bigvis" width="750" height="500"></svg>
       <div id="loadingDiv" style="position: relative;left: 320px; top: 220px; display:inline;z-index: 1;">
         <img src="icons/ajax-loader.gif" height="160" width="160"/>
     </div>
     
    <div class="filterelements" style="width:45%;float:right; text-align: center; display:inline-block">
-
-     <div style="width:45%;display:inline-block;" id="datetitle" class="sectiontitle">
-      <input type="checkbox" name="vehicle1" value="Bike" onchange="doalert(this)"/> Show all interactions <br>  Date: <b id="curdate"></b>
-     </div>   
-    <!--Date slider-->
-    <svg id="myslider" class="myslider" style="width:100%;display:block;" height="55"></svg>
-    <div style="width:45%;display:inline-block;" class="sectiontitle">
-        Tag filters <a id='cleartags' href='#'>(Clear)</a>
-    </div>
-    <div class="list-group" id="list-group" style="width:45%;display:block; margin: 0 auto; text-align: center">
-    </div> 
-       <div style="display:block;" class="sectiontitle">
-        Network type filters  <a id='clearnw' href='#'>(Clear)</a>
-    </div>
-    <div style="display:block; text-align: center;" >
-		<button onclick="nwfilter('social',this)" class="button button--ujarak button--border-thin button--text-thick">Social</button>
-		<button onclick="nwfilter('story',this)" class="button button--ujarak button--border-thin button--text-thick">Stories</button>
-		<button onclick="nwfilter('transaction',this)" class="button button--ujarak button--border-thin button--text-thick">Transactions</button>             
-	</div>
-    <div style="width:45%;display:inline-block;" class="sectiontitle">
+       
+    <div style="width:45%;display:inline-block;margin-top:15px;" class="sectiontitle">
         Minimum link strength: <b id="strength"></b>
     </div>
      <!--Date slider-->
     <svg id="strengthslider" class="strengthslider" style="width:100%;display:block;" height="55"></svg>
-       <div style="display:block; text-align: center;" >
-        <input type="checkbox" class='mybox' name="sdfg" value="hjk" onchange="docomm(this)"/> Group by clusters
-    </div>
-     <div style="width:45%;display:block;" class="sectiontitle">
+       <div style="width:45%;display:block;float:left;"margin-top:20px;" >
+        <input type="checkbox" class='mybox' name="sdfg" value="hjk" onchange="togglegroups(this)"/> Group by clusters
+        </div>
+        <div style="width:45%;display:inline-block"margin-top:20px;" >
+           <input type="checkbox"  class='mybox2' name="werw" value="nnng" onchange="toggletags(this)"/> Hide tags
+        </div>
+    
+     <div style="width:45%;display:block;float:left;" class="sectiontitle">
         Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
     </div>
-    <div class="list-group" id="comm-group" style="width:45%;display:inline-block; float:left; text-align: center;height:250px">
+    <div style="width:45%;display:inline-block;" class="sectiontitle">
+    Tag filters <a id='cleartags' href='#'>(Clear)</a>
     </div>
-    <div class="list-group" id="comm-members" style="width:45%;float:right;display:inline-block; text-align:center;height:250px;"></div>
+    <div class="list-group" id="comm-group" style="width:45%;display:inline-block; text-align: center;">
     </div>
+    
+    <div class="list-group" id="list-group" style="width:45%;display:inline-block; text-align: center">
+    </div> 
+    <!-- <div class="list-group" id="comm-members" style="width:45%;float:right;display:inline-block; text-align:center;"></div>-->
+    
+     <div class="lineygraph" style="width:100%;">
+    <svg id="lgraph" width="650" height="300"></svg>
+    </div>
+    </div> 
+    <div class="othershit" style="width:60%; position: absolute;top: 530px;">
+     <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
+     <input type="checkbox" class='myboxy' name="ee" value="sdf" onchange="toggledate(this)"/> Show all-time <br/>
+       <b style="font-size:18px;text-align:center;" id="curdate"></b>      
+     </div>   
+    <!--Date slider-->
+     <svg id="myslider" class="myslider" style="width:90%;display:block;margin-top:-10px;overflow:visible" height="45"></svg>
+        <div style="margin:20px;width:90%;display:inline-block;text-align:left;" class="sectiontitle">
+            <p><pre><img src='icons/comm.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('commoners')">Commoners:</a></u>  <b id='commoners'></b>     <img src='icons/comms.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('stories')">Stories:</a></u> <b id='stories'></b>    <img src='icons/alisting.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('listings')">Listings:</a></u>  <b id='listings'></b>    <img src='icons/commt.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('tags')">Tags:</a></u> <b id='tags'></b></pre></p>
+            <p><pre><img src='icons/asoc.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('social');newplot('convo')">Conversations:</a></u> <b id='convos'></b>    <img src='icons/atran.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('transaction');newplot('trans')">Transactions:</a></u> <b id='transactions'></b>    <img src='icons/acreate.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('story');newplot('create')">Stories written:</a></u> <b id='written'></b>     <img src='icons/acomm.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('story');newplot('comment')">Story comments:</a></u> <b id='comments'></b>     <u><a href="#" onclick="nwfilter('all');newplot('')">All</a></u></pre></p>
+        </div>
+        
+    </div>
+   
 </body>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -65,20 +75,111 @@ $('#clearnw').click(function (e) {
 	draw();
 	return false;
 });
-$('#cleardyn').click(clearDyn());
+$('#cleardyn').click(function(e){
+    e.preventDefault();
+    clearDyn();
+});
+fillcolour = {"listings":["purple","yellow"],"commoners":["steelblue","darkblue"],"stories":["red","darkgreen"],"tags":["green","yellow"],"convo":["orange","darkblue"],"trans":["darkblue","steelblue"],"create":["darkred","orange"],"comment":["red","green"]};
+axistext = {"listings":"Active listings","commoners":"Active Commoners","stories":"Active stories","tags":"Tags used","convo":"Conversations started","trans":"Transactions made","create":"Stories written","comment":"Story comments"};
+function newplot(type){
+
+    if(type == '')return;
+        plotType = type;
+
+    chartg.select(".yline").remove();
+    chartg.select(".plotline").remove();
+    chartg.selectAll(".dots").remove();
+    
+    
+    $("#ylabel").text(axistext[type]);
+    y.domain([0, d3.max(datalist, function(d) { return isNaN(d[plotType]) ? 0 : +d[plotType]; })]);
+              // Add the valueline path.
+            plotpath =  chartg.append("path")
+                  .data([datalist])
+        .attr("fill",fillcolour[plotType][0])
+        .attr("opacity",0.5)
+        .attr("stroke-width",1.5)
+                  .attr("class", "plotline")
+                  .attr("d", valueline);
+              chartg.append("g")
+                  .attr('class','yline')
+                  .attr("transform", "translate(40,0)")
+                  .call(d3.axisLeft(y)); 
+    dots = chartg.selectAll(".dots")
+		.data(datalist)
+		.enter().append("circle")
+		.attr("class", "dots")
+		.style("fill",function(d){
+            if(d.date == currentDate)
+                return fillcolour[plotType][1];
+            return fillcolour[plotType][0];
+        })
+		.attr("r",function(d){
+            if(d.date == currentDate)
+                return 6;
+            return 4;
+        })
+		.attr("cx", valueline.x())
+		.attr("cy", function (d) {
+			return y(+d[plotType]);
+		})
+		.on("mouseover", function (d) {
+			d3.select(this).attr("r", 8);
+			d3.select(this).style("cursor", "pointer");
+            div.transition()
+			.duration(200)
+			.style("opacity", .9);
+            div.html(d.date + "</br>" + d[plotType])
+				.style("left", (d3.event.pageX -38) + "px")
+				.style("top", (d3.event.pageY - 50) + "px")
+				.style("background", "transparent");
+			
+		})
+		.on("mouseout", function (d) {
+			d3.select(this).attr("r", 4);
+            div.transition()
+            .duration(500)
+            .style("opacity",0);
+		})              
+}
 
 function clearDyn(){
 	d3.select('.hull').attr('d', 0);
 	d3.selectAll(".marker").remove();
 	c_nodes = [];    
+    draw();
 }
-function doalert(checkboxelem) {
+
+function toggletags(checkboxelem){
+    if(checkboxelem.checked){
+        node.each(function(d){
+           if(d.type == 'tag')
+               d3.select(this).style('opacity',0);
+        });
+        link.each(function(d){
+           if(d.source.type == 'tag' || d.target.type == 'tag')
+               d3.select(this).style("opacity",0);
+        });
+    }
+    else{
+        node.each(function(d){
+           if(d.type == 'tag')
+               d3.select(this).style('opacity',1);
+        });
+        link.each(function(d){
+           if(d.source.type == 'tag' || d.target.type == 'tag')
+               d3.select(this).style("opacity",1);
+        }); 
+    }
+}
+function toggledate(checkboxelem) {
     clearDyn();
 	if (checkboxelem.checked) {
 		$("#curdate").text(formatWeek(parseTime(data[Object.keys(data).length - 1].date)) + " to " + formatWeek(parseTime(data[1].date)));
 		$('#myslider').css('opacity', 0.4);
 		$('#myslider').css('pointer-events', 'none');
-		sliderhandle.attr("cx", 0);
+        currentDate = data[1].date;
+        sliderhandle.attr("cx", dateslidex(Object.keys(data).length-1));
 		indexstart = 0;
 		draw();
 
@@ -91,7 +192,7 @@ function doalert(checkboxelem) {
 
 	}
 }
-function docomm(checkboxelem) {
+function togglegroups(checkboxelem) {
 	if (checkboxelem.checked) 
 		active_simulation = community_sim;
 	else 
@@ -118,6 +219,13 @@ function docomm(checkboxelem) {
 	.attr("x2", function (d) {return d.target.x;})
 	.attr("y2", function (d) {return d.target.y;});
     
+    extrashit.selectAll(".extralines")
+    	.transition()
+	.duration(2000)
+        .attr("x1", function (d) {return d.source.x;})
+		.attr("y1", function (d) {return d.source.y;})
+		.attr("x2", function (d) {return d.target.x;})
+		.attr("y2", function (d) {return d.target.y;});
     if(indexstart == 0){
         var hull = d3.polygonHull(c_nodes.map(function (d) {
             return [d3.select("#n" + indexstart + "_" + d).datum().x, d3.select("#n" + indexstart + "_" + d).datum().y];
@@ -130,12 +238,64 @@ function docomm(checkboxelem) {
             return "M" + d.join("L") + "Z";
         });
     }
-
-
-
 }
+chartsvg = d3.select("#lgraph");
+	$("#lgraph").bind("wheel mousewheel", function (e) {
+		e.preventDefault()
+	});
+    	chartg = chartsvg.append("g");//.attr("transform", "translate(30,20)");
 
+var x = d3.scaleTime().rangeRound([40, chartsvg.attr('width') * 3]);
+var y = d3.scaleLinear().range([$("#lgraph").height()-20, 20]);
+var areazoom = d3.zoom()
+    .scaleExtent([0.33, 2])
+    .translateExtent([[0, 0], [chartsvg.attr('width') * 3 + 50, chartsvg.attr("height")]])
+    .on('zoom', areazoomed);
+
+	var currentMonthGap = 1;
+function getTranslation(transform) {
+
+	var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+	g.setAttributeNS(null, "transform", transform);
+	var matrix = g.transform.baseVal.consolidate().matrix;
+
+	return [matrix.e, matrix.f];
+}    
+function areazoomed() {
+ //   if(plotpath == undefined)return;
+    var xz = d3.event.transform.rescaleX(x);
+    gX.call(xAxis.scale(xz));
+    //Recalculate tick numbers
+    var selection = $("#simplelineaxis > .tick");
+    var tickdistance = selection.eq(1).position().left - selection.eq(0).position().left;
+
+    if (tickdistance < 50)
+        currentMonthGap++;
+    else if (tickdistance > 100)
+        currentMonthGap--;
+    xAxis.ticks(d3.timeMonth.every(Math.max(1, currentMonthGap)));
+    d3.selectAll("#simplelineaxis > .tick").attr("transform", function () {
+        return "translate(" + (getTranslation(d3.select(this).attr("transform"))[0]) + ",0)";
+    });
+		d3.selectAll(".dots").attr("cx", function (d) {
+			return xz(parseTime(d.date));
+		})
+    valueline.x(function (d) {
+        return xz(parseTime(d.date));
+    });
+    if(plotpath == undefined)return;
+    plotpath.attr("d", valueline);
+ 
+}
+// define the line
+var valueline = d3.area()
+    .x(function(d) {return x(parseTime(d.date)); })
+    .y0(y(0))
+    .y1(function(d) {return y(+d[plotType]); });
+    
+var plotType;
 var data = {};
+var datalist = []; //Adding this for the line graph, might not be necessary
 var drawn = {};
 var xScale = d3.scaleLinear()
 	.domain([0, 500]).range([0, 500]);
@@ -152,6 +312,7 @@ var indexstart = 0;
 var strengthslider = 0;
 var tag;
 var filtertype;
+var filternodetype;
 var c_nodes = [];
 var global_communities = {};
 var ids_to_titles = {};
@@ -166,8 +327,9 @@ function zoomFunction() {
 var zoom = d3.zoom().on("zoom", zoomFunction);
 var svg = d3.select(".bigvis"), width = +svg.attr("width"), height = +svg.attr("height");
 svg.call(zoom);
-var g = svg.append("g").attr("transform", "translate(250,250) scale (.35,.35)"),
+var g = svg.append("g").attr("transform", "translate(250,250) scale (.35,.35)");
 
+extrashit = g.append("g").attr("z-index",-3);
 link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link"),
 node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 convexHull = g.append("path").attr("class", "hull");
@@ -185,7 +347,7 @@ var community_sim = d3.forceSimulation()
 	.force("link", d3.forceLink().id(function (d) {return d.id;}).strength(0))
 	.force('center', d3.forceCenter(500 / 2, 600 / 2))
 	.force('cluster', forceCluster)
-	.force('collide', d3.forceCollide(d => d.kcore + 10).strength(0.9))
+	.force('collide', d3.forceCollide(22).strength(0.9))
 	.stop();
 var active_simulation = simulation;
 
@@ -207,9 +369,9 @@ Array.prototype.unique = function () {
 	}
 	return a;
 };
-
+var plotpath;
 function loadDataFiles(queue) {
-	var url = "data/graphdata/biweekly/monthly" + datafilecounter + ".json";
+	var url = "data/graphdata/biweekly/" + datafilecounter + ".json";
 	$.ajax({
 		url: url,
 		type: 'HEAD',
@@ -222,20 +384,57 @@ function loadDataFiles(queue) {
 				else {
 					for (var i = 0; i < results.length; i++) {
 						data[i] = results[i];
+                        if(i>0)
+                            datalist[i-1] = results[i];
 						drawn[i] = false;
 					}
+                    datalist.reverse();
+                           // Scale the range of the data
+              x.domain(d3.extent(datalist, function(d) { return parseTime(d.date); }));
+              y.domain([0, d3.max(datalist, function(d) { return isNaN(d.stories) ? 0 : +d.stories; })]);
+              plotType = 'stories';
+              // Add the valueline path.
+                  var anotherFormat = d3.timeFormat("%b'%y");
+
+	 xAxis = d3.axisBottom(x).tickFormat(anotherFormat).ticks(d3.timeMonth.every(1));
+
+              // Add the X Axis
+              gX = chartg.append("g")
+                  .attr("id", "simplelineaxis")
+                  .attr("transform", "translate(0," + ($("#lgraph").height() -20) + ")")
+                  .call(xAxis);
+
+              // Add the Y Axis
+              gY = chartg.append("g")
+                  .attr('class','yline')
+                  .attr("transform", "translate(40,0)")
+                  .call(d3.axisLeft(y)); 
+                  
+               chartsvg.append("text")
+                  .attr("transform", "rotate(-90)")
+                  .attr("y", 0)
+                  .attr("x",0 - ($("#lgraph").height() / 2))
+                  .attr("dy", "1em")
+                  .attr("id","ylabel")
+                  .style("text-anchor", "middle")
+                  .style("font-family", "Calibri")
+                  .style("font-weight", "bold")
+                  .text("");  
 					draw();
 					if (slideradded == false) {
 						addDateSlider();
 						addStrengthSlider();
+                        						sliderhandle.attr("cx", dateslidex(Object.keys(data).length-1));
+
 					} else {
-						sliderhandle.attr("cx", 0);
+						sliderhandle.attr("cx", dateslidex(Object.keys(data).length-1));
 						d3.selectAll(".ticktext")
 						.style("fill", "black")
 						.style("font-weight", "normal");
 					}
 					indexstart = 1;
 					draw();
+                           
 				}
 			});
 		},
@@ -273,6 +472,7 @@ function forceCluster(alpha) {
 
 
 function draw() {
+
 	$(".mybox").prop('checked', false);
 	nodetypes = {};
 	//https://stackoverflow.com/questions/11347779/jquery-exclude-children-from-text
@@ -281,24 +481,30 @@ function draw() {
 	};
 	graph = data[indexstart];
 	communities = graph.communities;
-
+    $('#nodenums').text(graph.node_num);
+    $('#edgenums').text(graph.edge_num);
+    $('#commoners').text(graph.commoners);
+    $('#stories').text(graph.stories);
+    $('#listings').text(graph.listings);
+    $('#tags').text(graph.tags);
+    $('#convos').text(graph.convo);
+    $('#transactions').text(graph.trans);
+    $('#written').text(graph.create);
+    $('#comments').text(graph.comment);
 	selected_node = "";
 	var maxval = 0;
-	node = node.data(graph.nodes.filter(function (d) {
-				return d.maxweight >= strengthslider || (strengthslider == 0)
-			}), function (d) {
+	node = node.data(graph.nodes, function (d) {
 			return d.id + indexstart;
 		});
 
-	link = link.data(graph.links.filter(function (d) {
-				return d.maxweight >= strengthslider || (strengthslider == 0)
-			}), function (d) {
+	link = link.data(graph.links, function (d) {
 			return d.source.id + "-" + d.target.id;
 		});
 
 	tagcounts = graph.tagcount;
 	dc = graph.dynamic_comms;
-
+    var colluders = "colluders" in graph ? graph.colluders : [];
+    
 	for (var comm in dc) {
 		global_community = [];
 		dates = [];
@@ -331,7 +537,7 @@ function draw() {
 			var date = global_communities[name][1][x];
 			dateslider.append('path')
 			.attr('d', function (d) {
-				var x = dateslidex(date),
+				var x = dateslidex(Object.keys(data).length-date-1),
 				y = -10;
 				return 'M ' + x + ' ' + y + ' l -4 -8 l 8 0 z';
 			})
@@ -393,10 +599,32 @@ function draw() {
 		})
 		.attr("r", function (d) {
 			if (c_nodes.indexOf(d.id) > -1)
-				return 25;
+				return 20;
 			return (d.kcore * 2) + 5;
 		})
+        .attr("stroke",function(d){
+           if (d.type == "commoner")
+				return d3.color("steelblue");
+			if (d.type == "listing")
+				return d3.color("purple");
+			if (d.type == "tag")
+				return d3.color("green");
+			return d3.color("red");
+        })
+        .attr("stroke-width",function(d){
+            for(var i=0; i < colluders.length; i++){
+                if(colluders[i].includes(d.id))
+                    return 4;
+            }
+            if (c_nodes.indexOf(d.id) > -1)
+				return 7;
+            return 0;
+        })
 		.attr("fill", function (d) {
+            for(var i=0; i < colluders.length; i++){
+                if(colluders[i].includes(d.id))
+                    return d3.color("darkred");
+            }
 			if (c_nodes.indexOf(d.id) > -1)
 				return d3.color("orange");
 			if (d.type == "commoner")
@@ -408,6 +636,8 @@ function draw() {
 			return d3.color("red");
 		}) //Coloured based on their type
 		.style("opacity", function (d) { //Make nodes and links transparent if they aren't linked to tags
+            if(d.maxweight < strengthslider)
+                return 0;
 			if (filtertype == "tag") {
 				if (tag == "all" || (d.type == "tag" && d.name == tag) || d.tags.includes(tag))
 					return 1;
@@ -460,6 +690,10 @@ function draw() {
 		.on("mouseout", function (d) {
 			//Set the colour of links back to black, and the thickness to its original value
 			d3.select(this).attr("fill", function (d) {
+                            for(var i=0; i < colluders.length; i++){
+                if(colluders[i].includes(d.id))
+                    return d3.color("darkred");
+            }
 				if (c_nodes.indexOf(d.id) > -1)
 					return d3.color("orange");
 				if (d.type == "commoner")
@@ -537,7 +771,19 @@ function draw() {
 			return "M0,-10L20,0L0,10";
 		return "M0,-5L10,0L0,5"
 	})
+    .style("stroke",function(d){
+        if (d.size == 2)
+            return "darkred";
+        return "white";
+    })
+    .style("stroke-width",function(d){
+        if (d.size == 2)
+           return 3;
+       return 0;
+    })
 	.style("fill", function (d) {
+        if (d.size == 2)
+            return 'darkred';
 		if (c_nodes.indexOf(d.source.id) > -1 && c_nodes.indexOf(d.target.id) > -1)
 			return 'orange';
 		if ('edgemeta' in d && d.edgemeta.includes('story'))
@@ -590,9 +836,20 @@ function draw() {
 			return "M0,-10L-20,0L0,10";
 		return "M0,-5L-10,0L0,5"
 	})
-
+    .style("stroke",function(d){
+        if (d.size == 2)
+            return "darkred";
+        return "white";
+    })
+    .style("stroke-width",function(d){
+        if (d.size == 2)
+           return 3;
+       return 0;
+    })
 	.style("fill", function (d) {
-		if (c_nodes.indexOf(d.source.id) > -1 && c_nodes.indexOf(d.target.id) > -1)
+        if (d.size == 2)
+            return 'darkred';
+        if (c_nodes.indexOf(d.source.id) > -1 && c_nodes.indexOf(d.target.id) > -1)
 			return 'orange';
 		if ('edgemeta' in d && d.edgemeta.includes('story'))
 			return 'red';
@@ -605,8 +862,9 @@ function draw() {
 		return 'black';
 	});
 
-	//Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
-	link.exit()
+
+    
+    link.exit()
 	.remove();
 	link = link.enter().append("line")
 		.attr("class", "line")
@@ -614,11 +872,13 @@ function draw() {
 		.attr("stroke-width", function (d) {
 			if ('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
 				return 0.25;
-			if ('edgeweight' in d)
-				return Math.min(8, d.edgeweight[d.source.id]);
-			if ('create_story' in d || 'create_listing' in d)
-				return 4.5;
 
+			//if ('create_story' in d || 'create_listing' in d)
+		//		return 4.5;
+            if ('edgemeta' in d && d.edgemeta.includes('social') && d.edgemeta.includes('transaction'))
+                return 3;
+          //  if ('edgeweight' in d)
+		//		return Math.min(8, d.edgeweight[d.source.id]);
 			return 2;
 		})
 		.attr("edgemeta", function (d) {
@@ -629,6 +889,8 @@ function draw() {
 				return 'orange';
 			if ('edgemeta' in d && d.edgemeta.includes('story'))
 				return 'red';
+			if ('edgemeta' in d && d.edgemeta.includes('social') && d.edgemeta.includes('transaction')) //Needs to be brigher
+				return '#FFC31E';            
 			if ('edgemeta' in d && d.edgemeta.includes('social'))
 				return 'orange';
 			if ('edgemeta' in d && d.edgemeta.includes('listing'))
@@ -637,6 +899,11 @@ function draw() {
 				return 'darkblue';
 			return 'black';
 		})
+        .style("stroke-dasharray",function(d){
+            if ('edgemeta' in d && d.edgemeta.includes('social') && d.edgemeta.includes('transaction'))
+                return "20,10";
+            return 0;
+            })
 		.attr("marker-end", function (d) {
 			if ((nodetypes[d.source.id] == 'commoner' && nodetypes[d.target.id] != 'tag')) {
 				return "url(#mend" + d.source.id + "-" + d.target.id + ")";
@@ -650,7 +917,9 @@ function draw() {
 			return null;
 		})
 		.style("opacity", function (d) {
-			if (filtertype == "tag") {
+            if ('maxweight' in d && d.maxweight < strengthslider ||(strengthslider > 0 && d.maxweight == undefined))
+                return 0;
+            if (filtertype == "tag") {
 				if (tag == "all" || (d.source.type == "tag" && d.source.name == tag) || (d.target.type == "tag" && d.target.name == tag))
 					return 1;
 				return 0.15;
@@ -669,7 +938,11 @@ function draw() {
 		.attr("y1", function (d) {return d.source.y;})
 		.attr("x2", function (d) {return d.target.x;})
 		.attr("y2", function (d) {return d.target.y;});
-
+        extrashit.selectAll(".extralines")
+        .attr("x1", function (d) {return d.source.x;})
+		.attr("y1", function (d) {return d.source.y;})
+		.attr("x2", function (d) {return d.target.x;})
+		.attr("y2", function (d) {return d.target.y;});
 		node
         .attr("cx", function (d) {return d.x;})
 		.attr("cy", function (d) {return d.y;});
@@ -729,6 +1002,40 @@ function draw() {
     .attr("cx", function (d) {return d.x;})
 	.attr("cy", function (d) {return d.y;});
     
+    extrashit.selectAll(".extralines").remove();
+        
+	extrashit.selectAll(".extralines")
+	.data(graph.links.filter(function(d){
+        return 'edgemeta' in d && d.edgemeta.includes('social') && d.edgemeta.includes('transaction');
+    }))	//Add the links. Thickness is currently determined by the square root of the sum of the weight from either node
+	.enter().append('line')
+    .attr('class','extralines')
+    .style('stroke','darkblue')
+    .attr('stroke-width',2)
+    .attr('z-index',-5)
+    .style("opacity", function (d) {
+            if (d.maxweight < strengthslider ||(strengthslider > 0 && d.maxweight == undefined))
+                return 0;
+            if (filtertype == "tag") {
+				if (tag == "all" || (d.source.type == "tag" && d.source.name == tag) || (d.target.type == "tag" && d.target.name == tag))
+					return 1;
+				return 0.15;
+			} else if (filtertype == "network") {
+				if (tag == "all" || (d.edgemeta != null && d.edgemeta.includes(tag)))
+					return 1;
+				return 0.15;
+			} else {
+				return 1;
+			}
+		})
+    .attr("x1", function (d) {return d.source.x;})
+	.attr("y1", function (d) {return d.source.y;})
+	.attr("x2", function (d) {return d.target.x;})
+	.attr("y2", function (d) {return d.target.y;});
     $('#loadingDiv').css('display','none');
+        chartsvg.call(areazoom.transform, d3.zoomIdentity.translate(0,0).scale(0.33));
+        newplot(plotType);
+
 }
+//chartsvg.call(areazoom.transform, d3.zoomIdentity.translate(0,0).scale(0.33));
 </script>

@@ -52,6 +52,7 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="scripts/minigraph.js"></script>
+<script src="scripts/commonfuncs.js"></script>
 
 <script>
 //These forces are tweaked to attract connected nodes to the center
@@ -134,17 +135,19 @@ d3.json('data/userdata/' + userid + '.json', function (results) {
     console.log("HELLOOOOOOO");
     console.log(data[0]);
    // latestdate = parseTime(data[0]['nodes'][0]['date']);
-	for (var fortnight = 0; fortnight < results.length-1; fortnight++) {
-		node_data[fortnight] = results[fortnight+1]['nodes'].find(findNode);
+	for (var fortnight = 0; fortnight < results.length; fortnight++) {
+		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
 		node_data[fortnight].date = parseTime(node_data[fortnight].date);
-		graph_data[fortnight] = results[fortnight+1];
+		graph_data[fortnight] = results[fortnight];
         //This is necessary for D3 to map source and target indices to their respective nodes 
+        console.log("Plotting with " + fortnight);
         plotcookie(graph_data[fortnight],node_data[fortnight]);
         plotdonut(graph_data[fortnight],node_data[fortnight]);
         plotbunches(graph_data[fortnight]);
         maxindex++;
 	}
 	numticks = results.length;
+    
 	plotcookie(graph_data[0],node_data[0]);
 	plotbunches(graph_data[0]);
 	plotdonut(graph_data[0],node_data[0]);

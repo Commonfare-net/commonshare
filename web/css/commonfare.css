@@ -13,6 +13,8 @@
   margin: 0 0; 
   width: 400px;
 }
+
+
 .hull {
   fill: lightgreen;
   stroke: steelblue;
@@ -44,7 +46,10 @@
     overflow:scroll;
     -webkit-overflow-scrolling: touch;
 } 
-
+.list-group-item{
+    padding: 5px 0px;
+    margin: 0px;
+}
 .bigchart {
     display: inline-block;
     width: auto;

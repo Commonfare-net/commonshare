@@ -17,11 +17,14 @@ This module does the necessary k-core calculations and appends the results to ea
 Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
 '''
 
-def createGraphs(G,startdate,enddate):     
+def createGraphs(G,startdate,enddate,spacing):     
     global loopcount
     global commoner_graphs
     global object_graphs
-
+    global dyn_index
+    global dc
+    global stepcoms    
+    loopcount = 0
     nodeiter = G.nodes(data=True)    
     #Create dictionaries to hold the interaction data for individual commoners/objects
     for (n,c) in nodeiter:
@@ -31,17 +34,24 @@ def createGraphs(G,startdate,enddate):
             object_graphs[n] = []
         c["tags"] = []    
         
+    if spacing == 'weekly':
+        delta = relativedelta(weeks=-1)
+    elif spacing == 'biweekly':
+        delta = relativedelta(weeks=-2)
+    else:
+        delta = relativedelta(months=-1)
+        
     #Create new graph representing interactions within a two-week window
     windowend = enddate
-    windowstart = windowend+relativedelta(weeks=-2)
+    windowstart = windowend+delta
     
     loopcount += 1
     #Makes the fortnightly graphs
     while(windowend > startdate):
         print 'windowend is',datetime.strftime(windowend,"%Y/%m/%d")
-        calculate(G,windowstart,windowend)
+        calculate(G,windowstart,windowend,spacing)
         windowend = windowstart
-        windowstart = windowend + relativedelta(weeks=-2)
+        windowstart = windowend + delta
         loopcount += 1
 
     #Make individual historic files for each commoner and each object (i.e., story, listing)
@@ -50,13 +60,17 @@ def createGraphs(G,startdate,enddate):
         os.makedirs(directory)
     for k,v in commoner_graphs.items():
         if len(v) > 0:
-            with open('../web/data/userdata/' + str(k) + '.json', 'w') as outfile:
+            with open('../web/data/userdata/' + spacing + str(k) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(v))   
     
     #Make cumulative graphs
     loopcount = 0
-    G_new = calculate(G,startdate,enddate)
-                
+    G_new = calculate(G,startdate,enddate,spacing)
+    
+    #Reset dynamic communities
+    dyn_index = 0
+    dc = {}   
+    stepcoms = {} 
     return G 
 '''
 For each node, store the interactions it has been involved with by their type, and by their date
@@ -113,12 +127,7 @@ def createEntityGraphs(core_graph,core_values):
     nodeiter = core_graph.nodes(data=True)
     for (n,c) in nodeiter:    
         if 'kcore' not in core_graph.nodes[n] or core_graph.nodes[n]['kcore'] == 0:
-            entity_graph = nx.Graph()
-            entity_graph.add_node(n,kcore=0,pagerank=0,stats={})        
-            #Here we append a blank fortnight for this commoner 
-            if c['type'] == 'commoner'and loopcount > 0:
-                commoner_data = json_graph.node_link_data(entity_graph)
-                commoner_graphs[n].append(commoner_data)
+            continue
         else:
             edges = core_graph.edges(n,data=True)
             surrounding_nodes = core_graph.neighbors(n)    
@@ -191,7 +200,7 @@ def filter_spells(G,start,end):
 dyn_index = 0
 dc = {}   
 stepcoms = {} 
-def calculate(G,windowstart,windowend):
+def calculate(G,windowstart,windowend,spacing):
     global unparsed_startdate
     global unparsed_enddate
     global dyn_index
@@ -199,8 +208,13 @@ def calculate(G,windowstart,windowend):
     global stepcoms
     edges_to_remove = []    
     tag_edges = []
+    tag_nodes = {}
     tag_counts = {} #Holds counts of each of the tags      
     
+    create_count = 0
+    comment_count = 0
+    convo_count = 0
+    trans_count = 0
     graph_copy = copy.deepcopy(G) #Need to deep copy to avoid screwing future iterations
 
     nodeiter = G.nodes(data=True)
@@ -208,27 +222,42 @@ def calculate(G,windowstart,windowend):
 
     for (u,v,c) in iter:
         edge_exists = False
+        
         for intervals in c['spells']:
 
             if (windowstart <= datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
                 edge_exists = True
                 if G.nodes[u]["type"] == "story" and cf.create_story in G.nodes[u]:                        
-                        #Node 'v' has created this story, add it to their nodemeta 
                         G.nodes[v]['nodemeta'] = ['story']
                 elif G.nodes[v]["type"] == "story" and cf.create_story in G.nodes[v]:
                         #Node 'u' has created this story, add it to their nodemeta
                         G.nodes[u]['nodemeta'] = ['story']
-
         if edge_exists == False:
             edges_to_remove.append((u,v,c))
-        elif G.nodes[u]["type"] == "tag" or G.nodes[v]["type"] == "tag":
-            tag_edges.append((u,v,c))
-            tagname = G.nodes[u]["name"] if G.nodes[u]["type"] == "tag" else G.nodes[v]["name"]
-            graph_copy.nodes[u]["tags"].append(tagname)
-            graph_copy.nodes[v]["tags"].append(tagname)
-            if tagname not in tag_counts:
-                tag_counts[tagname] = 0
-            tag_counts[tagname] +=1  
+        else:
+            if cf.create_story in c:
+                if windowstart <= datetime.strptime(c[cf.create_story][0][1],"%Y/%m/%d") < windowend:
+                    create_count +=1
+            if cf.comment_story in c:
+                for comment in c[cf.comment_story]:
+                    if windowstart <= datetime.strptime(comment[1],"%Y/%m/%d") < windowend:
+                        comment_count += 1
+            if cf.conversation in c:
+                for convo in c[cf.conversation]:
+                    if windowstart <= datetime.strptime(convo[1],"%Y/%m/%d") < windowend:
+                        convo_count += 1
+            if cf.transaction in c:
+                for trans in c[cf.transaction]:
+                    if windowstart <= datetime.strptime(trans[1],"%Y/%m/%d") < windowend:
+                        trans_count += 1
+            if G.nodes[u]["type"] == "tag" or G.nodes[v]["type"] == "tag":
+                tag_edges.append((u,v,c))
+                tagname = G.nodes[u]["name"] if G.nodes[u]["type"] == "tag" else G.nodes[v]["name"]
+                graph_copy.nodes[u]["tags"].append(tagname)
+                graph_copy.nodes[v]["tags"].append(tagname)
+                if tagname not in tag_counts:
+                    tag_counts[tagname] = 0
+                tag_counts[tagname] +=1  
 
     graph_copy.remove_edges_from(edges_to_remove)
     
@@ -238,7 +267,7 @@ def calculate(G,windowstart,windowend):
     nodes_to_remove = []
     for (n,c) in nodeiter:
         graph_copy.nodes[n]['nodemeta'] = []    
-        
+
         #Replace all apostrophes in story/commoner names 
         if c['type'] == 'story' or c['type'] == 'listing':
             graph_copy.nodes[n]['title'] = c['title'].replace("'","")
@@ -253,7 +282,8 @@ def calculate(G,windowstart,windowend):
                 if (windowstart <= datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
                     node_exists = True
         if node_exists == False:
-            nodes_to_remove.append(n)      
+            nodes_to_remove.append(n) 
+
     graph_copy.remove_nodes_from(nodes_to_remove)
 
     #Get rid of spells and actions that fall outside the window range 
@@ -261,7 +291,7 @@ def calculate(G,windowstart,windowend):
     
     #Do the kcore calculations
     is_cumulative = True if loopcount == 0 else False
-    (core_graph,core_values) = dx.core_number_weighted(graph_copy,windowstart,windowend,is_cumulative)
+    (core_graph,core_values,colluders) = dx.core_number_weighted(graph_copy,windowstart,windowend,is_cumulative)
 
     #Add the tags back in
     core_graph.add_edges_from(tag_edges)
@@ -271,7 +301,8 @@ def calculate(G,windowstart,windowend):
     #Can add the k-core and page-rank stats here
     for (n,c) in nodeiter:
         core_graph.nodes[n]['kcore'] = core_values[n]
-        
+        if c['type'] == 'tag':
+            tag_nodes[n] = c
     #if loopcount > 0:
     core_graph = createEntityGraphs(core_graph,core_values)
     if loopcount == 0:
@@ -315,8 +346,14 @@ def calculate(G,windowstart,windowend):
             c['edgeweight'] = c['edgeweight'][u]
         else:
             c['edgeweight'] = 1
-
     stepcoms = {}
+    #core_graph.remove_nodes_from(tag_nodes.keys())    
+
+    #core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees
+    #print 'AND NOW'
+    #tag_based_isolates = list(nx.isolates(core_graph))
+    #core_graph.remove_nodes_from(list(nx.isolates(core_graph))) #Actually now THIS will remove any nodes that are only there because they've tagged themselves    
+
     partition = community.best_partition(core_graph,weight='edgeweight')
     
             
@@ -342,11 +379,12 @@ def calculate(G,windowstart,windowend):
             #If it's more than one we need to split the community
             appendings = {k:0 for k in dc.keys()}
             
+            #(stepcoms are the communities detected at this particular time step)
             for c_val in stepcoms.values():
                 matching_coms = []
                 for key,f_val in fronts.iteritems():
                     similarity = jaccard(f_val,c_val)
-                    if similarity < 0.31:
+                    if similarity < 0.3:
                         continue
                     else:
                         matching_coms.append(key)
@@ -358,30 +396,59 @@ def calculate(G,windowstart,windowend):
                         dc[key].append(cdate)
                         dc[key].append(c_val)
                         appendings[key] += 1
-                    
-                    
-            for k,v in appendings.iteritems():
-                if v > 1: #Then we need to do a split on this community
-                    length = len(dc[k])
-                    last_appended = dc[k][length-2:length]
-                    second_last_appended = dc[k][length-4:length-2]
-                    dc[k] = dc[k][0:length-5]
-                    dc[str(dyn_index)] = copy.deepcopy(dc[k])
-                    dc[str(dyn_index)].append(last_appended[0]) 
-                    dc[str(dyn_index)].append(last_appended[1]) 
-                    dyn_index += 1
-                    dc[str(dyn_index)] = copy.deepcopy(dc[k])
-                    dc[str(dyn_index)].append(second_last_appended[0])
-                    dc[str(dyn_index)].append(second_last_appended[1])
-                    dyn_index += 1
-                    #And probably retire this dynamic community
-                    dc[k].append([])
-                    
+      
+    '''
+    for u,v,c in tag_edges:
+        if u in tag_based_isolates or v in tag_based_isolates:
+            continue
+        else:
+            core_graph.add_edge(u,v,**c)
+    #core_graph.add_edges_from(tag_edges)
+    for k,v in tag_nodes.iteritems():
+        if k in core_graph.nodes():
+            core_graph.add_node(k,**v)   
+    '''
+    c_count = 0
+    s_count = 0
+    t_count = 0
+    l_count = 0
+    nodeiter = core_graph.nodes(data=True)
     for n,c in nodeiter:
+        #if c['type'] != 'tag':
         c['cluster'] = partition[n]
+        if c['type'] == 'commoner':
+            c_count += 1
+        elif c['type'] == 'story':
+            s_count += 1
+        elif c['type'] == 'tag':
+            t_count += 1
+            
+        elif c['type'] == 'listing':
+            l_count += 1
+            
+    #core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees  
+    #core_graph.remove_nodes_from(tag_nodes.keys())
+    num_nodes = nx.number_of_nodes(core_graph)
+    num_edges = nx.number_of_edges(core_graph)
 
+    #density = nx.density(core_graph)
+    #for k,v in tag_nodes.iteritems():
+    #    core_graph.add_node(k,**v)
+    #core_graph.add_edges_from(tag_edges) 
+    
     core_graph_json = json_graph.node_link_data(core_graph)
-    core_graph_json['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
+    core_graph_json['node_num'] = num_nodes
+    core_graph_json['commoners'] = c_count
+    core_graph_json['stories'] = s_count
+    core_graph_json['listings'] = l_count
+    core_graph_json['tags'] = t_count
+    core_graph_json['create'] = create_count
+    core_graph_json['comment'] = comment_count
+    core_graph_json['convo'] = convo_count
+    core_graph_json['trans'] = trans_count
+    core_graph_json['edge_num'] = num_edges
+    #core_graph_json['density'] = density          
+    core_graph_json['date'] = datetime.strftime(windowend,"%Y/%m/%d")
     tag_list = sorted(tag_counts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
     core_graph_json['tagcount'] = tag_list
     if loopcount == 0:
@@ -395,16 +462,16 @@ def calculate(G,windowstart,windowend):
                         for nodeid in nodes:
                             n = core_graph.nodes[nodeid]
                             nodecore = n['kcore']
-                            if nodecore > highcore:
+                            if nodecore >= highcore:
                                 central_node = n['title'].split()[0] if 'title' in n else n['name']
                                 highcore = nodecore
                 dynamic_communities[central_node + k] = v
         core_graph_json['dynamic_comms'] = dynamic_communities
-        
-    directory = '../web/data/graphdata/biweekly/'
+    core_graph_json['colluders'] = colluders
+    directory = '../web/data/graphdata/'+spacing+'/'
     if not os.path.exists(directory):
         os.makedirs(directory)
-    with open('../web/data/graphdata/biweekly/monthly'+ str(loopcount) +'.json', 'w') as outfile:
+    with open('../web/data/graphdata/'+spacing+'/'+ str(loopcount) +'.json', 'w') as outfile:
         outfile.write(json.dumps(core_graph_json))
     return core_graph
            
@@ -432,7 +499,9 @@ def init(file):
     unparsed_enddate = root[0].attrib['end']
 
     #Pass the start and end times of the file in
-    createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"))  
+    #createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"),'weekly')  
+    createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"),'biweekly')  
+    #createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"),'monthly')  
    
 if __name__ == "__main__":
     global filename
