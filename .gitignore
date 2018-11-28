@@ -1,6 +1,8 @@
 **/userdata
 **/objectdata
 biweekly*.json
+weekly*.json
+monthly*.json
 *.gexf
 *.pyc
 __pycache__/
