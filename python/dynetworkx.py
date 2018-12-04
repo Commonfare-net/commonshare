@@ -23,7 +23,6 @@ def check_collusion(G,n1,n2,n2_weight,starttime,endtime):
                     edgeweight = edgeweight + cf.weights[action_key]
                     frequency = frequency + 1
     #if frequency > FREQUENCY_THRESHOLD and ((edgeweight/n2_weight)*100) > PERCENTAGE_THRESHOLD:
-    print 'edgeweight is ',edgeweight,' and overall weight is ',n2_weight
     if ((edgeweight/n2_weight)*100) > PERCENTAGE_THRESHOLD:
         return True
     return False
@@ -110,7 +109,6 @@ def nodeweight_directed(G,node_id,starttime,endtime,is_cumulative,nodeweights):
             else: #Otherwise we look at the number of actions taking place on this edge in the time period. If it's a lot, we are suspicious
                 if action_count > 7:
                     flagged = True
-                    print node_id,' had ',action_count,' actions! Wow!'
             edgeweights.append(overallweight)
             
             #Adds the edge's weight as an attribute
@@ -126,7 +124,6 @@ def nodeweight_directed(G,node_id,starttime,endtime,is_cumulative,nodeweights):
         return (G,network_globals,0)
     if flagged:
         nodeweights[node_id] = sum(edgeweights)
-        print 'adding ',node_id,' to nodeweights'
     return (G,network_globals,sum(edgeweights))
     
 #DJR Modified this method to return the modified graph for spitting out JSON
@@ -159,7 +156,6 @@ def core_number_weighted(G,starttime,endtime,is_cumulative):
 
     #Do the collusion check
     activenodes = list(nodeweights.keys())
-    print 'nodweight keys are ',activenodes
     for i in activenodes:
         for j in activenodes:
             if (i != j) and check_collusion(G,i,j,nodeweights[j],starttime,endtime) and check_collusion(G,j,i,nodeweights[i],starttime,endtime):

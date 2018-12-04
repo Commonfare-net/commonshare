@@ -55,12 +55,12 @@ def createGraphs(G,startdate,enddate,spacing):
         loopcount += 1
 
     #Make individual historic files for each commoner and each object (i.e., story, listing)
-    directory = '../web/data/userdata/'
+    directory = '../data/output/userdata/'
     if not os.path.exists(directory):
         os.makedirs(directory)
     for k,v in commoner_graphs.items():
         if len(v) > 0:
-            with open('../web/data/userdata/' + str(k) + '.json', 'w') as outfile:
+            with open('../data/output/userdata/' + str(k) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(v))   
     
     #Make cumulative graphs
@@ -364,8 +364,8 @@ def calculate(G,windowstart,windowend,spacing):
         root[0].set('start',unparsed_startdate)
         root[0].set('end',unparsed_enddate)
         root[0].set('timeformat', 'date') 
-        tree.write("newdata.gexf")      
-
+        tree.write("../data/output/recommenderdata.gexf")      
+        os.remove("newdata.gexf")
     #Remove any isolated nodes that exist from removing Basic Income interactions 
     core_graph.remove_nodes_from(list(nx.isolates(core_graph)))
 
@@ -376,12 +376,12 @@ def calculate(G,windowstart,windowend,spacing):
         else:
             c['edgeweight'] = 1
     stepcoms = {}
-    #core_graph.remove_nodes_from(tag_nodes.keys())    
+    core_graph.remove_nodes_from(tag_nodes.keys())    
 
-    #core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees
+    core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees
     #print 'AND NOW'
-    #tag_based_isolates = list(nx.isolates(core_graph))
-    #core_graph.remove_nodes_from(list(nx.isolates(core_graph))) #Actually now THIS will remove any nodes that are only there because they've tagged themselves    
+    tag_based_isolates = list(nx.isolates(core_graph))
+    core_graph.remove_nodes_from(list(nx.isolates(core_graph))) #Actually now THIS will remove any nodes that are only there because they've tagged themselves    
 
     partition = community.best_partition(core_graph,weight='edgeweight')
     
@@ -426,7 +426,7 @@ def calculate(G,windowstart,windowend,spacing):
                         dc[key].append(c_val)
                         appendings[key] += 1
       
-    '''
+    
     for u,v,c in tag_edges:
         if u in tag_based_isolates or v in tag_based_isolates:
             continue
@@ -436,15 +436,15 @@ def calculate(G,windowstart,windowend,spacing):
     for k,v in tag_nodes.iteritems():
         if k in core_graph.nodes():
             core_graph.add_node(k,**v)   
-    '''
+    
     c_count = 0
     s_count = 0
     t_count = 0
     l_count = 0
     nodeiter = core_graph.nodes(data=True)
     for n,c in nodeiter:
-        #if c['type'] != 'tag':
-        c['cluster'] = partition[n]
+        if c['type'] != 'tag':
+            c['cluster'] = partition[n]
         if c['type'] == 'commoner':
             c_count += 1
         elif c['type'] == 'story':
@@ -497,10 +497,10 @@ def calculate(G,windowstart,windowend,spacing):
                 dynamic_communities[central_node + k] = v
         core_graph_json['dynamic_comms'] = dynamic_communities
     core_graph_json['colluders'] = colluders
-    directory = '../web/data/graphdata/'+spacing+'/'
+    directory = '../data/output/graphdata/'+spacing+'/'
     if not os.path.exists(directory):
         os.makedirs(directory)
-    with open('../web/data/graphdata/'+spacing+'/'+ str(loopcount) +'.json', 'w') as outfile:
+    with open('../data/output/graphdata/'+spacing+'/'+ str(loopcount) +'.json', 'w') as outfile:
         outfile.write(json.dumps(core_graph_json))
     return core_graph
            
