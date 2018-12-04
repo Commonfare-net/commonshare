@@ -96,7 +96,7 @@ def nodeweight_directed(G,node_id,starttime,endtime,is_cumulative,nodeweights):
                         
                         #Also depreciate the value of subsequent interactions along the same edge by 25% each time
                         overallweight = overallweight + (edge_weight*agefraction*depreciating_constant)     
-                        network_globals[cf.interaction_types[action_key]] += (edge_weight*agefraction*depreciating_constant)                          
+                        network_globals[cf.interaction_types[action_key]] += round((edge_weight*agefraction*depreciating_constant),2)                          
                         depreciating_constant = depreciating_constant*0.75
                 c[action_key] = actions_to_keep #Doing it this way stops modification of the list during the loop process    
         
@@ -117,8 +117,8 @@ def nodeweight_directed(G,node_id,starttime,endtime,is_cumulative,nodeweights):
             if 'edgeweight' not in c:
                 c['edgeweight'] = {}
                 c['maxweight'] = overallweight
-            c['edgeweight'][node_id] = overallweight
-            c['maxweight'] = max(c['maxweight'],overallweight)
+            c['edgeweight'][node_id] = round(overallweight,2)
+            c['maxweight'] = round(max(c['maxweight'],overallweight),2)
             maxweight = max(c['maxweight'],maxweight)
         G.nodes[u]['maxweight'] = c['maxweight'] if 'maxweight' not in G.nodes[u] else max(G.nodes[u]['maxweight'],c['maxweight'])
         G.nodes[v]['maxweight'] = c['maxweight'] if 'maxweight' not in G.nodes[v] else max(G.nodes[v]['maxweight'],c['maxweight'])
@@ -146,8 +146,8 @@ def core_number_weighted(G,starttime,endtime,is_cumulative):
         sum_edges = float(sum(network_globals.values()))
         sumofedges[k] = sum_edges                
         avg_edges = sum_edges / len(network_globals.keys())
-        G.nodes[k]['cumu_totals'] = {e:((v/sum_edges) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
-        G.nodes[k]['avg_totals'] = {e:((v/avg_edges) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
+        G.nodes[k]['cumu_totals'] = {e:(round((v/sum_edges),2) if sum_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
+        G.nodes[k]['avg_totals'] = {e:(round((v/avg_edges),2) if avg_edges > 0 else 0) for e,v in G.nodes[k]['edgetotals'].items()}
 
         #Different weighting algorithm used now - square root of node degree, multiplied by calculated weighting. 
         #This gives higher precedence to the calculated weight than the node degree itself, unlike previous calculation that gave equal precedence to both

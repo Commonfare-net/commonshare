@@ -44,7 +44,7 @@ function updateBunches(value){
     
 }
 var maxindex = 0;
-d3.json('data/userdata/usersmonthly/' + userid + '.json', function (results) {
+d3.json('data/userdata/' + userid + '.json', function (results) {
 	data = results;
 	for (var fortnight in results) {
     	node_data[fortnight] = results[fortnight]['nodes'].find(findNode);

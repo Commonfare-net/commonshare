@@ -7,7 +7,6 @@ var pie = d3.pie()
 	.endAngle(-90 * Math.PI / 180 + 2 * Math.PI)
 	.sort(null)
 	.value(function (d) {
-        console.log(d);
 		return d.value;
 	});
 
@@ -56,10 +55,7 @@ function links_of_type(data, key) {
                     target = data.links[link].source;
                 else
                     target = data.links[link].target;
-                if (target.type == "commoner")
-                    data.links[link]["name"] = target.name;
-                else
-                    data.links[link]["name"] = target.title;
+                data.links[link]["name"] = target.t;
                 data.links[link]["value"] = data.links[link].edgeweight[target.id];
                 for (var x in linktypes) {
                     if (linktypes[x]in data.links[link]) {
@@ -76,8 +72,6 @@ function links_of_type(data, key) {
 }
 
 function makearcs(piesegments, areChildren) {
-	console.log("PIES ARE");
-	console.log(piesegments);
 	arcs = arcs.data(pie(piesegments));
 	arcs.exit().remove();
 	d3.selectAll(".hiddenDonutArcs").remove();
@@ -166,7 +160,6 @@ function makearcs(piesegments, areChildren) {
 				return brightercolor(donutParent);
 			});
 			if (areChildren == true) {
-				console.log(d);
 				oldhtml = $("#donutdescription").html();
 				$("#donutdescription").html("<h5 class='overlay'>" + d.data.name + "</h5>");
 				return;
@@ -220,7 +213,6 @@ function makearcs(piesegments, areChildren) {
 			}
 		})
 		.on("click", function (d) {
-			console.log(d);
 			if (d.data.children != undefined && d.data.label != undefined) {
 				if (d.data.type == 'transaction' || d.data.type == 'social')
 					nodename = d.data.target.label.split('_')[1];
@@ -272,7 +264,6 @@ function makearcs(piesegments, areChildren) {
 		});
 	if (areChildren == true) {
 		arcs.each(function (d) {
-			console.log(d);
 			//Here is some maths to figure out where it goes
 			var centrex = 120,
 			centrey = 120;
@@ -284,8 +275,6 @@ function makearcs(piesegments, areChildren) {
 			var circleg = chartg.append("g").attr("class", "arcimage")
 				.attr("transform", "translate(" + xpos + "," + ypos + ")")
 				.style("pointer-events", "none");
-			console.log("angle is " + angle);
-			console.log("x translate and y translate " + Math.cos(angle) * 80 + ", " + Math.sin(angle) * 80);
 			circleg.append("circle")
 			.attr("r", 15)
 			.style("fill", "white")
@@ -298,7 +287,6 @@ function makearcs(piesegments, areChildren) {
 			.attr('width', 20)
 			.attr('height', 20)
 			.attr("xlink:href", function () {
-                console.log(d.data.children);
 				var actiontype = d.data.children[0][0];
 				if (actiontype == 'create_story')
 					return "icons/authorstory.png";
@@ -360,7 +348,6 @@ function plotdonut(graphdata, mydata) {
 	//Have to do the manual mapping
 	graphdata.links.forEach(function (e) {
 		e.source = isNaN(e.source) ? e.source : graphdata.nodes.filter(function (d) {
-				console.log(d.id + '-' + e.source);
 				return d.id == e.source;
 			})[0];
 		e.target = isNaN(e.target) ? e.target : graphdata.nodes.filter(function (d) {
@@ -399,9 +386,9 @@ function plotdonut(graphdata, mydata) {
 	d3.selectAll(".textypath").remove();
 	donut_labels.append("textPath")
 	.text(function (d) {
-		if (d.data.value > 0)
+		//if (d.data.value > 0)
 			return d.data.name;
-		return "";
+		//return "";
 	})
 	.attr("class", "textypath")
 	.attr("startOffset", "50%")

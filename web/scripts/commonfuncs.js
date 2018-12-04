@@ -28,13 +28,20 @@ brightercolor = d3.scaleOrdinal()
         
 var urlParams = new URLSearchParams(window.location.search);
 var userid = urlParams.get('userid'); 
+var lang = urlParams.get('lang');
 
 var parseTime = d3.timeParse("%Y/%m/%d");
 var tooltipFormat = d3.timeFormat("%b %d");
 
 function getDateText(data){
-    return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
-}
+    console.log("lang is " + lang);
+    if(lang == 'it')
+        return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)));
+    else if(lang == 'hr')
+        return croatianDate(tooltipFormat(data.date)) + "-" + croatianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)));
+    else
+        return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
+    }
 function getItalianDateText(data){
     return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)))
 }

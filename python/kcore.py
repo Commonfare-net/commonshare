@@ -60,7 +60,7 @@ def createGraphs(G,startdate,enddate,spacing):
         os.makedirs(directory)
     for k,v in commoner_graphs.items():
         if len(v) > 0:
-            with open('../web/data/userdata/' + spacing + str(k) + '.json', 'w') as outfile:
+            with open('../web/data/userdata/' + str(k) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(v))   
     
     #Make cumulative graphs
@@ -124,7 +124,7 @@ def createEntityGraphs(core_graph,core_values):
     global object_graphs
 
     #Here 'entity_graph' refers to the graph of surrounding nodes of a particular commoner or object 
-    nodeiter = core_graph.nodes(data=True)
+    nodeiter = copy.deepcopy(core_graph.nodes(data=True))
     for (n,c) in nodeiter:    
         if 'kcore' not in core_graph.nodes[n] or core_graph.nodes[n]['kcore'] == 0:
             continue
@@ -134,23 +134,52 @@ def createEntityGraphs(core_graph,core_values):
             
             entity_graph = nx.Graph()
             entity_graph.add_node(n,**c)
+            if 'title' in entity_graph.nodes[n]:
+                entity_graph.nodes[n]['t'] = entity_graph.nodes[n]['title']
+                del entity_graph.nodes[n]['title']
+            else:
+                entity_graph.nodes[n]['t'] = entity_graph.nodes[n]['name']
+                del entity_graph.nodes[n]['name']
+            del entity_graph.nodes[n]['spells']
+            #del entity_graph.nodes[n]['date']
+            del entity_graph.nodes[n]['tags']
+            del entity_graph.nodes[n]['platform_id']
+            del entity_graph.nodes[n]['maxweight']
+            del entity_graph.nodes[n]['label']
             entity_graph.nodes[n]['kcore'] = core_values[n]
             entity_graph.nodes[n]['cumu_totals'] = {k:(v*core_values[n]) for k,v in c['cumu_totals'].items()}
             entity_graph.nodes[n]['avg_totals'] = {k:(v*core_values[n]) for k,v in c['avg_totals'].items()}
-            entity_graph.nodes[n]['stats'] = getNodeStats(core_graph,n)
+            #entity_graph.nodes[n]['stats'] = getNodeStats(core_graph,n)
             entity_graph.add_edges_from(edges)
-            
+            for action_key in cf.interaction_keys:
+                if action_key in entity_graph.nodes[n]:
+                   for i in range(len(entity_graph.nodes[n][action_key])):
+                            entity_graph.nodes[n][action_key][i] = entity_graph.nodes[n][action_key][i][0] 
+                        
             for node in surrounding_nodes:
-                core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
-                entity_graph.add_node(node,**core_graph.nodes[node])
-                    
+                #core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
+                if 'name' in core_graph.nodes[node]:
+                    entity_graph.add_node(node,type=core_graph.nodes[node]['type'],t=core_graph.nodes[node]['name'])
+                else:
+                    entity_graph.add_node(node,type=core_graph.nodes[node]['type'],t=core_graph.nodes[node]['title'])
             #Now that all relevant nodes have been added, need to make sure that appropriate edges are drawn between them 
-            all_edges = core_graph.edges(entity_graph.nodes,data=True)
+            all_edges = copy.deepcopy(core_graph.edges(entity_graph.nodes,data=True))
             for (u,v,x) in all_edges:
                 if u in entity_graph.nodes and v in entity_graph.nodes:
                     entity_graph.add_edge(u,v,**x)
+                    for action_key in cf.interaction_keys:
+                        if action_key in entity_graph.edges[u,v]:
+                          for i in range(len(entity_graph.edges[u,v][action_key])):
+                            entity_graph.edges[u,v][action_key][i] = entity_graph.edges[u,v][action_key][i][0] 
+                    del entity_graph.edges[u,v]['spells']
+                    del entity_graph.edges[u,v]['weight']
+                    del entity_graph.edges[u,v]['label']
+                    if 'maxweight' in entity_graph.edges[u,v]:
+                        del entity_graph.edges[u,v]['maxweight']
+                    
             if c['type'] == 'commoner' and loopcount > 0:
                 commoner_json = json_graph.node_link_data(entity_graph)
+                commoner_json['commoner_id'] = c['platform_id']
                 commoner_graphs[n].append(commoner_json)
     
     return core_graph

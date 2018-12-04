@@ -150,7 +150,7 @@ function plotcookie(graphdata, mydata) {
 
   //Have to do the manual mapping
   graphdata.links.forEach(function(e) {
-    e.source = isNaN(e.source) ? e.source : graphdata.nodes.filter(function(d) {console.log(d.id + '-' + e.source); return d.id == e.source; })[0];
+    e.source = isNaN(e.source) ? e.source : graphdata.nodes.filter(function(d) { return d.id == e.source; })[0];
     e.target = isNaN(e.target) ? e.target : graphdata.nodes.filter(function(d) { return d.id == e.target; })[0];
     e["children"] = [];
   });
@@ -172,7 +172,6 @@ function plotcookie(graphdata, mydata) {
                             for (var y = 0; y < array.length; y++) {
                                 var childtopush = [linktypes[x]].concat(array[y]);
                                     data.links[link]["children"].push(childtopush);
-                                    console.log("PUSHING " + childtopush);
                             }
                         }
                     }
@@ -191,7 +190,7 @@ function plotcookie(graphdata, mydata) {
 				"children": links_of_type(graphdata, key),
 				"total": cumu_totals[key],
 				"kcore": mydata.kcore,
-				"stats": mydata.stats
+				//"stats": mydata.stats
 			};
 		});
         
@@ -201,7 +200,7 @@ function plotcookie(graphdata, mydata) {
 	cumu_totals["kcore"] = mydata.kcore;
 	cumu_totals["children"] = cumu_array;
 	cumu_totals["date"] = mydata.date;
-	cumu_totals["stats"] = mydata.stats;
+	//cumu_totals["stats"] = mydata.stats;
 	var xdisplacements = [];
 	var ydisplacements = [];
 
@@ -209,9 +208,6 @@ function plotcookie(graphdata, mydata) {
 	var circlepack;
 
 	var size = cumu_totals["children"][0].kcore;
-  //  console.log("WOOAH");
-  //  console.log(cumu_totals);
-	//var scaledsize = size*9 + 30;
 	//Here I'll try to make the size consistent
 	var scaledsize = Math.max(size * 9 + 30, 150);
 	circlepack = d3.pack()
@@ -232,7 +228,6 @@ function plotcookie(graphdata, mydata) {
                 })
 				//Will need to figure out another way of resizing things
 				.sum(function (e) {
-                    console.log(e);
                     if(e == undefined)
                     return 0;
 					if (e.type == "date" || e.type == "stats")
@@ -259,7 +254,6 @@ function plotcookie(graphdata, mydata) {
     })
 	.attr("class", function(d){
         if(d.parent == root || d.parent == null){
-            console.log(d);
             return "cookiecircle parental";
         }
        
@@ -310,7 +304,6 @@ function plotcookie(graphdata, mydata) {
         else
             datasource = d.data;
         d3.select(this).style("cursor", "pointer");
-        console.log(datasource);
         if(datasource.type == undefined)
             labelToHighlight = "#cookie"+d.parent.data.type + "label";
         else
@@ -327,10 +320,7 @@ function plotcookie(graphdata, mydata) {
             target = datasource.source;
         else
             target = datasource.target;
-		if (target.type == 'commoner')
-			name = target.name;
-		 else
-			name = target.title;
+		name = target.t;
         $("#cookiedescription").html("<h5 class='overlay'>"+name+"</h5>");
 
 	})
@@ -385,7 +375,6 @@ function plotcookie(graphdata, mydata) {
 function zoom(d) {
 	var focus0 = focus;
 	focus = d;
-    console.log(d);
     if(d == root){
         
         d3.selectAll(".cookiechild").style("visibility","hidden");

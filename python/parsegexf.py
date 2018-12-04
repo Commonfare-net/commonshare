@@ -87,12 +87,21 @@ nodes = root[0].find('xmlns:nodes',namespaces)
 edges = root[0].find('xmlns:edges',namespaces)
 
 nodeattrs.set('mode','static')
+attrib = {'id':'5','type':'string','title':'platform_id'} 
+attr = nodeattrs.makeelement('attribute',attrib)
+nodeattrs.append(attr)
 
 for n in nodes:
+    platform_id = n.get('label').split('_')[1]
+    
     attvalues = n.find('xmlns:attvalues',namespaces)
     idattr = attvalues.find("*/[@for='"+str(nodeid_id)+"']")
     attvalues.remove(idattr)
-    
+    #Add the platform ID
+    attrib = {'value': platform_id,'for':'5'}
+    attvalue = attvalues.makeelement('attvalue',attrib)
+    attvalues.append(attvalue)
+
 #Add the node and edge attribute values
 attrib = {'class':'node','mode':'dynamic'}
 dnodeattrs = root[0].makeelement('attributes',attrib)
@@ -100,7 +109,7 @@ attrib = {'class':'edge','mode':'dynamic'}
 root[0].insert(1,dnodeattrs)
 edgeattrs = root[0].makeelement('attributes',attrib)
 root[0].insert(2,edgeattrs)
-count = 5
+count = 6
 
 mindate = datetime(3333,10,1)
 maxdate = datetime(1,1,1)

@@ -132,15 +132,12 @@ var currentdonut = 0;
 var maxindex = 0;
 d3.json('data/userdata/' + userid + '.json', function (results) {
 	data = results;
-    console.log("HELLOOOOOOO");
-    console.log(data[0]);
    // latestdate = parseTime(data[0]['nodes'][0]['date']);
 	for (var fortnight = 0; fortnight < results.length; fortnight++) {
 		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
 		node_data[fortnight].date = parseTime(node_data[fortnight].date);
 		graph_data[fortnight] = results[fortnight];
         //This is necessary for D3 to map source and target indices to their respective nodes 
-        console.log("Plotting with " + fortnight);
         plotcookie(graph_data[fortnight],node_data[fortnight]);
         plotdonut(graph_data[fortnight],node_data[fortnight]);
         plotbunches(graph_data[fortnight]);
@@ -159,70 +156,6 @@ d3.json('data/userdata/' + userid + '.json', function (results) {
     
 });
 
-function getDateText(data){
-    return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date,2))
-}
-function getItalianDateText(data){
-    return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date,2)))
-}
-function italianDate(date){
-    var monthabb = date.split(" ")[0];
-    var ital;
-    switch(monthabb){
-        case "Jan":
-            ital = "gen";break;
-        case "Feb":
-            ital = "feb";break;
-        case "Mar":
-            ital = "mar";break;
-        case "Apr":
-            ital = "apr";break;
-        case "May":
-            ital = "mag";break;
-        case "Jun":
-            ital = "giu";break;
-        case "Jul":
-            ital = "lug";break;
-        case "Aug":
-            ital = "ago";break;
-        case "Sep":
-            ital = "set";break;
-        case "Oct":
-            ital = "ott";break;
-        case "Nov":
-            ital = "nov";break;
-        case "Dec":
-            ital = "dic";break;
-    
-    }
-    return ital + " " + date.split(" ")[1];
-}
-
-function getUrl(type, name){
-    var prefix;
-    if(type == 'commoner' || type == 'transaction' || type == 'social')
-        prefix = "https://commonfare.net/en/commoners/";
-    if(type == 'listing')
-        prefix = "https://commonfare.net/en/listings/";
-    if(type == 'story')
-        prefix = "https://commonfare.net/en/stories/";
-    
-    name = name.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-            name = name.replace(/[^a-z0-9/s _-]/gi, '').toLowerCase();
-
-        name = name.split(' ');
-        var result = '';
-        for (var i = 0; i < name.length; i++) {
-            if ((name.length - 1) == i) {
-                result += name[i];
-            } else {
-                result += name[i] + '-';
-            }
-        }
-        result = result.replace('---','-');
-        var storyurl = prefix + result;
-        return storyurl;
-}
 </script>
 <script src="scripts/cookie.js"></script>
 <script src="scripts/bunches.js"></script>
