@@ -23,9 +23,7 @@ pip install scipy python-louvain names
 
 - pagerank.py: Contains an implementation of the 'Personalised PageRank' algorithm used in the story recommender (details below) 
 
-- <b>gexf/...</b>: Directory for GEXF files.
-
-Classes for simulation (in the /simulation directory):
+Classes for simulation (in the <b>/simulation</b> directory):
 - graphclasses.py: Base classes that represent entities in the simulation
 - listinggenerator.py: Generates listing names by picking an adjective and a noun from requisite dictionaries
 - phrases.py: Generates story 'names' in the simulation by picking four random words from a dictionary
