@@ -1541,10 +1541,9 @@ nouns = [
 ]
 
 def random_tag():
-  return nouns[random.randrange(0,len(nouns))]
+    """Generate a random tag name from list of nouns"""
+    return nouns[random.randrange(0,len(nouns))]
   
 def random_phrase():
-  return " ".join([nouns[random.randrange(0, len(nouns))] for i in range(4)])
-
-def randomgruop():
-  return ('the ' + " ".join([nouns[random.randrange(0, len(nouns))] for i in range(2)]) + ' group').title()
+    """Generate a random story name by joining four nouns"""
+    return " ".join([nouns[random.randrange(0, len(nouns))] for i in range(4)])

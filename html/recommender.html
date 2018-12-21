@@ -114,12 +114,13 @@ function draw(tag, filtertype) {
                 storyid = od.id;
             else
                 return;
+                /*
           node.style("opacity", function (d) { //Make nodes and links transparent if they arent linked to tags
                                     if(d.id == userid || d.id == storyid)
                                     return 1;
                                     return 0.15;
-                                });
-            if(storyid == 0 || userid == 0)
+                                });*/
+            if(storyid == 0)
                 return;
                 
                 $.ajax({
@@ -127,16 +128,11 @@ function draw(tag, filtertype) {
                    type: "GET",
                    data: {userid: userid, storyid: storyid},
                    success: function(data){
+                        console.log(data);
                         php_data = data;
-                        pagerank_vals = {};
-                                    var pageranks = php_data.replace("[","").replace("]","").replace(/\s/g,"").replace(/\'/g,"").split(",");
-                                    for(var x in pageranks){
-                                        var id_and_rank = pageranks[x].split(":");
-                                        pagerank_vals[id_and_rank[0]] = id_and_rank[1];
-                                    }
+                                    var pageranks = php_data.replace(/\r?\n|\r/,"").split(" ");
+                                    console.log(pageranks);
                         node.attr("fill", function (d) {
-                                    if(d.id in pagerank_vals && pagerank_vals[d.id] == 'neglected')
-                                        return d3.color("blue");
                                     if (d.id == storyid)
                                         return d3.color("orange");           
                                     if (d.type == "commoner")
@@ -149,12 +145,17 @@ function draw(tag, filtertype) {
                                     return d3.color("red");
                                 }) //Coloured based on their type
                                 .style("opacity", function (d) { //Make nodes and links transparent if they arent linked to tags
-                                    if(d.id == userid || d.id == storyid || d.id in pagerank_vals)
+                                    if(d.id == userid || d.id == storyid || pageranks.includes(d.id))
                                     return 1;
                                     return 0.15;
                                 });
                      
-                   }
+                   },
+                   error: function(xhr, status, error) {
+                      console.log("HELLO");
+                      var err = eval("(" + xhr.responseText + ")");
+                      alert(err.Message);
+                    }
                 });
 		})
         		.on("mouseover", function (d) {

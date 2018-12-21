@@ -1,11 +1,9 @@
-#Generates random usernames
 import names
-#Generates random listing names
 import listinggenerator
-#Generates random story names
 import phrases
 		
 class user(object):
+    """Class representing a user node"""
 
     def __init__(self):
         self.__name = names.get_full_name()
@@ -18,6 +16,7 @@ class user(object):
 
 		
 class story(object):
+    """Class representing a story node"""
 
     def __init__(self):
         self.__name = phrases.random_phrase()	
@@ -30,6 +29,7 @@ class story(object):
 
 
 class listing(object):
+    """Class representing a listing node"""
 
     def __init__(self):
         self.__name = listinggenerator.random_listing()
@@ -42,6 +42,7 @@ class listing(object):
 
 
 class tag(object):
+    """Class representing a tag node"""
 
     def __init__(self):
         self.__name = phrases.random_tag()	
@@ -51,8 +52,4 @@ class tag(object):
 
     def __repr__(self):
         return str(self)	
-        
-class Group(object):
-
-    def __init__(self):
-       print ''      
+          

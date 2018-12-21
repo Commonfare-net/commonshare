@@ -6,12 +6,15 @@ INITIAL_USERS = 40
 ACTIONS_PER_DAY = 8
 
 #Collusion things
+FREQUENCY_THRESHOLD = 5
+PERCENTAGE_THRESHOLD = 33
 
 SHOULD_CLIQUE = True
 SHOULD_COLLUDE = True
 NUM_COLLUDERS = 3
 SPAMMERID = 22
 
+colluding_nodes = []
 oneyear = 365*24*3600
 two_weeks = datetime.timedelta(days=14)
 one_day = datetime.timedelta(days=1)
@@ -107,3 +110,28 @@ no_weights = {
            rcomment_listing:1,
            tag_listing:0
            }
+def to_str(date):
+    """Convert datetime date to string
+
+    :param date: a datetime date
+    :returns: String representation in form Year/month/day
+    """
+    return datetime.datetime.strftime(date,"%Y/%m/%d")
+
+def to_date(str):
+    """Convert date-formatted string to datetime date 
+
+    :param str: string in form Year/month/day 
+    :returns: a datetime date
+
+    """
+    return datetime.datetime.strptime(str,"%Y/%m/%d")
+    
+def in_date(window,date_str):
+    """Check if date is within a given time window
+
+    :param window: 2-tuple of start and end dates 
+    :param date_str: date-formatted string
+    :returns: bool (True if date is within window)
+    """
+    return window[0] <= to_date(date_str) < window[1]

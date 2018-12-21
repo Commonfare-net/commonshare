@@ -1,541 +1,309 @@
-import networkx as nx
-import dynetworkx as dx
+import math
 from datetime import datetime
+
+import networkx as nx
+from scipy import stats
+
 import config as cf
-import json
-from networkx.readwrite import json_graph
-import copy
-import sys
-import operator
-import xml.etree.ElementTree as ET
-from dateutil.relativedelta import *
-import os
-import community
 
-'''
-This module does the necessary k-core calculations and appends the results to each node in the Graph.
-Plotly functions now exist in 'kcoreplotly.py' as this generates data to be used in a D3 visualisation instead
-'''
+def colluding(G,n1,n2,n1_weight,n2_weight,window):
+    """Check if two nodes are colluding
+    
+    Basic collusion checking algorithm. Determines if actions from
+    one node are greater than a threshold of the recipient node's
+    overall weight
+    
+    Algorithm adapted from the following paper:
+    H.Shen, Y.Lin, K.Sapra and Z.Li, "Enhancing Collusion Resilience
+    in Reputation Systems," in IEEE Transactions on Parallel and 
+    Distributed Systems, vol.27, no.8, pp.2274-2287, 1 Aug. 2016.
+    
+    :param G: NetworkX graph of all interactions in a time window 
+    :param n1: string representing Node 1 ID
+    :param n2: string representing Node 2 ID
+    :param n1_weight: float, sum of edge weights of Node 1
+    :param n2_weight: float, sum of edge weights of Node 2
+    :param window: 2-tuple of start and end dates of time window
+    :returns: bool, True if strong suspicion of collusion. 
+    """
+    if n1 == n2:
+        return False
+    if G.has_edge(n1,n2) == False:
+        return False
+    edge = G[n1][n2]
+    edgeweight = 0
+    frequency = 0
+    print 'checking between ',n1,' and ',n2
+    for action_key in cf.interaction_keys:
+        if action_key in edge:
+            for action in edge[action_key]:
+                if cf.in_date(window,action[1]):
+                    edgeweight = edgeweight + cf.weights[action_key]
+                    frequency = frequency + 1
+    n_weight = min(n1_weight,n2_weight)
+    return ((edgeweight/n_weight)*100) > cf.PERCENTAGE_THRESHOLD
 
-def createGraphs(G,startdate,enddate,spacing):     
-    global loopcount
-    global commoner_graphs
-    global object_graphs
-    global dyn_index
-    global dc
-    global stepcoms    
-    loopcount = 0
-    nodeiter = G.nodes(data=True)    
-    #Create dictionaries to hold the interaction data for individual commoners/objects
-    for (n,c) in nodeiter:
-        if c['type'] == 'commoner':
-            commoner_graphs[n] = []
-        else:
-            object_graphs[n] = []
-        c["tags"] = []    
-        
-    if spacing == 'weekly':
-        delta = relativedelta(weeks=-1)
-    elif spacing == 'biweekly':
-        delta = relativedelta(weeks=-2)
-    else:
-        delta = relativedelta(months=-1)
-        
-    #Create new graph representing interactions within a two-week window
-    windowend = enddate
-    windowstart = windowend+delta
+def nodeweight(G,node_id,window,suspect_nodes):
+    """Calculate weight of a node in the interactions graph.
     
-    loopcount += 1
-    #Makes the fortnightly graphs
-    while(windowend > startdate):
-        print 'windowend is',datetime.strftime(windowend,"%Y/%m/%d")
-        calculate(G,windowstart,windowend,spacing)
-        windowend = windowstart
-        windowstart = windowend + delta
-        loopcount += 1
+    This calculates a node's 'weight' by looking at the 
+    number, type, and date of interactions with other nodes 
+    in the graph. 
 
-    #Make individual historic files for each commoner and each object (i.e., story, listing)
-    directory = '../data/output/userdata/'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    for k,v in commoner_graphs.items():
-        if len(v) > 0:
-            with open('../data/output/userdata/' + str(k) + '.json', 'w') as outfile:
-                outfile.write(json.dumps(v))   
+    :param G: NetworkX graph of all interactions in a time window 
+    :param node_id: string ID of node to determine weight of 
+    :param window: 2-tuple with start and end dates of time window 
+    :param suspect_nodes: dictionary mapping node ID's of high
+    activity to their overall weight 
+    """
     
-    #Make cumulative graphs
-    loopcount = 0
-    G_new = calculate(G,startdate,enddate,spacing)
+    #This holds the contribution of each type of action to
+    #the node's overall weight 
+    action_weights = {}
+    for meta in cf.meta_networks:
+        action_weights[meta] = 0
+    edges = G.edges(node_id,data=True)
+    edgeweights = []
     
-    #Reset dynamic communities
-    dyn_index = 0
-    dc = {}   
-    stepcoms = {} 
-    return G 
-'''
-For each node, store the interactions it has been involved with by their type, and by their date
-'''
-def getNodeStats(core_graph,node_id):
-    edges = core_graph.edges(node_id,data=True)
+    #'if len(active_weeks) > 52' is used throughout to check 
+    #if this is the cumulative graph
     
-    stats = {}
+    #Find no. weeks this node is active from start of commonfare.net
+    active_weeks = [0] * ((window[1]-window[0]).days / 7) 
+    if len(active_weeks) > 52: #If this is the cumulative graph...
+        for spell in G.nodes[node_id]['spells']:
+            nodespell = cf.to_date(spell[1])
+            index = ((nodespell-window[0]).days / 7) -1
+            active_weeks[index] = 1
+        total_weeks_active = float(sum(active_weeks))
+
+    maxweight = 0
+    influence = 0
+    flagged = False    
     for (u,v,c) in edges:
-        #Loop through all interactions that the node could've done 
-        for action_key in cf.interaction_keys:
-            if action_key in c:
-                
-                interaction_type = cf.interaction_types[action_key] #What kind of interaction is this? (i.e. story, transaction, social)
-                
-                #This initialises the data structures to store the interaction data if they're not already created 
-                if interaction_type not in stats:
-                    stats[interaction_type] = {}
-                if action_key not in stats[interaction_type]:
-                    stats[interaction_type][action_key] = []
-                    stats[interaction_type]["r"+action_key] = [] #This is the inverse (i.e. comment received, like received)
-                
-                
-                for action in c[action_key]:
-                    if action_key in cf.indirect_interactions: #'Indirect' interactions are initiated by someone else, but receiving node gets klout (e.g. a story comment)                          
-                        action_key = "r" + action_key
-                        
-                    elif action[0] != str(node_id) and action_key not in cf.mutual_interactions:    
-                        stats[interaction_type][action_key].append(action)                    
-                        continue
-                    
-                    #Interactions also indexed by the date on which they occurred. This initialises necessary data structures 
-                    if action[1] not in stats: #action[1] is the date of the interaction
-                        stats[action[1]] = {}
-                    if interaction_type not in stats[action[1]]:
-                        stats[action[1]][interaction_type] = {}                            
-                    if action_key not in stats[action[1]][interaction_type]:
-                        stats[action[1]][interaction_type][action_key] = [1,cf.no_weights[action_key]]
-                    else:
-                        stats[action[1]][interaction_type][action_key][0] += 1 #Number of actions
-                        stats[action[1]][interaction_type][action_key][1] += cf.no_weights[action_key] #Weight of actions    
-                    stats[interaction_type][action_key].append(action)
-    return stats
-
-'''
-This method creates the individual commoner/object graphs
-'''
-def createEntityGraphs(core_graph,core_values):
-    global loopcount
-    global commoner_graphs
-    global object_graphs
-
-    #Here 'entity_graph' refers to the graph of surrounding nodes of a particular commoner or object 
-    nodeiter = copy.deepcopy(core_graph.nodes(data=True))
-    for (n,c) in nodeiter:    
-        if 'kcore' not in core_graph.nodes[n] or core_graph.nodes[n]['kcore'] == 0:
-            continue
-        else:
-            edges = core_graph.edges(n,data=True)
-            surrounding_nodes = core_graph.neighbors(n)    
-            
-            entity_graph = nx.Graph()
-            entity_graph.add_node(n,**c)
-            if 'title' in entity_graph.nodes[n]:
-                entity_graph.nodes[n]['t'] = entity_graph.nodes[n]['title']
-                del entity_graph.nodes[n]['title']
+    
+        #Constant used to decrease the 'value' of multiple interactions
+        #between the same two nodes
+        depreciating_constant = 0.75 
+        
+        overallweight = 0.0
+        
+        if len(active_weeks) > 52:
+          
+          #Estimate the 'influence' of this node. 
+          #For each neighbour node, determine its activity
+          #since connecting with this node
+            spelldate = cf.to_date(c['spells'][0][0])
+            after_weeks = [0]*((window[1] - spelldate).days / 7)
+            for spell in G.nodes[v]['spells']:
+                nodespell = cf.to_date(spell[1])
+                #If this spell happened afterwards...
+                if (nodespell - spelldate).days >= 7: 
+                    index = ((nodespell-spelldate).days / 7)-1
+                    after_weeks[index] = 1
+            if len(after_weeks) > 0:
+                influence = float(sum(after_weeks))/len(after_weeks)
             else:
-                entity_graph.nodes[n]['t'] = entity_graph.nodes[n]['name']
-                del entity_graph.nodes[n]['name']
-            del entity_graph.nodes[n]['spells']
-            #del entity_graph.nodes[n]['date']
-            del entity_graph.nodes[n]['tags']
-            del entity_graph.nodes[n]['platform_id']
-            del entity_graph.nodes[n]['maxweight']
-            del entity_graph.nodes[n]['label']
-            entity_graph.nodes[n]['kcore'] = core_values[n]
-            entity_graph.nodes[n]['cumu_totals'] = {k:(v*core_values[n]) for k,v in c['cumu_totals'].items()}
-            entity_graph.nodes[n]['avg_totals'] = {k:(v*core_values[n]) for k,v in c['avg_totals'].items()}
-            #entity_graph.nodes[n]['stats'] = getNodeStats(core_graph,n)
-            entity_graph.add_edges_from(edges)
-            for action_key in cf.interaction_keys:
-                if action_key in entity_graph.nodes[n]:
-                   for i in range(len(entity_graph.nodes[n][action_key])):
-                            entity_graph.nodes[n][action_key][i] = entity_graph.nodes[n][action_key][i][0] 
-                        
-            for node in surrounding_nodes:
-                #core_graph.nodes[node]['stats'] = getNodeStats(core_graph,node)
-                if 'name' in core_graph.nodes[node]:
-                    entity_graph.add_node(node,type=core_graph.nodes[node]['type'],t=core_graph.nodes[node]['name'])
-                else:
-                    entity_graph.add_node(node,type=core_graph.nodes[node]['type'],t=core_graph.nodes[node]['title'])
-            #Now that all relevant nodes have been added, need to make sure that appropriate edges are drawn between them 
-            all_edges = copy.deepcopy(core_graph.edges(entity_graph.nodes,data=True))
-            for (u,v,x) in all_edges:
-                if u in entity_graph.nodes and v in entity_graph.nodes:
-                    entity_graph.add_edge(u,v,**x)
-                    for action_key in cf.interaction_keys:
-                        if action_key in entity_graph.edges[u,v]:
-                          for i in range(len(entity_graph.edges[u,v][action_key])):
-                            entity_graph.edges[u,v][action_key][i] = entity_graph.edges[u,v][action_key][i][0] 
-                    del entity_graph.edges[u,v]['spells']
-                    del entity_graph.edges[u,v]['weight']
-                    del entity_graph.edges[u,v]['label']
-                    if 'maxweight' in entity_graph.edges[u,v]:
-                        del entity_graph.edges[u,v]['maxweight']
-                    
-            if c['type'] == 'commoner' and loopcount > 0:
-                commoner_json = json_graph.node_link_data(entity_graph)
-                commoner_json['commoner_id'] = c['platform_id']
-                commoner_graphs[n].append(commoner_json)
-    
-    return core_graph
+                influence = 0
+        action_count = 0   
+        
+        #Iterate over all actions between two nodes. Increment the 
+        #overall edge weight based on the type and date of the action
+        for action_key in cf.interaction_keys:
+            
+            if action_key not in c:
+                continue 
+            actions_to_keep = []
+            for action in c[action_key]:
+                if not cf.in_date(window,action[1]):
+                    continue 
+                if node_id == action[0]: #Node initiated the action
+                    edge_weight = cf.weights[action_key]
+                else: #This node was the recipient of the action
+                    edge_weight = cf.weights["r"+action_key]
+                actions_to_keep.append(action)
+                action_count += 1    
+                '''
+                Depreciate weight of the edge as a function of 
+                the number of days old it is. 
+                e^(-days/50) seems to work well. 
+                '''
+                tdelta = window[1] - cf.to_date(action[1])
+                agefraction = math.exp(-(float(tdelta.days)/50))
+                '''
+                Also depreciate the value of subsequent 
+                interactions along the same edge by 25% each time
+                '''
+                overallweight = (overallweight 
+                + (edge_weight*agefraction*depreciating_constant)) 
+              
+                '''
+                Also store the contribution to this edge's weight of
+                each different action type involved
+                '''
+                action_weights[cf.interaction_types[action_key]] \
+                += round((edge_weight*agefraction*depreciating_constant),2)                          
+                
+                depreciating_constant = depreciating_constant*0.75
+            c[action_key] = actions_to_keep     
+            
+        if overallweight == 0:
+            continue 
+        if len(active_weeks) > 52:
+            '''
+            Reduce edgeweight based on its influence and
+            weeks active of the node. Reduction value = 
+            (e^influence)-1 * square_root(weeks active) + 0.1
+            Minimum reduction = 0.1 when influence is 0
+            '''
+            overallweight *= min(((math.exp(influence)-1)
+            * math.sqrt(total_weeks_active) +0.1),1)
+        else: #'flag' a node if it has been particularly active 
+            if action_count > 7: 
+                flagged = True
+                
+        edgeweights.append(overallweight)
+        
+        #Adds the edge's weight as an attribute
+        if 'edgeweight' not in c:
+            c['edgeweight'] = {}
+            c['maxweight'] = overallweight
+        c['edgeweight'][node_id] = round(overallweight,2)
+        c['maxweight'] = round(max(c['maxweight'],overallweight),2)
+        maxweight = max(c['maxweight'],maxweight)
+        
+        if 'maxweight' not in G.nodes[u]:
+            G.nodes[u]['maxweight'] = c['maxweight']
+        G.nodes[u]['maxweight'] = max(G.nodes[u]['maxweight'],c['maxweight'])
 
+        if 'maxweight' not in G.nodes[v]:
+            G.nodes[v]['maxweight'] = c['maxweight']
+        G.nodes[v]['maxweight'] = max(G.nodes[v]['maxweight'],c['maxweight'])
+
+    if len(edgeweights) == 0:
+        return (G,action_weights,0)
+        
+    if flagged: #High activity node, add it to dictionary 
+        suspect_nodes[node_id] = sum(edgeweights)
+    if len(active_weeks) > 52:
+        print 'edgeweight for node ',node_id,' is ',sum(edgeweights)
+    return (G,action_weights,sum(edgeweights))
     
-'''
-This method removes all the spells and actions from the nodes and edges where they fall outside of the window slot
-'''
-def filter_spells(G,start,end):
+
+def weighted_core(G,window):
+    """Compute weighted k-core for each node in a graph
     
-    #First filter nodes
-    nodeiter = G.nodes(data=True)      
-    for (n,c) in nodeiter:
-        nodemeta = []
-        spells_to_keep = []
-        for spell in c['spells']:
-            if (start <= datetime.strptime(spell[0],"%Y/%m/%d") < end):
-                spells_to_keep.append(spell)
-        c['spells'] = spells_to_keep
-        for action_key in cf.interaction_keys:
-            if action_key in c:
-                actions_to_keep = []
-                for action in c[action_key]:
-                    if (start <= datetime.strptime(action[1],"%Y/%m/%d") < end):
-                        actions_to_keep.append(action)
-                c[action_key] = actions_to_keep
-                if len(actions_to_keep) == 0:
-                    continue
-                nodemeta.append(cf.interaction_types[action_key])                  
-        if c['type'] == 'story':
-            nodemeta.append('story')
-        c['nodemeta'] = c['nodemeta'] + nodemeta
+    This extends the standard NetworkX k-core calculation method 
+    by weighting each node based on its platform interactions, 
+    performing a log-transformation and normalising the final value 
+    to an integer between 1 and 10
+
+    :param G: NetworkX graph of all interactions in a time window
+    :param window: 2-tuple of start and end dates of time window 
+    :returns: 2-tuple containing graph updated with k-core values for
+     each node, and a list of potential colluding nodes 
+    """
+
+    neighbors=G.neighbors
+    suspect_nodes = {}
+    sumofedges = {}
+    colluders = []
+    degrees = dict(G.degree())
     
-    #Do the same for edges
-    edgeiter = G.edges(data=True)
-    for (u,v,c) in edgeiter:
-        edgemeta = []
-        for action_key in cf.interaction_keys:
-            if action_key in c and len(c[action_key]) > 0:
-                for action in c[action_key]:
-                    if (start <= datetime.strptime(action[1],"%Y/%m/%d") < end):                
-                        edgemeta.append(cf.interaction_types[action_key])
-        c['edgemeta'] = edgemeta
+    for k,v in degrees.items():
+        #Compute the new node weight here
+        #Also return 'action_weights' that holds node weight relevant
+        #to each different action type 
+        (G,action_weights,weight) = nodeweight(G,k,window,suspect_nodes)
+        G.nodes[k]['edgetotals'] = action_weights
+        e_sum = float(sum(action_weights.values()))
+        sumofedges[k] = e_sum                
+        e_avg = e_sum / len(action_weights.keys())
+        
+        #Convert action weights to values with sum = node's weight 
+        G.nodes[k]['cumu'] = {e:(round((v/e_sum),2) if e_sum > 0 else 0) 
+        for e,v in G.nodes[k]['edgetotals'].items()}
+        
+        #Convert action weights to values with average = node's weight 
+        G.nodes[k]['avg'] = {e:(round((v/e_avg),2) if e_avg > 0 else 0) 
+        for e,v in G.nodes[k]['edgetotals'].items()}
+        
+        #Compute node's new 'degree' as function of its computed weight
+        degrees[k] = int(math.sqrt(int(v)) * weight)
+
+    #Do a collusion check
+    activenodes = list(suspect_nodes.keys())
+    for i in activenodes:
+        for j in activenodes:
+            if colluding(G,i,j,suspect_nodes[i],suspect_nodes[j],window): 
+                print i,'and',j,'might be colluding'
+                colluders.append([i,j])
     
-    return G
-    
-dyn_index = 0
-dc = {}   
-stepcoms = {} 
-def calculate(G,windowstart,windowend,spacing):
-    global unparsed_startdate
-    global unparsed_enddate
-    global dyn_index
-    global dc
-    global stepcoms
-    edges_to_remove = []    
-    tag_edges = []
-    tag_nodes = {}
-    tag_counts = {} #Holds counts of each of the tags      
-    
-    create_count = 0
-    comment_count = 0
-    convo_count = 0
-    trans_count = 0
-    graph_copy = copy.deepcopy(G) #Need to deep copy to avoid screwing future iterations
+    #This is the k-core algorithm verbatim from the networkx module
+    nodes=sorted(degrees,key=degrees.get)
+    bin_boundaries=[0]
+    curr_degree=0
+    for i,v in enumerate(nodes):
+        if degrees[v]>curr_degree:
+            bin_boundaries.extend([i]*(degrees[v]-curr_degree))
+            curr_degree=degrees[v]
+    node_pos = dict((v,pos) for pos,v in enumerate(nodes))
+    # initial guesses for core is degree
+    core=degrees
+    nbrs=dict((v,set(neighbors(v))) for v in G)
+    for v in nodes:
+        for u in nbrs[v]:
+            if core[u] > core[v]:
+                nbrs[u].remove(v)
+                pos=node_pos[u]
+                bin_start=bin_boundaries[core[u]]
+                node_pos[u]=bin_start
+                node_pos[nodes[bin_start]]=pos
+                nodes[bin_start],nodes[pos]=nodes[pos],nodes[bin_start]
+                bin_boundaries[core[u]]+=1
+                core[u]-=1
+                
+    '''
+    Output of k-core algorithm is logarithmic distribution. 
+    Use 'boxcox' to do log transformation with lambda=0
+    First, 0 values need to be removed
+    '''
+    log_core = {k: v for k, v in core.iteritems() if v >0}
+    data = stats.boxcox(log_core.values(), 0)
+
+    #Then we add 0 values back in
+    loopcount = 0
+    for k,v in log_core.iteritems():
+        log_core[k] = data[loopcount]
+        loopcount += 1
+    for k,v in core.iteritems():
+        if v == 0:
+            log_core[k] = 0
+        
+    #Finally, normalise log-transform values on a scale of 1-10
+    if len(log_core.values()) > 0:
+        k_min = min(log_core.values())
+        k_max = max(log_core.values())
+        if k_max == k_min:
+            k_max = k_max+1
+        for k,v in log_core.iteritems():
+            if sumofedges[k] == 0:
+                log_core[k] = 0
+                continue
+            log_core[k] = int(math.ceil((float(v-k_min)/(k_max-k_min))*9))+1
 
     nodeiter = G.nodes(data=True)
-    iter = G.edges(data=True)   
-
-    for (u,v,c) in iter:
-        edge_exists = False
-        
-        for intervals in c['spells']:
-
-            if (windowstart <= datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
-                edge_exists = True
-                if G.nodes[u]["type"] == "story" and cf.create_story in G.nodes[u]:                        
-                        G.nodes[v]['nodemeta'] = ['story']
-                elif G.nodes[v]["type"] == "story" and cf.create_story in G.nodes[v]:
-                        #Node 'u' has created this story, add it to their nodemeta
-                        G.nodes[u]['nodemeta'] = ['story']
-        if edge_exists == False:
-            edges_to_remove.append((u,v,c))
-        else:
-            if cf.create_story in c:
-                if windowstart <= datetime.strptime(c[cf.create_story][0][1],"%Y/%m/%d") < windowend:
-                    create_count +=1
-            if cf.comment_story in c:
-                for comment in c[cf.comment_story]:
-                    if windowstart <= datetime.strptime(comment[1],"%Y/%m/%d") < windowend:
-                        comment_count += 1
-            if cf.conversation in c:
-                for convo in c[cf.conversation]:
-                    if windowstart <= datetime.strptime(convo[1],"%Y/%m/%d") < windowend:
-                        convo_count += 1
-            if cf.transaction in c:
-                for trans in c[cf.transaction]:
-                    if windowstart <= datetime.strptime(trans[1],"%Y/%m/%d") < windowend:
-                        trans_count += 1
-            if G.nodes[u]["type"] == "tag" or G.nodes[v]["type"] == "tag":
-                tag_edges.append((u,v,c))
-                tagname = G.nodes[u]["name"] if G.nodes[u]["type"] == "tag" else G.nodes[v]["name"]
-                graph_copy.nodes[u]["tags"].append(tagname)
-                graph_copy.nodes[v]["tags"].append(tagname)
-                if tagname not in tag_counts:
-                    tag_counts[tagname] = 0
-                tag_counts[tagname] +=1  
-
-    graph_copy.remove_edges_from(edges_to_remove)
     
-    #We want to remove the tag edges because they shouldn't count in the k-core calculation 
-    graph_copy.remove_edges_from((tag_edges))
-    
-    nodes_to_remove = []
+    #Add k-core value to each node in the graph
+    #Also update the average and cumulative action weights
+    #by multiplying them by the node's k-core value
     for (n,c) in nodeiter:
-        graph_copy.nodes[n]['nodemeta'] = []    
-
-        #Replace all apostrophes in story/commoner names 
-        if c['type'] == 'story' or c['type'] == 'listing':
-            graph_copy.nodes[n]['title'] = c['title'].replace("'","")
-        else:
-            graph_copy.nodes[n]['name'] = c['name'].replace("'","")
-            
-        node_exists = False
-        graph_copy.nodes[n]['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
-        c['date'] = datetime.strftime(windowstart,"%Y/%m/%d")
-        if 'spells' in c:
-            for intervals in c['spells']:
-                if (windowstart <= datetime.strptime(intervals[0],"%Y/%m/%d") < windowend):
-                    node_exists = True
-        if node_exists == False:
-            nodes_to_remove.append(n) 
-
-    graph_copy.remove_nodes_from(nodes_to_remove)
-
-    #Get rid of spells and actions that fall outside the window range 
-    graph_copy = filter_spells(graph_copy,windowstart,windowend)
-    
-    #Do the kcore calculations
-    is_cumulative = True if loopcount == 0 else False
-    (core_graph,core_values,colluders) = dx.core_number_weighted(graph_copy,windowstart,windowend,is_cumulative)
-
-    #Add the tags back in
-    core_graph.add_edges_from(tag_edges)
-    
-    nodeiter = core_graph.nodes(data=True)
-    neglected_nodes = []
-    #Can add the k-core and page-rank stats here
-    for (n,c) in nodeiter:
-        core_graph.nodes[n]['kcore'] = core_values[n]
-        if c['type'] == 'tag':
-            tag_nodes[n] = c
-    #if loopcount > 0:
-    core_graph = createEntityGraphs(core_graph,core_values)
-    if loopcount == 0:
-        nodeiter = core_graph.nodes(data=True)
-        core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees
-        for (n,c) in nodeiter:
-            if 'nodemeta' in c:
-                c['nodemeta'] = ','.join(c['nodemeta'])
-            if 'tags' in c:
-                c['tags'] = ','.join(c['tags'])
-            #We're calling 'neglected nodes' all stories that are less than a month old with little to no interactions
-            if core_graph.degree[n] < 2 and c['type'] == 'story' and 'create_story' in c and (datetime.now() - datetime.strptime(c['create_story'][0][1],"%Y/%m/%d")).days < 50:
-                neglected_nodes.append(n)
-        edgeiter = core_graph.edges(data=True)
-        core_graph.add_edges_from(tag_edges)
-        for (u,v,c) in edgeiter:
-            if 'edgemeta' in c:
-                c['edgemeta'] = ','.join(c['edgemeta'])
-            last_time_activated = datetime.strptime(c['spells'][0][1],"%Y/%m/%d")
-            for spell in c['spells']:
-                if datetime.strptime(spell[1],"%Y/%m/%d") > last_time_activated:
-                    last_time_activated = datetime.strptime(spell[1],"%Y/%m/%d")
-            c['last_date'] = datetime.strftime(last_time_activated,"%Y/%m/%d")                 
-
-                
-        nx.write_gexf(core_graph,"newdata.gexf")
-        tree = ET.parse("newdata.gexf")  
-        root = tree.getroot()
-        root[0].set('neglected_nodes',' '.join(neglected_nodes))
-        root[0].set('start',unparsed_startdate)
-        root[0].set('end',unparsed_enddate)
-        root[0].set('timeformat', 'date') 
-        tree.write("../data/output/recommenderdata.gexf")      
-        os.remove("newdata.gexf")
-    #Remove any isolated nodes that exist from removing Basic Income interactions 
-    core_graph.remove_nodes_from(list(nx.isolates(core_graph)))
-
-    iter = core_graph.edges(data=True)
-    for (u,v,c) in iter:
-        if 'edgeweight' in c:
-            c['edgeweight'] = c['edgeweight'][u]
-        else:
-            c['edgeweight'] = 1
-    stepcoms = {}
-    core_graph.remove_nodes_from(tag_nodes.keys())    
-
-    core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees
-    #print 'AND NOW'
-    tag_based_isolates = list(nx.isolates(core_graph))
-    core_graph.remove_nodes_from(list(nx.isolates(core_graph))) #Actually now THIS will remove any nodes that are only there because they've tagged themselves    
-
-    partition = community.best_partition(core_graph,weight='edgeweight')
-    
-            
-    for k,v in partition.iteritems():
-        if v not in stepcoms:
-            stepcoms[v] = []
-        stepcoms[v].append(k)
-
-    print 'stepcomcounts be ',len(stepcoms)
-    #Now compare fronts to previous step communities
-    cdate = loopcount
-    if loopcount > 0:
-        if len(dc) == 0: #Bootstrapping
-            for i in range(len(stepcoms)):
-                dc[str(dyn_index)] = [cdate,stepcoms.values()[dyn_index]]
-                dyn_index += 1
-            fronts = {k:v[len(v)-1] for k,v in dc.iteritems()} 
-        else:
-            #Get most recent step community of each dynamic community
-            fronts = {k:v[len(v)-1] for k,v in dc.iteritems()} 
-            print 'front length be ',len(fronts)
-            #Keep a record of how many new things have been appended onto a dynamic community
-            #If it's more than one we need to split the community
-            appendings = {k:0 for k in dc.keys()}
-            
-            #(stepcoms are the communities detected at this particular time step)
-            for c_val in stepcoms.values():
-                matching_coms = []
-                for key,f_val in fronts.iteritems():
-                    similarity = jaccard(f_val,c_val)
-                    if similarity < 0.3:
-                        continue
-                    else:
-                        matching_coms.append(key)
-                if len(matching_coms) == 0: #Didn't find a matching dynamic community, best make a new one    
-                    dc[str(dyn_index)] = [cdate,c_val]
-                    dyn_index += 1
-                else: #Two dynamic communities match this step community, do a merge?
-                    for key in matching_coms:
-                        dc[key].append(cdate)
-                        dc[key].append(c_val)
-                        appendings[key] += 1
-      
-    
-    for u,v,c in tag_edges:
-        if u in tag_based_isolates or v in tag_based_isolates:
-            continue
-        else:
-            core_graph.add_edge(u,v,**c)
-    #core_graph.add_edges_from(tag_edges)
-    for k,v in tag_nodes.iteritems():
-        if k in core_graph.nodes():
-            core_graph.add_node(k,**v)   
-    
-    c_count = 0
-    s_count = 0
-    t_count = 0
-    l_count = 0
-    nodeiter = core_graph.nodes(data=True)
-    for n,c in nodeiter:
-        if c['type'] != 'tag':
-            c['cluster'] = partition[n]
-        if c['type'] == 'commoner':
-            c_count += 1
-        elif c['type'] == 'story':
-            s_count += 1
-        elif c['type'] == 'tag':
-            t_count += 1
-            
-        elif c['type'] == 'listing':
-            l_count += 1
-            
-    #core_graph.remove_edges_from(tag_edges)        #Get rid of tag edges so that they don't influence the story node degrees  
-    #core_graph.remove_nodes_from(tag_nodes.keys())
-    num_nodes = nx.number_of_nodes(core_graph)
-    num_edges = nx.number_of_edges(core_graph)
-
-    #density = nx.density(core_graph)
-    #for k,v in tag_nodes.iteritems():
-    #    core_graph.add_node(k,**v)
-    #core_graph.add_edges_from(tag_edges) 
-    
-    core_graph_json = json_graph.node_link_data(core_graph)
-    core_graph_json['node_num'] = num_nodes
-    core_graph_json['commoners'] = c_count
-    core_graph_json['stories'] = s_count
-    core_graph_json['listings'] = l_count
-    core_graph_json['tags'] = t_count
-    core_graph_json['create'] = create_count
-    core_graph_json['comment'] = comment_count
-    core_graph_json['convo'] = convo_count
-    core_graph_json['trans'] = trans_count
-    core_graph_json['edge_num'] = num_edges
-    #core_graph_json['density'] = density          
-    core_graph_json['date'] = datetime.strftime(windowend,"%Y/%m/%d")
-    tag_list = sorted(tag_counts.iteritems(),reverse=True, key=lambda (k,v): (v,k))
-    core_graph_json['tagcount'] = tag_list
-    if loopcount == 0:
-        dynamic_communities = {}
-        for k,v in dc.iteritems():
-            if len(v) > 2:
-                highcore = 0;
-                #Give this cluster a name based on the most high-profile node in it
-                for nodes in v:
-                    if type(nodes) is list:
-                        for nodeid in nodes:
-                            n = core_graph.nodes[nodeid]
-                            nodecore = n['kcore']
-                            if nodecore >= highcore:
-                                central_node = n['title'].split()[0] if 'title' in n else n['name']
-                                highcore = nodecore
-                dynamic_communities[central_node + k] = v
-        core_graph_json['dynamic_comms'] = dynamic_communities
-    core_graph_json['colluders'] = colluders
-    directory = '../data/output/graphdata/'+spacing+'/'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    with open('../data/output/graphdata/'+spacing+'/'+ str(loopcount) +'.json', 'w') as outfile:
-        outfile.write(json.dumps(core_graph_json))
-    return core_graph
-           
-loopcount = 0
-commoner_graphs = {}
-object_graphs = {}
-filename = ""   
-
-def jaccard(front,stepcommunity):
-    intersection = list(set(stepcommunity) & set(front))
-    union = list(set(stepcommunity) | set(front))
-    similarity = float(len(intersection)) / float(len(union))
-    return similarity
-
-def init(file):
-    global filename
-    global unparsed_startdate
-    global unparsed_enddate
-    filename = file
-    G_read = nx.read_gexf(filename)
-    ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-    tree = ET.parse(filename)  
-    root = tree.getroot()
-    unparsed_startdate = root[0].attrib['start']
-    unparsed_enddate = root[0].attrib['end']
-
-    #Pass the start and end times of the file in
-    #createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"),'weekly')  
-    createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"),'biweekly')  
-    #createGraphs(G_read,datetime.strptime(unparsed_startdate,"%Y/%m/%d"),datetime.strptime(unparsed_enddate,"%Y/%m/%d"),'monthly')  
-   
-if __name__ == "__main__":
-    global filename
-    if len(sys.argv) < 2:
-        print 'Missing filename'
-        sys.exit()
-    filename = sys.argv[1]
-    init(filename)
+        G.nodes[n]['kcore'] = log_core[n]
+        G.nodes[n]['cumu'] = {
+        k:(v*c['kcore']) for k,v in c['cumu'].items()
+        }    
+        G.nodes[n]['avg'] = {
+        k:(v*c['kcore']) for k,v in c['avg'].items()
+        }
+    return (G,colluders)
+ 

@@ -158,6 +158,72 @@ function addStrengthSlider() {
 }
 var currentDate;
 var dateslidex;
+
+function updateDateSlider(granularity){
+   var s = document.getElementById("myslider");
+   var slidesvg = d3.select(".myslider"),
+   	margin = {
+		right: 50,
+		left: 50,
+		top: 100,
+		bottom: 50
+	};
+	var sliderwidth = parseFloat(window.getComputedStyle(s).width) - margin.left - margin.right;
+
+   dateslidex = d3.scaleLinear()
+		.domain([0, datalist.length-1])
+		.range([0, sliderwidth])
+		.clamp(true);
+        console.log("Datalist length is " + datalist.length);
+  var ticks = d3.select(".myslider").select(".ticks").selectAll(".ticktext");
+    ticks
+    	.data(dateslidex.ticks(6))
+        .text(function (d, i) {
+            if(i == 0)
+                return formatWeek(parseTime(datalist[0].date));
+            else{
+                index = Math.round((datalist.length) * (i/5.0));
+                if(i > 5)
+                    return "";
+                return formatWeek(parseTime(datalist[index-1].date));
+            }
+        })
+        .attr("id", function (d) {
+			return "tick" + d;
+		})
+		.attr("transform", function (d, i) {
+			return "translate(" + dateslidex((i*datalist.length)/5) + ",0)";
+		});
+                   if(granularity == 'weekly')
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[datalist.length-2].date),7)));
+                    else if(granularity == 'biweekly')
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[datalist.length-2].date),14)));
+                    else
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcMonth.offset(parseTime(datalist[datalist.length-2].date),1)));
+    currentDate = datalist[ datalist.length-2].date;
+	d3.select("#sliderhandle")
+		.call(d3.drag()
+			.on("drag", function () {
+				var selected_date = Math.round(dateslidex.invert(d3.event.x));
+				var actual_date = Object.keys(data).length - selected_date - 1;
+                if (actual_date != indexstart) {
+					//sliderpos = selected_date;
+                   
+					indexstart = actual_date;
+                     currentDate = datalist[selected_date].date;
+                     console.log("GRAN IS " + granularity);
+                    if(granularity == 'weekly')
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[datalist.length-2].date),7)));
+                    else if(granularity == 'biweekly')
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[datalist.length-2].date),14)));
+                    else
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcMonth.offset(parseTime(datalist[datalist.length-2].date),1)));
+                    draw();
+				}
+				sliderhandle.attr("cx", dateslidex(dateslidex.invert(d3.event.x)));
+			}));
+}
+
 function addDateSlider() {
 	slideradded = true;
 	var s = document.getElementById("myslider");
@@ -221,10 +287,11 @@ function addDateSlider() {
     })
 	.attr("class", "tickz")
 	.style("text-anchor", "middle");
-    $("#curdate").text(formatWeek(parseTime(datalist[0].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[0].date),14)));
-    currentDate = datalist[ Object.keys(data).length-2].date;
+    $("#curdate").text(formatWeek(parseTime(datalist[datalist.length-2].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(datalist[datalist.length-2].date),14)));
+    currentDate = datalist[ datalist.length-2].date;
 	sliderhandle = dateslider.append("circle")
 		.attr("class", "handle")
+        .attr("id","sliderhandle")
 		.attr("r", 9)
 		.call(d3.drag()
 			.on("drag", function () {

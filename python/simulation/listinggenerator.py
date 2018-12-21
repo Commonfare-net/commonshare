@@ -152,7 +152,7 @@ adjectives = ['thoughtless',
 'brawny',
 'five']
 
-def random_cluster():
-    return nouns[random.randrange(0,len(nouns))]
 def random_listing():
-  return adjectives[random.randrange(0,len(adjectives))] + " " + nouns[random.randrange(0,len(nouns))]
+    """Generate random listing name from adjectives and nouns"""
+    
+    return adjectives[random.randrange(0,len(adjectives))] + " " + nouns[random.randrange(0,len(nouns))]

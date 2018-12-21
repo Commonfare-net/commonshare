@@ -45,7 +45,10 @@
     </div> 
     <div class="othershit" style="width:60%; position: absolute;top: 530px;">
      <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
-     <input type="checkbox" class='myboxy' name="ee" value="sdf" onchange="toggledate(this)"/> Show all-time <br/>
+     <input type="radio" class='myboxy' name="gran" value="all" onchange="toggledate('all')"/> Show all-time &nbsp
+     <input type="radio" class='myboxy' name="gran" value="weekly" onchange="toggledate('weekly')"/> Show weekly &nbsp
+     <input type="radio" class='myboxy' name="gran" value="biweekly" onchange="toggledate('biweekly')"/> Show biweekly &nbsp
+     <input type="radio" class='myboxy' name="gran" value="monthly" onchange="toggledate('monthly')"/> Show monthly <br/>
        <b style="font-size:18px;text-align:center;" id="curdate"></b>      
      </div>   
     <!--Date slider-->
@@ -172,26 +175,40 @@ function toggletags(checkboxelem){
         }); 
     }
 }
-function toggledate(checkboxelem) {
+function toggledate(type) {
     clearDyn();
-	if (checkboxelem.checked) {
-		$("#curdate").text(formatWeek(parseTime(data[Object.keys(data).length - 1].date)) + " to " + formatWeek(parseTime(data[1].date)));
+        var datafilecounter = 0;
+        var queue = d3.queue();
+        indexstart = 1;
+        console.log("TYPE IS " + type);
+    switch(type){
+        case 'all': 
+        $("#curdate").text(formatWeek(parseTime(data[Object.keys(data).length - 1].date)) + " to " + formatWeek(parseTime(data[1].date)));
 		$('#myslider').css('opacity', 0.4);
 		$('#myslider').css('pointer-events', 'none');
         currentDate = data[1].date;
         sliderhandle.attr("cx", dateslidex(Object.keys(data).length-1));
 		indexstart = 0;
 		draw();
-
-	} else {
-		$("#curdate").text(formatWeek(parseTime(data[1].date)) + " to " + formatWeek(d3.utcDay.offset(parseTime(data[1].date), 7)));
+        break;
+        case 'weekly': 
+        loadDataFiles(queue,'weekly');
+        $('#myslider').css('opacity', 1);
+		$('#myslider').css('pointer-events', 'auto');
+        break;
+        case 'biweekly': 
+        loadDataFiles(queue,'biweekly');        
 		$('#myslider').css('opacity', 1);
 		$('#myslider').css('pointer-events', 'auto');
-		indexstart = 1;
-		draw();
-
-	}
+        break;
+        case 'monthly': 
+        loadDataFiles(queue,'monthly');
+        $('#myslider').css('opacity', 1);
+		$('#myslider').css('pointer-events', 'auto');
+        break;
+    }
 }
+
 function togglegroups(checkboxelem) {
 	if (checkboxelem.checked) 
 		active_simulation = community_sim;
@@ -370,8 +387,9 @@ Array.prototype.unique = function () {
 	return a;
 };
 var plotpath;
-function loadDataFiles(queue) {
-	var url = "../data/output/graphdata/biweekly/" + datafilecounter + ".json";
+function loadDataFiles(queue,granularity) {
+$('#loadingDiv').css('display','inline');
+	var url = "../data/output/graphdata/" + granularity + "/" + datafilecounter + ".json";
 	$.ajax({
 		url: url,
 		type: 'HEAD',
@@ -382,6 +400,8 @@ function loadDataFiles(queue) {
 				if (error)
 					throw error;
 				else {
+                    datalist = [];
+                    data = {};
 					for (var i = 0; i < results.length; i++) {
 						data[i] = results[i];
                         if(i>0)
@@ -427,6 +447,7 @@ function loadDataFiles(queue) {
                         						sliderhandle.attr("cx", dateslidex(Object.keys(data).length-1));
 
 					} else {
+                        updateDateSlider(granularity);
 						sliderhandle.attr("cx", dateslidex(Object.keys(data).length-1));
 						d3.selectAll(".ticktext")
 						.style("fill", "black")
@@ -441,12 +462,12 @@ function loadDataFiles(queue) {
 		success: function () {
 			queue.defer(d3.json, url);
 			datafilecounter++;
-			loadDataFiles(queue);
+			loadDataFiles(queue,granularity);
 		}
 	});
 }
 
-loadDataFiles(q);
+loadDataFiles(q,'biweekly');
 
 function forceCluster(alpha) {
 	node.each(function (d) {
@@ -978,6 +999,7 @@ function draw() {
 			clusters[clusterID] = d;
 		}
 	});
+    console.log("AND NOW WE ARE HERE");
 	active_simulation.force("link").links(graph.links);
 	if (drawn[indexstart] == false) {
 		drawn[indexstart] = true;
