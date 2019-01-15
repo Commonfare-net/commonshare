@@ -4,12 +4,17 @@ import sys
 import operator
 import ast
 import math
+import os
 from datetime import datetime
 
 import networkx as nx
 import xml.etree.ElementTree as ET
 
 import config as cf
+
+#Make this a web service
+from flask import Flask,jsonify,request
+app = Flask(__name__)
 
 def personalisedPageRank(core_graph,story,user):
     """Compute personalised PageRank of stories for given user
@@ -65,9 +70,13 @@ def personalisedPageRank(core_graph,story,user):
        if core_graph.nodes[k]["type"] != "story":
            del rank_values[k]
     return rank_values
-   
-   
-def run(filename,storyid,userid):
+  
+@app.route('/')
+def run():
+    #Will hardcode filename here because it ought not to change
+    filename = os.environ['PAGERANK_FILE']
+    storyid = os.environ['STORY_ID']
+    userid = os.environ['USER_ID']
     """Print three recommended stories for user reading a story
     
     This uses the personalised pagerank algorithm to print the IDs
@@ -110,16 +119,12 @@ def run(filename,storyid,userid):
         recommended_list.append(ranked[j][0])
     
     #Print three at random
-    print " ".join(recommended_list[v] 
-    for v in random.sample(range(0, len(recommended_list)),3))
-    
+    #print " ".join(recommended_list[v] 
+    returned_list = []
+    for v in random.sample(range(0, len(recommended_list)),3):
+        returned_list.append(recommended_list[v])
+    return jsonify(returned_list)
 
 if __name__ == "__main__":    
-    if len(sys.argv) < 4:
-        print 'Missing filename or story ID or userid'
-        sys.exit()
-    filename = sys.argv[1]
-    storyid = sys.argv[2]
-    userid = sys.argv[3]
-    run(filename,storyid,userid)
-    
+    app.run(host=os.environ.get('HTTP_HOST', '127.0.0.1'),
+        port=int(os.environ.get('HTTP_PORT', '5001')))

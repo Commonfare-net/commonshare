@@ -130,8 +130,10 @@ nodeattrs.set('mode','static')
 
 #Remove ID attribute as it is already in the GEXF
 nodeidattr = nodeattrs.find("*/[@title='id']")
-nodeid_id = nodeidattr.attrib['id']
-nodeattrs.remove(nodeidattr)
+nodeid_id = None
+if nodeidattr is not None:
+    nodeid_id = nodeidattr.attrib['id']
+    nodeattrs.remove(nodeidattr)
 
 nodetype_id = nodeattrs.find("*/[@title='type']").attrib['id']
 nodename_id = nodeattrs.find("*/[@title='name']").attrib['id']
@@ -148,8 +150,10 @@ nodeattrs.append(attr)
 for n in nodes:
     platform_id = n.get('label').split('_')[1]
     attvals = n.find('xmlns:attvalues',namespaces)
-    idattr = attvals.find("*/[@for='"+str(nodeid_id)+"']")
-    attvals.remove(idattr)
+    
+    if nodeid_id is not None:
+        idattr = attvals.find("*/[@for='"+str(nodeid_id)+"']")
+        attvals.remove(idattr)
     
     #Add the platform ID
     attrib = {'value': platform_id,'for':'5'}

@@ -13,7 +13,50 @@
   margin: 0 0; 
   width: 400px;
 }
-
+#bigvis{
+    float:left;
+    position: absolute;
+    z-index: 2;
+    top: 20px;
+}
+#loadingDiv{
+    position: relative;
+    left: 320px;
+    top: 220px;
+    display:inline;
+    z-index: 1;
+}
+#filterElements{
+    width:45%;
+    float:right;
+    text-align: center;
+    display:inline-block
+}
+#strengthSlider{
+    width:100%;
+    display:block;
+}
+#myslider{
+    width:90%;
+    display:block;
+    margin-top:-10px;
+    overflow:visible   
+}
+.overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position:absolute;
+  width:100%;
+  margin: auto auto;
+  height: 75%;
+  top:0;
+  left:0;
+  pointer-events:none;
+  font-family:'Dosis';
+  font-size:16px  
+}
 
 .hull {
   fill: lightgreen;
@@ -45,6 +88,9 @@
     margin-bottom: 10px;
     overflow:scroll;
     -webkit-overflow-scrolling: touch;
+    width:45%;
+    display:inline-block;
+    text-align: center
 } 
 .list-group-item{
     padding: 5px 0px;
@@ -57,6 +103,25 @@
 .bigchart svg{
     display: inline-block;
     width: auto;   
+}
+.bigchart border{
+  border-style: solid; 
+  border-color: #E7472E;
+  border-width: 2px;
+  border-radius: 50%;  
+}
+
+.commonchart {
+    text-align:center;
+    display:inline-block;
+    width:auto;
+    position:relative;
+    margin:0px 30px 5px 30px;
+}
+.bunchlabels{
+    position:absolute;
+    top:-5px;
+    right:-5px
 }
 .datepicker{
     display: block;
@@ -111,6 +176,9 @@ h5 {
 .sectiontitle{
   text-align: center;
   font-size: 16px;
+  width:45%;
+  display:inline-block;
+  margin-top:15px;
 }
 
 .line {
