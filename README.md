@@ -43,3 +43,66 @@ Classes for simulation (in the <b>/simulation</b> directory):
 1. Put GEXF file in the `data/input` directory
 2. Change directory to `python/` and run `python parsegexf ../data/input/<YOUR_FILE_NAME>`
 3. JSON files will be output into the `data/output` directory as described above
+
+
+## Docker image
+A very basic Docker image is available to run the python scripts `parsegexf.py` and `pagerank.py`.  
+No service is running within the docker image at the time of writing but it sets up a python environment with all the dependencies and it runs either of the scripts when the user runs the image.  
+
+Input and output data is exchanged through the files in `./data` directory which is mounted as a volume.
+
+### Building 
+To build this image make sure you have Docker installed in your host.
+It that is the case you just run:
+
+```
+$ docker build -t commonfare/commonshare-python .
+```
+
+If you now check docker images available in your host machine you would notice one named `commonfare/commonshare-python`.
+
+```
+$ docker images
+...
+commonfare/commonshare-python         latest              323a3b42764f        30 minutes ago      297MB
+...
+```
+
+### Running
+As mentioned above this image runs either of the following python scripts and then it stops:
+
+ - `paresegexf.py` which takes as input a file in GEXF format and produces as output a series of files in `./data/output/` directory.
+  - `pagerank.py` which takes as input a story id and a user id and calculates the recommended stories for such user based on the input story.
+
+**Parameters and environment variables**  
+The following environment variables are used as parameters and can be set when calling the docker image:
+
+ - `TASK` - can be either `parse` or `pagerank` depending on which task you want to be performed. _Default: `parse`_
+ - `GEXF_INPUT` - is the gexf input file used which will be parsed when running the `parse` task. _Default: `./data/input/latest.gexf`
+ - `PAGERANK_FILE` - is the input file used when calculating the recommendations through the `pagerank` task. _Default: `./data/output/recommenderdata.gexf`
+ - `STORY_ID` - input story used for the pagerank 
+ - `USER_ID` - input user used for the pagerank
+
+
+A few examples are provided in the sections below to better clarify how to use this docker image.
+
+#### Parse GEXF input file
+Use the default GEXF input file `./data/input/latest.gexf`. `TASK=parse` can be also omitted as it is the default.
+```
+# The following command will use the default input GEXF file at ./data/input/latest.gexf
+# TAKS=parse can be also omitted as it is the default
+
+$ docker run -it --rm -v "$PWD/data":/usr/src/app/data -e TASK=parse commonfare/commonshare-python
+```
+
+Specify a different input file via the `GEXF_INPUT` environment variable.
+```
+$ docker run -it --rm -v "$PWD/data":/usr/src/app/data -e GEXF_INPUT=./data/input/input3.gexf commonfare/commonshare-python
+```
+
+#### Page Rank
+Calculate recommended stories.  
+> **NOTE:** at the time of writing the IDs refer to the identifiers of the _nodes_ in the gexf file and _not_ to the identifiers of users and stories in the commonfare platform.
+```
+$ docker run -it --rm -v "$PWD/data":/usr/src/app/data -e TASK=pagerank -e STORY_ID=7534 -e USER_ID=165 commonfare/commonshare-python
+```

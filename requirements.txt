@@ -1,0 +1,5 @@
+networkx == 2.2
+scipy
+python-louvain
+names
+python-dateutil
