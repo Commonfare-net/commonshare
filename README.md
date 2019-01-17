@@ -69,9 +69,9 @@ commonfare/commonshare-python         latest              323a3b42764f        30
 ```
 
 ### Running
-As mentioned above this image runs either of the following python scripts and then it stops:
+This Docker image runs the Flask app, which exposes a simple API for running the following two Python scripts:
 
- - `paresegexf.py` which takes as input a file in GEXF format and produces as output a series of files in `./data/output/` directory.
+ - `parsegexf.py` which takes as input a file in GEXF format and produces as output a series of files in `./data/output/` directory.
   - `pagerank.py` which takes as input a story id and a user id and calculates the recommended stories for such user based on the input story.
 
 **Parameters and environment variables**  
@@ -86,23 +86,26 @@ The following environment variables are used as parameters and can be set when c
 
 A few examples are provided in the sections below to better clarify how to use this docker image.
 
-#### Parse GEXF input file
-Use the default GEXF input file `./data/input/latest.gexf`. `TASK=parse` can be also omitted as it is the default.
 ```
-# The following command will use the default input GEXF file at ./data/input/latest.gexf
-# TAKS=parse can be also omitted as it is the default
+# The following command will start the service, connecting port 5000 of the Docker container (Flask default) to port 5000 of your machine:
 
-$ docker run -it --rm -v "$PWD/data":/usr/src/app/data -e TASK=parse commonfare/commonshare-python
+$ docker run -it --rm -p 5000:5000 -v "$PWD/data":/usr/src/app/data commonfare/commonshare-python
 ```
 
 Specify a different input file via the `GEXF_INPUT` environment variable.
 ```
-$ docker run -it --rm -v "$PWD/data":/usr/src/app/data -e GEXF_INPUT=./data/input/input3.gexf commonfare/commonshare-python
+$ docker run -it --rm -p 5000:5000 -v "$PWD/data":/usr/src/app/data -e GEXF_INPUT=./data/input/input3.gexf commonfare/commonshare-python
 ```
 
-#### Page Rank
-Calculate recommended stories.  
+#### Testing running status
+To confirm that the service is running, access 'http://127.0.0.1:5000' in your browser or using `curl` from the command line, which will display the message 'Service is running'
+
+To run parsegexf.py, use the following URL...
+```
+http://127.0.0.1:5000/parse
+```
+...and to run pagerank.py...
+```
+http://127.0.0.1:5000/recommend/*storyid*/*userid*
+```
 > **NOTE:** at the time of writing the IDs refer to the identifiers of the _nodes_ in the gexf file and _not_ to the identifiers of users and stories in the commonfare platform.
-```
-$ docker run -it --rm -v "$PWD/data":/usr/src/app/data -e TASK=pagerank -e STORY_ID=7534 -e USER_ID=165 commonfare/commonshare-python
-```

@@ -126,8 +126,7 @@ def parseLabel(nodes,edgeid,source,target,label):
 
 @app.route('/')
 def hello():
-    print 'this is working'
-    return 'this works yo'
+    return 'Service is running'
 
 @app.route('/parse')
 def parse():    
