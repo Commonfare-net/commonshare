@@ -102,10 +102,12 @@ To confirm that the service is running, access 'http://127.0.0.1:5000' in your b
 
 To run parsegexf.py, use the following URL...
 ```
+#This will return a simple JSON object {success: true} on successful completion (note this takes a few minutes)
 http://127.0.0.1:5000/parse
 ```
 ...and to run pagerank.py...
 ```
+#This will return a JSON array of three IDs corresponding to stories that the user specified by *userid* should be recommended on reading story *storyid*
 http://127.0.0.1:5000/recommend/*storyid*/*userid*
 ```
 > **NOTE:** at the time of writing the IDs refer to the identifiers of the _nodes_ in the gexf file and _not_ to the identifiers of users and stories in the commonfare platform.
