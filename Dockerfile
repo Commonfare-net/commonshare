@@ -10,6 +10,7 @@ COPY python/ ./
 ENV TASK=parse
 ENV GEXF_INPUT=/usr/src/app/data/input/latest.gexf
 ENV PAGERANK_FILE=/usr/src/app/data/output/recommenderdata.gexf
-
+EXPOSE 5000
 COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT [ "python" ]
+CMD ["parsegexf.py" ]

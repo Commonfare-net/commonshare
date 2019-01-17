@@ -2,9 +2,15 @@ import sys
 import os
 import xml.etree.ElementTree as ET
 from datetime import datetime
+from flask import Flask,jsonify,request
+from pagerank import pagerank_api
 
 import makegraphs
 import config as cf
+
+app = Flask(__name__)
+
+app.register_blueprint(pagerank_api)
 
 def replace_comment_source(edgeid,label,sourcenode,targetnode):
     '''Replace comment sender/receiver edge with story/writer edge
@@ -60,7 +66,7 @@ def addNodeSpell(node,attrs):
     spells.append(spell)
     
     
-def parseLabel(edgeid,source,target,label):
+def parseLabel(nodes,edgeid,source,target,label):
     """Get edge type, start and end dates from label
     
     This method:
@@ -110,172 +116,186 @@ def parseLabel(edgeid,source,target,label):
     if edgetype == "comment": #'comment' edge between two commoners
         edgetype = replace_comment_source(edgeid,label,sourcenode,targetnode)
             
-    return (d[edgetype],start,end)
+    return (edgetype,start,end)
 
-if len(sys.argv) < 2:
-    print 'Missing filename'
-    sys.exit()
-    
-filename = sys.argv[1]
-ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-tree = ET.parse(filename)  
-namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
-root = tree.getroot()
-root[0].set('mode', 'dynamic')  
-root[0].set('timeformat', 'date')  
 
-#Get the 'static' node attributes (those unchanging over time)
-nodeattrs = root[0].find('xmlns:attributes',namespaces)
-nodeattrs.set('mode','static')
 
-#Remove ID attribute as it is already in the GEXF
-nodeidattr = nodeattrs.find("*/[@title='id']")
-nodeid_id = None
-if nodeidattr is not None:
-    nodeid_id = nodeidattr.attrib['id']
-    nodeattrs.remove(nodeidattr)
+#if len(sys.argv) < 2:
+#    print 'Missing filename'
+#    sys.exit()
 
-nodetype_id = nodeattrs.find("*/[@title='type']").attrib['id']
-nodename_id = nodeattrs.find("*/[@title='name']").attrib['id']
-nodetitle_id = nodeattrs.find("*/[@title='title']").attrib['id']
+@app.route('/')
+def hello():
+    print 'this is working'
+    return 'this works yo'
 
-nodes = root[0].find('xmlns:nodes',namespaces)
+@app.route('/parse')
+def parse():    
+	filename = os.environ['GEXF_INPUT']
+	ET.register_namespace("", "http://www.gexf.net/1.2draft") 
+	tree = ET.parse(filename)  
+	namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
+	root = tree.getroot()
+	root[0].set('mode', 'dynamic')  
+	root[0].set('timeformat', 'date')  
 
-#Make new ID attribute - the node's ID in the Commonfare platform
-attrib = {'id':'5','type':'string','title':'platform_id'} 
-attr = nodeattrs.makeelement('attribute',attrib)
-nodeattrs.append(attr)
+	#Get the 'static' node attributes (those unchanging over time)
+	nodeattrs = root[0].find('xmlns:attributes',namespaces)
+	nodeattrs.set('mode','static')
 
-#For each node, remove the old ID attribute and add the platform ID
-for n in nodes:
-    platform_id = n.get('label').split('_')[1]
-    attvals = n.find('xmlns:attvalues',namespaces)
-    
-    if nodeid_id is not None:
-        idattr = attvals.find("*/[@for='"+str(nodeid_id)+"']")
-        attvals.remove(idattr)
-    
-    #Add the platform ID
-    attrib = {'value': platform_id,'for':'5'}
-    attvalue = attvals.makeelement('attvalue',attrib)
-    attvals.append(attvalue)
+	#Remove ID attribute as it is already in the GEXF
+	nodeidattr = nodeattrs.find("*/[@title='id']")
+	nodeid_id = None
+	if nodeidattr is not None:
+	    nodeid_id = nodeidattr.attrib['id']
+	    nodeattrs.remove(nodeidattr)
 
-    nodetype = attvals.find("*/[@for='"+str(nodetype_id)+"']").get('value')
-    #Replace all apostrophes in story/commoner names 
-    if nodetype == 'story' or nodetype == 'listing':
-        nodetitle = attvals.find("*/[@for='"+str(nodetype_id)+"']")
-        nodetitle.set('value',nodetitle.get('value').replace("'",""))
-    else:
-        nodename = attvals.find("*/[@for='"+str(nodename_id)+"']")
-        nodename.set('value',nodename.get('value').replace("'",""))
-        
-#Add holders for dynamic node and edge attributes
-attrib = {'class':'node','mode':'dynamic'}
-dnodeattrs = root[0].makeelement('attributes',attrib)
-attrib = {'class':'edge','mode':'dynamic'}
-edgeattrs = root[0].makeelement('attributes',attrib)
-root[0].insert(1,dnodeattrs)
-root[0].insert(2,edgeattrs)
+	nodetype_id = nodeattrs.find("*/[@title='type']").attrib['id']
+	nodename_id = nodeattrs.find("*/[@title='name']").attrib['id']
+	nodetitle_id = nodeattrs.find("*/[@title='title']").attrib['id']
 
-#New attribute IDs start at 6 because the platform ID attribute is 5
-count = 6
+	nodes = root[0].find('xmlns:nodes',namespaces)
 
-d = {}
-#For each dynamic attribute in the config, add it to both nodes and edges
-for key in cf.interaction_keys:
-    attrib = {'id':str(count),'type':'string','title':key} 
-    attr = edgeattrs.makeelement('attribute',attrib)
-    dnodeattrs.append(attr)
-    edgeattrs.append(attr)
-    d[key] = str(count)
-    count +=1
-d[None] = None
-#Here we figure out edges that need to be deleted
-edges = root[0].find('xmlns:edges',namespaces)
-edgestodelete = []
-mindate = datetime(3333,10,1)
-maxdate = datetime(1,1,1)
-existingedges = {}
+	#Make new ID attribute - the node's ID in the Commonfare platform
+	attrib = {'id':'5','type':'string','title':'platform_id'} 
+	attr = nodeattrs.makeelement('attribute',attrib)
+	nodeattrs.append(attr)
 
-for elem in edges:  
-    label = elem.attrib['label']
-   
-    sourceid = elem.attrib['source']
-    targetid = elem.attrib['target']
-    edgeid = elem.attrib['id']
+	#For each node, remove the old ID attribute and add the platform ID
+	for n in nodes:
+	    platform_id = n.get('label').split('_')[1]
+	    attvals = n.find('xmlns:attvalues',namespaces)
+	    
+	    if nodeid_id is not None:
+		idattr = attvals.find("*/[@for='"+str(nodeid_id)+"']")
+		attvals.remove(idattr)
+	    
+	    #Add the platform ID
+	    attrib = {'value': platform_id,'for':'5'}
+	    attvalue = attvals.makeelement('attvalue',attrib)
+	    attvals.append(attvalue)
 
-    #Figure out what kind of edge it is based on its label        
-    (edgetype,start,end) = parseLabel(edgeid,sourceid,targetid,label)
-        
-    parseddate = cf.to_date(start)
-    if mindate > parseddate:
-        mindate = parseddate
-    if maxdate < parseddate:
-        maxdate = parseddate
-    #Sometimes 'parseLabel' changes the source ID 
-    sourceid = elem.attrib['source']
-    
-    #Delete self-looping edges
-    if sourceid == targetid:
-        edgestodelete.append(elem)
-        continue
-    
-    #Delete Pietro's Basic Income transactions
-    if (sourceid == '1' or targetid == '1') and edgetype == d['transaction']:
-        edgestodelete.append(elem)
-        continue
-   
-    #Can't use sourceid as sometimes 
-    edgeid = sourceid + '-' + targetid
-    altedgeid = targetid + '-' + sourceid
-    
-    #Get the 'spells' and 'attvalues' of this edge, or create them
-    if edgeid not in existingedges and altedgeid not in existingedges:
-        spells = elem.makeelement('spells',{})
-        elem.append(spells)
-        attvalues = elem.makeelement('attvalues', {})
-        elem.append(attvalues)
-    else:
-        if edgeid in existingedges:
-            spells = existingedges[edgeid].find('spells')
-            attvalues = existingedges[edgeid].find('attvalues')
-        else:
-            spells = existingedges[altedgeid].find('spells')
-            attvalues = existingedges[altedgeid].find('attvalues')
-    
-    #Add the 'spell' of this action (start date and end date)
-    attrib = {'start':start,'end':end}
-    spell = spells.makeelement('spell',attrib)
-    spells.append(spell)
-    
-    #Store more info in the 'attvalue' - initiator of action and its type
-    attrib = {'value': sourceid,'for':edgetype,'start':start,'end':end}
-    attvalue = attvalues.makeelement('attvalue',attrib)
-    attvalues.append(attvalue)
+	    nodetype = attvals.find("*/[@for='"+str(nodetype_id)+"']").get('value')
+	    #Replace all apostrophes in story/commoner names 
+	    if nodetype == 'story' or nodetype == 'listing':
+		nodetitle = attvals.find("*/[@for='"+str(nodetype_id)+"']")
+		nodetitle.set('value',nodetitle.get('value').replace("'",""))
+	    else:
+		nodename = attvals.find("*/[@for='"+str(nodename_id)+"']")
+		nodename.set('value',nodename.get('value').replace("'",""))
+		
+	#Add holders for dynamic node and edge attributes
+	attrib = {'class':'node','mode':'dynamic'}
+	dnodeattrs = root[0].makeelement('attributes',attrib)
+	attrib = {'class':'edge','mode':'dynamic'}
+	edgeattrs = root[0].makeelement('attributes',attrib)
+	root[0].insert(1,dnodeattrs)
+	root[0].insert(2,edgeattrs)
 
-    #Find the nodes connected by this edge and add info on the action 
-    sourceattrs = nodes.find("*/[@id='" + sourceid +"']/*")
-    targetattrs = nodes.find("*/[@id='" + targetid +"']/*")
-    if edgetype != None:
-        sourceattrs.append(attvalue)
-        targetattrs.append(attvalue)
- 
-    if edgetype == None:
-        edgestodelete.append(elem)
-    elif edgeid not in existingedges and altedgeid not in existingedges:
-        existingedges[edgeid] = elem
-    else: #Remove duplicate edges
-        edgestodelete.append(elem)
+	#New attribute IDs start at 6 because the platform ID attribute is 5
+	count = 6
 
-for e in edgestodelete:
-    if e in edges:
-        edges.remove(e) 
+	d = {}
+	#For each dynamic attribute in the config, add it to both nodes and edges
+	for key in cf.interaction_keys:
+	    attrib = {'id':str(count),'type':'string','title':key} 
+	    attr = edgeattrs.makeelement('attribute',attrib)
+	    dnodeattrs.append(attr)
+	    edgeattrs.append(attr)
+	    d[key] = str(count)
+	    count +=1
+	d[None] = None
+	#Here we figure out edges that need to be deleted
+	edges = root[0].find('xmlns:edges',namespaces)
+	edgestodelete = []
+	mindate = datetime(3333,10,1)
+	maxdate = datetime(1,1,1)
+	existingedges = {}
 
-#Set date of first and last interaction in root tag of GEXF file
-root[0].set('start',cf.to_str(mindate))
-root[0].set('end',cf.to_str(maxdate))
-filename = os.path.splitext(filename)[0]
-parsedfilename = filename + "parsed.gexf"
-tree.write(parsedfilename)  
-print 'done parsing'
-makegraphs.init(parsedfilename)
+	for elem in edges:  
+	    label = elem.attrib['label']
+	   
+	    sourceid = elem.attrib['source']
+	    targetid = elem.attrib['target']
+	    edgeid = elem.attrib['id']
+
+	    #Figure out what kind of edge it is based on its label        
+	    (edgeindex,start,end) = parseLabel(nodes,edgeid,sourceid,targetid,label)
+	    edgetype = d[edgeindex]
+	    parseddate = cf.to_date(start)
+	    if mindate > parseddate:
+		mindate = parseddate
+	    if maxdate < parseddate:
+		maxdate = parseddate
+	    #Sometimes 'parseLabel' changes the source ID 
+	    sourceid = elem.attrib['source']
+	    
+	    #Delete self-looping edges
+	    if sourceid == targetid:
+		edgestodelete.append(elem)
+		continue
+	    
+	    #Delete Pietro's Basic Income transactions
+	    if (sourceid == '1' or targetid == '1') and edgetype == d['transaction']:
+		edgestodelete.append(elem)
+		continue
+	   
+	    #Can't use sourceid as sometimes 
+	    edgeid = sourceid + '-' + targetid
+	    altedgeid = targetid + '-' + sourceid
+	    
+	    #Get the 'spells' and 'attvalues' of this edge, or create them
+	    if edgeid not in existingedges and altedgeid not in existingedges:
+		spells = elem.makeelement('spells',{})
+		elem.append(spells)
+		attvalues = elem.makeelement('attvalues', {})
+		elem.append(attvalues)
+	    else:
+		if edgeid in existingedges:
+		    spells = existingedges[edgeid].find('spells')
+		    attvalues = existingedges[edgeid].find('attvalues')
+		else:
+		    spells = existingedges[altedgeid].find('spells')
+		    attvalues = existingedges[altedgeid].find('attvalues')
+	    
+	    #Add the 'spell' of this action (start date and end date)
+	    attrib = {'start':start,'end':end}
+	    spell = spells.makeelement('spell',attrib)
+	    spells.append(spell)
+	    
+	    #Store more info in the 'attvalue' - initiator of action and its type
+	    attrib = {'value': sourceid,'for':edgetype,'start':start,'end':end}
+	    attvalue = attvalues.makeelement('attvalue',attrib)
+	    attvalues.append(attvalue)
+
+	    #Find the nodes connected by this edge and add info on the action 
+	    sourceattrs = nodes.find("*/[@id='" + sourceid +"']/*")
+	    targetattrs = nodes.find("*/[@id='" + targetid +"']/*")
+	    if edgetype != None:
+		sourceattrs.append(attvalue)
+		targetattrs.append(attvalue)
+	 
+	    if edgetype == None:
+		edgestodelete.append(elem)
+	    elif edgeid not in existingedges and altedgeid not in existingedges:
+		existingedges[edgeid] = elem
+	    else: #Remove duplicate edges
+		edgestodelete.append(elem)
+
+	for e in edgestodelete:
+	    if e in edges:
+		edges.remove(e) 
+
+	#Set date of first and last interaction in root tag of GEXF file
+	root[0].set('start',cf.to_str(mindate))
+	root[0].set('end',cf.to_str(maxdate))
+	filename = os.path.splitext(filename)[0]
+	parsedfilename = filename + "parsed.gexf"
+	tree.write(parsedfilename)  
+	print 'done parsing'
+	makegraphs.init(parsedfilename)
+	return jsonify({'success':True})
+
+if __name__ == "__main__":
+    app.run(debug=True,host=os.environ.get('HTTP_HOST', '0.0.0.0'),port=int(os.environ.get('HTTP_PORT', '5000')))
+

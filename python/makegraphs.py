@@ -53,8 +53,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
         delta = relativedelta(weeks=-2)
     else:
         delta = relativedelta(months=-1)
-    graph_dir = '../data/output/graphdata/'+spacing+'/'
-    user_dir = '../data/output/userdata/'
+    graph_dir = 'data/output/graphdata/'+spacing+'/'
+    user_dir = 'data/output/userdata/'
     
     #Make dates for first interaction 'window'
     w_end = enddate
@@ -246,6 +246,7 @@ def make_recommender_data(G,window,tag_edges):
     :param tag_edges: List of NetworkX edges to tag nodes
     
     """
+    print 'making recommender data'
     nodeiter = G.nodes(data=True)
     neglected_nodes = []
     
@@ -282,7 +283,7 @@ def make_recommender_data(G,window,tag_edges):
     root[0].set('start',cf.to_str(window[0]))
     root[0].set('end',cf.to_str(window[1]))
     root[0].set('timeformat', 'date') 
-    tree.write("../data/output/recommenderdata.gexf")      
+    tree.write("data/output/recommenderdata.gexf")      
     os.remove("newdata.gexf")
 
 def jaccard(front,stepcommunity):
@@ -483,6 +484,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     if not cumulative:
         build_commoner_data(core_G,commoner_graphs)
     else:
+        print 'making rec data HERE'
         make_recommender_data(copy.deepcopy(core_G),window,tag_edges)
 
     #Remove isolated nodes that exist after removing Basic Income 

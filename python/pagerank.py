@@ -13,8 +13,9 @@ import xml.etree.ElementTree as ET
 import config as cf
 
 #Make this a web service
-from flask import Flask,jsonify,request
-app = Flask(__name__)
+from flask import Flask,jsonify,request,Blueprint
+#app = Flask(__name__)
+pagerank_api = Blueprint('pagerank_api',__name__)
 
 def personalisedPageRank(core_graph,story,user):
     """Compute personalised PageRank of stories for given user
@@ -71,12 +72,12 @@ def personalisedPageRank(core_graph,story,user):
            del rank_values[k]
     return rank_values
   
-@app.route('/')
-def run():
+@pagerank_api.route('/recommend/<storyid>/<userid>')
+def run(storyid,userid):
     #Will hardcode filename here because it ought not to change
     filename = os.environ['PAGERANK_FILE']
-    storyid = os.environ['STORY_ID']
-    userid = os.environ['USER_ID']
+    #storyid = os.environ['STORY_ID']
+    #userid = os.environ['USER_ID']
     """Print three recommended stories for user reading a story
     
     This uses the personalised pagerank algorithm to print the IDs
@@ -125,6 +126,6 @@ def run():
         returned_list.append(recommended_list[v])
     return jsonify(returned_list)
 
-if __name__ == "__main__":    
-    app.run(host=os.environ.get('HTTP_HOST', '127.0.0.1'),
-        port=int(os.environ.get('HTTP_PORT', '5001')))
+#if __name__ == "__main__":    
+#    app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
+#        port=int(os.environ.get('HTTP_PORT', '5001')))

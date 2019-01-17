@@ -3,3 +3,5 @@ scipy
 python-louvain
 names
 python-dateutil
+flask
+flask-restful
