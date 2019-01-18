@@ -5,6 +5,7 @@ import operator
 import ast
 import math
 import os
+import json
 from datetime import datetime
 
 import networkx as nx
@@ -14,7 +15,7 @@ import config as cf
 
 #Make this a web service
 from flask import Flask,jsonify,request,Blueprint
-#app = Flask(__name__)
+app = Flask(__name__)
 pagerank_api = Blueprint('pagerank_api',__name__)
 
 def personalisedPageRank(core_graph,story,user):
@@ -76,6 +77,7 @@ def personalisedPageRank(core_graph,story,user):
 def run(storyid,userid):
     #Will hardcode filename here because it ought not to change
     filename = os.environ['PAGERANK_FILE']
+    #filename = '../data/output/recommenderdata.gexf'
     #storyid = os.environ['STORY_ID']
     #userid = os.environ['USER_ID']
     """Print three recommended stories for user reading a story
@@ -115,9 +117,13 @@ def run(storyid,userid):
     #If node is influential, connect them to unknown stories to increase 
     #density of the graph 
     for i in range(min(influence,len(neglected_nodes))):
-        recommended_list.append(neglected_nodes[i])
+        platform_id = G_untainted.nodes[neglected_nodes[i]]['platform_id']
+        recommended_list.append(platform_id)
+        #print 'id is ',neglected_nodes[i],' but in the platform it is ',G_untainted.nodes[neglected_nodes[i]]['platform_id']
     for j in range(10-influence):
-        recommended_list.append(ranked[j][0])
+        platform_id = G_untainted.nodes[ranked[j][0]]['platform_id']
+        #print 'id is ',ranked[j][0],' but in the platform it is ',G_untainted.nodes[ranked[j][0]]['platform_id']
+        recommended_list.append(platform_id)
     
     #Print three at random
     #print " ".join(recommended_list[v] 
@@ -126,6 +132,13 @@ def run(storyid,userid):
         returned_list.append(recommended_list[v])
     return jsonify(returned_list)
 
-#if __name__ == "__main__":    
-#    app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
-#        port=int(os.environ.get('HTTP_PORT', '5001')))
+if __name__ == "__main__":    
+    #if len(sys.argv) < 3:
+    #    print 'Missing stuff'
+    #    sys.exit()
+    #storyid = sys.argv[1]
+    #userid = sys.argv[2]
+    #run(storyid,userid)
+    app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
+        port=int(os.environ.get('HTTP_PORT', '5001')))
+    
