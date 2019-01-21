@@ -12,7 +12,8 @@ app = Flask(__name__)
 
 app.register_blueprint(pagerank_api)
 
-def replace_comment_source(edgeid,label,sourcenode,targetnode):
+def replace_comment_source(nodes,edges,edgeid,label,sourcenode,targetnode):
+    print 'i am called'
     '''Replace comment sender/receiver edge with story/writer edge
     
     When a commoner leaves a comment on a story, 2 edges exist:
@@ -66,7 +67,8 @@ def addNodeSpell(node,attrs):
     spells.append(spell)
     
     
-def parseLabel(nodes,edgeid,source,target,label):
+def parseLabel(nodes,edges,edgeid,source,target,label):
+
     """Get edge type, start and end dates from label
     
     This method:
@@ -86,12 +88,14 @@ def parseLabel(nodes,edgeid,source,target,label):
     end = edgevals[2] if len(edgevals) > 2 else start
     start = start.split('=')[1]
     end = end.split('=')[1]
+
     
     edgetype = edgevals[0].split("_")[0]
-    
+    print 'edgetype',edgetype
+
     #Ensure Basic Income transactions don't end up in node spells
     if edgetype == 'transaction' and (source=='1' or target=='1'):
-        return (d['transaction'],start,end)
+        return ('transaction',start,end)
     
     #The type of source/target node determines the type of edge
     sourcenode = nodes.find("*/[@id='" + source +"']");
@@ -107,15 +111,19 @@ def parseLabel(nodes,edgeid,source,target,label):
     addNodeSpell(sourcenode,attrs)
     addNodeSpell(targetnode,attrs)
 
+
     if sourcetype == "listing" or targettype == "listing":
         edgetype = edgetype+ "_listing"
     elif sourcetype == "story" or targettype == "story": 
         edgetype = edgetype+ "_story"
     elif edgetype == "tag": 
-        edgetype = edgetype + "_commoner"        
+        print 'yes edgetype IS tag'
+        edgetype = edgetype + "_commoner"  
+    print 'source: ',sourcetype,'target: ',targettype      
     if edgetype == "comment": #'comment' edge between two commoners
-        edgetype = replace_comment_source(edgeid,label,sourcenode,targetnode)
-            
+        print 'edgetype is INDEED comment'
+        edgetype = replace_comment_source(nodes,edges,edgeid,label,sourcenode,targetnode)
+
     return (edgetype,start,end)
 
 
@@ -219,7 +227,7 @@ def parse():
 	    edgeid = elem.attrib['id']
 
 	    #Figure out what kind of edge it is based on its label        
-	    (edgeindex,start,end) = parseLabel(nodes,edgeid,sourceid,targetid,label)
+	    (edgeindex,start,end) = parseLabel(nodes,edges,edgeid,sourceid,targetid,label)
 	    edgetype = d[edgeindex]
 	    parseddate = cf.to_date(start)
 	    if mindate > parseddate:
