@@ -38,16 +38,30 @@ def personalisedPageRank(core_graph,story,user):
     :returns: dictionary of story IDs mapped to their PageRank value
 
     """
+    story_id = 0
+    user_id = 0
     now = datetime.now()
-    
+    for (n,c) in core_graph.nodes(data=True):
+        if c['platform_id']==str(story) and c['type']=='story':
+            story_id = n
+            print 'this story name is ',c['title']
+            break
+    for (n,c) in core_graph.nodes(data=True):
+        if c['platform_id']==str(user) and c['type']=='commoner':
+            user_id = n
+            influence = c['kcore']
+            print 'this user name is ',c['name']
+            break
+    if story_id == 0 or user_id == 0:
+        return ({},0)
     #Get the nodes surrounding both the story and the user, to use as
     #the personalisation vector in the page-rank calculation 
-    surrounding_nodes = {k:10 for k in core_graph.neighbors(story)}
-    if user != '0':
-        user_nodes = {k:10 for k in core_graph.neighbors(user)}
+    surrounding_nodes = {k:10 for k in core_graph.neighbors(story_id)}
+    if user_id != '0':
+        user_nodes = {k:10 for k in core_graph.neighbors(user_id)}
         surrounding_nodes.update(user_nodes)
 
-    core_graph.remove_nodes_from([story]) #don't recommend story itself
+    core_graph.remove_nodes_from([story_id]) #don't recommend story itself
     core_graph = core_graph.to_directed()
     iter = core_graph.edges(data=True)
     
@@ -71,7 +85,7 @@ def personalisedPageRank(core_graph,story,user):
        #Only want to keep PageRank values of other stories 
        if core_graph.nodes[k]["type"] != "story":
            del rank_values[k]
-    return rank_values
+    return (rank_values,influence)
   
 @pagerank_api.route('/recommend/<storyid>/<userid>')
 def run(storyid,userid):
@@ -94,8 +108,10 @@ def run(storyid,userid):
     """
     
     G_read = nx.read_gexf(filename)
-    pr_vals = personalisedPageRank(G_read,storyid,userid)
+    (pr_vals,influence) = personalisedPageRank(G_read,storyid,userid)
 
+    if len(pr_vals) == 0:
+        return jsonify([0,0,0])
     #Sort the recommended nodes by their PageRank value
     ranked = sorted(pr_vals.items(),key=operator.itemgetter(1),reverse=True)
     
@@ -103,10 +119,10 @@ def run(storyid,userid):
     recommended_list = []
     
     #User's kcore determines how influential they are
-    if userid == '0': #When no user is logged in 
-        influence = 0
-    else:
-        influence = G_untainted.nodes[userid]['kcore']
+    #if userid == '0': #When no user is logged in 
+    #    influence = 0
+    #else:
+    #    influence = G_untainted.nodes[userid]['kcore']
     
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
