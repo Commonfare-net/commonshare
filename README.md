@@ -21,7 +21,7 @@ pip install scipy python-louvain names
 
 - kcore.py: Uses the methods in dynetworkx.py to calculate Commonshare values for each node in the graph every two weeks. Outputs JSON files, described below.
 
-- pagerank.py: Contains an implementation of the 'Personalised PageRank' algorithm used in the story recommender (details below) 
+- pagerank.py: Contains an implementation of the 'Personalised PageRank' algorithm used in the story recommender (details below)
 
 Classes for simulation (in the <b>/simulation</b> directory):
 - graphclasses.py: Base classes that represent entities in the simulation
@@ -51,7 +51,7 @@ No service is running within the docker image at the time of writing but it sets
 
 Input and output data is exchanged through the files in `./data` directory which is mounted as a volume.
 
-### Building 
+### Building
 To build this image make sure you have Docker installed in your host.
 It that is the case you just run:
 
@@ -77,24 +77,31 @@ This Docker image runs the Flask app, which exposes a simple API for running the
 **Parameters and environment variables**  
 The following environment variables are used as parameters and can be set when calling the docker image:
 
- - `TASK` - can be either `parse` or `pagerank` depending on which task you want to be performed. _Default: `parse`_
- - `GEXF_INPUT` - is the gexf input file used which will be parsed when running the `parse` task. _Default: `./data/input/latest.gexf`
- - `PAGERANK_FILE` - is the input file used when calculating the recommendations through the `pagerank` task. _Default: `./data/output/recommenderdata.gexf`
- - `STORY_ID` - input story used for the pagerank 
+ - `TASK` - can be either `parse` or `pagerank` depending on which task you want to be performed. _Default:_ `parse`
+ - `GEXF_INPUT` - is the gexf input file used which will be parsed when running the `parse` task. _Default:_ `./data/input/latest.gexf`
+ - `PAGERANK_FILE` - is the input file used when calculating the recommendations through the `pagerank` task. _Default:_ `./data/output/recommenderdata.gexf`
+ - `STORY_ID` - input story used for the pagerank
  - `USER_ID` - input user used for the pagerank
 
 
 A few examples are provided in the sections below to better clarify how to use this docker image.
 
+The following command will start the service, connecting port 5000 of the Docker container (Flask default) to port 5000 of your machine:
 ```
-# The following command will start the service, connecting port 5000 of the Docker container (Flask default) to port 5000 of your machine:
-
 $ docker run -it --rm -p 5000:5000 -v "$PWD/data":/usr/src/app/data commonfare/commonshare-python
 ```
 
 Specify a different input file via the `GEXF_INPUT` environment variable.
 ```
 $ docker run -it --rm -p 5000:5000 -v "$PWD/data":/usr/src/app/data -e GEXF_INPUT=./data/input/input3.gexf commonfare/commonshare-python
+```
+
+#### Docker compose
+
+If you like docker-compose, you can build and run using
+```
+$ docker-compose build
+$ docker-compose up
 ```
 
 #### Testing running status
