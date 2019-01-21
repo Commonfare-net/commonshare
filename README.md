@@ -117,4 +117,3 @@ http://127.0.0.1:5000/parse
 #This will return a JSON array of three IDs corresponding to stories that the user specified by *userid* should be recommended on reading story *storyid*
 http://127.0.0.1:5000/recommend/*storyid*/*userid*
 ```
-> **NOTE:** The IDs specified by *storyid* and *userid* refer to those of the _nodes_ in the gexf file and _not_ to the identifiers of users and stories in the commonfare platform. However, the IDs returned ARE those of stories in the commonfare platform
