@@ -3,23 +3,23 @@ Python scripts for simulating Commonfare data, calculating commonshare, calculat
 
 Requirements:
 
-Python 2.x, NetworkX 2.2, Louvain community detection, (and the random names generator if running the simulation). Install with the following commands:
+Python 2.x, NetworkX 2.2, Louvain community detection, dateutil (and the random names generator if running the simulation). Install with the following commands:
 ```bash
 pip install networkx==2.2
-pip install scipy python-louvain names
+pip install scipy python-louvain python-dateutil names
 ```
 
 <h3>Important Contents:</h3>
 
 <b>python/</b>
 
-- parsegexf.py: Main class for parsing GEXF file, which then calls kcore.py to calculate commonshare and output JSON files.
+- parsegexf.py: Main class for parsing GEXF file, which then calls makegraphs.py to calculate commonshare and output JSON files.
 
 - config.py: Contains key constants used in the simulation. Values in here can be adjusted to determine how many users are generated, the number of actions per day, and how many days the simulation runs for. It now also contains constants to allow adjustment of collusion detection.
 
-- dynetworkx.py: Contains adjusted core_number method from the 'core.py' file of NetworkX. Additional methods have been implemented to calculate the weighted, directed core number values at particular points in time. Also contains an implemented collusion detection algorithm.
+- kcore.py: Contains adjusted core_number method from the 'core.py' file of NetworkX. Additional methods have been implemented to calculate the weighted, directed core number values at particular points in time. Also contains an implemented collusion detection algorithm.
 
-- kcore.py: Uses the methods in dynetworkx.py to calculate Commonshare values for each node in the graph every two weeks. Outputs JSON files, described below.
+- makegraphs.py: Uses the methods in kcore.py to calculate Commonshare values for each node in the graph every two weeks. Outputs JSON files, described below.
 
 - pagerank.py: Contains an implementation of the 'Personalised PageRank' algorithm used in the story recommender (details below)
 
@@ -38,16 +38,8 @@ Classes for simulation (in the <b>/simulation</b> directory):
 
 - recommenderdata.gexf: Contains a cleaned version of the original GEXF, used for generating story recommendations
 
-### Instructions for use
-
-1. Put GEXF file in the `data/input` directory
-2. Change directory to `python/` and run `python parsegexf ../data/input/<YOUR_FILE_NAME>`
-3. JSON files will be output into the `data/output` directory as described above
-
-
 ## Docker image
-A very basic Docker image is available to run the python scripts `parsegexf.py` and `pagerank.py`.  
-No service is running within the docker image at the time of writing but it sets up a python environment with all the dependencies and it runs either of the scripts when the user runs the image.  
+A very basic Docker image is available to run the python scripts `parsegexf.py` and `pagerank.py`, the methods of which are exposed through a simple web API, as described below.  
 
 Input and output data is exchanged through the files in `./data` directory which is mounted as a volume.
 
@@ -105,7 +97,6 @@ $ docker-compose up
 ```
 
 #### Testing running status
-To confirm that the service is running, access 'http://127.0.0.1:5000' in your browser or using `curl` from the command line, which will display the message 'Service is running'
 
 To run parsegexf.py, use the following URL...
 ```
@@ -114,6 +105,6 @@ http://127.0.0.1:5000/parse
 ```
 ...and to run pagerank.py...
 ```
-#This will return a JSON array of three IDs corresponding to stories that the user specified by *userid* should be recommended on reading story *storyid*
+#This will return a JSON array of three IDs corresponding to stories that the user specified by *userid* should be recommended on reading story *storyid* If the story or user ID cannot be found, [0,0,0] will be returned instead.
 http://127.0.0.1:5000/recommend/*storyid*/*userid*
 ```

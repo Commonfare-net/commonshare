@@ -131,13 +131,13 @@ def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 @app.route('/parse')
 def parse():    
 
-    """Entry method to begin parsing the GEXF file
-    
-    This is the method called through the Flask API to begin parsing the
-    GEXF file of all commonfare.net interactions. Once the GEXF is in the
-    correct format, it is passed to methods in the makegraphs.py module to
-    output JSON data for visualisation purposes
-    """
+	"""Entry method to begin parsing the GEXF file
+
+	This is the method called through the Flask API to begin parsing the
+	GEXF file of all commonfare.net interactions. Once the GEXF is in the
+	correct format, it is passed to methods in the makegraphs.py module to
+	output JSON data for visualisation purposes
+	"""
 	filename = os.environ['GEXF_INPUT']
 	ET.register_namespace("", "http://www.gexf.net/1.2draft") 
 	tree = ET.parse(filename)  
