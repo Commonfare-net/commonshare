@@ -13,9 +13,10 @@ import xml.etree.ElementTree as ET
 
 import config as cf
 
-#Make this a web service
+#Make this a Flask web service
 from flask import Flask,jsonify,request,Blueprint
 app = Flask(__name__)
+#The 'Blueprint' allows app methods to be distributed across modules
 pagerank_api = Blueprint('pagerank_api',__name__)
 
 def personalisedPageRank(core_graph,story,user):
@@ -44,13 +45,11 @@ def personalisedPageRank(core_graph,story,user):
     for (n,c) in core_graph.nodes(data=True):
         if c['platform_id']==str(story) and c['type']=='story':
             story_id = n
-            print 'this story name is ',c['title']
             break
     for (n,c) in core_graph.nodes(data=True):
         if c['platform_id']==str(user) and c['type']=='commoner':
             user_id = n
             influence = c['kcore']
-            print 'this user name is ',c['name']
             break
     if story_id == 0 or user_id == 0:
         return ({},0)
@@ -89,24 +88,20 @@ def personalisedPageRank(core_graph,story,user):
   
 @pagerank_api.route('/recommend/<storyid>/<userid>')
 def run(storyid,userid):
-    #Will hardcode filename here because it ought not to change
-    filename = os.environ['PAGERANK_FILE']
-    #filename = '../data/output/recommenderdata.gexf'
-    #storyid = os.environ['STORY_ID']
-    #userid = os.environ['USER_ID']
-    """Print three recommended stories for user reading a story
+    """Return three recommended stories for user reading a story
     
-    This uses the personalised pagerank algorithm to print the IDs
+    This uses the personalised pagerank algorithm to return the IDs
     of three stories that a user should be recommended on reading a
-    particular story. The print output is captured by pagerank.php
-    and returned to the calling Javascript code
+    particular story. The method is routed using the Flask API to 
+    the '/recommend' URL, which also contains the parameters
 
-    :param filename: string path to recommenderdata.gexf file 
     :param storyid: string ID of story user is reading
-    :param userid: string ID of user (or 0 if no user logged in)
+    :param userid: string ID of user
 
     """
-    
+    #This is initialised as a Docker environment variable
+    filename = os.environ['PAGERANK_FILE']
+   
     G_read = nx.read_gexf(filename)
     (pr_vals,influence) = personalisedPageRank(G_read,storyid,userid)
 
@@ -118,11 +113,6 @@ def run(storyid,userid):
     G_untainted = nx.read_gexf(filename)
     recommended_list = []
     
-    #User's kcore determines how influential they are
-    #if userid == '0': #When no user is logged in 
-    #    influence = 0
-    #else:
-    #    influence = G_untainted.nodes[userid]['kcore']
     
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
@@ -135,26 +125,18 @@ def run(storyid,userid):
     for i in range(min(influence,len(neglected_nodes))):
         platform_id = G_untainted.nodes[neglected_nodes[i]]['platform_id']
         recommended_list.append(platform_id)
-        #print 'id is ',neglected_nodes[i],' but in the platform it is ',G_untainted.nodes[neglected_nodes[i]]['platform_id']
     for j in range(10-influence):
         platform_id = G_untainted.nodes[ranked[j][0]]['platform_id']
-        #print 'id is ',ranked[j][0],' but in the platform it is ',G_untainted.nodes[ranked[j][0]]['platform_id']
         recommended_list.append(platform_id)
     
-    #Print three at random
-    #print " ".join(recommended_list[v] 
+    #Return three at random
     returned_list = []
     for v in random.sample(range(0, len(recommended_list)),3):
         returned_list.append(recommended_list[v])
     return jsonify(returned_list)
 
+#Run as a Flask app
 if __name__ == "__main__":    
-    #if len(sys.argv) < 3:
-    #    print 'Missing stuff'
-    #    sys.exit()
-    #storyid = sys.argv[1]
-    #userid = sys.argv[2]
-    #run(storyid,userid)
     app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
         port=int(os.environ.get('HTTP_PORT', '5001')))
     

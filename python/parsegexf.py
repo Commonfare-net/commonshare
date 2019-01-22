@@ -8,12 +8,13 @@ from pagerank import pagerank_api
 import makegraphs
 import config as cf
 
+#This is a Flask web app
 app = Flask(__name__)
 
+#Also includes Flask methods from pagerank.py
 app.register_blueprint(pagerank_api)
 
-def replace_comment_source(nodes,edges,edgeid,label,sourcenode,targetnode):
-    print 'i am called'
+def replace_source(nodes,edges,edgeid,label,source,target):
     '''Replace comment sender/receiver edge with story/writer edge
     
     When a commoner leaves a comment on a story, 2 edges exist:
@@ -21,10 +22,12 @@ def replace_comment_source(nodes,edges,edgeid,label,sourcenode,targetnode):
     2) A comment sender - comment receiver edge
     This replaces the sender-receiver with a story-receiver edge
     
+    :param nodes: all nodes of the GEXF graph
+    :param edges: all edges of the GEXF grpah
     :param edgeid: ID of comment sender/receiver edge in GEXF 
     :param label: label of comment sender/receiver edge in GEXF
-    :param sourcenode: Source node of edge
-    :param targetnode: Target node of edge
+    :param source: Source node of edge
+    :param target: Target node of edge
     :returns: string edge type (comment_story or comment_listing)
     '''
     original_comment = edges.findall("*/[@label='"+label+"']")
@@ -46,7 +49,7 @@ def replace_comment_source(nodes,edges,edgeid,label,sourcenode,targetnode):
                 edgetype = "comment_story"
             object_target = edge.attrib['target']
     #Replace the sender-receiver edge with a story-receiver edge
-    if sourcenode != targetnode:
+    if source != target:
         commoner_commoner_edge.set('source',object_target)
 
     return edgetype
@@ -67,7 +70,7 @@ def addNodeSpell(node,attrs):
     spells.append(spell)
     
     
-def parseLabel(nodes,edges,edgeid,source,target,label):
+def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 
     """Get edge type, start and end dates from label
     
@@ -76,10 +79,12 @@ def parseLabel(nodes,edges,edgeid,source,target,label):
     2) Finds the type, start and end date of edge from its label
     Labels have the following format:
     'conversation_13+date_start=2018/06/23+date_end=2018/06/26'
-
+    
+    :param nodes: all nodes of the GEXF graph
+    :param edges: all edges of the GEXF grpah
     :param edgeid: string ID of edge in GEXF
-    :param source: string ID of node that is source of this edge
-    :param target: string ID of node that is target of this edge 
+    :param sourced: string ID of node that is source of this edge
+    :param targetid: string ID of node that is target of this edge 
     :param label: string label of edge in GEXF 
     :returns: 3-tuple containing edge type, start and end date 
     """
@@ -91,25 +96,24 @@ def parseLabel(nodes,edges,edgeid,source,target,label):
 
     
     edgetype = edgevals[0].split("_")[0]
-    print 'edgetype',edgetype
 
     #Ensure Basic Income transactions don't end up in node spells
-    if edgetype == 'transaction' and (source=='1' or target=='1'):
+    if edgetype == 'transaction' and (sourceid == '1' or targetid == '1'):
         return ('transaction',start,end)
     
     #The type of source/target node determines the type of edge
-    sourcenode = nodes.find("*/[@id='" + source +"']");
-    targetnode = nodes.find("*/[@id='" + target +"']");
-    sourceattr = nodes.find("*/[@id='" + source +"']/*/*[@for='1']")
-    targetattr = nodes.find("*/[@id='" + target +"']/*/*[@for='1']")
+    source = nodes.find("*/[@id='" + sourceid +"']");
+    target = nodes.find("*/[@id='" + targetid +"']");
+    sattr = nodes.find("*/[@id='" + sourceid +"']/*/*[@for='1']")
+    tattr = nodes.find("*/[@id='" + targetid +"']/*/*[@for='1']")
 
-    sourcetype = sourceattr.attrib['value']
-    targettype = targetattr.attrib['value']
+    sourcetype = sattr.attrib['value']
+    targettype = tattr.attrib['value']
     attrs = {"start":start,"end":end}
     
     #Add spell to nodes corresponding to start/end date of this edge
-    addNodeSpell(sourcenode,attrs)
-    addNodeSpell(targetnode,attrs)
+    addNodeSpell(source,attrs)
+    addNodeSpell(target,attrs)
 
 
     if sourcetype == "listing" or targettype == "listing":
@@ -117,27 +121,23 @@ def parseLabel(nodes,edges,edgeid,source,target,label):
     elif sourcetype == "story" or targettype == "story": 
         edgetype = edgetype+ "_story"
     elif edgetype == "tag": 
-        print 'yes edgetype IS tag'
         edgetype = edgetype + "_commoner"  
-    print 'source: ',sourcetype,'target: ',targettype      
     if edgetype == "comment": #'comment' edge between two commoners
-        print 'edgetype is INDEED comment'
-        edgetype = replace_comment_source(nodes,edges,edgeid,label,sourcenode,targetnode)
+        edgetype = replace_source(nodes,edges,edgeid,label,source,target)
 
     return (edgetype,start,end)
 
 
-
-#if len(sys.argv) < 2:
-#    print 'Missing filename'
-#    sys.exit()
-
-@app.route('/')
-def hello():
-    return 'Service is running'
-
 @app.route('/parse')
 def parse():    
+
+    """Entry method to begin parsing the GEXF file
+    
+    This is the method called through the Flask API to begin parsing the
+    GEXF file of all commonfare.net interactions. Once the GEXF is in the
+    correct format, it is passed to methods in the makegraphs.py module to
+    output JSON data for visualisation purposes
+    """
 	filename = os.environ['GEXF_INPUT']
 	ET.register_namespace("", "http://www.gexf.net/1.2draft") 
 	tree = ET.parse(filename)  
@@ -157,9 +157,9 @@ def parse():
 	    nodeid_id = nodeidattr.attrib['id']
 	    nodeattrs.remove(nodeidattr)
 
-	nodetype_id = nodeattrs.find("*/[@title='type']").attrib['id']
-	nodename_id = nodeattrs.find("*/[@title='name']").attrib['id']
-	nodetitle_id = nodeattrs.find("*/[@title='title']").attrib['id']
+	type_id = str(nodeattrs.find("*/[@title='type']").attrib['id'])
+	name_id = nodeattrs.find("*/[@title='name']").attrib['id']
+	title_id = nodeattrs.find("*/[@title='title']").attrib['id']
 
 	nodes = root[0].find('xmlns:nodes',namespaces)
 
@@ -182,13 +182,13 @@ def parse():
 	    attvalue = attvals.makeelement('attvalue',attrib)
 	    attvals.append(attvalue)
 
-	    nodetype = attvals.find("*/[@for='"+str(nodetype_id)+"']").get('value')
+	    nodetype = attvals.find("*/[@for='" + type_id + "']").get('value')
 	    #Replace all apostrophes in story/commoner names 
 	    if nodetype == 'story' or nodetype == 'listing':
-		nodetitle = attvals.find("*/[@for='"+str(nodetype_id)+"']")
+		nodetitle = attvals.find("*/[@for='"+str(title_id)+"']")
 		nodetitle.set('value',nodetitle.get('value').replace("'",""))
 	    else:
-		nodename = attvals.find("*/[@for='"+str(nodename_id)+"']")
+		nodename = attvals.find("*/[@for='"+str(name_id)+"']")
 		nodename.set('value',nodename.get('value').replace("'",""))
 		
 	#Add holders for dynamic node and edge attributes
@@ -222,34 +222,33 @@ def parse():
 	for elem in edges:  
 	    label = elem.attrib['label']
 	   
-	    sourceid = elem.attrib['source']
-	    targetid = elem.attrib['target']
+	    source = elem.attrib['source']
+	    target = elem.attrib['target']
 	    edgeid = elem.attrib['id']
 
 	    #Figure out what kind of edge it is based on its label        
-	    (edgeindex,start,end) = parseLabel(nodes,edges,edgeid,sourceid,targetid,label)
-	    edgetype = d[edgeindex]
+	    (e,start,end) = parseLabel(nodes,edges,edgeid,source,target,label)
+	    edgetype = d[e]
 	    parseddate = cf.to_date(start)
 	    if mindate > parseddate:
 		mindate = parseddate
 	    if maxdate < parseddate:
 		maxdate = parseddate
 	    #Sometimes 'parseLabel' changes the source ID 
-	    sourceid = elem.attrib['source']
+	    source = elem.attrib['source']
 	    
 	    #Delete self-looping edges
-	    if sourceid == targetid:
+	    if source == target:
 		edgestodelete.append(elem)
 		continue
 	    
 	    #Delete Pietro's Basic Income transactions
-	    if (sourceid == '1' or targetid == '1') and edgetype == d['transaction']:
+	    if (source == '1' or target == '1') and edgetype == d['transaction']:
 		edgestodelete.append(elem)
 		continue
 	   
-	    #Can't use sourceid as sometimes 
-	    edgeid = sourceid + '-' + targetid
-	    altedgeid = targetid + '-' + sourceid
+	    edgeid = source + '-' + target
+	    altedgeid = target + '-' + source
 	    
 	    #Get the 'spells' and 'attvalues' of this edge, or create them
 	    if edgeid not in existingedges and altedgeid not in existingedges:
@@ -271,13 +270,13 @@ def parse():
 	    spells.append(spell)
 	    
 	    #Store more info in the 'attvalue' - initiator of action and its type
-	    attrib = {'value': sourceid,'for':edgetype,'start':start,'end':end}
+	    attrib = {'value': source,'for':edgetype,'start':start,'end':end}
 	    attvalue = attvalues.makeelement('attvalue',attrib)
 	    attvalues.append(attvalue)
 
 	    #Find the nodes connected by this edge and add info on the action 
-	    sourceattrs = nodes.find("*/[@id='" + sourceid +"']/*")
-	    targetattrs = nodes.find("*/[@id='" + targetid +"']/*")
+	    sourceattrs = nodes.find("*/[@id='" + source +"']/*")
+	    targetattrs = nodes.find("*/[@id='" + target +"']/*")
 	    if edgetype != None:
 		sourceattrs.append(attvalue)
 		targetattrs.append(attvalue)
@@ -300,9 +299,14 @@ def parse():
 	parsedfilename = filename + "parsed.gexf"
 	tree.write(parsedfilename)  
 	print 'done parsing'
+    
+    #Now make the JSON graphs for visualisation
 	makegraphs.init(parsedfilename)
+    
 	return jsonify({'success':True})
 
+#Run as a Flask web app
 if __name__ == "__main__":
-    app.run(debug=True,host=os.environ.get('HTTP_HOST', '0.0.0.0'),port=int(os.environ.get('HTTP_PORT', '5000')))
+    app.run(debug=True,host=os.environ.get('HTTP_HOST', '0.0.0.0'),
+    port=int(os.environ.get('HTTP_PORT', '5000')))
 
