@@ -41,6 +41,7 @@ def personalisedPageRank(core_graph,story,user):
     """
     story_id = 0
     user_id = 0
+    influence = 0
     now = datetime.now()
     for (n,c) in core_graph.nodes(data=True):
         if c['platform_id']==str(story) and c['type']=='story':
@@ -51,12 +52,12 @@ def personalisedPageRank(core_graph,story,user):
             user_id = n
             influence = c['kcore']
             break
-    if story_id == 0 or user_id == 0:
+    if story_id == 0:
         return ({},0)
     #Get the nodes surrounding both the story and the user, to use as
     #the personalisation vector in the page-rank calculation 
     surrounding_nodes = {k:10 for k in core_graph.neighbors(story_id)}
-    if user_id != '0':
+    if user_id != 0:
         user_nodes = {k:10 for k in core_graph.neighbors(user_id)}
         surrounding_nodes.update(user_nodes)
 
