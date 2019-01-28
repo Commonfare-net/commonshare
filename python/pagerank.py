@@ -119,14 +119,18 @@ def run(storyid,userid):
     tree = ET.parse(filename)  
     root = tree.getroot()
     #'neglected nodes'= new stories/listings with few interactions
-    neglected_nodes = root[0].attrib['neglected_nodes'].split(" ")
-    
+
+    if len(root[0].attrib['neglected_nodes']) == 0:
+        neglected_nodes = []
+    else:
+        neglected_nodes = root[0].attrib['neglected_nodes'].split(" ")
     #If node is influential, connect them to unknown stories to increase 
     #density of the graph 
+
     for i in range(min(influence,len(neglected_nodes))):
         platform_id = G_untainted.nodes[neglected_nodes[i]]['platform_id']
         recommended_list.append(platform_id)
-    for j in range(10-influence):
+    for j in range(10-min(influence,len(neglected_nodes))):
         platform_id = G_untainted.nodes[ranked[j][0]]['platform_id']
         recommended_list.append(platform_id)
     
