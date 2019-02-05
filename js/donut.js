@@ -113,7 +113,7 @@ feMerge.append("feMergeNode")
 var arcs = chartg.selectAll(".arc");
 var donut_labels = chartg.selectAll(".donutText");
 var kcoretext = chartg.append("text")
-	.attr("id", "kcoretext")
+	.attr("id", "coretext")
 	.style("font-size", "70px")
 	.style("font-family", "'Dosis', sans-serif");
 
