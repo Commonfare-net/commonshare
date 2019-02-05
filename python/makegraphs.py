@@ -53,8 +53,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
         delta = relativedelta(weeks=-2)
     else:
         delta = relativedelta(months=-1)
-    graph_dir = 'data/output/graphdata/'+spacing+'/'
-    user_dir = 'data/output/userdata/'
+    graph_dir = '../data/output/graphdata/'+spacing+'/'
+    user_dir = '../data/output/userdata/'
     
     #Make dates for first interaction 'window'
     w_end = enddate
@@ -292,7 +292,7 @@ def make_recommender_data(G,window,tag_edges):
     root[0].set('start',cf.to_str(window[0]))
     root[0].set('end',cf.to_str(window[1]))
     root[0].set('timeformat', 'date') 
-    tree.write("data/output/recommenderdata.gexf")      
+    tree.write("../data/output/recommenderdata.gexf")      
     os.remove("newdata.gexf")
 
 def jaccard(front,stepcommunity):
