@@ -104,7 +104,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
 
 
 
-def build_commoner_data(G,commoner_graphs):
+def build_commoner_data(G,commoner_graphs,nodes_to_remove):
     """Extract commoners' interaction histories. 
 
     This extracts the individual interactions of each commoner
@@ -117,6 +117,15 @@ def build_commoner_data(G,commoner_graphs):
     their personal interaction history in JSON format
 
     """
+    #Nee to add 0 values in too
+    for (n,c) in nodes_to_remove:
+        c_graph = nx.Graph()
+        c_graph.add_node(n,date=c['date'],kcore=0)
+        commoner_json = json_graph.node_link_data(c_graph)
+        if 'platform_id' in c:
+            commoner_json['commoner_id'] = c['platform_id']
+        commoner_graphs[n].append(commoner_json)
+        
     nodeiter = copy.deepcopy(G.nodes(data=True))
     for (n,c) in nodeiter:
         if c['type'] != 'commoner':
@@ -141,12 +150,12 @@ def build_commoner_data(G,commoner_graphs):
         del c_graph.nodes[n]['label']
         if 'maxweight'  in c_graph.nodes[n]:
             del c_graph.nodes[n]['maxweight']
-
         #Add edges coming from this commoner
         #But remove specific interaction dates for efficiency
         c_graph.add_edges_from(edges)
         for action_key in cf.interaction_keys:
             if action_key in c_graph.nodes[n]:
+                #print c_graph.nodes[n][action_key]
                 c_graph.nodes[n][action_key] = [
                 i[0] for i in c_graph.nodes[n][action_key]
                 ] 
@@ -450,6 +459,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     
     #Filter nodes outside the time window
     nodes_to_remove = []
+    zero_nodes = []
     for (n,c) in nodeiter:
         graph_copy.nodes[n]['nodemeta'] = []    
             
@@ -462,7 +472,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
                     node_exists = True
         if node_exists == False:
             nodes_to_remove.append(n) 
-            
+            if c['type'] == 'commoner':
+                zero_nodes.append((n,c))
     graph_copy.remove_nodes_from(nodes_to_remove)
 
     
@@ -482,7 +493,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     
     #Recommender data is built from the cumulative graph 
     if not cumulative:
-        build_commoner_data(core_G,commoner_graphs)
+        build_commoner_data(core_G,commoner_graphs,zero_nodes)
     else:
         print 'making rec data HERE'
         make_recommender_data(copy.deepcopy(core_G),window,tag_edges)
@@ -500,12 +511,12 @@ def make_graphs(G,window,index,communities,commoner_graphs):
             c['edgeweight'] = 1
     
     #For doing community detection, remove tag nodes and their edges 
-    core_G.remove_nodes_from(tag_nodes.keys())    
-    core_G.remove_edges_from(tag_edges)        
+    #core_G.remove_nodes_from(tag_nodes.keys())    
+    #core_G.remove_edges_from(tag_edges)        
 
     #Now remove any nodes that only exist because of tag edges 
-    tag_based_isolates = list(nx.isolates(core_G))
-    core_G.remove_nodes_from(tag_based_isolates)    
+    #tag_based_isolates = list(nx.isolates(core_G))
+    #core_G.remove_nodes_from(tag_based_isolates)    
 
 
         
@@ -515,15 +526,15 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     else:
         partition = community.best_partition(core_G,weight='edgeweight')      
     #Add tag edges back in  
-    for u,v,c in tag_edges:
-        if u in tag_based_isolates or v in tag_based_isolates:
-            continue
-        core_G.add_edge(u,v,**c)
+    #for u,v,c in tag_edges:
+    #    if u in tag_based_isolates or v in tag_based_isolates:
+    #        continue
+    #    core_G.add_edge(u,v,**c)
     
     #Add tag nodes back in
-    for k,v in tag_nodes.iteritems():
-        if k in core_G.nodes():
-            core_G.add_node(k,**v)   
+    #for k,v in tag_nodes.iteritems():
+    #    if k in core_G.nodes():
+    #        core_G.add_node(k,**v)   
     
     #Simple counting of different node types
     c_count = 0
@@ -541,8 +552,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         elif c['type'] == 'listing':
             l_count += 1
         #Also add node's cluster to JSON
-        if c['type'] != 'tag':
-            c['cluster'] = partition[n] 
+        #if c['type'] != 'tag':
+        c['cluster'] = partition[n] 
             
     n_count = nx.number_of_nodes(core_G)
     e_count = nx.number_of_edges(core_G)

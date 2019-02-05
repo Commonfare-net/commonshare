@@ -40,8 +40,8 @@ def get_users(need_two_users):
                 users = random.sample(cf.colluding_nodes,2)
             else:
                 users = random.sample(G.nodes(),2)
-                if ((r < 10 and users[0] in cf.colluding_nodes) or 
-                   (r > 10 and users[1] in cf.colluding_nodes)):
+                if ((r < 15 and users[0] in cf.colluding_nodes) or 
+                   (r > 5 and users[1] in cf.colluding_nodes)):
                     continue 
             if (type[users[0]] == type[users[1]] == 'commoner' and 
                 name[users[0]] != name[users[1]]):
@@ -49,7 +49,7 @@ def get_users(need_two_users):
         else:  
             users = random.sample(G.nodes(),1)
             if (type[users[0]] == 'commoner' and 
-            (r > 10 or users[0] not in cf.colluding_nodes)):
+            (r > 16 or users[0] not in cf.colluding_nodes)):
                 break     
     return users    
 

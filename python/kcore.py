@@ -117,7 +117,7 @@ def nodeweight(G,node_id,window,suspect_nodes):
             for action in c[action_key]:
                 if not cf.in_date(window,action[1]):
                     continue 
-                if node_id == action[0]: #Node initiated the action
+                if node_id == action[0].split("-")[0]: #Node initiated the action
                     edge_weight = cf.weights[action_key]
                 else: #This node was the recipient of the action
                     edge_weight = cf.weights["r"+action_key]

@@ -1,4 +1,80 @@
 //Much code taken from https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
+function updateDonut(value) {
+	if (value == -1)
+		if (currentdonut == maxindex - 1)
+			return;
+		else
+			currentdonut++;
+	else
+		if (currentdonut == 0)
+			return;
+		else
+			currentdonut--;
+	plotdonut(graph_data[currentdonut], node_data[currentdonut]);
+	$('#donutdate').text(getDateText(node_data[currentdonut]));
+}
+
+var currentdonut = 0;
+var maxindex = 0;
+d3.json('../data/output/userdata/' + userid + '.json', function (results) {
+	for (var fortnight = 0; fortnight < results.length; fortnight++) {
+		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
+		node_data[fortnight].date = parseTime(node_data[fortnight].date);
+		graph_data[fortnight] = results[fortnight];
+		//This is necessary for D3 to map source and target indices to their respective nodes
+		plotdonut(graph_data[fortnight], node_data[fortnight]);
+		maxindex++;
+	}
+	plotdonut(graph_data[0], node_data[0]);
+
+	$('#donutdate').text(getDateText(node_data[currentdonut]));
+});
+function getDateText(data) {
+	console.log("lang is " + lang);
+	if (lang == 'it')
+		return italianDate(tooltipFormat(data.date)) + "-" + italianDate(tooltipFormat(d3.timeWeek.offset(data.date, 2)));
+	else if (lang == 'hr')
+		return croatianDate(tooltipFormat(data.date)) + "-" + croatianDate(tooltipFormat(d3.timeWeek.offset(data.date, 2)));
+	else
+		return tooltipFormat(data.date) + "-" + tooltipFormat(d3.timeWeek.offset(data.date, 2))
+}
+function italianDate(date) {
+	var monthabb = date.split(" ")[0];
+	var month_map = {
+		"Jan": "gen",
+		"Feb": "feb",
+		"Mar": "mar",
+		"Apr": "apr",
+		"May": "mag",
+		"Jun": "giu",
+		"Jul": "lug",
+		"Aug": "ago",
+		"Sep": "set",
+		"Oct": "ott",
+		"Nov": "nov",
+		"Dec": "dic"
+	};
+	return month_map[monthabb] + " " + date.split(" ")[1];
+}
+function croatianDate(date) {
+	var monthabb = date.split(" ")[0];
+	var month_map = {
+		"Jan": "sij",
+		"Feb": "vel",
+		"Mar": "ožu",
+		"Apr": "tra",
+		"May": "svi",
+		"Jun": "lip",
+		"Jul": "srp",
+		"Aug": "kol",
+		"Sep": "ruj",
+		"Oct": "lis",
+		"Nov": "stu",
+		"Dec": "pro"
+	};
+	return month_map[monthabb] + " " + date.split(" ")[1];
+}
+
 var chart = d3.select("#donut");
 chartg = chart.append("g");
 var donut_defined = false;
@@ -16,13 +92,12 @@ var arc = d3.arc()
 var defs = chart.append("defs");
 
 var myReturnText;
-if(lang=="hr")
-    myReturnText="povratak";
-else if(lang=="it")
-    myReturnText="ritorna";
+if (lang == "hr")
+	myReturnText = "povratak";
+else if (lang == "it")
+	myReturnText = "ritorna";
 else
-    myReturnText="return";
-    
+	myReturnText = "return";
 
 //Filter for the outside glow
 var filter = defs.append("filter")
@@ -38,7 +113,7 @@ feMerge.append("feMergeNode")
 var arcs = chartg.selectAll(".arc");
 var donut_labels = chartg.selectAll(".donutText");
 var kcoretext = chartg.append("text")
-    .attr("id","kcoretext")
+	.attr("id", "kcoretext")
 	.style("font-size", "70px")
 	.style("font-family", "'Dosis', sans-serif");
 
@@ -55,25 +130,25 @@ function links_of_type(data, key) {
 	var linktypes = keytypes[key];
 	var type_links = [];
 	for (var link in data.links) {
-        if(data.links[link].source.id == userid || data.links[link].target.id == userid)
-            if ("edgemeta" in data.links[link] && data.links[link].edgemeta.includes(key)) {
+		if (data.links[link].source.id == userid || data.links[link].target.id == userid)
+			if ("edgemeta" in data.links[link] && data.links[link].edgemeta.includes(key)) {
 
-                if (data.links[link].target.id == userid)
-                    target = data.links[link].source;
-                else
-                    target = data.links[link].target;
-                data.links[link]["name"] = target.t;
-                data.links[link]["value"] = data.links[link].edgeweight[target.id];
-                for (var x in linktypes) {
-                    if (linktypes[x]in data.links[link]) {
-                        var array = data.links[link][linktypes[x]];
-                        for (var y = 0; y < array.length; y++) {
-                            data.links[link]["children"].push([linktypes[x]].concat(array[y]));
-                        }
-                    }
-                }
-                type_links.push(data.links[link]);
-            }
+				if (data.links[link].target.id == userid)
+					target = data.links[link].source;
+				else
+					target = data.links[link].target;
+				data.links[link]["name"] = target.t;
+				data.links[link]["value"] = data.links[link].edgeweight[target.id];
+				for (var x in linktypes) {
+					if (linktypes[x]in data.links[link]) {
+						var array = data.links[link][linktypes[x]];
+						for (var y = 0; y < array.length; y++) {
+							data.links[link]["children"].push([linktypes[x]].concat(array[y]));
+						}
+					}
+				}
+				type_links.push(data.links[link]);
+			}
 	}
 	return type_links;
 }
@@ -159,13 +234,14 @@ function makearcs(piesegments, areChildren) {
 			return "3";
 		})
 		.on("mouseover", function (d) {
+
 			d3.select(this).style("cursor", "pointer")
-			.style("filter", "url(#glow)")
-			.style("fill", function (d) {
-				if (areChildren == false)
-					return brightercolor(d.data.name);
-				return brightercolor(donutParent);
-			});
+			.style("filter", "url(#glow)");
+			//	.style("fill", function (d) {
+			//		if (areChildren == false)
+			//		return brightercolor(d.data.name);
+			//return brightercolor(donutParent);
+			//});
 			if (areChildren == true) {
 				oldhtml = $("#donutdescription").html();
 				$("#donutdescription").html("<h5 class='overlay'>" + d.data.name + "</h5>");
@@ -188,45 +264,45 @@ function makearcs(piesegments, areChildren) {
 						create_story += childdata['create_story'].length;
 					if (childdata['comment_story'] != undefined)
 						comment_story += childdata['comment_story'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                            return "broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story;
-                        if(lang=="it")
-                            return "storie create: " + create_story + "</br>commenti di storia: " + comment_story;
-                        return "Stories created: " + create_story + "</br>Story comments: " + comment_story;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story;
+						if (lang == "it")
+							return "storie create: " + create_story + "</br>commenti di storia: " + comment_story;
+						return "Stories created: " + create_story + "</br>Story comments: " + comment_story;
+					});
 				} else if (donutParent == 'listing') {
 					if (childdata['create_listing'] != undefined)
 						create_listing += childdata['create_listing'].length;
 					if (childdata['comment_listing'] != undefined)
 						comment_listing += childdata['comment_listing'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                           return "broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing;
-                        if(lang=="it")
-                            return "inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing;
-                        return "Listings created: " + create_listing + "</br>Listing comments: " + comment_listing;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing;
+						if (lang == "it")
+							return "inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing;
+						return "Listings created: " + create_listing + "</br>Listing comments: " + comment_listing;
+					});
 				} else if (donutParent == 'transaction') {
 					if (childdata['transaction'] != undefined)
 						transaction += childdata['transaction'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                            return "transkacije: " + transaction;
-                        if(lang=="it")
-                            return "transazioni: " + transaction;
-                        return "Transactions: " + transaction;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "transkacije: " + transaction;
+						if (lang == "it")
+							return "transazioni: " + transaction;
+						return "Transactions: " + transaction;
+					});
 				} else if (donutParent == 'social') {
 					if (childdata['conversation'] != undefined)
 						conversation += childdata['conversation'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                            return "razgovori: " + conversation;
-                        if(lang=="it")
-                            return "conversazioni: " + conversation;
-                        return "Conversations: " + conversation;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "razgovori: " + conversation;
+						if (lang == "it")
+							return "conversazioni: " + conversation;
+						return "Conversations: " + conversation;
+					});
 				}
 			};
 			var descwidth = $("#donutdescription").outerWidth(true);
@@ -250,7 +326,7 @@ function makearcs(piesegments, areChildren) {
 				else
 					nodename = d.data.name;
 				var url = getUrl(d.data.type, nodename);
-			//	var win = window.open(url, '_blank');
+				//	var win = window.open(url, '_blank');
 				return;
 			}
 			donut_defined = false;
@@ -270,45 +346,45 @@ function makearcs(piesegments, areChildren) {
 						create_story += childdata['create_story'].length;
 					if (childdata['comment_story'] != undefined)
 						comment_story += childdata['comment_story'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                            return "broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story;
-                        if(lang=="it")
-                            return "storie create: " + create_story + "</br>commenti di storia: " + comment_story;
-                        return "Stories created: " + create_story + "</br>Story comments: " + comment_story;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story;
+						if (lang == "it")
+							return "storie create: " + create_story + "</br>commenti di storia: " + comment_story;
+						return "Stories created: " + create_story + "</br>Story comments: " + comment_story;
+					});
 				} else if (donutParent == 'listing') {
 					if (childdata['create_listing'] != undefined)
 						create_listing += childdata['create_listing'].length;
 					if (childdata['comment_listing'] != undefined)
 						comment_listing += childdata['comment_listing'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                           return "broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing;
-                        if(lang=="it")
-                            return "inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing;
-                        return "Listings created: " + create_listing + "</br>Listing comments: " + comment_listing;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing;
+						if (lang == "it")
+							return "inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing;
+						return "Listings created: " + create_listing + "</br>Listing comments: " + comment_listing;
+					});
 				} else if (donutParent == 'transaction') {
 					if (childdata['transaction'] != undefined)
 						transaction += childdata['transaction'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                            return "transkacije: " + transaction;
-                        if(lang=="it")
-                            return "transazioni: " + transaction;
-                        return "Transactions: " + transaction;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "transkacije: " + transaction;
+						if (lang == "it")
+							return "transazioni: " + transaction;
+						return "Transactions: " + transaction;
+					});
 				} else if (donutParent == 'social') {
 					if (childdata['conversation'] != undefined)
 						conversation += childdata['conversation'].length;
-					$("#donutdescription").html(function(){
-                        if(lang=="hr")
-                            return "razgovori: " + conversation;
-                        if(lang=="it")
-                            return "conversazioni: " + conversation;
-                        return "Conversations: " + conversation;
-                    });
+					$("#donutdescription").html(function () {
+						if (lang == "hr")
+							return "razgovori: " + conversation;
+						if (lang == "it")
+							return "conversazioni: " + conversation;
+						return "Conversations: " + conversation;
+					});
 				}
 			};
 			var descwidth = $("#donutdescription").outerWidth(true);
@@ -395,23 +471,23 @@ function makeTextNode(thetext, thereturntext) {
 	returntext.attr("class", "returntext");
 }
 
-function italiantranslate(english){
-    if(english == "social")
-        return "sociali";
-    if(english == "transaction")
-        return "transazioni";
-    if(english == "listing")
-        return "inserzione";
-    return "storie";
+function italiantranslate(english) {
+	if (english == "social")
+		return "sociali";
+	if (english == "transaction")
+		return "transazioni";
+	if (english == "listing")
+		return "inserzione";
+	return "storie";
 }
-function croatiantranslate(english){
-    if(english == "social")
-        return "razgovori";
-    if(english == "transaction")
-        return "transkacije";
-    if(english == "listing")
-        return "unosi";
-    return "priče";
+function croatiantranslate(english) {
+	if (english == "social")
+		return "razgovori";
+	if (english == "transaction")
+		return "transkacije";
+	if (english == "listing")
+		return "unosi";
+	return "priče";
 }
 
 var original_segments;
@@ -428,17 +504,19 @@ function plotdonut(graphdata, mydata) {
 		e.target = isNaN(e.target) ? e.target : graphdata.nodes.filter(function (d) {
 				return d.id == e.target;
 			})[0];
-      e.children = [];
+		e.children = [];
 	});
 	var edgetotals = mydata.edgetotals;
-	var edgekeys = Object.keys(edgetotals);
 	var piesegments = [];
-	for (var i = 0; i < edgekeys.length; i++) {
-		piesegments.push({
-			"name": edgekeys[i],
-			"value": edgetotals[edgekeys[i]],
-			"children": links_of_type(graphdata, edgekeys[i])
-		});
+	if (('edgetotals' in mydata)) {
+		var edgekeys = Object.keys(edgetotals);
+		for (var i = 0; i < edgekeys.length; i++) {
+			piesegments.push({
+				"name": edgekeys[i],
+				"value": edgetotals[edgekeys[i]],
+				"children": links_of_type(graphdata, edgekeys[i])
+			});
+		}
 	}
 	original_segments = piesegments;
 	kcoretext.style("display", "inline-block")
@@ -462,9 +540,11 @@ function plotdonut(graphdata, mydata) {
 	donut_labels.append("textPath")
 	.text(function (d) {
 		//if (d.data.value > 0)
-			if(lang=="hr")return croatiantranslate(d.data.name);
-            if(lang=="it")return italiantranslate(d.data.name);
-            return d.data.name;
+		if (lang == "hr")
+			return croatiantranslate(d.data.name);
+		if (lang == "it")
+			return italiantranslate(d.data.name);
+		return d.data.name;
 		//return "";
 	})
 	.attr("class", "textypath")

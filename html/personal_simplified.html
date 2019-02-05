@@ -1,169 +1,29 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <head>
-  <link rel="stylesheet" type="text/css" href="../css/commonfare.css">
-  <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
-  <link href="https://fonts.googleapis.com/css?family=Dosis:800" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="../css/commonfare.css">
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css?family=Dosis:800" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-  <div style="width: 100%; text-align:center;">
-    <h5>Your Commonshare</h5>    
-    <div class="commonchart">
-      <div class="bigchart border"  style="display:table; overflow: hidden">
-        <svg id="cookie" width="200" height="200"></svg>
-        <div id="cookiedescription" class="overlay"></div>
-      </div> 
-      <div class="datepicker" style="line-height:100%">
-        <i class="fa fa-arrow-left arrow" onclick="updateCookie(-1)"></i>
-        <b id="cookiedate" style="font-size:24px;font-family:Dosis"></b>
-        <i class="fa fa-arrow-right arrow" onclick="updateCookie(1)"></i>
-      </div>
-    </div>
-    <div class="commonchart">
-      <div class="bigchart border" id="bunchdiv" style="position:relative; overflow:visible">
-        <svg id="bunchlabels" width="210" height="210" class="bunchlabels"></svg>
-        <svg id="bunches" width="200" height="200"  ></svg>
-        <div id="bunchesdescription" class="overlay"></div>
-      </div>  
-      <div class="datepicker" style="line-height:100%">
-        <i class="fa fa-arrow-left arrow" onclick="updateBunches(-1)"></i>
-        <b id="bunchesdate" style="font-size:24px;font-family:Dosis"></b>
-        <i class="fa fa-arrow-right arrow" onclick="updateBunches(1)"></i>
-      </div>
-    </div>
-    <div class="commonchart">
-      <div class="bigchart border" style="display:table">
-        <svg id="donut" width="240" height="240"></svg>
-        <div id="donutdescription" class="overlay"></div>
-      </div>    
-      <div class="datepicker" style="line-height:100%">
-        <i class="arrow fa fa-arrow-left" onclick="updateDonut(-1)"></i>
-        <b id="donutdate" style="font-size:24px;font-family:Dosis"></b>
-        <i class="arrow fa fa-arrow-right" onclick="updateDonut(1)"></i>
-      </div>   
+<div style="width: 100%; text-align:center;">
+    <div style="text-align:center;display:inline-block;width:auto;position:relative;margin:0px 30px 5px 30px;">
+        <div class="bigchart border" style="display:table">
+            <svg id="donut" width="240" height="240"></svg>
+            <div id="donutdescription" style="display: flex;justify-content: center; align-items: center;text-align: center;position:absolute;width:100%;margin: auto auto; height: 75%; top:0;left: 0;pointer-events:none;font-family:'Dosis';font-size:16px">
+            </div>
+        </div>    
+        <div class="datepicker" style="line-height:100%">
+            <i class="arrow fa fa-arrow-left" onclick="updateDonut(-1)"></i>
+            <b id="donutdate" style="font-size:24px;font-family:Dosis"></b>
+            <i class="arrow fa fa-arrow-right" onclick="updateDonut(1)"></i>
+        </div>   
     </div>
 </div>
 
 </body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="../js/commonfuncs.js"></script>
-
-<script>
-"use strict";
-var currentmini = 0,
-    currentcookie = 0,
-    currentbunches = 0,
-    currentdonut = 0,
-    maxindex = 0;
-var keytypes = {
-    "story": ["create_story","comment_story"],
-    "listing": ["create_listing","comment_listing"],
-    "transaction": ["transaction"],
-    "social": ["conversation"]
-    };
-var mykeys = ["social","story","transaction","listing"];
-var range = ["#a6cee3","#1f78b4","#b2df8a","#33a02c"];
-var brightrange = [d3.rgb("#a6cee3").brighter(0.3),
-                   d3.rgb("#1f78b4").brighter(0.3),
-                   d3.rgb("#b2df8a").brighter(0.3),
-                   d3.rgb("#33a02c").brighter(0.3)];
-var nodetypes = ["commoner","story","listing"];
-var noderange = ["#33a02c","#1f78b4","purple"];
-var nodecolor = d3.scaleOrdinal()
-                  .domain(nodetypes)
-                  .range(noderange);
-var color = d3.scaleOrdinal() // D3 Version 4
-              .domain(mykeys)
-              .range(range);
-var brightercolor = d3.scaleOrdinal()
-                      .domain(mykeys)
-                      .range(brightrange);
-var parseTime = d3.timeParse("%Y/%m/%d");
-var tooltipFormat = d3.timeFormat("%b %d");
-var urlParams = new URLSearchParams(window.location.search);
-var userid = urlParams.get("userid"); 
-
-var data = {};
-var node_data = {};
-var graph_data = {};
-var numticks = 0;
-
-function updateDonut(value){
-    if(value === -1){
-        if(currentdonut === maxindex-1){
-            return;
-        }
-        currentdonut++;
-    }
-    else{
-        if(currentdonut === 0){
-            return;
-        }
-        currentdonut --;
-    }
-    plotdonut(graph_data[currentdonut],node_data[currentdonut]);
-    $("#donutdate").text(getDateText(node_data[currentdonut]));
-}
-function updateCookie(value){
-    if(value == -1){
-        if(currentcookie == maxindex-1){
-            return;
-        }
-        currentcookie++;
-    }
-    else{
-        if(currentcookie == 0){
-            return;
-        }
-        currentcookie --;
-    }
-    plotcookie(graph_data[currentcookie],node_data[currentcookie]);
-    $("#cookiedate").text(getDateText(node_data[currentcookie]));
-}
-function updateBunches(value){
-    if(value == -1){
-        if(currentbunches == maxindex-1){
-            return;
-        }
-        currentbunches++;
-    }
-    else{
-        if(currentbunches == 0){
-            return;
-        }
-        currentbunches --;
-    }
-    plotbunches(graph_data[currentbunches]);
-    $("#bunchesdate").text(getDateText(node_data[currentbunches]));
-}
-
-function findNode(node) {
-    return node.id == userid;
-}
-
-d3.json("../data/output/userdata/" + userid + ".json", function (results) {
-    data = results;
-    results.forEach(function(fortnight){
-        node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
-        node_data[fortnight].date = parseTime(node_data[fortnight].date);
-        graph_data[fortnight] = results[fortnight];
-
-        plotcookie(graph_data[fortnight],node_data[fortnight]);
-        plotdonut(graph_data[fortnight],node_data[fortnight]);
-        plotbunches(graph_data[fortnight]);
-        maxindex++;
-    });
-    numticks = results.length;
-    plotcookie(graph_data[0],node_data[0]);
-    plotbunches(graph_data[0]);
-    plotdonut(graph_data[0],node_data[0]);
-    $('#donutdate').text(getDateText(node_data[currentdonut]));
-    $('#cookiedate').text(getDateText(node_data[currentcookie]));
-    $('#bunchesdate').text(getDateText(node_data[currentbunches]));
-
-});
-</script>
-<script src="../js/cookie.js"></script>
-<script src="../js/bunches.js"></script>
+<script src="../js/commonvariables.js"></script>
 <script src="../js/donut.js"></script>
