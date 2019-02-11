@@ -355,7 +355,7 @@ def make_dynamic_communities(core_G,communities,index):
             #Use Jaccard similarity to check for evolving communities
             for front in fronts:
                 similarity = jaccard(front,part)
-                if similarity >= 0.3: #Recommended threshold
+                if similarity >= 0.25: #Recommended threshold
                     matches.append(fronts.index(front))
             if len(matches) == 0: #No match community? Make new one    
                 communities.append([index,part])

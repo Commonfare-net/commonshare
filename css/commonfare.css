@@ -1,17 +1,75 @@
-/*Legend stuff */
-  .legend {
+/*Donut styling*/
+#core_text{
+    font-size: 70px;
+    display: block;
+}
+
+#return_text{
+    font-size: 20px;
+}
+
+.textpath{
+    text-anchor: middle;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#donut_description{
+    justify-content: center; 
+    align-items: center;
+    text-align: center;
+    font-size:16px    
+}
+
+/*Line graph styling*/
+#commonshare_line {
+	stroke: #E7472E;
+	stroke-width: 3px;
+	fill: none;
+}
+#commonshare_circle {
+  fill: #E7472E; 
+}	
+
+#commonshare_text{
+  font-weight: bold;
+  text-anchor: middle;
+  fill: #E7472E;
+  font-size: 20px;
+  font-family: 'Dosis', sans-serif;
+}
+
+.axis path, .axis line {
+	fill: none;
+    stroke: #C4C4C4;
+	shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-size: 14px;
+}
+
+.legend {
     font-size: 16px;
-  }
-  rect {
-    stroke-width: 2;
-  }
-  h6 { 
-  color: black;
-  font-family: 'Lato', sans-serif; 
-  font-size: 16px; 
-  font-weight: bold;  
-  margin: 0 0; 
-  width: 400px;
+}
+
+div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  padding: 2px;             
+  font-size: 14px;        
+  background: white;   
+  border-width: 2px;      
+  border-radius: 8px;
+  border-style: solid;
+  border-color: #E7472E;  
+  pointer-events: none;         
+}
+
+/*Remaining CSS for admin dashboard etc*/
+.infodiv{
+  width: 200px;
+  overflow-wrap: break-word;
 }
 #bigvis{
     float:left;
@@ -42,6 +100,10 @@
     margin-top:-10px;
     overflow:visible   
 }
+.captureoverlay{
+    fill:none;
+    pointer-events:all;
+}
 .overlay {
   display: flex;
   justify-content: center;
@@ -50,8 +112,8 @@
   position:absolute;
   width:100%;
   margin: auto auto;
-  height: 75%;
-  top:0;
+  /*height: 75%;*/
+  top:50;
   left:0;
   pointer-events:none;
   font-family:'Dosis';
@@ -185,22 +247,7 @@ h5 {
   fill: none;
   stroke: black;
 }
-.axis path, .axis line {
-	fill: none;
-    stroke: #C4C4C4;
-	shape-rendering: crispEdges;
-}
 
-.axis text {
-   font-size: 14px;
-}
-
-.mypath {
-	stroke: #E7472E;
-	stroke-width: 1.5px;
-	fill: none;
-}
-		
 .lineDots {
 	fill: #E7472E;
 }
@@ -212,19 +259,7 @@ h5 {
 .links {
     stroke-width: 1px;
 }
-div.tooltip {   
-  position: absolute;           
-  text-align: center;           
-  padding: 2px;             
-  font-size: 14px;        
-  background: lightsteelblue;   
-  border: 0px;      
-  border-radius: 8px;           
-  pointer-events: none;         
-}
-div.tooltip > svg {
-  pointer-events: auto;
-}
+
 div.transaction {
   content:url(images/transaction.png);
     position: absolute;           
