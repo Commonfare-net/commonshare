@@ -274,6 +274,10 @@ function plotsimpleline(user) {
 	.attr('x', legendRectSize / 2 + legendSpacing)
 	.attr('y', legendRectSize / 2 - legendSpacing)
 	.text(function (d) {
+        if (lang == "hr")
+			return croatiantranslate(d);
+		if (lang == "it")
+			return italiantranslate(d);
 		return d;
 	});
 
@@ -377,23 +381,54 @@ function plotsimpleline(user) {
 			.style("opacity", 1);
             console.log(d1);
             var toolTipText = "";
+            
             if('create_story' in d1 && d1.create_story.length > 0){
-                toolTipText += "Stories written: " + d1.create_story.length + "</br>";
+                if (lang == "hr")
+					toolTipText += "broj stvorenih priča: " + d1.create_story.length + "</br>";
+                else if (lang == "it")
+                    toolTipText += "storie create: " + d1.create_story.length + "</br>";
+                else
+                    toolTipText += "Stories written: " + d1.create_story.length + "</br>";
             }
             if('create_listing' in d1 && d1.create_listing.length > 0){
-                toolTipText += "Listings created: " + d1.create_listing.length + "</br>";                
+                 if (lang == "hr")
+					toolTipText +=  "broj unesenih unosa: " +  d1.create_listing.length + "</br>";
+                 else if (lang == "it")
+                    toolTipText +=  "inserzioni creati: " +  d1.create_listing.length + "</br>";
+                 else 
+                    toolTipText += "Listings created: " + d1.create_listing.length + "</br>";                
             }
             if('comment_story' in d1 && d1.comment_story.length > 0){
-                toolTipText += "Story comments: " + d1.comment_story.length + "</br>";                
+                 if (lang == "hr")
+					toolTipText +=  "komentari na priče: " +  d1.comment_story.length + "</br>";
+                 else if (lang == "it")
+                    toolTipText +=  "commenti di storia: " +  d1.comment_story.length + "</br>";
+                 else 
+                    toolTipText += "Story comments: " + d1.comment_story.length + "</br>";                
             }
             if('comment_listing' in d1 && d1.comment_listing.length > 0){
-                toolTipText += "Listing comments: " + d1.comment_listing.length + "</br>";                
+                 if (lang == "hr")
+					toolTipText +=  "komentari na unosi: " +  d1.comment_listing.length + "</br>";
+                 else if (lang == "it")
+                    toolTipText +=  "commenti inserzioni: " +  d1.comment_listing.length + "</br>";
+                 else 
+                    toolTipText += "Listing comments: " + d1.comment_listing.length + "</br>";                
             }
             if('conversation' in d1 && d1.conversation.length > 0){
-                toolTipText += "Conversations: " + d1.conversation.length + "</br>";                
+                 if (lang == "hr")
+					toolTipText +=  "razgovori: " +  d1.conversation.length + "</br>";
+                 else if (lang == "it")
+                    toolTipText +=  "conversazioni: " +  d1.conversation.length + "</br>";
+                 else 
+                    toolTipText += "Conversations: " + d1.conversation.length + "</br>";                
             }
             if('transaction' in d1 && d1.transaction.length > 0){
-                toolTipText += "Transactions: " + d1.transaction.length + "</br>";                
+                 if (lang == "hr")
+					toolTipText +=  "transkacije: " +  d1.transaction.length + "</br>";
+                 else if (lang == "it")
+                    toolTipText +=  "transazioni: " +  d1.transaction.length + "</br>";
+                 else                              
+                    toolTipText += "Transactions: " + d1.transaction.length + "</br>";                
             }
             tooltip_div.html(toolTipText)
 				.style("left", (xt(d1.date) + margin.left + 30 + chart_position.x) + "px")

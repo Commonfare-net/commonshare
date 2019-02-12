@@ -218,23 +218,51 @@ function makechildarcs(piesegments) {
             console.log(d);
 			$("#donut_description").html(function(){
                 if('transaction' in d.data){
-                    return "Transactions with this commoner: " + d.data.transaction.length;
+                    if(lang=="hr")
+                        return "transakcije s tom commoner: " + d.data.transaction.length;
+                    else if(lang=="it")
+                        return "transazioni con questo commoner: " + d.data.transaction.length;
+                    return "transactions with this commoner: " + d.data.transaction.length;
                 }
                 else if('conversation' in d.data){
-                    return "Conversation with " + d.data.name;
+                    if(lang=="hr")
+                        return "razgovr s " + d.data.name;
+                    else if(lang=="it")
+                        return "conversazione con" + d.data.name;
+                    return "conversation with " + d.data.name;
                 }
                 var returntext = "<b>"+d.data.name + "</b></br>";
                 if('create_story' in d.data && d.data.create_story.length > 0){
-                   returntext += "Wrote this story</br>";
+                   if(lang=="hr")
+                       returntext += "napisao je ovu priču</br>";
+                   else if(lang=="it")
+                       returntext += "scritto questa storia</br>";
+                   else
+                       returntext += "wrote this story</br>";
                 }
                 if('create_listing' in d.data && d.data.create_listing.length > 0){
-                    returntext += "Created this listing</br>";
+                   if(lang=="hr")
+                       returntext += "izradio je ovaj unos</br>";
+                   else if(lang=="it")
+                       returntext += "creato questo inserzione</br>";
+                   else
+                       returntext += "created this listing</br>";
                 }
                 if('comment_story' in d.data && d.data.comment_story.length > 0){
-                    returntext += "Received " + d.data.comment_story.length + " comments on this story";
+                   if(lang=="hr")
+                       returntext += "komentari na priče: " + d.data.comment_story.length;
+                   else if(lang=="it")
+                       returntext += "commenti di storia: " + d.data.comment_story.length;
+                   else
+                    returntext += "received " + d.data.comment_story.length + " comments on this story";
                 }
                 if('comment_listing' in d.data && d.data.comment_listing.length > 0){
-                    returntext += "Received " + d.data.comment_listing.length + " comments on this listing";
+                   if(lang=="hr")
+                       returntext += "komentari na unosi: " + d.data.comment_listing.length;
+                   else if(lang=="it")
+                       returntext += "commenti inserzioni: " + d.data.comment_listing.length;
+                   else
+                    returntext += "received " + d.data.comment_listing.length + " comments on this listing";
                 }
                 return returntext;
             });
@@ -374,7 +402,6 @@ function makearcs(piesegments) {
 					});
 				}
 			};
-			//var descwidth = $("#desc").outerWidth(true);
 		})
 		.on("mouseout", function (d) {
 			d3.select(this).style("filter", "");
@@ -476,6 +503,10 @@ function plotdonut(graphdata, mydata) {
 	kcoretext.text(function(){
      if(mydata.kcore == "0"){
          kcoretext.style('font-size','16px');
+         if(lang=="hr")
+             return "nema vidljive aktivnosti";
+         else if(lang=="it")
+             return "nessuna attività visibile";
          return "No visible activity";
      }
      kcoretext.style('font-size','70px');
