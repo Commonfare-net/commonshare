@@ -226,7 +226,7 @@ div.tooltip {
   color: var(--cf-green);
 }
 #donutdate {
-  width: 200px;
+  width: 180px;
   font-size: 24px;
   font-family: "Asap";
 }
@@ -238,10 +238,10 @@ div.tooltip {
   background-repeat: no-repeat;
 }
 .arrow-left {
-  background-image: url('../html/icons/arrow_left.svg');
+  background-image: url('../html/icons/leftarrow.png');
 }
 .arrow-right {
-  background-image: url('../html/icons/arrow_right.svg');
+  background-image: url('../html/icons/rightarrow.png');
 }
 .arrow:hover{
   cursor: pointer;
