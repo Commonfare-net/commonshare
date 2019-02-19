@@ -1,3 +1,13 @@
+// Calculate initialwidth
+var boxWidth = $("#linechartdiv").innerWidth();
+$("#linechart").attr("width", boxWidth);
+
+$(window).resize(function() {
+	boxWidth = $("#linechartdiv").innerWidth();
+	$("#linechart").attr("width", boxWidth);
+
+})
+
 function plotsimpleline(user) {
 	$("#linechart").bind("wheel mousewheel", function (e) {
 		e.preventDefault()
@@ -11,7 +21,7 @@ function plotsimpleline(user) {
 	var margin = {
 		top: 50,
 		right: 20,
-		bottom: 70,
+		bottom: 150,
 		left: 50
 	},
 	chart = d3.select("#linechart"),
@@ -232,20 +242,20 @@ function plotsimpleline(user) {
         .attr("class", "axis")
         .call(d3.axisLeft(y).ticks(4).tickSize(-chartwidth))
         .append("text")
-        .attr("fill", "#000")
+        .attr("fill", "var(--cf-green)")
         .attr("transform", "rotate(-90)")
         .attr("y", -10)
         .attr("x", 0)
         .attr("dy", "-1em")
         .attr("text-anchor", "end")
         .text("Commonshare")
-        .style("font-size", "20px");
+        .style("font-size", "14px")
       
 
     //Styling and positioning of the legend
 	//Adapted from http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
-	var legendRectSize = 18;
-	var legendSpacing = 4;
+	var legendRectSize = 15;
+	var legendSpacing = 6;
 	var opacity = 1;
 	var legend = chartg.selectAll(".legend")
 		.data(color.domain())
@@ -267,12 +277,14 @@ function plotsimpleline(user) {
 
 	legend.append('circle')
 	.attr('r', legendRectSize / 2)
-	.style('fill', color)
-	.style('stroke', color);
+	// .style('fill', color)
+	.style('fill', 'none')
+	.style('stroke', color)
+	.style('stroke-width', 2);
 
 	legend.append('text')
 	.attr('x', legendRectSize / 2 + legendSpacing)
-	.attr('y', legendRectSize / 2 - legendSpacing)
+	.attr('y', legendRectSize / 1.4 - legendSpacing)
 	.text(function (d) {
         if (lang == "hr")
 			return croatiantranslate(d);
@@ -283,7 +295,7 @@ function plotsimpleline(user) {
 
 	legend.attr('xpos', function (d, i) {
 		var element = d3.select(this).node();
-		var elementwidth = 250;
+		var elementwidth = 240;
 		var width = legendRectSize + legendSpacing;
 		var horz = 50 + elementwidth * i;
 		return horz;
@@ -291,10 +303,13 @@ function plotsimpleline(user) {
 	legend.attr('ypos', 275);
 	legend.attr('transform', function (d, i) {
 		var element = d3.select(this).node();
-		var elementwidth = 250;
+		var elementwidth = 240;
 		var width = legendRectSize + legendSpacing;
-		var horz = 50 + elementwidth * i;
-		var vert = 275;
+		// var horz = 5 + elementwidth * i;
+		// var vert = 275;
+		var horz = 5 + i%2 * elementwidth;
+		console.log(i%2 * elementwidth);
+		var vert = 295 + parseInt(i/2) * 35;
 		return 'translate(' + (horz) + ',' + vert + ')';
 	});
 

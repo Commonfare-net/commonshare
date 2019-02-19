@@ -1,42 +1,72 @@
-/*Donut styling*/
-#core_text{
-    font-size: 70px;
-    display: block;
+:root {
+  --cf-green: #488580;
+  --cf-orange: #E7472E;
 }
 
-#return_text{
-    font-size: 20px;
+/*Wrapping box style*/
+.box-wrap {
+  background-color: #eff4f3;
+  border-radius: 10px;
+  min-height: 520px;
+  padding: 25px;
+}
+.box-wrap h3 {
+  margin: 0;
+  font-family: 'Asap';
+}
+
+/*Donut styling*/
+#core_text {
+  font-size: 70px;
+  display: block;
+  fill: var(--cf-orange) !important;
+}
+
+#return_text {
+  fill: var(--cf-green) !important;
+  font-size: 16px;
+}
+
+#return_text:hover {
+  fill: black !important;
 }
 
 .textpath{
-    text-anchor: middle;
-    font-size: 18px;
-    font-weight: bold;
+  fill: var(--cf-green) !important;
+  text-anchor: middle;
+  font-size: 14px;
+  letter-spacing: -0.045em;
 }
 
 #donut_description{
-    justify-content: center; 
-    align-items: center;
-    text-align: center;
-    font-size:16px    
+  /*justify-content: center; */
+  /*align-items: center;*/
+  /*text-align: center;*/
+  font-family: 'Asap';
+  font-size: 14px;
+  color: var(--cf-green);
+  margin-top: 1em;
+}
+#donut {
+  font-family: 'Asap';
 }
 
 /*Line graph styling*/
 #commonshare_line {
-	stroke: #E7472E;
+	stroke: var(--cf-orange);
 	stroke-width: 3px;
 	fill: none;
 }
 #commonshare_circle {
-  fill: #E7472E; 
+  fill: var(--cf-orange);
 }	
 
 #commonshare_text{
   font-weight: bold;
   text-anchor: middle;
-  fill: #E7472E;
+  fill: var(--cf-orange) !important;
   font-size: 20px;
-  font-family: 'Dosis', sans-serif;
+  font-family: 'Asap', sans-serif;
 }
 
 .axis path, .axis line {
@@ -45,8 +75,8 @@
 	shape-rendering: crispEdges;
 }
 
-.axis text {
-    font-size: 14px;
+text {
+  font-size: 14px;
 }
 
 .legend {
@@ -55,15 +85,16 @@
 
 div.tooltip {   
   position: absolute;           
-  text-align: center;           
-  padding: 2px;             
+  padding: 2px 8px;
+  font-family: 'Asap', sans-serif;
   font-size: 14px;        
-  background: white;   
-  border-width: 2px;      
+  background: white;
   border-radius: 8px;
+  /*box-shadow: 0px 0px 3px 1px var(--cf-green);*/
+  border-width: 2px;
   border-style: solid;
-  border-color: #E7472E;  
-  pointer-events: none;         
+  border-color: #E7472E;
+  pointer-events: none;
 }
 
 /*Remaining CSS for admin dashboard etc*/
@@ -116,7 +147,7 @@ div.tooltip {
   top:50;
   left:0;
   pointer-events:none;
-  font-family:'Dosis';
+  font-family: 'Asap';
   font-size:16px  
 }
 
@@ -186,19 +217,34 @@ div.tooltip {
     right:-5px
 }
 .datepicker{
-    display: block;
-    width:auto;
-    vertical-align:middle;
-        font-size:40px;
-
+  width: auto;
+  display: flex;
+  justify-content: center;
+  vertical-align: middle;
+  font-size: 40px;
+  line-height: 1em;
+  color: var(--cf-green);
 }
-.arrow{
-    vertical-align:middle;
-    color:red;
+#donutdate {
+  width: 200px;
+  font-size: 24px;
+  font-family: "Asap";
+}
+.arrow {
+  width: 32px;
+  height: 38px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.arrow-left {
+  background-image: url('../html/icons/arrow_left.svg');
+}
+.arrow-right {
+  background-image: url('../html/icons/arrow_right.svg');
 }
 .arrow:hover{
-    text-shadow: 2px 2px 5px red;
-    cursor: pointer;
+  cursor: pointer;
 }
 .minicharts {
   display: inline-block;
@@ -217,12 +263,15 @@ div.tooltip {
   stroke-opacity: 0.6;
 }
 
-body {
-  font-family: Helvetica;
+html, g {
+  font-family: 'Asap', Helvetica;
 }
+text {
+  fill: var(--cf-green) !important;
+}
+
 h1 { 
   color: black;
-  font-family: 'Lato', sans-serif; 
   font-size: 54px; 
   font-weight: 300; 
   line-height: 58px; 

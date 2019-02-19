@@ -3,26 +3,42 @@
 <head>
 <link rel="stylesheet" type="text/css" href="../css/commonfare.css">
 <link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
-<link href="https://fonts.googleapis.com/css?family=Dosis:800" rel="stylesheet">
+<!-- <link href="https://fonts.googleapis.com/css?family=Dosis:800" rel="stylesheet"> -->
+<link href="https://fonts.googleapis.com/css?family=Asap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-<div style="width: 100%; text-align:center;">
-    <div style="text-align:center;display:block;width:auto;position:relative;margin:0px 30px 5px 30px;">
-        <svg id="donut" width="240" height="240"></svg>
-        <div id="donut_description"></div>    
-        <div class="datepicker" style="line-height:100%">
-            <i class="arrow fa fa-arrow-left" onclick="updateDonut(-1)"></i>
-            <b id="donutdate" style="font-size:24px;font-family:Dosis"></b>
-            <i class="arrow fa fa-arrow-right" onclick="updateDonut(1)"></i>
-        </div>   
+
+<main style="width: 1080px; margin: 2em auto;">
+
+  <div class="row">
+    <div class="col col-lg-4">
+      <div class="box-wrap">
+        <h3>Two weeks</h3>
+        <div class="graph text-center" style="padding: 2em 0 0;">
+          <svg id="donut" width="240" height="240"></svg>
+          <div class="datepicker">
+            <i class="arrow arrow-left" onclick="updateDonut(-1)"></i>
+            <p id="donutdate"></p>
+            <i class="arrow arrow-right" onclick="updateDonut(1)"></i>
+          </div>   
+        </div>
+        <div id="donut_description"></div>
+      </div>
     </div>
-</div>
-<div style="width: 100%; text-align:center;">
-    <div id="linechartdiv">
-        <svg id="linechart" width="1000" height="350"></svg>
+    <div class="col col-lg-8">
+      <div class="box-wrap">
+        <h3>Over time</h3>
+        <div class="graph">
+          <div id="linechartdiv">
+            <svg id="linechart" width="1000" height="420"></svg>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+
+</main>
 
 </body>
 <script src="https://d3js.org/d3.v4.min.js"></script>

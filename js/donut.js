@@ -509,7 +509,9 @@ function plotdonut(graphdata, mydata) {
              return "nessuna attività visibile";
          return "No visible activity";
      }
-     kcoretext.style('font-size','70px');
+     kcoretext.style('font-size','60px');
+     kcoretext.style('fill','var(--cf-green)');
+     kcoretext.style('font-weight','700');
      return mydata.kcore;   
     });
     positionCommonshareText();
@@ -555,7 +557,7 @@ function plotdonut(graphdata, mydata) {
 		d3.select(this).style("fill", "#E7472E");
 	})
 	.on("mouseout", function (d) {
-		d3.select(this).style("fill", "black");
+		d3.select(this).style("fill", "var(--cf-green)");
 	})
 	.on("click", function (d) {
 		donut_labels

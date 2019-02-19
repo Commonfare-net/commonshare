@@ -6,7 +6,7 @@ var drawn = {};
 var keys = ['social', 'story', 'transaction', 'listing'];
 var color = d3.scaleOrdinal() // D3 Version 4
 	.domain(keys)
-	.range(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c']);
+	.range(['#3ab2e3', '#7245ba', '#a2d733', '#e04776']);
 var mykeys = [];
 
 var prettyKeys = {
@@ -25,7 +25,7 @@ var parseTime = d3.timeParse("%Y/%m/%d");
 
 //Various date formats
 var formatDate = d3.timeFormat("%Y/%m/%d");
-var tickf = d3.timeFormat("%b'%y");
+var tickf = d3.timeFormat("%b\n%y");
 var ttf = d3.timeFormat("%b %d");
 
 var urlParams = new URLSearchParams(window.location.search);
