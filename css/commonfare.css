@@ -41,9 +41,9 @@
 #donut_description{
   /*justify-content: center; */
   /*align-items: center;*/
-  /*text-align: center;*/
+  text-align: center;
   font-family: 'Asap';
-  font-size: 14px;
+  font-size: 16px;
   color: var(--cf-green);
   margin-top: 1em;
 }
@@ -267,7 +267,7 @@ html, g {
   font-family: 'Asap', Helvetica;
 }
 text {
-  fill: var(--cf-green) !important;
+  fill: var(--cf-green) /*!important*/;
 }
 
 h1 { 

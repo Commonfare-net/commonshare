@@ -176,15 +176,11 @@ function plotsimpleline(user) {
 			})
 		]);
 	y.domain([
-			d3.min(avgdata_list, function (c) {
-				return d3.min(c.values, function (d) {
-					return d.total;
-				});
+			d3.min(kcorelist, function (d) {
+					return d.kcore;
 			}),
-			d3.max(avgdata_list, function (c) {
-				return d3.max(c.values, function (d) {
-					return d.total;
-				});
+			d3.max(kcorelist, function (d) {
+					return d.kcore;
 			})
 		]);
 
@@ -326,11 +322,11 @@ function plotsimpleline(user) {
 	function legendclick(d) {
 		if (d3.selectAll("." + d).style("visibility") == "visible") {
 			d3.selectAll("." + d).style("visibility", "hidden");
-			d3.selectAll(".mydot" + d).style("visibility", "hidden");
+			d3.selectAll("#metacircle_" + d).style("visibility", "hidden");
 			opacity = 0.5;
 		} else {
 			d3.selectAll("." + d).style("visibility", "visible");
-			d3.selectAll(".mydot" + d).style("visibility", "visible");
+			d3.selectAll("#metacircle_" + d).style("visibility", "visible");
 			opacity = 1;
 		}
 	}
@@ -343,6 +339,7 @@ function plotsimpleline(user) {
 	.enter()
 	.append("circle")
 	.attr("class", "metacircles")
+    .attr("id",function(d){return "metacircle_"+d})
 	.attr("r", 4)
 	.style("fill", function (d) {
 		return color(d)
@@ -382,6 +379,9 @@ function plotsimpleline(user) {
         
         //Position the story/social etc. circles 
 		d1 = node_data[i];
+        //I wonder if this will update the donut
+        currentdonut = i;
+        plotdonut(graph_data[i],node_data[i]);
 		d3.selectAll(".metacircles")
 		.attr("cx", xt(d1.date) + margin.left + 20)
 		.attr("cy", function (d) {

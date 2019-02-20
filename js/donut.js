@@ -12,6 +12,9 @@ var pie = d3.pie()
 var arc = d3.arc()
 	.outerRadius(90)
 	.innerRadius(70);
+var biggerarc = d3.arc()
+    .outerRadius(120)
+    .innerRadius(100);
 var defs = chart.append("defs");
 
 var myReturnText;
@@ -41,9 +44,11 @@ var arcs = chartg.selectAll(".arc");
 var donut_labels = chartg.selectAll(".donutText");
 var kcoretext = chartg.append("text")
 	.attr("id", "core_text");
-var returntext = chartg.append("text")
+var returntext = chart.append("text")
     .attr("id","return_text")
-    .text(myReturnText);
+    .text(myReturnText)
+    .style("font-size","20px");
+var bunchg = chart.append("g").attr('class', 'bunchpack');
 
 d3.selectAll(".textpath")
 .attr("xlink:href", function (d, i) {
@@ -51,7 +56,7 @@ d3.selectAll(".textpath")
 })
 
 var width = 240,
-height = 240;
+height = 280;
 var donutParent;
 
 function updateDonut(value) {
@@ -62,7 +67,6 @@ function updateDonut(value) {
 	}
 	plotdonut(graph_data[currentdonut], node_data[currentdonut]);
     $('#donut_description').html('');
-	$('#donutdate').text(getDateText(node_data[currentdonut]));
 }
 
 function getDateText(d) {
@@ -188,27 +192,61 @@ function arcMaths(d, i) {
         .style("fill", "none");
 }
 function makechildarcs(piesegments) {
+    console.log(piesegments);
 	arcs = arcs.data(pie(piesegments));
 	arcs.exit().remove();
 	d3.selectAll(".hiddenDonutArcs").remove();
-	d3.selectAll(".arcimage").remove()
-	var oldhtml;
-	arcs = arcs.enter().append("path")
+	//All this does now is make a nice coloured circle.
+    //There is surely an easier way but it doesn't really matter.
+    arcs = arcs.enter().append("path")
 		.attr("id", function (d, i) {
 			return "monthArc_" + i;
 		})
 		.attr("class", "arc")
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 		.merge(arcs)
-		.attr("d", arc)
+		.attr("d",arc)
 		.each(arcMaths)
 		.style("fill", color(donutParent))
-		.style("stroke", "white")
-		.style("stroke-width", "3")
-		
-        //GIANLUCA this changes what happens when the mouse is hovered over the 
-        //arc of a particular story/user/etc. 
-        .on("mouseover", function (d) {
+        .style("filter", "") 
+        .on("mouseover",null)
+		.on("mouseout",null)
+        .on("click",null);
+        
+        arcs.transition()
+        .duration(500)
+        .attr("d", biggerarc);
+    var bubble = d3.pack()
+        .size([width-40, height-40])
+        .padding(1.5);
+    var data = {"children":piesegments};
+    var root = d3.hierarchy(data)
+       .sum(function(d) { return d.value ? d.value : 1; });
+       
+    console.log(root);
+    bubble(root); 
+        
+     var node = chartg.selectAll(".node")
+        .data(root.children)
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) {
+            console.log(d);
+            return "translate(" + (d.x+20) + "," + (d.y+20) + ")";
+        });    
+        
+      node.append("circle")
+      .attr("fill",color(donutParent))
+      .attr("stroke",function(d){
+          //highlight those created
+          if(('create_story' in d.data && d.data.create_story.length > 0) ||
+            ('create_listing' in d.data && d.data.create_listing.length > 0))
+                return 'yellow';
+          return 'white';
+      })
+      .attr("stroke-width","2px")
+      .on("mouseover", function (d) {
 			d3.select(this)
             .style("cursor", "pointer")
             .style("filter", "url(#glow)");
@@ -217,7 +255,7 @@ function makechildarcs(piesegments) {
             console.log(d.data);
             console.log(d);
 			$("#donut_description").html(function(){
-                if('transaction' in d.data){
+                if('transaction' in d.data && donutParent == "transaction"){
                     if(lang=="hr")
                         return "transakcije s tom commoner: " + d.data.transaction.length;
                     else if(lang=="it")
@@ -276,52 +314,30 @@ function makechildarcs(piesegments) {
 		.on("click", function (d) {
 			//In theory could link to the story/commoner/listing in question here
             //by using their ID. 
-		});
-	arcs.each(function (d) {
-		//Here is some maths to figure out where it goes
-		var centrex = 120,
-		centrey = 120;
-		var angle1 = d.startAngle;
-		var angle2 = d.endAngle;
-		var angle = (((angle1 + angle2) * (180 / Math.PI)) / 2) * (Math.PI / 180);
-		var ypos = centrey + (-Math.cos(angle) * 80);
-		var xpos = centrex + Math.sin(angle) * 80;
-		var circleg = chartg.append("g").attr("class", "arcimage")
-			.attr("transform", "translate(" + xpos + "," + ypos + ")")
-			.style("pointer-events", "none");
-            
-            
-		//GIANLUCA styling and images for donut circles
-        circleg.append("circle")
-		.attr("r", 15)
-		.style("fill", "white")
-		.style("stroke-width", "3px")
-		.style("stroke", color(d.data.edgemeta[0]));
-		circleg.append("svg:image")
-		.attr('class', 'donutimage')
-		.attr('x', -10)
-		.attr('y', -10)
-		.attr('width', 20)
-		.attr('height', 20)
-		.attr("xlink:href", function () {
-			var actiontype = d.data.children[0][0];
-			if (actiontype == 'create_story')
-				return "icons/authorstory.png";
-			if (actiontype == 'create_listing')
-				return "icons/authorlisting.png";
-			if (actiontype == 'comment_story')
-				return "icons/commentstory.png";
-			if (actiontype == 'comment_listing')
-				return "icons/commentlisting.png";
-			if (donutParent == 'transaction')
-				return "icons/transaction.png";
-			if (donutParent == 'social')
-				return "icons/conversation.png";
-		});
-	});
+		})
+      .transition()
+      .duration(500)
+        .attr("r", function(d) {return d.r;})
+        
+        
+      node.append("text")
+      .attr("dy", ".3em")
+      .style("text-anchor", "middle")
+      .style("fill",function(d){
+          //highlight those created
+          if(('create_story' in d.data && d.data.create_story.length > 0) ||
+            ('create_listing' in d.data && d.data.create_listing.length > 0))
+                return 'yellow';
+          return 'white';
+      })
+      .style("pointer-events","none")
+      .style("font-size",function(d){return (d.r)+ "px"})
+      .text(function(d) {if(donutParent == "transaction")return "cc"; return d.data.name.substr(0,2)});
 }
 
 function makearcs(piesegments) {
+    d3.selectAll(".node")
+    .remove();
 	arcs = arcs.data(pie(piesegments));
 	arcs.exit().remove();
 	d3.selectAll(".hiddenDonutArcs").remove();
@@ -347,61 +363,7 @@ function makearcs(piesegments) {
 		.on("mouseover", function (d) {
 			d3.select(this).style("cursor", "pointer")
                 .style("filter", "url(#glow)");
-			donutParent = d.data.name;
-			var create_story = 0,
-			comment_story = 0,
-			create_listing = 0,
-			comment_listing = 0,
-			conversation = 0,
-			transaction = 0;
-			for (var i = 0; i < d.data.children.length; i++) {
-				var childdata = d.data.children[i];
-				if (donutParent == 'story') {
-					if (childdata['create_story'] != undefined)
-						create_story += childdata['create_story'].length;
-					if (childdata['comment_story'] != undefined)
-						comment_story += childdata['comment_story'].length;
-					$("#donut_description").html(function () {
-						if (lang == "hr")
-							return "broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story;
-						if (lang == "it")
-							return "storie create: " + create_story + "</br>commenti di storia: " + comment_story;
-						return "Stories created: " + create_story + "</br>Story comments: " + comment_story;
-					});
-				} else if (donutParent == 'listing') {
-					if (childdata['create_listing'] != undefined)
-						create_listing += childdata['create_listing'].length;
-					if (childdata['comment_listing'] != undefined)
-						comment_listing += childdata['comment_listing'].length;
-					$("#donut_description").html(function () {
-						if (lang == "hr")
-							return "broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing;
-						if (lang == "it")
-							return "inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing;
-						return "Listings created: " + create_listing + "</br>Listing comments: " + comment_listing;
-					});
-				} else if (donutParent == 'transaction') {
-					if (childdata['transaction'] != undefined)
-						transaction += childdata['transaction'].length;
-					$("#donut_description").html(function () {
-						if (lang == "hr")
-							return "transkacije: " + transaction;
-						if (lang == "it")
-							return "transazioni: " + transaction;
-						return "Transactions: " + transaction;
-					});
-				} else if (donutParent == 'social') {
-					if (childdata['conversation'] != undefined)
-						conversation += childdata['conversation'].length;
-					$("#donut_description").html(function () {
-						if (lang == "hr")
-							return "razgovori: " + conversation;
-						if (lang == "it")
-							return "conversazioni: " + conversation;
-						return "Conversations: " + conversation;
-					});
-				}
-			};
+			addInfoText(d);
 		})
 		.on("mouseout", function (d) {
 			d3.select(this).style("filter", "");
@@ -413,8 +375,83 @@ function makearcs(piesegments) {
 			positionReturnText();
 			makechildarcs(d.data.children);
 		});
+   $('.arc').off('touchstart');
+   $('.arc').on('touchstart',function(e){
+      e.preventDefault();
+      if($(this).attr("sel") == "true"){
+        d3.selectAll('.arc').style("filter","").attr("sel","false");  
+        donut_labels.style("visibility", "hidden");
+        positionReturnText();
+        makechildarcs(d3.select($(this)[0]).datum().data.children);  
+      }
+      else{
+        d3.selectAll('.arc').style("filter","").attr("sel","false");
+        $(this).attr("sel","true");
+        $(this).css("filter","url(#glow)");
+        addInfoText(d3.select($(this)[0]).datum());
+      }
+         $('.arc').off('touchstart');
+
+   });
 }
 
+function addInfoText(d){
+    donutParent = d.data.name;
+    var create_story = 0,
+    comment_story = 0,
+    create_listing = 0,
+    comment_listing = 0,
+    conversation = 0,
+    transaction = 0;
+    for (var i = 0; i < d.data.children.length; i++) {
+        var childdata = d.data.children[i];
+        if (donutParent == 'story') {
+            if (childdata['create_story'] != undefined)
+                create_story += childdata['create_story'].length;
+            if (childdata['comment_story'] != undefined)
+                comment_story += childdata['comment_story'].length;
+            $("#donut_description").html(function () {
+                if (lang == "hr")
+                    return "broj stvorenih priča: " + create_story + "</br>komentari na priče: " + comment_story;
+                if (lang == "it")
+                    return "storie create: " + create_story + "</br>commenti di storia: " + comment_story;
+                return "Stories created: " + create_story + "</br>Story comments: " + comment_story;
+            });
+        } else if (donutParent == 'listing') {
+            if (childdata['create_listing'] != undefined)
+                create_listing += childdata['create_listing'].length;
+            if (childdata['comment_listing'] != undefined)
+                comment_listing += childdata['comment_listing'].length;
+            $("#donut_description").html(function () {
+                if (lang == "hr")
+                    return "broj unesenih unosa: " + create_listing + "</br>komentari na unosi: " + comment_listing;
+                if (lang == "it")
+                    return "inserzioni creati: " + create_listing + "</br>commenti inserzioni: " + comment_listing;
+                return "Listings created: " + create_listing + "</br>Listing comments: " + comment_listing;
+            });
+        } else if (donutParent == 'transaction') {
+            if (childdata['transaction'] != undefined)
+                transaction += childdata['transaction'].length;
+            $("#donut_description").html(function () {
+                if (lang == "hr")
+                    return "transkacije: " + transaction;
+                if (lang == "it")
+                    return "transazioni: " + transaction;
+                return "Transactions: " + transaction;
+            });
+        } else if (donutParent == 'social') {
+            if (childdata['conversation'] != undefined)
+                conversation += childdata['conversation'].length;
+            $("#donut_description").html(function () {
+                if (lang == "hr")
+                    return "razgovori: " + conversation;
+                if (lang == "it")
+                    return "conversazioni: " + conversation;
+                return "Conversations: " + conversation;
+            });
+        }
+    };
+}
 function arcTween(a) {
 	delete this._current["data"];
 	delete a["data"];
@@ -446,7 +483,7 @@ function positionReturnText(){
 	var returnwidth = returntextnode.getBoundingClientRect().width;
 	var returnheight = returntextnode.getBoundingClientRect().height;
 	returntext.attr("transform", "translate(" + ((width / 2) - (returnwidth / 2)) +
-		"," + ((height / 2) + (returnheight / 4)) + ")");
+		",15)");
 }
  
 function italiantranslate(english) {
@@ -470,6 +507,7 @@ function croatiantranslate(english) {
 
 var original_segments;
 function plotdonut(graphdata, mydata) {
+	$('#donutdate').text(getDateText(mydata));
 
 	$("#donut").bind("wheel mousewheel", function (e) {
 		e.preventDefault()
@@ -551,6 +589,7 @@ function plotdonut(graphdata, mydata) {
 	});
 
 
+    
     //GIANLUCA Functions for what happens when mouse is over/out of 'return' text
 	returntext.on("mouseover", function (d) {
 		d3.select(this).style("cursor", "pointer");
