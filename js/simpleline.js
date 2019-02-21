@@ -2,22 +2,23 @@
 var boxWidth = $("#linechartdiv").innerWidth();
 $("#linechart").attr("width", boxWidth);
 
-$(window).resize(function() {
+$(window).resize(function () {
 	boxWidth = $("#linechartdiv").innerWidth();
 	$("#linechart").attr("width", boxWidth);
 
 })
 
 function plotsimpleline(user) {
-	$("#linechart").bind("wheel mousewheel", function (e) {
+    console.log("HOW MANY TIMES");
+	$("#linechart").on("wheel mousewheel", function (e) {
 		e.preventDefault()
 	});
 
-    //Tooltip functions from http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
-    var tooltip_div = d3.select("body").append("div")
-        .attr("class", "tooltip");
+	//http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html
+	var tooltip_div = d3.select("body").append("div")
+		.attr("class", "tooltip");
 
-    //Positioning of divs programmatically 
+	//Positioning of divs programmatically
 	var margin = {
 		top: 50,
 		right: 20,
@@ -51,8 +52,8 @@ function plotsimpleline(user) {
 	var currentMonthGap = 1;
 	var transform;
 
-    //Zooming and translation function 
-    //Repositions lines and adjusts x-axis tick spacing 
+	//Zooming and translation function
+	//Repositions lines and adjusts x-axis tick spacing
 	function zoomed() {
 		transform = d3.event.transform;
 		var xz = d3.event.transform.rescaleX(x);
@@ -99,7 +100,6 @@ function plotsimpleline(user) {
 	}
 
 	var line = d3.line()
-		//.curve(d3.curveMonotoneX)
 		.x(function (d) {
 			return x(d.date) + 20;
 		})
@@ -108,15 +108,13 @@ function plotsimpleline(user) {
 		});
 
 	var kcoreline = d3.line()
-		//.curve(d3.curveMonotoneX)
 		.x(function (d) {
 			return x(d.date) + 20;
 		})
 		.y(function (d) {
 			return y(d.kcore);
 		});
-        
-        
+
 	var kcorelist = []
 	var avg_total_object = []
 	for (var month in data) {
@@ -163,7 +161,7 @@ function plotsimpleline(user) {
 			};
 		});
 
-    x.domain([
+	x.domain([
 			d3.min(avgdata_list, function (c) {
 				return d3.min(c.values, function (d) {
 					return d.date;
@@ -177,10 +175,10 @@ function plotsimpleline(user) {
 		]);
 	y.domain([
 			d3.min(kcorelist, function (d) {
-					return d.kcore;
+				return d.kcore;
 			}),
 			d3.max(kcorelist, function (d) {
-					return d.kcore;
+				return d.kcore;
 			})
 		]);
 
@@ -213,7 +211,7 @@ function plotsimpleline(user) {
 		.attr("clip-path", "url(#clip)")
 		.attr("d", kcoreline);
 
-    //Clipping rectangle
+	//Clipping rectangle
 	var clip = chartg.append("clipPath")
 		.attr("id", "clip");
 	var clipRect = clip.append("rect")
@@ -221,7 +219,7 @@ function plotsimpleline(user) {
 		.attr("height", chart.attr("height"))
 		.attr("y", -10);
 
-    //X axis
+	//X axis
 	var xAxis = d3.axisBottom(x).tickFormat(tickf).ticks(d3.timeMonth.every(1));
 	var gX = chartg.append("g")
 		.attr("transform", "translate(0," + chartheight + ")")
@@ -233,28 +231,27 @@ function plotsimpleline(user) {
 		return "translate(" + (t + 20) + ",0)";
 	});
 
-    //Y axis
+	//Y axis
 	chartg.append("g")
-        .attr("class", "axis")
-        .call(d3.axisLeft(y).ticks(4).tickSize(-chartwidth))
-        .append("text")
-        .attr("fill", "var(--cf-green)")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -10)
-        .attr("x", 0)
-        .attr("dy", "-1em")
-        .attr("text-anchor", "end")
-        .text("Commonshare")
-        .style("font-size", "14px")
-      
+	.attr("class", "axis")
+	.call(d3.axisLeft(y).ticks(4).tickSize(-chartwidth))
+	.append("text")
+	.attr("fill", "var(--cf-green)")
+	.attr("transform", "rotate(-90)")
+	.attr("y", -10)
+	.attr("x", 0)
+	.attr("dy", "-1em")
+	.attr("text-anchor", "end")
+	.text("Commonshare")
+	.style("font-size", "14px")
 
-    //Styling and positioning of the legend
-	//Adapted from http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+	//Styling and positioning of the legend
+	//http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
 	var legendRectSize = 15;
 	var legendSpacing = 6;
 	var opacity = 1;
 	var legend = chartg.selectAll(".legend")
-		.data(color.domain())
+		.data(keys)
 		.enter()
 		.append('g')
 		.attr('class', 'legend')
@@ -269,11 +266,13 @@ function plotsimpleline(user) {
 		.on("click", function (d) {
 			legendclick(d);
 			d3.select(this).style('opacity', opacity);
-		});
+		})
+        .each(function(d){
+        })
+        ;
 
 	legend.append('circle')
 	.attr('r', legendRectSize / 2)
-	// .style('fill', color)
 	.style('fill', 'none')
 	.style('stroke', color)
 	.style('stroke-width', 2);
@@ -282,7 +281,7 @@ function plotsimpleline(user) {
 	.attr('x', legendRectSize / 2 + legendSpacing)
 	.attr('y', legendRectSize / 1.4 - legendSpacing)
 	.text(function (d) {
-        if (lang == "hr")
+		if (lang == "hr")
 			return croatiantranslate(d);
 		if (lang == "it")
 			return italiantranslate(d);
@@ -301,11 +300,8 @@ function plotsimpleline(user) {
 		var element = d3.select(this).node();
 		var elementwidth = 240;
 		var width = legendRectSize + legendSpacing;
-		// var horz = 5 + elementwidth * i;
-		// var vert = 275;
-		var horz = 5 + i%2 * elementwidth;
-		console.log(i%2 * elementwidth);
-		var vert = 295 + parseInt(i/2) * 35;
+		var horz = 5 + i % 2 * elementwidth;
+		var vert = 295 + parseInt(i / 2) * 35;
 		return 'translate(' + (horz) + ',' + vert + ')';
 	});
 
@@ -332,14 +328,16 @@ function plotsimpleline(user) {
 	}
 
 	previousIndex = 0;
-    
-    //Story/social/transaction/listing circles that appear on hover
+
+	//Story/social/transaction/listing circles that appear on hover
 	chart.selectAll(".metacircles")
 	.data(keys)
 	.enter()
 	.append("circle")
 	.attr("class", "metacircles")
-    .attr("id",function(d){return "metacircle_"+d})
+	.attr("id", function (d) {
+		return "metacircle_" + d
+	})
 	.attr("r", 4)
 	.style("fill", function (d) {
 		return color(d)
@@ -353,8 +351,7 @@ function plotsimpleline(user) {
 	chart.append("text")
 	.attr("id", "commonshare_text");
 
-    
-    //Couple of utility functions
+	//Couple of utility functions
 	var bisectDate = d3.bisector(function (d, x) {
 			return x - d.date;
 		}).left;
@@ -363,11 +360,11 @@ function plotsimpleline(user) {
 	function findOtherNode(node) {
 		return node['id'] == otheruser;
 	}
-    
-    //Function that shows/hides different information when 
-    //moving the mouse over the chart 
+
+	//Function that shows/hides different information when
+	//moving the mouse over the chart
 	function mousemove() {
-        //Calculate the nearest date that the cursor is over
+		//Calculate the nearest date that the cursor is over
 		var xt = transform.rescaleX(x),
 		yt = transform.rescaleY(y);
 		var x0 = xt.invert(d3.mouse(this)[0]),
@@ -375,13 +372,12 @@ function plotsimpleline(user) {
 		if (previousIndex == i) {
 			return;
 		}
-		previousIndex = i;
         
-        //Position the story/social etc. circles 
+		previousIndex = i;
 		d1 = node_data[i];
-        //I wonder if this will update the donut
-        currentdonut = i;
-        plotdonut(graph_data[i],node_data[i]);
+		//Auto-update the donut
+		currentdonut = i;
+		plotdonut(graph_data[i], node_data[i]);
 		d3.selectAll(".metacircles")
 		.attr("cx", xt(d1.date) + margin.left + 20)
 		.attr("cy", function (d) {
@@ -390,77 +386,40 @@ function plotsimpleline(user) {
 			}
 			return y(0) + margin.top;
 		});
-        var chart_position = d3.select("#linechart").node().getBoundingClientRect();
+
+		var chartpos = d3.select("#linechart").node().getBoundingClientRect();
 		tooltip_div.transition()
-			.duration(200)
-			.style("opacity", 1);
-            console.log(d1);
-            var toolTipText = "";
-            
-            if('create_story' in d1 && d1.create_story.length > 0){
-                if (lang == "hr")
-					toolTipText += "broj stvorenih priča: " + d1.create_story.length + "</br>";
-                else if (lang == "it")
-                    toolTipText += "storie create: " + d1.create_story.length + "</br>";
-                else
-                    toolTipText += "Stories written: " + d1.create_story.length + "</br>";
-            }
-            if('create_listing' in d1 && d1.create_listing.length > 0){
-                 if (lang == "hr")
-					toolTipText +=  "broj unesenih unosa: " +  d1.create_listing.length + "</br>";
-                 else if (lang == "it")
-                    toolTipText +=  "inserzioni creati: " +  d1.create_listing.length + "</br>";
-                 else 
-                    toolTipText += "Listings created: " + d1.create_listing.length + "</br>";                
-            }
-            if('comment_story' in d1 && d1.comment_story.length > 0){
-                 if (lang == "hr")
-					toolTipText +=  "komentari na priče: " +  d1.comment_story.length + "</br>";
-                 else if (lang == "it")
-                    toolTipText +=  "commenti di storia: " +  d1.comment_story.length + "</br>";
-                 else 
-                    toolTipText += "Story comments: " + d1.comment_story.length + "</br>";                
-            }
-            if('comment_listing' in d1 && d1.comment_listing.length > 0){
-                 if (lang == "hr")
-					toolTipText +=  "komentari na unosi: " +  d1.comment_listing.length + "</br>";
-                 else if (lang == "it")
-                    toolTipText +=  "commenti inserzioni: " +  d1.comment_listing.length + "</br>";
-                 else 
-                    toolTipText += "Listing comments: " + d1.comment_listing.length + "</br>";                
-            }
-            if('conversation' in d1 && d1.conversation.length > 0){
-                 if (lang == "hr")
-					toolTipText +=  "razgovori: " +  d1.conversation.length + "</br>";
-                 else if (lang == "it")
-                    toolTipText +=  "conversazioni: " +  d1.conversation.length + "</br>";
-                 else 
-                    toolTipText += "Conversations: " + d1.conversation.length + "</br>";                
-            }
-            if('transaction' in d1 && d1.transaction.length > 0){
-                 if (lang == "hr")
-					toolTipText +=  "transkacije: " +  d1.transaction.length + "</br>";
-                 else if (lang == "it")
-                    toolTipText +=  "transazioni: " +  d1.transaction.length + "</br>";
-                 else                              
-                    toolTipText += "Transactions: " + d1.transaction.length + "</br>";                
-            }
-            tooltip_div.html(toolTipText)
-				.style("left", (xt(d1.date) + margin.left + 30 + chart_position.x) + "px")
-				.style("top", (y(d1.kcore) + margin.top - 20 + chart_position.y) + "px");
-        //Update the commonshare circle position and text
-        d3.select("#commonshare_circle")
-            .attr("cx", xt(d1.date) + margin.left + 20)
-            .attr("cy", y(d1.kcore) + margin.top);
-        
+		.duration(200)
+		.style("opacity", 1);
+		console.log(d1);
+		var toolTipText = "";
+		var interaction_types =
+			['create_story', 'create_listing',
+			'comment_story', 'comment_listing',
+			'conversation', 'transaction'];
+		for (var i = 0; i < interaction_types.length; i++) {
+			var type = interaction_types[i];
+			if (type in d1 && d1[type].length > 0) {
+				toolTipText += tooltipTranslate(type) +
+				d1[type].length + "</br>";
+			}
+		}
+		tooltip_div.html(toolTipText)
+		.style("left", (xt(d1.date) + margin.left + 30 + chartpos.x) + "px")
+		.style("top", (y(d1.kcore) + margin.top - 20 + chartpos.y) + "px");
+		//Update the commonshare circle position and text
+		d3.select("#commonshare_circle")
+		.attr("cx", xt(d1.date) + margin.left + 20)
+		.attr("cy", y(d1.kcore) + margin.top);
+
 		d3.select("#commonshare_text")
-			.attr("x", xt(d1.date) + margin.left + 20)
-			.attr("y", y(d1.kcore) + margin.top - 10)
-            .html("")
-            .text(d1.kcore);
+		.attr("x", xt(d1.date) + margin.left + 20)
+		.attr("y", y(d1.kcore) + margin.top - 10)
+		.html("")
+		.text(d1.kcore);
 
 	}
-    
+
 	chart.call(zoom);
 	chart.call(zoom.scaleBy, 2);
 	chart.call(zoom.translateBy,  - (chart.attr('width') * 2), 0);
