@@ -220,7 +220,7 @@ var numticks = 0;
 var maxindex = 0;
 
 initLocalisedText();
-d3.json('../data/output/userdata/' + uid + '.json').then(results => {
+d3.json('../data/output/userdata/' + uid + '.json').then(function(results) {
 	data = results;
 	initDonutVars();
 	for (var fortnight = 0; fortnight < results.length; fortnight++) {
@@ -235,7 +235,7 @@ d3.json('../data/output/userdata/' + uid + '.json').then(results => {
 	$('#donutdate').text(getDateText(node_data[currentdonut]));
 	numticks = results.length;
 	plotsimpleline(uid);
-}).catch(err => {
+}).catch(function(err) {
 	console.log(err);
 });
 
