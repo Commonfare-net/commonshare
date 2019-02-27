@@ -77,7 +77,7 @@ function donutTranslate(type){
     if(type == "comment_story"){
        if(lang=="hr") return " komentari na priče</br>";
        if(lang=="it") return " commenti di storia</br>";
-       return " comments on this story</br>" 
+       return " comments on this story</br>"
     }
     if(type == "create_listing"){
         if(lang=="hr") return "izradio je ovaj unos</br>";
@@ -87,32 +87,32 @@ function donutTranslate(type){
     if(type == "comment_listing"){
        if(lang=="hr") return " komentari na unosi</br>";
        if(lang=="it") return " commenti inserzioni</br>";
-       return " comments on this listing</br>" 
+       return " comments on this listing</br>"
     }
     if(type == "conversation"){
        if(lang=="hr") return "razgovr s ";
        if(lang=="it") return "conversazione con ";
-       return "conversation with " 
+       return "conversation with "
     }
     if(type == "transaction"){
        if(lang=="hr") return "transakcije s tom commoner: ";
        if(lang=="it") return "transazioni con questo commoner: ";
-       return "transactions with this commoner: "  
+       return "transactions with this commoner: "
     }
 }
 
 function donutSummaryTranslate(type,var1,var2){
     if(type=="story"){
-       if(lang=="hr") 
+       if(lang=="hr")
            return "broj stvorenih priča: " + var1 + "</br>komentari na priče: " + var2;
-       if(lang=="it") 
+       if(lang=="it")
            return "storie create: " + var1 + "</br>commenti di storia: " + var2;
        return "Stories created: " + var1 + "</br>Story comments: " + var2;
     }
     if(type=="social"){
        if(lang=="hr") return "razgovori: " + var1;
        if(lang=="it") return "conversazioni: " + var1;
-       return "Conversations: " + var1;   
+       return "Conversations: " + var1;
     }
     if(type=="transaction"){
        if(lang=="hr") return "transkacije: " + var1;
@@ -120,11 +120,11 @@ function donutSummaryTranslate(type,var1,var2){
        return "Transactions: " + var1;
     }
     if(type=="listing"){
-       if(lang=="hr") 
+       if(lang=="hr")
            return "broj unesenih unosa: " + var1 + "</br>komentari na unosi: " + var2;
-       if(lang=="it") 
+       if(lang=="it")
            return "inserzioni creati: " + var1 + "</br>commenti inserzioni: " + var2;
-       return "Listings created: " + var1 + "</br>Listing comments: " + var2;  
+       return "Listings created: " + var1 + "</br>Listing comments: " + var2;
     }
 }
 function tooltipTranslate(type){
@@ -214,9 +214,10 @@ var numticks = 0;
 
 
 
-//Load data from JSON files into format readable by D3 
+//Load data from JSON files into format readable by D3
 var maxindex = 0;
-d3.json('../data/output/userdata/' + uid + '.json', function (results) {
+
+d3.json('../data/output/userdata/' + uid + '.json').then(results => {
 	data = results;
 	for (var fortnight = 0; fortnight < results.length; fortnight++) {
 		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
@@ -225,12 +226,15 @@ d3.json('../data/output/userdata/' + uid + '.json', function (results) {
         plotdonut(graph_data[fortnight], node_data[fortnight]);
 		maxindex++;
 	}
-    
+
 	plotdonut(graph_data[0], node_data[0]);
 	$('#donutdate').text(getDateText(node_data[currentdonut]));
 	numticks = results.length;
 	plotsimpleline(uid);
+}).catch(err => {
+	console.log(err);
 });
+
 
 function findNode(node) {
 	return node['id'] == uid;
