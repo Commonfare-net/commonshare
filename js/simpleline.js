@@ -37,7 +37,8 @@ function plotsimpleline(user) {
 	.attr('width', chartwidth)
 	.attr('height', chartheight)
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-	.on('mousemove', mousemove);
+	.on('mousemove', mousemove)
+    .on('mouseout',mouseout);
 
 	var x = d3.scaleTime()
 		.rangeRound([0, chartwidth * 2]);
@@ -361,6 +362,11 @@ function plotsimpleline(user) {
 		return node['id'] == otheruser;
 	}
 
+    function mouseout(){
+        tooltip_div.transition()
+		.duration(200)
+		.style("opacity", 0);
+    }
 	//Function that shows/hides different information when
 	//moving the mouse over the chart
 	function mousemove() {
@@ -385,7 +391,8 @@ function plotsimpleline(user) {
 				return y(d1.cumu[d]) + margin.top;
 			}
 			return y(0) + margin.top;
-		});
+		})
+        .style("pointer-events","none");
 
 		var chartpos = d3.select("#linechart").node().getBoundingClientRect();
 		tooltip_div.transition()
@@ -410,13 +417,15 @@ function plotsimpleline(user) {
 		//Update the commonshare circle position and text
 		d3.select("#commonshare_circle")
 		.attr("cx", xt(d1.date) + margin.left + 20)
-		.attr("cy", y(d1.kcore) + margin.top);
+		.attr("cy", y(d1.kcore) + margin.top)
+        .style("pointer-events","none");
 
 		d3.select("#commonshare_text")
 		.attr("x", xt(d1.date) + margin.left + 20)
 		.attr("y", y(d1.kcore) + margin.top - 10)
 		.html("")
-		.text(d1.kcore);
+		.text(d1.kcore)
+        .style("pointer-events","none");
 
 	}
 
