@@ -219,6 +219,7 @@ var maxindex = 0;
 
 d3.json('../data/output/userdata/' + uid + '.json').then(results => {
 	data = results;
+	initDonutVars();
 	for (var fortnight = 0; fortnight < results.length; fortnight++) {
 		node_data[fortnight] = results[fortnight]['nodes'].find(findNode);
 		node_data[fortnight].date = parseTime(node_data[fortnight].date);

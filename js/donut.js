@@ -1,47 +1,4 @@
 var currentdonut = 0;
-var chart = d3.select("#donut");
-var chartg = chart.append("g");
-var pie = d3.pie()
-	.startAngle(-90 * Math.PI / 180)
-	.endAngle(-90 * Math.PI / 180 + 2 * Math.PI)
-	.sort(null)
-	.value(function (d) {
-		return d.value;
-	});
-
-var arc = d3.arc()
-	.outerRadius(90)
-	.innerRadius(70);
-var biggerarc = d3.arc()
-	.outerRadius(120)
-	.innerRadius(100);
-var defs = chart.append("defs");
-
-
-//Filter for the outside glow
-var filter = defs.append("filter")
-	.attr("id", "glow");
-filter.append("feGaussianBlur")
-.attr("stdDeviation", "3.5")
-.attr("result", "coloredBlur");
-
-var feMerge = filter.append("feMerge");
-feMerge.append("feMergeNode")
-.attr("in", "coloredBlur");
-feMerge.append("feMergeNode")
-.attr("in", "SourceGraphic");
-
-//https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
-
-var arcs = chartg.selectAll(".arc");
-var donut_labels = chartg.selectAll(".donutText");
-var kcoretext = chartg.append("text")
-	.attr("id", "core_text");
-var returntext = chart.append("text")
-	.attr("id", "return_text")
-	.text(myReturnText)
-	.style("font-size", "20px");
-var bunchg = chart.append("g").attr('class', 'bunchpack');
 
 d3.selectAll(".textpath")
 .attr("xlink:href", function (d, i) {
@@ -214,11 +171,11 @@ function makechildarcs(piesegments) {
                 returntext += donutTranslate('create_listing');
 			}
 			if ('comment_story' in d.data && d.data.comment_story.length > 0){
-				returntext += d.data.comment_story.length + 
+				returntext += d.data.comment_story.length +
                 donutTranslate('comment_story');
 			}
 			if ('comment_listing' in d.data && d.data.comment_listing.length > 0){
-                returntext += d.data.comment_listing.length + 
+                returntext += d.data.comment_listing.length +
                 donutTranslate('comment_listing');
 			}
 			return returntext;
@@ -376,6 +333,40 @@ function positionReturnText() {
 }
 
 var original_segments;
+
+// initialise variables here to avoid declaring them globally
+function initDonutVars() {
+	chart = d3.select("#donut");
+	chartg = chart.append("g");
+	defs = chart.append("defs");
+
+
+	//Filter for the outside glow
+	filter = defs.append("filter")
+		.attr("id", "glow");
+	filter.append("feGaussianBlur")
+		.attr("stdDeviation", "3.5")
+		.attr("result", "coloredBlur");
+
+	feMerge = filter.append("feMerge");
+	feMerge.append("feMergeNode")
+		.attr("in", "coloredBlur");
+	feMerge.append("feMergeNode")
+		.attr("in", "SourceGraphic");
+
+	//https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html
+
+	arcs = chartg.selectAll(".arc");
+	donut_labels = chartg.selectAll(".donutText");
+	kcoretext = chartg.append("text")
+		.attr("id", "core_text");
+	returntext = chart.append("text")
+		.attr("id", "return_text")
+		.text(myReturnText)
+		.style("font-size", "20px");
+	bunchg = chart.append("g").attr('class', 'bunchpack');
+}
+
 function plotdonut(graphdata, mydata) {
 	$('#donutdate').text(getDateText(mydata));
 
