@@ -1,5 +1,21 @@
 var currentdonut = 0;
 
+var pie = d3.pie()
+	.startAngle(-90 * Math.PI / 180)
+	.endAngle(-90 * Math.PI / 180 + 2 * Math.PI)
+	.sort(null)
+	.value(function (d) {
+		return d.value;
+	});
+
+var arc = d3.arc()
+	.outerRadius(90)
+	.innerRadius(70);
+
+var biggerarc = d3.arc()
+	.outerRadius(120)
+	.innerRadius(100);
+
 d3.selectAll(".textpath")
 .attr("xlink:href", function (d, i) {
 	return "#donutArc" + i;
