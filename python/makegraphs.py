@@ -610,20 +610,26 @@ def init(filename,configfile):
             row = spamreader.next()
         row = spamreader.next() #Skip over 'nodetypes'
         
-        while (len(row)>1):
+        while True:
             print row
             try:
                 row = spamreader.next()
+                if len(row) == 1:
+                    break
                 if row[1] == 1:
                     cf.user_type = row[0]
                 elif row[1] == 2:
                     cf.tag_type = row[0]
             except StopIteration as e:
                 break
-        cf.WEIGHT_KEY = row[0].split("=")[1]
-        granularity = spamreader.next()[0].split("=")[1]
-        cf.LABEL_KEY = spamreader.next()[0].split("=")[1]
-
+        if row[0].startswith('weight'):
+            cf.WEIGHT_KEY = row[0].split("=")[1]
+            row = spamreader.next()
+        if row[0].startswith('label'):
+            cf.LABEL_KEY = row[0].split("=")[1]
+            row = spamreader.next()
+        if row[0].startswith('granularity'):
+            granularity = row[0].split("=")[1]
     G_read = nx.read_gexf(filename)
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  

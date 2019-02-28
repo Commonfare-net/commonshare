@@ -65,7 +65,6 @@ def addNodeSpell(node,attrs):
     :param attrs: dictionary of attributes of this spell  
 
     """
-    #print 'adding spell to ',node
     namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
     
     if node.find('xmlns:spells',namespaces) == None:
@@ -134,8 +133,14 @@ def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 
     return (edgetype,start,end)
 
-
-    
+def updateTimestamps(tag):
+    if 'start' in tag.attrib:
+        timestamp = float(tag.attrib['start'])
+        tag.attrib['start'] = cf.stamp_to_str(timestamp)
+    if 'end' in tag.attrib:
+        timestamp = float(tag.attrib['end'])                        
+        tag.attrib['end'] = cf.stamp_to_str(timestamp)
+        
 @app.route('/parse')
 def parse(gexffile):    
 
@@ -151,6 +156,8 @@ def parse(gexffile):
     else:
         filename = gexffile
 
+    #The ElementTree API has no way to grab the namespace directly
+    #so this resorts to manual file IO to change it to 1.2draft
     newtext = '<gexf xmlns="http://www.gexf.net/1.2draft" version="1.2" xsi="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd">\n'
     x = fileinput.FileInput(filename, inplace=1)
     for line in x:
@@ -158,16 +165,18 @@ def parse(gexffile):
             line = newtext
         sys.stdout.write(line)
     x.close()
+    
     tree = ET.parse(filename)  
     root = tree.getroot()
 
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     namespaces={'xmlns': "http://www.gexf.net/1.2draft"}
     
+    #Remove the 'meta' tag if it exists for consistency
     meta = root.find('xmlns:meta',namespaces)
-    root.remove(meta)
+    if meta is not None:
+        root.remove(meta)
     graph = root.find('xmlns:graph',namespaces)
-    
     graph.set('mode', 'dynamic')  
     graph.set('timeformat', 'date')  
     
@@ -245,7 +254,7 @@ def parse(gexffile):
                 cf.weights[edge_type] = [int(in_weight),int(out_weight)]
                 print row
                 row = spamreader.next()        
-        #For each dynamic attribute in the config, add it to both nodes and edges
+        #For each dynamic attribute in the config, add it to nodes and edges
         for key in cf.interaction_keys:
             attrib = {'id':str(count),'type':'string','title':key} 
             attr = edgeattrs.makeelement('attribute',attrib)
@@ -254,25 +263,22 @@ def parse(gexffile):
             d[key] = str(count)
             count +=1
         d[None] = None
-    else:
+    else: #Generic stuff, not for commonfare data
         for n in nodes:
             attvalues = n.findall('xmlns:attvalues',namespaces)
-            if len(attvalues) > 1: #Sometimes happens if static and dynamic atts are separated
+            #len(attvalues) > 1 if separate static/dynamic atts
+            if len(attvalues) > 1: 
                 for attval in attvalues[1]:
                     attvalues[0].append(attval)
                 n.remove(attvalues[1])
-            #n.find('xmlns:attvalues',namespaces)[0]
             if len(attvalues) > 0:
                 for attval in attvalues[0]:
-                    if 'start' in attval.attrib:
-                        attval.attrib['start'] = cf.stamp_to_str(float(attval.attrib['start']))
-                    if 'end' in attval.attrib:
-                        attval.attrib['end'] = cf.stamp_to_str(float(attval.attrib['end']))
+                    updateTimestamps(attval)       
             spells = n.find('xmlns:spells',namespaces)
             if spells is not None:
                 for spell in spells:
-                    spell.attrib['start'] = cf.stamp_to_str(float(spell.attrib['start']))
-                    spell.attrib['end'] = cf.stamp_to_str(float(spell.attrib['end']))
+                    updateTimestamps(spell)
+                    
     #Here we figure out edges that need to be deleted
     edges = graph.find('xmlns:edges',namespaces)
     edgestodelete = []
@@ -300,23 +306,22 @@ def parse(gexffile):
                 maxdate = parseddate
         else:
             attvalues = elem.findall('xmlns:attvalues',namespaces)
-            if len(attvalues) > 1: #Sometimes happens if static and dynamic atts are separated
+            #len(attvalues) > 1 if separate static/dynamic atts
+            if len(attvalues) > 1:
                 for attval in attvalues[1]:
                     attvalues[0].append(attval)
                 elem.remove(attvalues[1])
             if len(attvalues) > 0:
                 for attval in attvalues[0]:
-                    if 'start' in attval.attrib:
-                        attval.attrib['start'] = cf.stamp_to_str(float(attval.attrib['start']))
-                        attval.attrib['end'] = cf.stamp_to_str(float(attval.attrib['end']))
-                spells = elem.find('xmlns:spells',namespaces)
+                    updateTimestamps(attval)
+            spells = elem.find('xmlns:spells',namespaces)
             if spells is not None:
                 for spell in spells:
-                    spell.attrib['start'] = cf.stamp_to_str(float(spell.attrib['start']))
-                    spell.attrib['end'] = cf.stamp_to_str(float(spell.attrib['end']))
-                    attrs = {"start":spell.attrib['start'],"end":spell.attrib['end']}
-                    source = nodes.find("*/[@id='" + elem.attrib['source'] +"']")
-                    target = nodes.find("*/[@id='" + elem.attrib['target'] +"']") 
+                    updateTimestamps(spell)
+                    attrs = {"start":spell.attrib['start'],
+                    "end":spell.attrib['end']}
+                    source = nodes.find("*/[@id='"+elem.attrib['source']+"']")
+                    target = nodes.find("*/[@id='"+elem.attrib['target']+"']") 
                     addNodeSpell(source,attrs)
                     addNodeSpell(target,attrs)                
                     parseddate = cf.to_date(spell.attrib['start'])
@@ -327,9 +332,9 @@ def parse(gexffile):
             else:
                 maxdate = None
                 mindate = None
-            #start = elem.attrib['start']
-            #end = elem.attrib['end']
 
+        if elem.attrib['source'] != source:
+            print 'source was ',elem.attrib['source'],' but is now ',source
         #Sometimes 'parseLabel' changes the source ID 
         source = elem.attrib['source']
         
@@ -339,9 +344,10 @@ def parse(gexffile):
             continue
         
         if cf.ADD_VIZ_STUFF:
-            #Delete Pietro's Basic Income transactions
+            #Delete Basic Income transactions
             if (source == '1' or target == '1') and edgetype == d['transaction']:
                 edgestodelete.append(elem)
+                print 'adding pietrosaction'
                 continue
            
             edgeid = source + '-' + target
@@ -400,7 +406,7 @@ def parse(gexffile):
     print 'done parsing'
     
     #Now make the JSON graphs for visualisation
-    makegraphs.init(parsedfilename,'default.txt')
+    makegraphs.init(parsedfilename,'config.txt')
     
     return jsonify({'success':True})
 

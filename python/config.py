@@ -24,7 +24,7 @@ oneyear = 365*24*3600
 FREQUENCY_THRESHOLD = 5
 PERCENTAGE_THRESHOLD = 33
 
-ADD_VIZ_STUFF = False
+ADD_VIZ_STUFF = True
 
 user_type = "commoner"
 tag_type = "tag"
@@ -58,8 +58,11 @@ def to_date(str):
     :returns: a datetime date
 
     """
-    return datetime.datetime.strptime(str,"%Y/%m/%d %H:%M")
-    
+    try:
+        return datetime.datetime.strptime(str,"%Y/%m/%d %H:%M")
+    except ValueError:
+        return datetime.datetime.strptime(str,"%Y/%m/%d")
+
 def in_date(window,date_str):
     """Check if date is within a given time window
 
