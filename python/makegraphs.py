@@ -44,6 +44,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
     coms = []
     #Create dicts to hold the interaction data for each commoner    
     for (n,c) in G.nodes(data=True):
+
         if 'type' not in c or c['type'] == cf.user_type:
             c_Gs[n] = []
         c["tags"] = []    
@@ -481,7 +482,6 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     if window[0] is not None:
         for (n,c) in nodeiter:
             graph_copy.nodes[n]['nodemeta'] = []    
-                
             node_exists = False
             graph_copy.nodes[n]['date'] = cf.to_str(window[0])
             c['date'] = cf.to_str(window[0]) #TODO: Do both lines need to be here?
@@ -499,6 +499,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         #Get rid of spells and actions that fall outside the window range 
         graph_copy = filter_spells(graph_copy,window)
     
+
     #DO THE KCORE CALCULATIONS HERE
     (core_G,colluders) = dx.weighted_core(graph_copy.to_undirected(),window)
 
@@ -507,6 +508,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
 
     nodeiter = core_G.nodes(data=True)
     for (n,c) in nodeiter:
+        if 'type' not in c:
+            print 'AINT NO TYPE IN ',n
         if 'type' in c and c['type'] == cf.tag_type:
             tag_nodes[n] = c
     
@@ -539,8 +542,9 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         
     nodeiter = core_G.nodes(data=True)
     for n,c in nodeiter:
-        c['cluster'] = partition[n] 
-        c['label'] = c[cf.LABEL_KEY]
+        c['cluster'] = partition[n]
+        print n,c
+        #c['label'] = c[cf.LABEL_KEY]
     core_graph_json = json_graph.node_link_data(core_G)
 
     #Some meta-info stuff

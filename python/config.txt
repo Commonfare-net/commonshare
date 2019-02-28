@@ -12,4 +12,5 @@ commoner,1,
 tag,0,
 story,2
 listing,2,
+label=platform_id
 granularity=biweekly

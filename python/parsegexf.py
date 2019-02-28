@@ -347,7 +347,7 @@ def parse(gexffile):
             #Delete Basic Income transactions
             if (source == '1' or target == '1') and edgetype == d['transaction']:
                 edgestodelete.append(elem)
-                print 'adding pietrosaction'
+                print 'pietro',elem.attrib['id']
                 continue
            
             edgeid = source + '-' + target
@@ -391,9 +391,9 @@ def parse(gexffile):
             else: #Remove duplicate edges
                 edgestodelete.append(elem)
 
-        for e in edgestodelete:
-            if e in edges:
-                edges.remove(e) 
+    for e in edgestodelete:
+        if e in edges:
+            edges.remove(e)
 
     #Set date of first and last interaction in root tag of GEXF file
     #If mindate or maxdate is None then this means we've got a static network
