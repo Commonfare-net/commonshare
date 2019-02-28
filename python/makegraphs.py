@@ -120,7 +120,7 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
     #Nee to add 0 values in too
     for (n,c) in nodes_to_remove:
         c_graph = nx.Graph()
-        c_graph.add_node(n,date=c['date'],kcore=0)
+        c_graph.add_node(n,date=c['date'],kcore=0,platform_id=c['platform_id'])
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
@@ -145,8 +145,8 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         del c_graph.nodes[n]['name']
         del c_graph.nodes[n]['spells']
         del c_graph.nodes[n]['tags']
-        if 'platform_id' in c_graph.nodes[n]:
-            del c_graph.nodes[n]['platform_id']
+        #if 'platform_id' in c_graph.nodes[n]:
+        #    del c_graph.nodes[n]['platform_id']
         del c_graph.nodes[n]['label']
         if 'maxweight'  in c_graph.nodes[n]:
             del c_graph.nodes[n]['maxweight']
