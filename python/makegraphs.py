@@ -498,8 +498,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         
         #Get rid of spells and actions that fall outside the window range 
         graph_copy = filter_spells(graph_copy,window)
-    
-
+   
     #DO THE KCORE CALCULATIONS HERE
     (core_G,colluders) = dx.weighted_core(graph_copy.to_undirected(),window)
 
@@ -508,8 +507,6 @@ def make_graphs(G,window,index,communities,commoner_graphs):
 
     nodeiter = core_G.nodes(data=True)
     for (n,c) in nodeiter:
-        if 'type' not in c:
-            print 'AINT NO TYPE IN ',n
         if 'type' in c and c['type'] == cf.tag_type:
             tag_nodes[n] = c
     
@@ -543,8 +540,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     nodeiter = core_G.nodes(data=True)
     for n,c in nodeiter:
         c['cluster'] = partition[n]
-        print n,c
-        #c['label'] = c[cf.LABEL_KEY]
+        if cf.LABEL_KEY != "":
+            c['label'] = c[cf.LABEL_KEY]
     core_graph_json = json_graph.node_link_data(core_G)
 
     #Some meta-info stuff
@@ -617,17 +614,20 @@ def init(filename,configfile):
         while True:
             print row
             try:
-                row = spamreader.next()
+                
                 if len(row) == 1:
                     break
                 if row[1] == 1:
                     cf.user_type = row[0]
                 elif row[1] == 2:
                     cf.tag_type = row[0]
+                row = spamreader.next()
             except StopIteration as e:
                 break
+                
         if row[0].startswith('weight'):
             cf.WEIGHT_KEY = row[0].split("=")[1]
+            print 'weight key is ',cf.WEIGHT_KEY
             row = spamreader.next()
         if row[0].startswith('label'):
             cf.LABEL_KEY = row[0].split("=")[1]

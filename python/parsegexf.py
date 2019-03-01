@@ -67,11 +67,14 @@ def addNodeSpell(node,attrs):
     """
     namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
     
-    if node.find('xmlns:spells',namespaces) == None:
+    if node.find('xmlns:spells',namespaces) != None:
+        spells = node.find('xmlns:spells',namespaces)        
+    elif node.find('spells') != None:
+        spells = node.find('spells')
+    else:
         spells = node.makeelement("spells",{})
         node.append(spells)
-    else:
-        spells = node.find('xmlns:spells',namespaces)
+    
     spell = spells.makeelement("spell",attrs)
     spells.append(spell)
     
@@ -140,6 +143,9 @@ def updateTimestamps(tag):
     if 'end' in tag.attrib:
         timestamp = float(tag.attrib['end'])                        
         tag.attrib['end'] = cf.stamp_to_str(timestamp)
+    if 'id' in tag.attrib:
+        tag.attrib['for'] = tag.attrib['id']
+        del tag.attrib['id']
         
 @app.route('/parse')
 def parse(gexffile):    
@@ -163,6 +169,8 @@ def parse(gexffile):
     for line in x:
         if line.startswith("<gexf"):
             line = newtext
+        elif re.search('<(\S*):',line) is not None: #Get rid of dodgy namespaces
+            continue
         sys.stdout.write(line)
     x.close()
     
@@ -406,7 +414,7 @@ def parse(gexffile):
     print 'done parsing'
     
     #Now make the JSON graphs for visualisation
-    makegraphs.init(parsedfilename,'config.txt')
+    makegraphs.init(parsedfilename,'default.txt')
     
     return jsonify({'success':True})
 

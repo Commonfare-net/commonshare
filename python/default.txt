@@ -1,4 +1,3 @@
 nodetypes,
-weight=weight,
-granularity=15minutes,
-label=label
+weight=weight
+granularity=15minutes

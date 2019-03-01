@@ -94,8 +94,10 @@ def nodeweight(G,node_id,window,suspect_nodes):
         overallweight = 0.0
         #We already have the edge weight, no need to do it manually
         
+        #print c
         if cf.WEIGHT_KEY in c:
             overallweight = c[cf.WEIGHT_KEY]
+            print 'YES'
         elif active_weeks is None:
             overallweight = 1
         else:
