@@ -53,8 +53,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
         delta = relativedelta(weeks=-2)
     else:
         delta = relativedelta(months=-1)
-    graph_dir = '../data/output/graphdata/'+spacing+'/'
-    user_dir = '../data/output/userdata/'
+    graph_dir = 'data/output/graphdata/'+spacing+'/'
+    user_dir = 'data/output/userdata/'
     
     #Make dates for first interaction 'window'
     w_end = enddate
