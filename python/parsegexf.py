@@ -129,7 +129,7 @@ def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 
 
 @app.route('/parse')
-def parse(gexffile):    
+def parse(*gexffile):    
 
     """Entry method to begin parsing the GEXF file
 
@@ -138,7 +138,8 @@ def parse(gexffile):
     correct format, it is passed to methods in the makegraphs.py module to
     output JSON data for visualisation purposes
     """
-    if gexffile is None:
+    if len(gexffile) == 0:
+    #if gexffile is None:
         filename = os.environ['GEXF_INPUT']
     else:
         filename = gexffile;
