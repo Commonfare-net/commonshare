@@ -24,7 +24,7 @@ oneyear = 365*24*3600
 FREQUENCY_THRESHOLD = 5
 PERCENTAGE_THRESHOLD = 33
 
-ADD_VIZ_STUFF = False
+ADD_VIZ_STUFF = True
 
 user_type = "commoner"
 tag_type = "tag"
@@ -41,7 +41,7 @@ WEIGHT_KEY = ""
 LABEL_KEY = ""          
 def stamp_to_str(timestamp):
 
-    return to_str(datetime.datetime.fromtimestamp(timestamp/1000))
+    return to_str(datetime.datetime.fromtimestamp(timestamp))
     
 def to_str(date):
     """Convert datetime date to string
@@ -49,8 +49,11 @@ def to_str(date):
     :param date: a datetime date
     :returns: String representation in form Year/month/day
     """
-    return datetime.datetime.strftime(date,"%Y/%m/%d %H:%M")
-
+    try:
+        return datetime.datetime.strftime(date,"%Y/%m/%d %H:%M")
+    except Exception as e:
+        print date
+        
 def to_date(str):
     """Convert date-formatted string to datetime date 
 

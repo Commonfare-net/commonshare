@@ -49,6 +49,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
             c_Gs[n] = []
         c["tags"] = []    
     #Dynamic data
+    print 'spacing is ',spacing
     
     if startdate is not None:
         if spacing == '15minutes':
@@ -59,6 +60,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
             delta = relativedelta(weeks=-1)
         elif spacing == 'biweekly':
             delta = relativedelta(weeks=-2)
+        elif spacing == 'monthly':
+            delta = relativedelta(months=-1)
         else:
             delta = relativedelta(months=-1)
         graph_dir = '../data/output/graphdata/'+spacing+'/'
@@ -107,7 +110,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
                         k = n['kcore']
                         if k >= k_high: #and n['type'] == cf.user_type:
                             #print n
-                            central_node = n['label']#['name']
+                            central_node = nodeid#n['id']#['name']
                             k_high = k
             dynamic_communities[central_node + str(coms.index(i))] = i
     json_G['dynamic_comms'] = dynamic_communities   
@@ -371,7 +374,6 @@ def make_dynamic_communities(core_G,communities,index):
                 similarity = jaccard(front,part)
                 if similarity >= 0.3: #Recommended threshold
                     matches.append(fronts.index(front))
-                    print 'appendicitis'
             if len(matches) == 0: #No match community? Make new one    
                 communities.append([index,part])
             else: #Append evolved community nodes

@@ -136,16 +136,21 @@ def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 
     return (edgetype,start,end)
 
-def updateTimestamps(tag):
+    
+def updateTimestamps(tag,timestamp):
+    if 'id' in tag.attrib:
+        tag.attrib['for'] = tag.attrib['id']
+        del tag.attrib['id']
+    if timestamp is not None:
+        tag.attrib['start'] = cf.stamp_to_str(float(timestamp))
+        tag.attrib['end'] = cf.stamp_to_str(float(timestamp))
+        return
     if 'start' in tag.attrib:
         timestamp = float(tag.attrib['start'])
         tag.attrib['start'] = cf.stamp_to_str(timestamp)
     if 'end' in tag.attrib:
         timestamp = float(tag.attrib['end'])                        
         tag.attrib['end'] = cf.stamp_to_str(timestamp)
-    if 'id' in tag.attrib:
-        tag.attrib['for'] = tag.attrib['id']
-        del tag.attrib['id']
         
 @app.route('/parse')
 def parse(gexffile):    
@@ -302,7 +307,12 @@ def parse(gexffile):
         source = elem.attrib['source']
         target = elem.attrib['target']
         
-
+        if 'timestamp' in elem.attrib:
+            timestamp = elem.attrib['timestamp']
+        else:
+            timestamp = None
+            #print 'timestamp is ',cf.stamp_to_str(float(elem.attrib['timestamp']))
+            
         if cf.ADD_VIZ_STUFF:
         #Figure out what kind of edge it is based on its label        
             (e,start,end) = parseLabel(nodes,edges,edgeid,source,target,label)
@@ -321,11 +331,16 @@ def parse(gexffile):
                 elem.remove(attvalues[1])
             if len(attvalues) > 0:
                 for attval in attvalues[0]:
-                    updateTimestamps(attval)
+                    updateTimestamps(attval,timestamp)
             spells = elem.find('xmlns:spells',namespaces)
+            if spells is None and timestamp is not None:
+                spells = elem.makeelement('spells',{})
+                spell = spells.makeelement("spell",{'start':timestamp,'end':timestamp})
+                spells.append(spell)
+                elem.append(spells)
             if spells is not None:
                 for spell in spells:
-                    updateTimestamps(spell)
+                    updateTimestamps(spell,timestamp)
                     attrs = {"start":spell.attrib['start'],
                     "end":spell.attrib['end']}
                     source = nodes.find("*/[@id='"+elem.attrib['source']+"']")
@@ -333,6 +348,7 @@ def parse(gexffile):
                     addNodeSpell(source,attrs)
                     addNodeSpell(target,attrs)                
                     parseddate = cf.to_date(spell.attrib['start'])
+                    #print parseddate
                     if mindate > parseddate:
                         mindate = parseddate
                     if maxdate < parseddate:
@@ -341,8 +357,6 @@ def parse(gexffile):
                 maxdate = None
                 mindate = None
 
-        if elem.attrib['source'] != source:
-            print 'source was ',elem.attrib['source'],' but is now ',source
         #Sometimes 'parseLabel' changes the source ID 
         source = elem.attrib['source']
         
