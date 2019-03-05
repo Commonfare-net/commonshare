@@ -142,7 +142,8 @@ def parse(*gexffile):
     #if gexffile is None:
         filename = os.environ['GEXF_INPUT']
     else:
-        filename = gexffile;
+        filename = gexffile[0]
+        print 'filename is ',gexffile
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
     namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
