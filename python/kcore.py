@@ -289,7 +289,7 @@ def weighted_core(G,window):
     Use 'boxcox' to do log transformation with lambda=0
     First, 0 values need to be removed
     '''
-    if window[0] is None:
+    if window[0] is None or ((window[1]-window[0]).days) > 52:
         log_core = {k: v for k, v in core.iteritems() if v >0}
         data = stats.boxcox(log_core.values(), 0)
 
@@ -308,6 +308,8 @@ def weighted_core(G,window):
         outliers_removed_core = {k: v for k, v in core.iteritems() if v >0}
         log_core = before_core = core
     
+    #I feel that this normalisation goes from one extreme to the other
+    #Like if some people have 1 and others have 2, then the ones that have 2 automatically get 10 
     if len(outliers_removed_core.values()) > 0:
         k_min = min(outliers_removed_core.values())
         k_max = max(outliers_removed_core.values())
@@ -318,10 +320,10 @@ def weighted_core(G,window):
                 log_core[k] = 0
                 continue
             log_core[k] = int(math.ceil((float(v-k_min)/(k_max-k_min))*9))+1
-    normalised_outliers_removed = {k: v for k, v in log_core.iteritems() if v >1}
+    normalised_outliers_removed = {k: v for k, v in log_core.iteritems() if v >0}
     #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
-    if ((window[1]-window[0]).days / 7) > 52:
-    #if window[0] is None or ((window[1]-window[0]).days) > 0:
+    #if ((window[1]-window[0]).days / 7) > 52:
+    if window[0] is None or ((window[1]-window[0]).days) > 2:
         fig, axs = plt.subplots(1, 3, sharey=False, tight_layout=True)
         axs[0].hist(before_core.values(), 20)
         axs[1].hist(outliers_removed_core.values(), 20)

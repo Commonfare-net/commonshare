@@ -286,11 +286,11 @@ def parse(gexffile):
                 n.remove(attvalues[1])
             if len(attvalues) > 0:
                 for attval in attvalues[0]:
-                    updateTimestamps(attval)       
+                    updateTimestamps(attval,None)       
             spells = n.find('xmlns:spells',namespaces)
             if spells is not None:
                 for spell in spells:
-                    updateTimestamps(spell)
+                    updateTimestamps(spell,None)
                     
     #Here we figure out edges that need to be deleted
     edges = graph.find('xmlns:edges',namespaces)
@@ -300,6 +300,7 @@ def parse(gexffile):
     existingedges = {}
 
     for elem in edges:  
+        edgetype = None
         if 'label' in elem.attrib:
             label = elem.attrib['label']
         if 'id' in elem.attrib:
@@ -323,6 +324,7 @@ def parse(gexffile):
             if maxdate < parseddate:
                 maxdate = parseddate
         else:
+             
             attvalues = elem.findall('xmlns:attvalues',namespaces)
             #len(attvalues) > 1 if separate static/dynamic atts
             if len(attvalues) > 1:
@@ -332,31 +334,6 @@ def parse(gexffile):
             if len(attvalues) > 0:
                 for attval in attvalues[0]:
                     updateTimestamps(attval,timestamp)
-            spells = elem.find('xmlns:spells',namespaces)
-            if spells is None and timestamp is not None:
-                spells = elem.makeelement('spells',{})
-                spell = spells.makeelement("spell",{'start':timestamp,'end':timestamp})
-                spells.append(spell)
-                elem.append(spells)
-            if spells is not None:
-                for spell in spells:
-                    updateTimestamps(spell,timestamp)
-                    attrs = {"start":spell.attrib['start'],
-                    "end":spell.attrib['end']}
-                    source = nodes.find("*/[@id='"+elem.attrib['source']+"']")
-                    target = nodes.find("*/[@id='"+elem.attrib['target']+"']") 
-                    addNodeSpell(source,attrs)
-                    addNodeSpell(target,attrs)                
-                    parseddate = cf.to_date(spell.attrib['start'])
-                    #print parseddate
-                    if mindate > parseddate:
-                        mindate = parseddate
-                    if maxdate < parseddate:
-                        maxdate = parseddate
-            else:
-                maxdate = None
-                mindate = None
-
         #Sometimes 'parseLabel' changes the source ID 
         source = elem.attrib['source']
         
@@ -371,48 +348,73 @@ def parse(gexffile):
                 edgestodelete.append(elem)
                 print 'pietro',elem.attrib['id']
                 continue
-           
-            edgeid = source + '-' + target
-            altedgeid = target + '-' + source
-            
-            #Get the 'spells' and 'attvalues' of this edge, or create them
-            if edgeid not in existingedges and altedgeid not in existingedges:
-                spells = elem.makeelement('spells',{})
-                elem.append(spells)
+                
+        edgeid = source + '-' + target
+        altedgeid = target + '-' + source
+        
+        #Get the 'spells' and 'attvalues' of this edge, or create them
+        if edgeid not in existingedges and altedgeid not in existingedges:
+            spells = elem.makeelement('spells',{})
+            elem.append(spells)
+            attvalues = elem.find('xmlns:attvalues',namespaces)            
+            if attvalues is None: 
                 attvalues = elem.makeelement('attvalues', {})
                 elem.append(attvalues)
+        else:
+            if edgeid in existingedges:
+                spells = existingedges[edgeid].find('spells')
+                attvalues = existingedges[edgeid].find('attvalues')
             else:
-                if edgeid in existingedges:
-                    spells = existingedges[edgeid].find('spells')
-                    attvalues = existingedges[edgeid].find('attvalues')
-                else:
-                    spells = existingedges[altedgeid].find('spells')
-                    attvalues = existingedges[altedgeid].find('attvalues')
+                spells = existingedges[altedgeid].find('spells')
+                attvalues = existingedges[altedgeid].find('attvalues')
+        
+        #Dynamic data
+        if cf.ADD_VIZ_STUFF == False: 
+            if timestamp is not None:
+                start = timestamp
+                end = timestamp
+            else:
+                continue
             
-            #Add the 'spell' of this action (start date and end date)
-            attrib = {'start':start,'end':end}
-            spell = spells.makeelement('spell',attrib)
-            spells.append(spell)
-            
-            #Store more info in the 'attvalue' - initiator of action and its type
-            attrib = {'value': source+'-'+target,'for':edgetype,'start':start,'end':end}
+        #Add the 'spell' of this action (start date and end date)
+        attrib = {'start':start,'end':end}
+        spell = spells.makeelement('spell',attrib)
+        spells.append(spell)
+        
+        #Store more info in the 'attvalue' - initiator of action and its type
+        if edgetype is not None:
+            attrib = {'value': source+'-'+target,'for':edgetype,'start':start,'end':end}           
             attvalue = attvalues.makeelement('attvalue',attrib)
             attvalues.append(attvalue)
 
-            #Find the nodes connected by this edge and add info on the action 
-            sourceattrs = nodes.find("*/[@id='" + source +"']/*")
-            targetattrs = nodes.find("*/[@id='" + target +"']/*")
-            if edgetype != None:
-                sourceattrs.append(attvalue)
-                targetattrs.append(attvalue)
-         
-            if edgetype == None:
-                edgestodelete.append(elem)
-            elif edgeid not in existingedges and altedgeid not in existingedges:
-                existingedges[edgeid] = elem
-            else: #Remove duplicate edges
-                edgestodelete.append(elem)
+        #Find the nodes connected by this edge and add info on the action 
+        sourceattrs = nodes.find("*/[@id='" + source +"']/*")
+        targetattrs = nodes.find("*/[@id='" + target +"']/*")
 
+        if cf.ADD_VIZ_STUFF == False:
+            updateTimestamps(spell,timestamp)
+            attrs = {"start":spell.attrib['start'],"end":spell.attrib['end']}
+            source = nodes.find("*/[@id='"+elem.attrib['source']+"']")
+            target = nodes.find("*/[@id='"+elem.attrib['target']+"']")            
+            addNodeSpell(source,attrs)
+            addNodeSpell(target,attrs)
+            parseddate = cf.to_date(spell.attrib['start'])
+            if mindate > parseddate:
+                mindate = parseddate
+            if maxdate < parseddate:
+                maxdate = parseddate
+                        
+        if edgetype != None and cf.ADD_VIZ_STUFF == True:
+            sourceattrs.append(attvalue)
+            targetattrs.append(attvalue)
+        elif edgetype == None and cf.ADD_VIZ_STUFF == True:
+            edgestodelete.append(elem)
+            
+        if edgeid not in existingedges and altedgeid not in existingedges:
+            existingedges[edgeid] = elem
+        else: #Remove duplicate edges
+            edgestodelete.append(elem)
+    
     for e in edgestodelete:
         if e in edges:
             edges.remove(e)

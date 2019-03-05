@@ -52,7 +52,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
     print 'spacing is ',spacing
     
     if startdate is not None:
-        if spacing == '15minutes':
+        if spacing == 'hourly':
             delta = relativedelta(minutes=-60)
         elif spacing == 'daily':
             delta = relativedelta(days=-1)
@@ -473,6 +473,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
                     tag_counts[tagname] +=1  
     
     #Remove non-existent edges
+
     graph_copy.remove_edges_from(edges_to_remove)
     
     #Also remove the tag edges so not to influence k-core calculation
