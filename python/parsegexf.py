@@ -146,12 +146,17 @@ def updateTimestamps(tag,timestamp):
         tag.attrib['end'] = cf.stamp_to_str(float(timestamp))
         return
     if 'start' in tag.attrib:
-        timestamp = float(tag.attrib['start'])
-        tag.attrib['start'] = cf.stamp_to_str(timestamp)
+        try:
+            timestamp = float(tag.attrib['start'])
+            tag.attrib['start'] = cf.stamp_to_str(timestamp)
+        except ValueError:
+            return
     if 'end' in tag.attrib:
-        timestamp = float(tag.attrib['end'])                        
-        tag.attrib['end'] = cf.stamp_to_str(timestamp)
-        
+        try:
+            timestamp = float(tag.attrib['end'])                        
+            tag.attrib['end'] = cf.stamp_to_str(timestamp)
+        except ValueError:
+            return
 @app.route('/parse')
 def parse(gexffile):    
 
@@ -277,9 +282,33 @@ def parse(gexffile):
             count +=1
         d[None] = None
     else: #Generic stuff, not for commonfare data
+        #First, find all existing attributes
+        attributes = graph.findall('xmlns:attributes',namespaces)
+        atties = []
+        staticedgeattrib = None
+        for x in attributes:
+            if x.attrib['class'] == 'edge' and x.attrib['mode'] == 'static':
+                staticedgeattrib = x
+                for att in x.findall('xmlns:attribute',namespaces):
+                    print att.attrib['type']
+                    #atties.append(att)
+                    att.attrib['type'] = 'string' #Has to be done
+                    att.attrib['mode'] = 'dynamic' #I think this also has to be done
+                    atties.append(att)
+                break
+        if staticedgeattrib is not None:
+            graph.remove(staticedgeattrib)
+                
+        attrib = {'class':'edge','mode':'dynamic'}
+        edgeattrs = graph.makeelement('attributes',attrib)
+        graph.insert(1,edgeattrs)
+        attrib = {'id':'init','type':'string','title':'initiator'} 
+        attr = edgeattrs.makeelement('attribute',attrib)
+        edgeattrs.append(attr)
+        for x in atties:
+            edgeattrs.append(x)
         for n in nodes:
             attvalues = n.findall('xmlns:attvalues',namespaces)
-            #len(attvalues) > 1 if separate static/dynamic atts
             if len(attvalues) > 1: 
                 for attval in attvalues[1]:
                     attvalues[0].append(attval)
@@ -326,7 +355,6 @@ def parse(gexffile):
         else:
              
             attvalues = elem.findall('xmlns:attvalues',namespaces)
-            #len(attvalues) > 1 if separate static/dynamic atts
             if len(attvalues) > 1:
                 for attval in attvalues[1]:
                     attvalues[0].append(attval)
@@ -334,6 +362,9 @@ def parse(gexffile):
             if len(attvalues) > 0:
                 for attval in attvalues[0]:
                     updateTimestamps(attval,timestamp)
+                    #A lousy way of making it clear to whome the attribute belonged
+                    attval.attrib['value'] = elem.attrib['source'] + "/" + attval.attrib['value']
+        
         #Sometimes 'parseLabel' changes the source ID 
         source = elem.attrib['source']
         
@@ -351,22 +382,32 @@ def parse(gexffile):
                 
         edgeid = source + '-' + target
         altedgeid = target + '-' + source
-        
         #Get the 'spells' and 'attvalues' of this edge, or create them
+        attvalues = elem.find('xmlns:attvalues',namespaces)
+        #print attvalues
         if edgeid not in existingedges and altedgeid not in existingedges:
+            
             spells = elem.makeelement('spells',{})
             elem.append(spells)
-            attvalues = elem.find('xmlns:attvalues',namespaces)            
+            
             if attvalues is None: 
                 attvalues = elem.makeelement('attvalues', {})
                 elem.append(attvalues)
+                 
         else:
+            oldattvalues = attvalues
             if edgeid in existingedges:
                 spells = existingedges[edgeid].find('spells')
                 attvalues = existingedges[edgeid].find('attvalues')
             else:
                 spells = existingedges[altedgeid].find('spells')
                 attvalues = existingedges[altedgeid].find('attvalues')
+            if oldattvalues != None:
+                for att in oldattvalues:
+                    #att.attrib['value'] = elem.attrib
+                    attvalues.append(att)
+                   
+                
         
         #Dynamic data
         if cf.ADD_VIZ_STUFF == False: 
@@ -386,7 +427,12 @@ def parse(gexffile):
             attrib = {'value': source+'-'+target,'for':edgetype,'start':start,'end':end}           
             attvalue = attvalues.makeelement('attvalue',attrib)
             attvalues.append(attvalue)
-
+        else: #If we don't have different action types, we can at least store who instigated this action
+            attrib = {'value': source,'for':'init','start':start,'end':end}           
+            attvalue = attvalues.makeelement('attvalue',attrib)
+            attvalues.append(attvalue)
+            updateTimestamps(attvalue,timestamp)
+            
         #Find the nodes connected by this edge and add info on the action 
         sourceattrs = nodes.find("*/[@id='" + source +"']/*")
         targetattrs = nodes.find("*/[@id='" + target +"']/*")

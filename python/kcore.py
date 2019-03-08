@@ -33,17 +33,24 @@ def colluding(G,n1,n2,n1_weight,n2_weight,window):
     edge = G[n1][n2]
     edgeweight = 0
     frequency = 0
-    print 'checking between ',n1,' and ',n2
-    for action_key in cf.interaction_keys:
-        if action_key in edge:
-            for action in edge[action_key]:
-                if cf.in_date(window,action[1]):
-                    edgeweight = edgeweight + cf.weights[action_key][0]
-                    frequency = frequency + 1
-    n_weight = min(n1_weight,n2_weight)
+    if 'edgeweight' in G[n1][n2]:
+        edgeweight = G[n1][n2]['edgeweight'][n1]
+    else:
+        for action_key in cf.interaction_keys:
+            if action_key in edge:
+                for action in edge[action_key]:
+                    if cf.in_date(window,action[1]):
+                        edgeweight = edgeweight + cf.weights[action_key][0]
+                        frequency = frequency + 1
+    if n1_weight == 0:
+        n_weight = n2_weight
+    elif n2_weight == 0:
+        n_weight = n1_weight
+    else:
+        n_weight = min(n1_weight,n2_weight)
     return ((edgeweight/n_weight)*100) > cf.PERCENTAGE_THRESHOLD
 
-def nodeweight(G,node_id,window,suspect_nodes):
+def nodeweight(G,node_id,window,suspect_nodes,cumulative):
     """Calculate weight of a node in the interactions graph.
     
     This calculates a node's 'weight' by looking at the 
@@ -67,54 +74,62 @@ def nodeweight(G,node_id,window,suspect_nodes):
     edges = G.edges(node_id,data=True)
     edgeweights = []
     active_weeks = None
-    #'if len(active_weeks) > 52' is used throughout to check 
-    #if this is the cumulative graph
     
     if window[0] is not None:
-        #Find no. weeks this node is active from start of commonfare.net
-        active_weeks = [0] * ((window[1]-window[0]).days / 7) 
-        if len(active_weeks) > 52: #If this is the cumulative graph...
-            for spell in G.nodes[node_id]['spells']:
-                nodespell = cf.to_date(spell[1])
-                index = ((nodespell-window[0]).days / 7) -1
-                active_weeks[index] = 1
-            total_weeks_active = float(sum(active_weeks))
+        total_weeks_active = G.nodes[node_id]['times_active']
 
     maxweight = 0
     influence = 0
     flagged = False    
-    if len(cf.interaction_keys) == 0 and cf.WEIGHT_KEY == "":
-        return (G,{},1,False)
     for (u,v,c) in edges:
-    
+        initiated = 0
+
         #Constant used to decrease the 'value' of multiple interactions
         #between the same two nodes
         depreciating_constant = 0.75 
-        
+        if 'initiator' in c:
+            for edgey in c['initiator']:
+                if edgey[0] == node_id:
+                    initiated += 1
         overallweight = 0.0
         #We already have the edge weight, no need to do it manually
-        
-        #print c
+        #HOWEVER we have to separate it from the node ID
         if cf.WEIGHT_KEY in c:
-            overallweight = c[cf.WEIGHT_KEY]
-        elif active_weeks is None:
+            sourceweight = c[cf.WEIGHT_KEY][0]
+            targetweight = None if len(c[cf.WEIGHT_KEY]) == 1 else c[cf.WEIGHT_KEY][1]
+            #If A rates B 5 and B rates A 2, it's stored as [A/5,B/2]
+            if sourceweight[0].split('/')[0] == node_id:
+                if targetweight == None:
+                    overallweight = 0
+                else:
+                    overallweight = float(targetweight[0].split('/')[1])
+            else:
+                overallweight = float(sourceweight[0].split('/')[1])
+            #So it has to be done like this. There is probably a better way
+            #But I do not care right now.
+            #This seems more complicated than it ought to be 
+            
+        #This happens when things are static
+        elif total_weeks_active is None:
             overallweight = 1
+            
         else:
-            if len(active_weeks) > 52:
-              
+            if cumulative:
               #Estimate the 'influence' of this node. 
               #For each neighbour node, determine its activity
               #since connecting with this node
-                spelldate = cf.to_date(c['spells'][0][0])
-                after_weeks = [0]*((window[1] - spelldate).days / 7)
-                for spell in G.nodes[v]['spells']:
-                    nodespell = cf.to_date(spell[1])
-                    #If this spell happened afterwards...
-                    if (nodespell - spelldate).days >= 7: 
-                        index = ((nodespell-spelldate).days / 7)-1
-                        after_weeks[index] = 1
-                if len(after_weeks) > 0:
-                    influence = float(sum(after_weeks))/len(after_weeks)
+                spelldate = cf.to_date(c['first_active'])
+                after_weeks = ((window[1] - spelldate).days / 7)
+                count = 0
+                active_count = 0
+                for x in reversed(G.nodes[v]['binary_active']):
+                    if count == after_weeks:
+                        break
+                    else:
+                        active_count += float(x)
+                        count +=1
+                if after_weeks > 0:
+                    influence = active_count / after_weeks
                 else:
                     influence = 0
             action_count = 0   
@@ -160,8 +175,14 @@ def nodeweight(G,node_id,window,suspect_nodes):
                 c[action_key] = actions_to_keep     
                 
             if overallweight == 0:
-                continue 
-            if len(active_weeks) > 52:
+                #Some new trickery here to give the edge a weight based on
+                #the 'initiator' attvalues (if nothing else is there
+                for edgey in c['initiator']:
+                    if edgey[0] == node_id:
+                        overallweight += 0
+                    else:
+                        overallweight += 3
+            if cumulative:
                 '''
                 Reduce edgeweight based on its influence and
                 weeks active of the node. Reduction value = 
@@ -171,16 +192,17 @@ def nodeweight(G,node_id,window,suspect_nodes):
                 overallweight *= min(((math.exp(influence)-1)
                 * math.sqrt(total_weeks_active) +0.1),1)
             else: #'flag' a node if it has been particularly active 
-                if action_count > 7: 
+                if action_count > 7 or ('initiator' in c and len(c['initiator']) > 7): 
                     flagged = True
                     
         edgeweights.append(overallweight)
-        #print 'appended ',overallweight
         #Adds the edge's weight as an attribute
         if 'edgeweight' not in c:
             c['edgeweight'] = {}
+            c['initiated'] = {}
             c['maxweight'] = overallweight
         c['edgeweight'][node_id] = round(overallweight,2)
+        c['initiated'][node_id] = initiated
         c['maxweight'] = round(max(c['maxweight'],overallweight),2)
         maxweight = max(c['maxweight'],maxweight)
         
@@ -197,12 +219,11 @@ def nodeweight(G,node_id,window,suspect_nodes):
         
     if flagged: #High activity node, add it to dictionary 
         suspect_nodes[node_id] = sum(edgeweights)
-    #if len(active_weeks) > 52:
-    #    print 'edgeweight for node ',node_id,' is ',sum(edgeweights)
+        
     return (G,action_weights,sum(edgeweights),True)
     
 
-def weighted_core(G,window):
+def weighted_core(G,window,cumulative):
     """Compute weighted k-core for each node in a graph
     
     This extends the standard NetworkX k-core calculation method 
@@ -226,7 +247,7 @@ def weighted_core(G,window):
         #Compute the new node weight here
         #Also return 'action_weights' that holds node weight relevant
         #to each different action type 
-        (G,action_weights,weight,weighted) = nodeweight(G,k,window,suspect_nodes)
+        (G,action_weights,weight,weighted) = nodeweight(G,k,window,suspect_nodes,cumulative)
         G.nodes[k]['edgetotals'] = action_weights
         if len(action_weights) == 0:
             if v == 0:
@@ -257,7 +278,6 @@ def weighted_core(G,window):
     for i in activenodes:
         for j in activenodes:
             if colluding(G,i,j,suspect_nodes[i],suspect_nodes[j],window): 
-                print i,'and',j,'might be colluding'
                 colluders.append([i,j])
     
     #This is the k-core algorithm verbatim from the networkx module
@@ -289,7 +309,7 @@ def weighted_core(G,window):
     Use 'boxcox' to do log transformation with lambda=0
     First, 0 values need to be removed
     '''
-    if window[0] is None or ((window[1]-window[0]).days) > 52:
+    if window[0] is None or cumulative:
         log_core = {k: v for k, v in core.iteritems() if v >0}
         data = stats.boxcox(log_core.values(), 0)
 
@@ -322,8 +342,8 @@ def weighted_core(G,window):
             log_core[k] = int(math.ceil((float(v-k_min)/(k_max-k_min))*9))+1
     normalised_outliers_removed = {k: v for k, v in log_core.iteritems() if v >0}
     #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
-    #if ((window[1]-window[0]).days / 7) > 52:
-    if window[0] is None or ((window[1]-window[0]).days) > 2:
+    if cumulative:
+    #if window[0] is None or ((window[1]-window[0]).days) > 2:
         fig, axs = plt.subplots(1, 3, sharey=False, tight_layout=True)
         axs[0].hist(before_core.values(), 20)
         axs[1].hist(outliers_removed_core.values(), 20)

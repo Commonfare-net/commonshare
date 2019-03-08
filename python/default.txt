@@ -1,2 +1,3 @@
 nodetypes,
-granularity=weekly
+weight=rating
+granularity=monthly

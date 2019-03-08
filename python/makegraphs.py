@@ -47,7 +47,9 @@ def make_all_graphs(G,startdate,enddate,spacing):
 
         if 'type' not in c or c['type'] == cf.user_type:
             c_Gs[n] = []
-        c["tags"] = []    
+        c["tags"] = []   
+        c["times_active"] = 0
+        c["binary_active"] = ""
     #Dynamic data
     print 'spacing is ',spacing
     
@@ -87,11 +89,11 @@ def make_all_graphs(G,startdate,enddate,spacing):
         #Make individual historic files for each commoner
         if not os.path.exists(user_dir):
             os.makedirs(user_dir)
-        if spacing == 'biweekly':
-            for k,v in c_Gs.items():
-                if len(v) > 0:
-                    with open(user_dir + str(k) + '.json', 'w') as outfile:
-                        outfile.write(json.dumps(v))   
+        #if spacing == 'biweekly':
+        for k,v in c_Gs.items():
+            if len(v) > 0:
+                with open(user_dir + str(k) + '.json', 'w') as outfile:
+                    outfile.write(json.dumps(v))   
     else:
         graph_dir = "../data/output/graphdata/static/"
         if not os.path.exists(graph_dir):
@@ -143,7 +145,7 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         
     nodeiter = copy.deepcopy(G.nodes(data=True))
     for (n,c) in nodeiter:
-        if 'type' not in c or c['type'] != cf.user_type:
+        if 'type' in c and c['type'] != cf.user_type:
             continue
         #Ignore commoners who have done nothing
         if 'kcore' not in G.nodes[n] or G.nodes[n]['kcore'] == 0:
@@ -155,34 +157,42 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         #c_graph is the ego-centric graph of this commoner
         c_graph = nx.Graph()
         c_graph.add_node(n,**c)
-        c_graph.nodes[n]['t'] = c_graph.nodes[n]['name']
+        if 'name' in c_graph.nodes[n]:
+            c_graph.nodes[n]['t'] = c_graph.nodes[n]['name']
         #Delete unnecessary info 
-        del c_graph.nodes[n]['name']
-        del c_graph.nodes[n]['spells']
-        del c_graph.nodes[n]['tags']
+            del c_graph.nodes[n]['name']
+        #del c_graph.nodes[n]['spells']
+        if 'tags' in c_graph.nodes[n]:
+            del c_graph.nodes[n]['tags']
         if 'platform_id' in c_graph.nodes[n]:
             del c_graph.nodes[n]['platform_id']
-        del c_graph.nodes[n]['label']
+        if 'label' in c_graph.nodes[n]:
+            del c_graph.nodes[n]['label']
         if 'maxweight'  in c_graph.nodes[n]:
             del c_graph.nodes[n]['maxweight']
         #Add edges coming from this commoner
         #But remove specific interaction dates for efficiency
-        c_graph.add_edges_from(edges)
+        #c_graph.add_edges_from(edges)
         for action_key in cf.interaction_keys:
             if action_key in c_graph.nodes[n]:
                 #print c_graph.nodes[n][action_key]
                 c_graph.nodes[n][action_key] = [
                 i[0] for i in c_graph.nodes[n][action_key]
                 ] 
-
+        '''
         #Add nodes these edges connect to with minimal info
         for node in surrounding_nodes:
-            name = 'name' if 'name' in G.nodes[node] else 'title'
-            nodetype = G.nodes[node]['type']
-            c_graph.add_node(node,type=nodetype,t=G.nodes[node][name])
+            nodetype = None
+            name = None
+            if 'name' in G.nodes[node]:
+                name = G.nodes[node]['name']
+            if 'type' in G.nodes[node]:
+                nodetype = G.nodes[node]['type']
+            c_graph.add_node(node,type=nodetype,t=name)
 
         #Other edges are drawn between added nodes
         #Again with minimal information
+        
         all_edges = copy.deepcopy(G.edges(c_graph.nodes,data=True))
         for (u,v,x) in all_edges:
             if u in c_graph.nodes and v in c_graph.nodes:
@@ -192,14 +202,14 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
                         c_graph.edges[u,v][action_key] = [
                         i[0] for i in c_graph.edges[u,v][action_key]
                         ]
-                del c_graph.edges[u,v]['spells']
+                #del c_graph.edges[u,v]['spells']
                 if 'weight'  in c_graph.edges[u,v]:
                     del c_graph.edges[u,v]['weight']
                 if 'label' in c_graph.edges[u,v]:
                     del c_graph.edges[u,v]['label']
                 if 'maxweight' in c_graph.edges[u,v]:
                     del c_graph.edges[u,v]['maxweight']
-                
+        '''        
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
@@ -220,12 +230,7 @@ def filter_spells(G,window):
     nodeiter = G.nodes(data=True)      
     for (n,c) in nodeiter:
         nodemeta = []
-        spells_to_keep = []
-        for spell in c['spells']:
-            if cf.in_date(window,spell[0]):
-                spells_to_keep.append(spell)
-        c['spells'] = spells_to_keep
-        
+        del c['spells']
         for action_key in cf.interaction_keys:
             if action_key in c:
                 actions_to_keep = []
@@ -352,7 +357,7 @@ def make_dynamic_communities(core_G,communities,index):
     partitions = {}
     
     #Returns a dictionary pairing of node IDs to their community
-    partition = community.best_partition(core_G,weight='edgeweight')      
+    partition = community.best_partition(core_G,weight='maxweight')      
     #Swap node ID keys and community values around 
     for k,v in partition.iteritems():
         if v not in partitions:
@@ -414,24 +419,36 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     convo_count = 0
     trans_count = 0
     
+    print 'this takes'
     graph_copy = copy.deepcopy(G) #To avoid screwing future iterations        
-
+    print 'some time'
     nodeiter = G.nodes(data=True)
     edgeiter = G.edges(data=True)   
 
     #Filter edges outside time window and add count stats 
     for (u,v,c) in edgeiter:
+        c['activations'] = []
+        #edge_active = 0
         if window[0] is not None:
             edge_exists = False
             for intervals in c['spells']:
                 if (window[0] <= cf.to_date(intervals[0]) < window[1]):
                     edge_exists = True
+                    break
+                    #c['activations'].append(intervals[0])
+                    #edge_active = edge_active + 1
         else:
             edge_exists = True #Edge always exists in static network 
                      
         if edge_exists == False:
             edges_to_remove.append((u,v,c))
         else:
+            #Risky perhaps
+            copy_edge = graph_copy.edges[u,v]
+            copy_edge['first_active'] = copy_edge['spells'][0][0]
+            copy_edge['last_active'] = copy_edge['spells'][len(copy_edge['spells'])-1][0]
+            del graph_copy.edges[u,v]['spells']
+            #A snazzy new bit that might be helpful
             #TODO: This could be made generic to some extent
             if cf.ADD_VIZ_STUFF:
                 #Find node that wrote story, add it to their 'nodemeta'        
@@ -475,7 +492,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     #Remove non-existent edges
 
     graph_copy.remove_edges_from(edges_to_remove)
-    
+       
     #Also remove the tag edges so not to influence k-core calculation
     graph_copy.remove_edges_from((tag_edges))
     
@@ -485,36 +502,45 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     if window[0] is not None:
         for (n,c) in nodeiter:
             graph_copy.nodes[n]['nodemeta'] = []    
-            node_exists = False
             graph_copy.nodes[n]['date'] = cf.to_str(window[0])
             c['date'] = cf.to_str(window[0]) #TODO: Do both lines need to be here?
-            if 'spells' in c:
-                for intervals in c['spells']:
-                    if cf.in_date(window,intervals[0]):
-                        node_exists = True
-            if node_exists == False:
+            if nx.is_isolate(graph_copy,n):
                 nodes_to_remove.append(n) 
+                G.nodes[n]['binary_active'] += "0"
+                graph_copy.nodes[n]['binary_active'] += "0"                
                 if 'type' not in c or c['type'] == cf.user_type:
                     zero_nodes.append((n,c))
+            else:
+                G.nodes[n]['times_active'] += 1
+                graph_copy.nodes[n]['times_active'] += 1
+                G.nodes[n]['binary_active'] += "1"
+                graph_copy.nodes[n]['binary_active'] += "1"
+                
         graph_copy.remove_nodes_from(nodes_to_remove)
 
-        
         #Get rid of spells and actions that fall outside the window range 
         graph_copy = filter_spells(graph_copy,window)
    
     #DO THE KCORE CALCULATIONS HERE
-    (core_G,colluders) = dx.weighted_core(graph_copy.to_undirected(),window)
+    (core_G,colluders) = dx.weighted_core(graph_copy.to_undirected(),window,cumulative)
 
+    print 'BEFORE'
+    nodeiter = core_G.nodes(data=True)
+    for (n,c) in nodeiter:
+        print c
+            
     #Add the tags back in
     core_G.add_edges_from(tag_edges)
 
+    print 'AFTER'
     nodeiter = core_G.nodes(data=True)
     for (n,c) in nodeiter:
+        print c
         if 'type' in c and c['type'] == cf.tag_type:
             tag_nodes[n] = c
     
     #Recommender data is built from the cumulative graph 
-    if not cumulative:
+    if cf.ADD_VIZ_STUFF and not cumulative:
         build_commoner_data(core_G,commoner_graphs,zero_nodes)
     elif cf.ADD_VIZ_STUFF:
         #Only make the recommender data in the specific case of commonfare
@@ -525,25 +551,27 @@ def make_graphs(G,window,index,communities,commoner_graphs):
 
     #Give each edge the weight of its primary direction
     #TODO: Why not take into account other direction?
-    iter = core_G.edges(data=True)
+    #iter = core_G.edges(data=True)
+    '''
     for (u,v,c) in iter:
         if 'edgeweight' in c:
             c['edgeweight'] = c['edgeweight'][u]
         else:
             c['edgeweight'] = 1
-
-    #Now compare fronts to previous partitions
+    '''
+    #Now compare fronts to previous partitions   
     if not cumulative:
         partition = make_dynamic_communities(core_G,communities,index)
     else:
         undirectedGraph = core_G.to_undirected()
-        partition = community.best_partition(undirectedGraph,weight='edgeweight') 
-
+        partition = community.best_partition(undirectedGraph,weight='maxweight') 
+    
         
     nodeiter = core_G.nodes(data=True)
     for n,c in nodeiter:
         c['cluster'] = partition[n]
         if cf.LABEL_KEY != "":
+            print c
             c['label'] = c[cf.LABEL_KEY]
     core_graph_json = json_graph.node_link_data(core_G)
 
@@ -581,7 +609,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
                     }
         core_graph_json.update(meta_info)
     elif window[1] is not None:
-        meta_info = {'date':cf.to_str(window[1])}
+        meta_info = {'date':cf.to_str(window[1]),'colluders':colluders}
         core_graph_json.update(meta_info)
     return (communities,commoner_graphs,core_graph_json,core_G)
 

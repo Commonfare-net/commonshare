@@ -11,18 +11,11 @@ NUM_COLLUDERS = 2
 SPAMMERID = 22
 colluding_nodes = []
 oneyear = 365*24*3600
-#two_weeks = datetime.timedelta(days=14)
-#one_day = datetime.timedelta(days=1)
-#one_year = datetime.timedelta(days=365)
-#epoch = datetime.datetime.utcfromtimestamp(0)
-#mutual_interactions = [conversation,transaction]
-#indirect_interactions = [comment_story,comment_listing]
-
 
 #General purpose things
 
 FREQUENCY_THRESHOLD = 5
-PERCENTAGE_THRESHOLD = 33
+PERCENTAGE_THRESHOLD = 45
 
 ADD_VIZ_STUFF = True
 
