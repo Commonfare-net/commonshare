@@ -336,7 +336,6 @@ def parse(gexffile):
             edgeid = elem.attrib['id']
         source = elem.attrib['source']
         target = elem.attrib['target']
-        
         if 'timestamp' in elem.attrib:
             timestamp = elem.attrib['timestamp']
         else:
@@ -398,17 +397,26 @@ def parse(gexffile):
             oldattvalues = attvalues
             if edgeid in existingedges:
                 spells = existingedges[edgeid].find('spells')
-                attvalues = existingedges[edgeid].find('attvalues')
+                attvalues = existingedges[edgeid].find('xmlns:attvalues')
+                if attvalues == None:
+                    attvalues = existingedges[edgeid].find('attvalues')
             else:
                 spells = existingedges[altedgeid].find('spells')
-                attvalues = existingedges[altedgeid].find('attvalues')
+                attvalues = existingedges[altedgeid].find('xmlns:attvalues')
+                if attvalues == None:
+                    attvalues = existingedges[altedgeid].find('attvalues')
             if oldattvalues != None:
                 for att in oldattvalues:
                     #att.attrib['value'] = elem.attrib
                     attvalues.append(att)
                    
-                
-        
+        #I think this needs to be done here for graphs that DON'T have a timestamp
+        #but are bi-directional for whatever reason
+        if edgeid not in existingedges and altedgeid not in existingedges:
+            existingedges[edgeid] = elem
+        else: #Remove duplicate edges
+            edgestodelete.append(elem)
+            
         #Dynamic data
         if cf.ADD_VIZ_STUFF == False: 
             if timestamp is not None:
@@ -456,10 +464,8 @@ def parse(gexffile):
         elif edgetype == None and cf.ADD_VIZ_STUFF == True:
             edgestodelete.append(elem)
             
-        if edgeid not in existingedges and altedgeid not in existingedges:
-            existingedges[edgeid] = elem
-        else: #Remove duplicate edges
-            edgestodelete.append(elem)
+            
+
     
     for e in edgestodelete:
         if e in edges:
@@ -467,7 +473,7 @@ def parse(gexffile):
 
     #Set date of first and last interaction in root tag of GEXF file
     #If mindate or maxdate is None then this means we've got a static network
-    if mindate is not None:
+    if mindate is not None and mindate != datetime(3333,10,1):
         graph.set('start',cf.to_str(mindate))
         graph.set('end',cf.to_str(maxdate))
     filename = os.path.splitext(filename)[0]

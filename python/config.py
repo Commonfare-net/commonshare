@@ -19,8 +19,8 @@ PERCENTAGE_THRESHOLD = 45
 
 ADD_VIZ_STUFF = True
 
-user_type = "commoner"
-tag_type = "tag"
+user_type = ""
+tag_type = ""
 
 #These are all read in from the config.txt file now 
 interaction_keys =[]

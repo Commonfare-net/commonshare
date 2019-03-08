@@ -230,7 +230,8 @@ def filter_spells(G,window):
     nodeiter = G.nodes(data=True)      
     for (n,c) in nodeiter:
         nodemeta = []
-        del c['spells']
+        if 'spells' in c:
+            del c['spells']
         for action_key in cf.interaction_keys:
             if action_key in c:
                 actions_to_keep = []
@@ -300,12 +301,15 @@ def make_recommender_data(G,window,tag_edges):
         if 'edgemeta' in c:
             del c['edgemeta']
         #Find most recent activation of this edge (used for PageRank)
-        updated = cf.to_date(c['spells'][0][1])
-        for spell in c['spells']:
-            if cf.to_date(spell[1]) > updated:
-                updated = cf.to_date(spell[1])
-        c['last_date'] = cf.to_str(updated)                 
-
+        #updated = cf.to_date(c['spells'][0][1])
+        #for spell in c['spells']:
+        #    if cf.to_date(spell[1]) > updated:
+        #        updated = cf.to_date(spell[1])
+        print c
+        if 'last_active' in c:
+            c['last_date'] = c['last_active']                 
+        else:
+            c['last_date'] = c['spells'][0][1]
     #create the 'recommenderdata.gexf' file for use by pagerank.py
     nx.write_gexf(G,"newdata.gexf")
     tree = ET.parse("newdata.gexf")  
@@ -411,7 +415,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     """
     edges_to_remove = []    
     tag_edges = []
-    tag_nodes = {}
+    #tag_nodes = {}
     tag_counts = {} #Holds counts of each of the tags      
     cumulative = (index == 0)
     create_count = 0
@@ -419,24 +423,19 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     convo_count = 0
     trans_count = 0
     
-    print 'this takes'
     graph_copy = copy.deepcopy(G) #To avoid screwing future iterations        
-    print 'some time'
     nodeiter = G.nodes(data=True)
     edgeiter = G.edges(data=True)   
 
     #Filter edges outside time window and add count stats 
     for (u,v,c) in edgeiter:
         c['activations'] = []
-        #edge_active = 0
         if window[0] is not None:
             edge_exists = False
             for intervals in c['spells']:
                 if (window[0] <= cf.to_date(intervals[0]) < window[1]):
                     edge_exists = True
                     break
-                    #c['activations'].append(intervals[0])
-                    #edge_active = edge_active + 1
         else:
             edge_exists = True #Edge always exists in static network 
                      
@@ -445,11 +444,10 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         else:
             #Risky perhaps
             copy_edge = graph_copy.edges[u,v]
-            copy_edge['first_active'] = copy_edge['spells'][0][0]
-            copy_edge['last_active'] = copy_edge['spells'][len(copy_edge['spells'])-1][0]
+            if window[0] is not None:
+                copy_edge['first_active'] = copy_edge['spells'][0][0]
+                copy_edge['last_active'] = copy_edge['spells'][len(copy_edge['spells'])-1][0]
             del graph_copy.edges[u,v]['spells']
-            #A snazzy new bit that might be helpful
-            #TODO: This could be made generic to some extent
             if cf.ADD_VIZ_STUFF:
                 #Find node that wrote story, add it to their 'nodemeta'        
                 if G.nodes[u]["type"] == "story":
@@ -524,20 +522,15 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     #DO THE KCORE CALCULATIONS HERE
     (core_G,colluders) = dx.weighted_core(graph_copy.to_undirected(),window,cumulative)
 
-    print 'BEFORE'
-    nodeiter = core_G.nodes(data=True)
-    for (n,c) in nodeiter:
-        print c
-            
     #Add the tags back in
     core_G.add_edges_from(tag_edges)
 
-    print 'AFTER'
+    to_remove = []
     nodeiter = core_G.nodes(data=True)
     for (n,c) in nodeiter:
-        print c
-        if 'type' in c and c['type'] == cf.tag_type:
-            tag_nodes[n] = c
+        if cf.user_type != '' and 'type' not in c: #If there are meant to be types but we can't find any
+            to_remove.append(n)
+    core_G.remove_nodes_from(to_remove)
     
     #Recommender data is built from the cumulative graph 
     if cf.ADD_VIZ_STUFF and not cumulative:
@@ -549,16 +542,6 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     #Remove isolated nodes that exist after removing Basic Income 
     core_G.remove_nodes_from(list(nx.isolates(core_G)))
 
-    #Give each edge the weight of its primary direction
-    #TODO: Why not take into account other direction?
-    #iter = core_G.edges(data=True)
-    '''
-    for (u,v,c) in iter:
-        if 'edgeweight' in c:
-            c['edgeweight'] = c['edgeweight'][u]
-        else:
-            c['edgeweight'] = 1
-    '''
     #Now compare fronts to previous partitions   
     if not cumulative:
         partition = make_dynamic_communities(core_G,communities,index)
@@ -571,8 +554,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     for n,c in nodeiter:
         c['cluster'] = partition[n]
         if cf.LABEL_KEY != "":
-            print c
-            c['label'] = c[cf.LABEL_KEY]
+            c['label'] = 'tag' if cf.LABEL_KEY not in c else c[cf.LABEL_KEY]
     core_graph_json = json_graph.node_link_data(core_G)
 
     #Some meta-info stuff
@@ -648,9 +630,9 @@ def init(filename,configfile):
                 
                 if len(row) == 1:
                     break
-                if row[1] == 1:
+                if row[1] == '1':
                     cf.user_type = row[0]
-                elif row[1] == 2:
+                elif row[1] == '2':
                     cf.tag_type = row[0]
                 row = spamreader.next()
             except StopIteration as e:

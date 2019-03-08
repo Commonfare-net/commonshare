@@ -77,7 +77,8 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
     
     if window[0] is not None:
         total_weeks_active = G.nodes[node_id]['times_active']
-
+    else:
+        total_weeks_active = None
     maxweight = 0
     influence = 0
     flagged = False    
@@ -95,16 +96,20 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
         #We already have the edge weight, no need to do it manually
         #HOWEVER we have to separate it from the node ID
         if cf.WEIGHT_KEY in c:
-            sourceweight = c[cf.WEIGHT_KEY][0]
-            targetweight = None if len(c[cf.WEIGHT_KEY]) == 1 else c[cf.WEIGHT_KEY][1]
-            #If A rates B 5 and B rates A 2, it's stored as [A/5,B/2]
-            if sourceweight[0].split('/')[0] == node_id:
-                if targetweight == None:
-                    overallweight = 0
+            #However it might just be a float if it's an undirected graph
+            try:
+                sourceweight = c[cf.WEIGHT_KEY][0]
+                targetweight = None if len(c[cf.WEIGHT_KEY]) == 1 else c[cf.WEIGHT_KEY][1]
+                #If A rates B 5 and B rates A 2, it's stored as [A/5,B/2]
+                if sourceweight[0].split('/')[0] == node_id:
+                    if targetweight == None:
+                        overallweight = 0
+                    else:
+                        overallweight = float(targetweight[0].split('/')[1])
                 else:
-                    overallweight = float(targetweight[0].split('/')[1])
-            else:
-                overallweight = float(sourceweight[0].split('/')[1])
+                    overallweight = float(sourceweight[0].split('/')[1])
+            except TypeError:
+                overallweight = c[cf.WEIGHT_KEY]
             #So it has to be done like this. There is probably a better way
             #But I do not care right now.
             #This seems more complicated than it ought to be 

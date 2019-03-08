@@ -1,3 +1,2 @@
 nodetypes,
-weight=rating
 granularity=monthly
