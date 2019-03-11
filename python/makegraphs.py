@@ -305,7 +305,6 @@ def make_recommender_data(G,window,tag_edges):
         #for spell in c['spells']:
         #    if cf.to_date(spell[1]) > updated:
         #        updated = cf.to_date(spell[1])
-        print c
         if 'last_active' in c:
             c['last_date'] = c['last_active']                 
         else:
@@ -533,7 +532,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     core_G.remove_nodes_from(to_remove)
     
     #Recommender data is built from the cumulative graph 
-    if cf.ADD_VIZ_STUFF and not cumulative:
+    if not cumulative:
         build_commoner_data(core_G,commoner_graphs,zero_nodes)
     elif cf.ADD_VIZ_STUFF:
         #Only make the recommender data in the specific case of commonfare
@@ -554,7 +553,9 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     for n,c in nodeiter:
         c['cluster'] = partition[n]
         if cf.LABEL_KEY != "":
-            c['label'] = 'tag' if cf.LABEL_KEY not in c else c[cf.LABEL_KEY]
+            c['label'] = c[cf.LABEL_KEY]
+        else:
+            c['label'] = str(n)
     core_graph_json = json_graph.node_link_data(core_G)
 
     #Some meta-info stuff
@@ -647,6 +648,10 @@ def init(filename,configfile):
             row = spamreader.next()
         if row[0].startswith('granularity'):
             granularity = row[0].split("=")[1]
+            row = spamreader.next()
+        if row[0].startswith('viz'):
+            viz = row[0].split("=")[1]
+            cf.ADD_VIZ_STUFF = True if viz == "true" else False
     G_read = nx.read_gexf(filename)
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  

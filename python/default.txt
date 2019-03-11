@@ -1,2 +1,3 @@
 nodetypes,
 granularity=monthly
+viz=false

@@ -252,7 +252,9 @@ def parse(gexffile):
         edgeattrs = graph.makeelement('attributes',attrib)
         graph.insert(1,dnodeattrs)
         graph.insert(2,edgeattrs)
-
+        attrib = {'id':'init','type':'string','title':'initiator'} 
+        attr = edgeattrs.makeelement('attribute',attrib)
+        edgeattrs.append(attr)
         #New attribute IDs start at 6 because the platform ID attribute is 5
         count = 6
 
@@ -320,7 +322,7 @@ def parse(gexffile):
             if spells is not None:
                 for spell in spells:
                     updateTimestamps(spell,None)
-                    
+        
     #Here we figure out edges that need to be deleted
     edges = graph.find('xmlns:edges',namespaces)
     edgestodelete = []
@@ -435,11 +437,11 @@ def parse(gexffile):
             attrib = {'value': source+'-'+target,'for':edgetype,'start':start,'end':end}           
             attvalue = attvalues.makeelement('attvalue',attrib)
             attvalues.append(attvalue)
-        else: #If we don't have different action types, we can at least store who instigated this action
-            attrib = {'value': source,'for':'init','start':start,'end':end}           
-            attvalue = attvalues.makeelement('attvalue',attrib)
-            attvalues.append(attvalue)
-            updateTimestamps(attvalue,timestamp)
+        #else: #If we don't have different action types, we can at least store who instigated this action
+        attrib = {'value': source,'for':'init','start':start,'end':end}           
+        attvalue = attvalues.makeelement('attvalue',attrib)
+        attvalues.append(attvalue)
+        updateTimestamps(attvalue,timestamp)
             
         #Find the nodes connected by this edge and add info on the action 
         sourceattrs = nodes.find("*/[@id='" + source +"']/*")
@@ -458,10 +460,11 @@ def parse(gexffile):
             if maxdate < parseddate:
                 maxdate = parseddate
                         
-        if edgetype != None and cf.ADD_VIZ_STUFF == True:
-            sourceattrs.append(attvalue)
-            targetattrs.append(attvalue)
-        elif edgetype == None and cf.ADD_VIZ_STUFF == True:
+        #if edgetype != None and cf.ADD_VIZ_STUFF == True:
+        #    sourceattrs.append(attvalue)
+        #    targetattrs.append(attvalue)
+        #elif edgetype == None and cf.ADD_VIZ_STUFF == True:
+        if edgetype == None and cf.ADD_VIZ_STUFF == True:
             edgestodelete.append(elem)
             
             
