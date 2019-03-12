@@ -292,8 +292,6 @@ def parse(gexffile):
             if x.attrib['class'] == 'edge' and x.attrib['mode'] == 'static':
                 staticedgeattrib = x
                 for att in x.findall('xmlns:attribute',namespaces):
-                    print att.attrib['type']
-                    #atties.append(att)
                     att.attrib['type'] = 'string' #Has to be done
                     att.attrib['mode'] = 'dynamic' #I think this also has to be done
                     atties.append(att)

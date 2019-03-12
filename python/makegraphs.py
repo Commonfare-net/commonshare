@@ -16,7 +16,7 @@ from networkx.readwrite import json_graph
 import config as cf
 import kcore as dx
 
-def make_all_graphs(G,startdate,enddate,spacing):     
+def make_all_graphs(G,startdate,enddate,spacing,filename):     
     """Generate all JSON files from NetworkX graph
     
     This method generates a JSON file for the cumulative
@@ -66,8 +66,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
             delta = relativedelta(months=-1)
         else:
             delta = relativedelta(months=-1)
-        graph_dir = '../data/output/graphdata/'+spacing+'/'
-        user_dir = '../data/output/userdata/'
+        graph_dir = '../data/output/'+filename+'/graphdata/'
+        user_dir = '../data/output/'+filename+'userdata/'
         
         #Make dates for first interaction 'window'
         w_end = enddate
@@ -95,7 +95,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
                 with open(user_dir + str(k) + '.json', 'w') as outfile:
                     outfile.write(json.dumps(v))   
     else:
-        graph_dir = "../data/output/graphdata/static/"
+        graph_dir = "../data/output/"+filename+"/graphdata/"
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
     #Make cumulative graph
@@ -671,7 +671,7 @@ def init(filename,configfile):
         startdate = None
         enddate = None
  
-    make_all_graphs(G_read,startdate,enddate,granularity)   
+    make_all_graphs(G_read,startdate,enddate,granularity,filename.split(".")[0])   
     
 
 if __name__ == "__main__":
