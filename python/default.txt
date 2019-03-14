@@ -1,3 +1,4 @@
 nodetypes,
-granularity=monthly
+weight=rating
+granularity=yearly
 viz=false

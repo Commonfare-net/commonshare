@@ -149,7 +149,7 @@ def updateTimestamps(tag,timestamp):
         try:
             timestamp = float(tag.attrib['start'])
             tag.attrib['start'] = cf.stamp_to_str(timestamp)
-        except ValueError:
+        except ValueError as e:
             return
     if 'end' in tag.attrib:
         try:
@@ -289,13 +289,14 @@ def parse(gexffile):
         atties = []
         staticedgeattrib = None
         for x in attributes:
-            if x.attrib['class'] == 'edge' and x.attrib['mode'] == 'static':
+            if x.attrib['class'] == 'edge':# and x.attrib['mode'] == 'static':
+                print 'found an edge attribute type'
                 staticedgeattrib = x
                 for att in x.findall('xmlns:attribute',namespaces):
                     att.attrib['type'] = 'string' #Has to be done
                     att.attrib['mode'] = 'dynamic' #I think this also has to be done
                     atties.append(att)
-                break
+                #break
         if staticedgeattrib is not None:
             graph.remove(staticedgeattrib)
                 
@@ -306,6 +307,7 @@ def parse(gexffile):
         attr = edgeattrs.makeelement('attribute',attrib)
         edgeattrs.append(attr)
         for x in atties:
+        
             edgeattrs.append(x)
         for n in nodes:
             attvalues = n.findall('xmlns:attvalues',namespaces)
@@ -385,10 +387,11 @@ def parse(gexffile):
         attvalues = elem.find('xmlns:attvalues',namespaces)
         #print attvalues
         if edgeid not in existingedges and altedgeid not in existingedges:
-            
-            spells = elem.makeelement('spells',{})
-            elem.append(spells)
-            
+            if elem.find('xmlns:spells') == None:
+                spells = elem.makeelement('spells',{})
+                elem.append(spells)
+            else:
+                spells = elem.find('xmlns:spells')
             if attvalues is None: 
                 attvalues = elem.makeelement('attvalues', {})
                 elem.append(attvalues)
@@ -423,11 +426,24 @@ def parse(gexffile):
                 start = timestamp
                 end = timestamp
             else:
+                if len(spells) > 0:
+                    for spell in spells:
+                        updateTimestamps(spell,None)
+                        parseddate = cf.to_date(spell.attrib['start'])
+                        if mindate > parseddate:
+                            mindate = parseddate
+                        if maxdate < parseddate:
+                            maxdate = parseddate
+                        attrib = {'value': source,'for':'init','start':spell.attrib['start'],'end':spell.attrib['end']}           
+                        attvalue = attvalues.makeelement('attvalue',attrib)
+                        attvalues.append(attvalue)
+                        updateTimestamps(attvalue,timestamp)    
                 continue
             
         #Add the 'spell' of this action (start date and end date)
         attrib = {'start':start,'end':end}
         spell = spells.makeelement('spell',attrib)
+        #updateTimestamps(spell,timestamp)
         spells.append(spell)
         
         #Store more info in the 'attvalue' - initiator of action and its type

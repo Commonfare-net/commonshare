@@ -18,7 +18,7 @@ FREQUENCY_THRESHOLD = 5
 PERCENTAGE_THRESHOLD = 45
 
 ADD_VIZ_STUFF = False
-
+DIRECTED = True
 user_type = ""
 tag_type = ""
 
@@ -33,9 +33,12 @@ weights = dict()
 WEIGHT_KEY = ""
 LABEL_KEY = ""          
 def stamp_to_str(timestamp):
-
-    return to_str(datetime.datetime.fromtimestamp(timestamp))
-    
+    try:
+        return to_str(datetime.datetime.fromtimestamp(timestamp))
+    except Exception as e:
+        timestamp = timestamp / 1000 #Maybe it's in milliseconds
+        return to_str(datetime.datetime.fromtimestamp(timestamp))
+        
 def to_str(date):
     """Convert datetime date to string
 

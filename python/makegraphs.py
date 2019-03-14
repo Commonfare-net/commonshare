@@ -40,6 +40,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
     (either 'weekly', 'biweekly' or 'monthly'
 
     """
+    print 'filename is ',filename
     c_Gs = {}
     coms = []
     #Create dicts to hold the interaction data for each commoner    
@@ -65,7 +66,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
         elif spacing == 'monthly':
             delta = relativedelta(months=-1)
         else:
-            delta = relativedelta(months=-1)
+            delta = relativedelta(years=-1)
         graph_dir = '../data/output/'+filename+'/graphdata/'
         user_dir = '../data/output/'+filename+'userdata/'
         
@@ -100,6 +101,47 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
             os.makedirs(graph_dir)
     #Make cumulative graph
     (coms,c_Gs,json_G,G_new) = make_graphs(G,(startdate,enddate),0,coms,None)
+    '''
+    #COMMENT OUT IF WE'RE NOT DOING BITCOIN
+    #Do the Bitcoin ground truth stuff
+    #Get all nanotube's trusted folks:
+    trustedfolks = []
+    untrustedfolks = []
+    highsandlows = {}
+    edgeiter = G_new.edges('1',data=True)   
+    for (u,v,c) in edgeiter:
+        for rating in c['rating']:
+            ratingbits = rating[0].split('/')
+            if ratingbits[0] == '1' and int(ratingbits[1]) >= 5:
+                print 'nano tube high: ',u,'-',v
+                trustedfolks.append(v);
+                break
+    trustedfolks.append('1')
+    #Now get all the untrustworthy folks
+    for trusted in trustedfolks:
+        edgeiter = G_new.edges(trusted,data=True)
+        for (u,v,c) in edgeiter:
+            for rating in c['rating']:
+                ratingbits = rating[0].split('/')
+                if ratingbits[0] == trusted and int(ratingbits[1]) >= 5:
+                    if v not in highsandlows:
+                        highsandlows[v] = 1
+                    else:
+                        highsandlows[v] += 1
+                    break
+                elif ratingbits[0] == trusted and int(ratingbits[1]) <= -5:
+                    if v not in highsandlows:
+                        highsandlows[v] = -1
+                    else:
+                        highsandlows[v] -= 1
+                    break
+    for k,v in highsandlows.iteritems():
+        if v <= -3:
+            untrustedfolks.append(k)
+    json_G['trusted'] = trustedfolks
+    json_G['untrusted'] = untrustedfolks
+    #OKAY WE'RE DONE WITH BITCOIN
+    '''
     dynamic_communities = {}
     for i in coms:
         if len(i) > 2:
@@ -652,6 +694,12 @@ def init(filename,configfile):
         if row[0].startswith('viz'):
             viz = row[0].split("=")[1]
             cf.ADD_VIZ_STUFF = True if viz == "true" else False
+        try:
+            row = spamreader.next()
+            if row[0].startswith('directed'):
+                cf.DIRECTED = False
+        except StopIteration as e:
+            print 'finished'
     G_read = nx.read_gexf(filename)
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
@@ -671,7 +719,14 @@ def init(filename,configfile):
         startdate = None
         enddate = None
  
-    make_all_graphs(G_read,startdate,enddate,granularity,filename.split(".")[0])   
+    filepath = filename.split(".")
+    filename = filepath[len(filepath)-2]
+    suffix = filename.split("/")
+    if len(suffix) > 0:
+        filename = suffix[len(suffix)-1]
+    else:
+        filename = suffix[0]
+    make_all_graphs(G_read,startdate,enddate,granularity,filename)   
     
 
 if __name__ == "__main__":

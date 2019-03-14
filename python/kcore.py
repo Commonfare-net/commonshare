@@ -68,6 +68,7 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
 
     #This holds the contribution of each type of action to
     #the node's overall weight 
+   
     action_weights = {}
     for meta in cf.meta_networks:
         action_weights[meta] = 0
@@ -98,16 +99,23 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
         if cf.WEIGHT_KEY in c:
             #However it might just be a float if it's an undirected graph
             try:
-                sourceweight = c[cf.WEIGHT_KEY][0]
-                targetweight = None if len(c[cf.WEIGHT_KEY]) == 1 else c[cf.WEIGHT_KEY][1]
-                #If A rates B 5 and B rates A 2, it's stored as [A/5,B/2]
-                if sourceweight[0].split('/')[0] == node_id:
-                    if targetweight == None:
-                        overallweight = 0
+                for some_weight in c[cf.WEIGHT_KEY]:
+                    if not cf.in_date(window,some_weight[1]):
+                        continue
+                    sourceweight = c[cf.WEIGHT_KEY][0]
+                    if cf.DIRECTED == False:
+                        targetweight = sourceweight
                     else:
-                        overallweight = float(targetweight[0].split('/')[1])
-                else:
-                    overallweight = float(sourceweight[0].split('/')[1])
+                        targetweight = None if len(c[cf.WEIGHT_KEY]) == 1 else c[cf.WEIGHT_KEY][1]
+                    #If A rates B 5 and B rates A 2, it's stored as [A/5,B/2]
+                    if sourceweight[0].split('/')[0] == node_id:
+                        if targetweight == None:
+                            overallweight += 0
+                        else:
+                            overallweight += float(targetweight[0].split('/')[1])
+                    else:
+                        overallweight += float(sourceweight[0].split('/')[1])
+                    break
             except TypeError:
                 overallweight = c[cf.WEIGHT_KEY]
             #So it has to be done like this. There is probably a better way
@@ -315,6 +323,7 @@ def weighted_core(G,window,cumulative):
     First, 0 values need to be removed
     '''
     if window[0] is None or cumulative:
+       
         log_core = {k: v for k, v in core.iteritems() if v >0}
         data = stats.boxcox(log_core.values(), 0)
 
@@ -366,8 +375,14 @@ def weighted_core(G,window,cumulative):
     #Add k-core value to each node in the graph
     #Also update the average and cumulative action weights
     #by multiplying them by the node's k-core value
+    lowcomm = 0
+    highcomm = 0
     for (n,c) in nodeiter:
         G.nodes[n]['kcore'] = log_core[n]
+        if log_core[n] >= 5:
+            highcomm += 1
+        else:
+            lowcomm += 1
         if 'cumu' in c:
             G.nodes[n]['cumu'] = {
             k:(v*c['kcore']) for k,v in c['cumu'].items()
@@ -375,5 +390,6 @@ def weighted_core(G,window,cumulative):
             G.nodes[n]['avg'] = {
             k:(v*c['kcore']) for k,v in c['avg'].items()
             }
+    print 'highcomm ',highcomm,' and lowcomm, ',lowcomm
     return (G,colluders)
  
