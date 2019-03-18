@@ -126,10 +126,10 @@ def nodeweight(G,node_id,window,suspect_nodes):
                 '''
                 Depreciate weight of the edge as a function of 
                 the number of days old it is. 
-                e^(-days/50) seems to work well. 
+                e^(-days/100) seems to work well. 
                 '''
                 tdelta = window[1] - cf.to_date(action[1])
-                agefraction = math.exp(-(float(tdelta.days)/50))
+                agefraction = math.exp(-(float(tdelta.days)/100))
                 '''
                 Also depreciate the value of subsequent 
                 interactions along the same edge by 25% each time
@@ -156,8 +156,10 @@ def nodeweight(G,node_id,window,suspect_nodes):
             (e^influence)-1 * square_root(weeks active) + 0.1
             Minimum reduction = 0.1 when influence is 0
             '''
-            overallweight *= min(((math.exp(influence)-1)
+
+            overallweight *= min(((pow(1.3,influence)-1)
             * math.sqrt(total_weeks_active) +0.1),1)
+          
         else: #'flag' a node if it has been particularly active 
             if action_count > 7: 
                 flagged = True
@@ -170,6 +172,8 @@ def nodeweight(G,node_id,window,suspect_nodes):
             c['maxweight'] = overallweight
         c['edgeweight'][node_id] = round(overallweight,2)
         c['maxweight'] = round(max(c['maxweight'],overallweight),2)
+        if overallweight > cf.MAX_WEIGHT:
+            cf.MAX_WEIGHT = overallweight
         maxweight = max(c['maxweight'],maxweight)
         
         if 'maxweight' not in G.nodes[u]:
@@ -185,8 +189,8 @@ def nodeweight(G,node_id,window,suspect_nodes):
         
     if flagged: #High activity node, add it to dictionary 
         suspect_nodes[node_id] = sum(edgeweights)
-    if len(active_weeks) > 52:
-        print 'edgeweight for node ',node_id,' is ',sum(edgeweights)
+    #if len(active_weeks) > 52:
+    #    print 'edgeweight for node ',node_id,' is ',sum(edgeweights)
     return (G,action_weights,sum(edgeweights))
     
 
@@ -209,6 +213,7 @@ def weighted_core(G,window):
     sumofedges = {}
     colluders = []
     degrees = dict(G.degree())
+    cf.MAX_WEIGHT = 0
     
     for k,v in degrees.items():
         #Compute the new node weight here

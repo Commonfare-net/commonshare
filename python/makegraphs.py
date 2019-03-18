@@ -67,6 +67,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
         (coms,c_Gs,json_G,G_new) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
+        json_G['absolute_max'] = cf.MAX_WEIGHT
         with open(graph_dir + str(index) + '.json', 'w') as outfile:
             outfile.write(json.dumps(json_G))
         w_end = w_start
@@ -98,7 +99,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
                             central_node = n['name']
                             k_high = k
             dynamic_communities[central_node + str(coms.index(i))] = i
-    json_G['dynamic_comms'] = dynamic_communities   
+    json_G['dynamic_comms'] = dynamic_communities 
+    json_G['absolute_max'] = cf.MAX_WEIGHT    
     with open(graph_dir + '0.json', 'w') as outfile:
             outfile.write(json.dumps(json_G))
 

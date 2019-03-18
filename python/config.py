@@ -13,7 +13,7 @@ SHOULD_CLIQUE = True
 SHOULD_COLLUDE = True
 NUM_COLLUDERS = 2
 SPAMMERID = 22
-
+MAX_WEIGHT = 0
 colluding_nodes = []
 oneyear = 365*24*3600
 two_weeks = datetime.timedelta(days=14)
