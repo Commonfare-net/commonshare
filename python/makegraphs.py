@@ -101,7 +101,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
             os.makedirs(graph_dir)
     #Make cumulative graph
     (coms,c_Gs,json_G,G_new) = make_graphs(G,(startdate,enddate),0,coms,None)
-    '''
+    
     #COMMENT OUT IF WE'RE NOT DOING BITCOIN
     #Do the Bitcoin ground truth stuff
     #Get all nanotube's trusted folks:
@@ -112,7 +112,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
     for (u,v,c) in edgeiter:
         for rating in c['rating']:
             ratingbits = rating[0].split('/')
-            if ratingbits[0] == '1' and int(ratingbits[1]) >= 5:
+            if ratingbits[0] == '1' and int(ratingbits[1]) >= 3:
                 print 'nano tube high: ',u,'-',v
                 trustedfolks.append(v);
                 break
@@ -123,25 +123,25 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
         for (u,v,c) in edgeiter:
             for rating in c['rating']:
                 ratingbits = rating[0].split('/')
-                if ratingbits[0] == trusted and int(ratingbits[1]) >= 5:
+                if ratingbits[0] == trusted and int(ratingbits[1]) >= 4:
                     if v not in highsandlows:
                         highsandlows[v] = 1
                     else:
                         highsandlows[v] += 1
                     break
-                elif ratingbits[0] == trusted and int(ratingbits[1]) <= -5:
+                elif ratingbits[0] == trusted and int(ratingbits[1]) <= -4:
                     if v not in highsandlows:
                         highsandlows[v] = -1
                     else:
                         highsandlows[v] -= 1
                     break
     for k,v in highsandlows.iteritems():
-        if v <= -3:
+        if v <= -2:
             untrustedfolks.append(k)
     json_G['trusted'] = trustedfolks
     json_G['untrusted'] = untrustedfolks
     #OKAY WE'RE DONE WITH BITCOIN
-    '''
+    
     dynamic_communities = {}
     for i in coms:
         if len(i) > 2:
