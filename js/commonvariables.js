@@ -25,7 +25,7 @@ var parseTime = d3.timeParse("%Y/%m/%d");
 
 //Various date formats
 var formatDate = d3.timeFormat("%Y/%m/%d");
-var tickf = d3.timeFormat("%b\n%y");
+var tickf = d3.timeFormat("%b-%y");
 var ttf = d3.timeFormat("%b %d");
 
 var urlParams = new URLSearchParams(window.location.search);
@@ -233,14 +233,14 @@ d3.json('../data/output/userdata/' + uid + '.json').then(results => {
 	plotdonut(graph_data[0], node_data[0]);
 	$('#donutdate').text(getDateText(node_data[currentdonut]));
 	numticks = results.length;
-	plotsimpleline(uid);
+	plotsimpleline();
 }).catch(err => {
 	console.log(err);
 });
 
 
 function findNode(node) {
-	return node['platform_id'] == uid;
+	return node['id'] == uid;
 }
 //From https://stackoverflow.com/questions/38224875/replacing-d3-transform-in-d3-v4/38230545#38230545
 function getTranslation(transform) {

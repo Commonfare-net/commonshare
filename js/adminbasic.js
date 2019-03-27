@@ -31,7 +31,7 @@ var filternodetype;
 var c_nodes = [];
 var global_communities = {};
 var ids_to_titles = {};
-var parseTime = d3.timeParse("%Y/%m/%d");
+var parseTime = d3.timeParse("%Y/%m/%d %H:%M");
 var formatWeek = d3.timeFormat("%d/%m/%y");
 function zoomFunction() {
 	var new_xScale = d3.event.transform.rescaleX(xScale);
@@ -50,13 +50,13 @@ svg.call(zoom.transform, d3.zoomIdentity.translate(250, 250).scale(0.35));
 var simulation = d3.forceSimulation()
 	.force("link", d3.forceLink().id(function (d) {
 			return d.id;
-		}).distance(100))
+		}))
      .force('collision', d3.forceCollide().radius(function(d) {
     return 20;
   }))
 	.force("charge", d3.forceManyBody().strength(-300))
-	.force("x", d3.forceX().x(width / 2).strength(0.2))
-	.force("y", d3.forceY().y(height / 2).strength(0.2))
+	.force("x", d3.forceX().x(width / 2).strength(0.1))
+	.force("y", d3.forceY().y(height / 2).strength(0.1))
 	.stop();
 var community_sim = d3.forceSimulation()
 	.force("charge", d3.forceManyBody().strength(-10))
@@ -324,7 +324,7 @@ function areazoomed() {
 }
 
 function loadDataFiles(queue) {
-	var url = "../data/output/graphdata/biweekly/" + datafilecounter + ".json";
+	var url = "../data/output/graphdata/yearly/" + datafilecounter + ".json";
 	$.ajax({
 		url: url,
 		type: 'HEAD',
@@ -445,7 +445,8 @@ function draw() {
 	tagcounts = graph.tagcount;
 	dc = graph.dynamic_comms;
 	var colluders = "colluders" in graph ? graph.colluders : [];
-
+    var trusted = "trusted" in graph ? graph.trusted : [];
+    var untrusted = "untrusted" in graph ? graph.untrusted : [];
 	for (var comm in dc) {
 		global_community = [];
 		dates = [];
@@ -561,6 +562,10 @@ function draw() {
 				if (colluders[i].includes(d.id))
 					return d3.color("darkred");
 			}
+            if (trusted.indexOf(d.id) > -1)
+                return d3.color("blue");
+            if (untrusted.indexOf(d.id) > -1)
+                return d3.color("red");
 			if (c_nodes.indexOf(d.id) > -1)
 				return d3.color("orange");
 			if (d.type == "commoner")
@@ -569,9 +574,14 @@ function draw() {
 				return d3.color("purple");
 			if (d.type == "tag")
 				return d3.color("green");
-			return d3.color("red");
+			return d3.color("purple");
 		}) //Coloured based on their type
 		.style("opacity", function (d) { //Make nodes and links transparent if they aren't linked to tags
+            if (trusted.length > 0){
+                if (trusted.indexOf(d.id) > -1 || untrusted.indexOf(d.id) > -1)
+                    return 1;
+                return 0;
+            }
 			if (d.maxweight < strengthslider)
 				return 0;
 			if (filtertype == "tag") {
@@ -596,7 +606,15 @@ function draw() {
 			sourcelinks = link.filter(function (d) {
 					return d.source.id == selected_node || d.target.id == selected_node;
 				});
+                message = "";
 			sourcelinks.each(function (d) {
+                
+                if(selected_node == d.source.id){
+                    message += (d.target.id + ' weight: ' + d.edgeweight[d.source.id] + "<br/>");
+                }
+                else{
+                    message += (d.source.id + ' weight: ' +  d.edgeweight[d.target.id] + "<br/>");
+                }
 				d3.select(this).attr("oldstrokeval", d3.select(this).style("stroke-width"));
 				d3.select(this).attr("oldcolourval", d3.select(this).style("stroke"));
 				d3.select(this).style("stroke", 'green');
@@ -605,7 +623,7 @@ function draw() {
 			div.transition()
 			.duration(200)
 			.style("opacity", .9);
-			if (d.type == "commoner" || d.type == "tag") {
+			/*if (d.type == "commoner" || d.type == "tag") {
 				div.html(d.name + "</br>" + d.kcore)
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY - 28) + "px")
@@ -614,12 +632,13 @@ function draw() {
 						return "lightsteelblue";
 					return "green";
 				});
-			} else {
-				div.html(d.title + "</br>" + d.kcore)
+			} else {*/
+                if(d.label == null)d.label = d.id;
+				div.html("label: " + d.label + ". commonshare: " + d.kcore + "<br/>" + message)
 				.style("left", (d3.event.pageX) + "px")
 				.style("top", (d3.event.pageY - 28) + "px")
-				.style("background", "pink");
-			}
+				.style("background", "lightsteelblue");
+			//}
 		})
 		.on("mouseout", function (d) {
 			//Set the colour of links back to black, and the thickness to its original value
@@ -628,6 +647,10 @@ function draw() {
 					if (colluders[i].includes(d.id))
 						return d3.color("darkred");
 				}
+                if (trusted.indexOf(d.id) > -1)
+                return d3.color("blue");
+            if (untrusted.indexOf(d.id) > -1)
+                return d3.color("red");
 				if (c_nodes.indexOf(d.id) > -1)
 					return d3.color("orange");
 				if (d.type == "commoner")
@@ -636,7 +659,7 @@ function draw() {
 					return d3.color("purple");
 				if (d.type == "tag")
 					return d3.color("green");
-				return d3.color("red");
+				return d3.color("purple");
 			});
 			sourcelinks.each(function (d) {
 				d3.select(this).style("stroke", d3.select(this).attr("oldcolourval"));
@@ -725,7 +748,10 @@ function draw() {
 		if ('edgemeta' in d && d.edgemeta.includes('transaction'))
 			return 'darkblue';
 		return 'black';
-	});
+	})
+    .on('mouseover',function(d){
+        console.log('messages sent: ' + d.initiated[d.target.id] + ', messages received: ' + d.initiated[d.source.id]);
+    });
 	svg.append("defs").selectAll("marker")
 	.data(graph.links)
 	.enter().append("marker")
@@ -790,6 +816,7 @@ function draw() {
 			return 'darkblue';
 		return 'black';
 	});
+    ;
 
 	link.exit()
 	.remove();
@@ -799,13 +826,13 @@ function draw() {
 		.attr("stroke-width", function (d) {
 			if ('tag_story' in d || 'tag_commoner' in d || 'tag_listing' in d)
 				return 0.25;
-		//	if ('create_story' in d || 'create_listing' in d)
+			//if ('create_story' in d || 'create_listing' in d)
 			//		return 4.5;
 			if ('edgemeta' in d && d.edgemeta.includes('social') && d.edgemeta.includes('transaction'))
 				return 3;
 			if ('edgeweight' in d){
-				console.log("edgeweight is " + d.edgeweight);
-                return Math.max(1,d.edgeweight);
+                //return 1;
+                return Math.min(8, d.edgeweight[d.source.id]);
             }
 			return 2;
 		})
@@ -825,18 +852,14 @@ function draw() {
 				return 'purple';
 			if ('edgemeta' in d && d.edgemeta.includes('transaction'))
 				return 'darkblue';
-            
-            ///vals = [];
-            //for (var key in d.edgeweight){
-            //    vals.push(d.edgeweight[key]);
-            //}
-            
-            //Based on the absolute max weight of an edge, need to normalise it to a value between 0 and 80
-           // var abs_max = graph.absolute_max;
-           // var normalised = (d.maxweight/abs_max)*80;
-           // var saturation = Math.max(20,80-normalised);
-           // return "hsl(0,100%," + saturation +"%)";
-			return 'black';
+			//return 'black';
+            //Let's try and add some sort of HSV colouring in here
+            vals = [];
+            for (var key in d.edgeweight){
+                vals.push(d.edgeweight[key]);
+            }
+            var saturation = Math.max(20,80-d.maxweight);
+            return "hsl(0,100%," + saturation +"%)";
 		})
 		.style("stroke-dasharray", function (d) {
 			if ('edgemeta' in d && d.edgemeta.includes('social') && d.edgemeta.includes('transaction'))
@@ -844,18 +867,24 @@ function draw() {
 			return 0;
 		})
 		.attr("marker-end", function (d) {
-			if ((nodetypes[d.source.id] == 'commoner' && nodetypes[d.target.id] != 'tag')) {
-				return "url(#mend" + d.source.id + "-" + d.target.id + ")";
-			}
+      //      if(d.edgeweight[d.source.id] != undefined){
+		//		return "url(#mend" + d.source.id + "-" + d.target.id + ")";
+          //  }
 			return null;
 		})
 		.attr("marker-start", function (d) {
-			if ((nodetypes[d.target.id] == 'commoner' && nodetypes[d.source.id] != 'tag')) {
-				return "url(#mstart" + d.source.id + "-" + d.target.id + ")";
-			}
-			return null;
+          // if(d.edgeweight[d.target.id] != undefined){
+			//	return "url(#mstart" + d.source.id + "-" + d.target.id + ")";
+           //}
+            return null;
 		})
 		.style("opacity", function (d) {
+            if (trusted.length > 0){
+                if( (trusted.indexOf(d.source.id) > -1 || untrusted.indexOf(d.source.id) > -1) &&
+                    (trusted.indexOf(d.target.id) > -1 || untrusted.indexOf(d.target.id) > -1))
+                    return 1;
+                return 0;
+            }
 			if ('maxweight' in d && d.maxweight < strengthslider || (strengthslider > 0 && d.maxweight == undefined))
 				return 0;
 			if (filtertype == "tag") {
@@ -1007,8 +1036,8 @@ function draw() {
 		return d.target.y;
 	});
 	$('#loadingDiv').css('display', 'none');
-	chartsvg.call(areazoom.transform, d3.zoomIdentity.translate(0, 0).scale(0.33));
-	newplot(plotType);
+	//chartsvg.call(areazoom.transform, d3.zoomIdentity.translate(0, 0).scale(0.33));
+	//newplot(plotType);
 }
 $('#cleartags').click(function (e) {
 	e.preventDefault();

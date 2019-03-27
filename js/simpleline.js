@@ -8,7 +8,7 @@ $(window).resize(function () {
 
 })
 
-function plotsimpleline(user) {
+function plotsimpleline() {
     console.log("HOW MANY TIMES");
 	$("#linechart").on("wheel mousewheel", function (e) {
 		e.preventDefault()
@@ -21,15 +21,15 @@ function plotsimpleline(user) {
 	//Positioning of divs programmatically
 	var margin = {
 		top: 50,
-		right: 20,
+		right: 0,
 		bottom: 150,
-		left: 50
+		left: 0
 	},
 	chart = d3.select("#linechart"),
 	chartwidth = +chart.attr("width") - margin.left - margin.right,
 	chartheight = +chart.attr("height") - margin.top - margin.bottom,
 	chartg = chart.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		.attr("transform", "translate(" + 50 + "," + margin.top + ")");
 
 	chart.append('rect')
 	.attr('id', 'captureRect')
@@ -84,16 +84,16 @@ function plotsimpleline(user) {
 
 		d3.selectAll("#simplelineaxis > .tick").attr("transform", function () {
 			var t = getTranslation(d3.select(this).attr("transform"))[0];
-			return "translate(" + (t + 20) + ",0)";
+			return "translate(" + t + ",0)";
 		});
 
 		kcoreline.x(function (d) {
-			return xz(d.date) + 20;
+			return xz(d.date);
 		});
 
 		linepath.attr("d", kcoreline);
 		line.x(function (d) {
-			return xz(d.date) + 20;
+			return xz(d.date);
 		})
 		metapath.attr("d", function (d) {
 			return line(d.values);
@@ -102,7 +102,7 @@ function plotsimpleline(user) {
 
 	var line = d3.line()
 		.x(function (d) {
-			return x(d.date) + 20;
+			return x(d.date);
 		})
 		.y(function (d) {
 			return y(d.total);
@@ -110,7 +110,7 @@ function plotsimpleline(user) {
 
 	var kcoreline = d3.line()
 		.x(function (d) {
-			return x(d.date) + 20;
+			return x(d.date);
 		})
 		.y(function (d) {
 			return y(d.kcore);
@@ -164,14 +164,18 @@ function plotsimpleline(user) {
 
 	x.domain([
 			d3.min(avgdata_list, function (c) {
-				return d3.min(c.values, function (d) {
+				var mini = d3.min(c.values, function (d) {
 					return d.date;
 				});
+                console.log("mini is " + mini);
+                return mini;
 			}),
 			d3.max(avgdata_list, function (c) {
-				return d3.max(c.values, function (d) {
+				var maxi = d3.max(c.values, function (d) {
 					return d.date;
 				});
+                console.log("maxi  is " + maxi);
+                return maxi;
 			})
 		]);
 	y.domain([
@@ -182,8 +186,16 @@ function plotsimpleline(user) {
 				return d.kcore;
 			})
 		]);
-
-	var meta = chartg.selectAll('.meta')
+        
+	//Commonshare line
+	var linepath = chartg.append("path")
+		.datum(kcorelist)
+		.attr("id", "commonshare_line")
+		.attr("clip-path", "url(#clip)")
+		.attr("d", kcoreline);
+	
+    
+    var meta = chartg.selectAll('.meta')
 		.data(avgdata_list)
 		.enter().append("g")
 		.attr("class", "meta");
@@ -203,14 +215,10 @@ function plotsimpleline(user) {
 		.style("stroke", function (d) {
 			return color(d.id);
 		})
-		.style("stroke-width", 2);
+		.style("stroke-width", 2)
+        .style("visibility","hidden"); //hidden by default
 
-	//Commonshare line
-	var linepath = chartg.append("path")
-		.datum(kcorelist)
-		.attr("id", "commonshare_line")
-		.attr("clip-path", "url(#clip)")
-		.attr("d", kcoreline);
+
 
 	//Clipping rectangle
 	var clip = chartg.append("clipPath")
@@ -229,7 +237,7 @@ function plotsimpleline(user) {
 		.call(xAxis);
 	d3.selectAll("#simplelineaxis > .tick").attr("transform", function () {
 		var t = getTranslation(d3.select(this).attr("transform"))[0];
-		return "translate(" + (t + 20) + ",0)";
+		return "translate(" + t + ",0)";
 	});
 
 	//Y axis
@@ -250,7 +258,7 @@ function plotsimpleline(user) {
 	//http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
 	var legendRectSize = 15;
 	var legendSpacing = 6;
-	var opacity = 1;
+	var opacity = 0.5;
 	var legend = chartg.selectAll(".legend")
 		.data(keys)
 		.enter()
@@ -268,9 +276,7 @@ function plotsimpleline(user) {
 			legendclick(d);
 			d3.select(this).style('opacity', opacity);
 		})
-        .each(function(d){
-        })
-        ;
+        .style("opacity",opacity);
 
 	legend.append('circle')
 	.attr('r', legendRectSize / 2)
@@ -342,7 +348,8 @@ function plotsimpleline(user) {
 	.attr("r", 4)
 	.style("fill", function (d) {
 		return color(d)
-	});
+	})
+    .style("visibility","hidden"); //hidden by default
 
 	//Commonshare point circles and text
 	chart.append("circle")
@@ -385,7 +392,7 @@ function plotsimpleline(user) {
 		currentdonut = i;
 		plotdonut(graph_data[i], node_data[i]);
 		d3.selectAll(".metacircles")
-		.attr("cx", xt(d1.date) + margin.left + 20)
+		.attr("cx", xt(d1.date) + margin.left)
 		.attr("cy", function (d) {
 			if ("cumu" in d1) {
 				return y(d1.cumu[d]) + margin.top;
@@ -412,16 +419,16 @@ function plotsimpleline(user) {
 			}
 		}
 		tooltip_div.html(toolTipText)
-		.style("left", (xt(d1.date) + margin.left + 30 + chartpos.x) + "px")
+		.style("left", (xt(d1.date) + margin.left + 10 + chartpos.x) + "px")
 		.style("top", (y(d1.kcore) + margin.top - 20 + chartpos.y) + "px");
 		//Update the commonshare circle position and text
 		d3.select("#commonshare_circle")
-		.attr("cx", xt(d1.date) + margin.left + 20)
+		.attr("cx", xt(d1.date) + margin.left)
 		.attr("cy", y(d1.kcore) + margin.top)
         .style("pointer-events","none");
 
 		d3.select("#commonshare_text")
-		.attr("x", xt(d1.date) + margin.left + 20)
+		.attr("x", xt(d1.date) + margin.left)
 		.attr("y", y(d1.kcore) + margin.top - 10)
 		.html("")
 		.text(d1.kcore)
