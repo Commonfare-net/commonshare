@@ -1,4 +1,4 @@
 nodetypes,
-weight=rating
-granularity=yearly
+weight=Weight
+granularity=hourly
 viz=false

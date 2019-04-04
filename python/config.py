@@ -18,7 +18,7 @@ FREQUENCY_THRESHOLD = 5
 PERCENTAGE_THRESHOLD = 45
 
 ADD_VIZ_STUFF = False
-DIRECTED = True
+DIRECTED = False
 user_type = ""
 tag_type = ""
 

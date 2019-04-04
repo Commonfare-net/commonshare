@@ -102,6 +102,9 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
                 for some_weight in c[cf.WEIGHT_KEY]:
                     if not cf.in_date(window,some_weight[1]):
                         continue
+                    
+                    if u == '1073' and v == '1136':
+                        print sourceweight
                     sourceweight = c[cf.WEIGHT_KEY][0]
                     if cf.DIRECTED == False:
                         targetweight = sourceweight

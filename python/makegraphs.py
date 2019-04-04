@@ -105,6 +105,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
     #COMMENT OUT IF WE'RE NOT DOING BITCOIN
     #Do the Bitcoin ground truth stuff
     #Get all nanotube's trusted folks:
+    '''
     trustedfolks = []
     untrustedfolks = []
     highsandlows = {}
@@ -140,6 +141,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
             untrustedfolks.append(k)
     json_G['trusted'] = trustedfolks
     json_G['untrusted'] = untrustedfolks
+    '''
     #OKAY WE'RE DONE WITH BITCOIN
     
     dynamic_communities = {}
@@ -199,6 +201,13 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         #c_graph is the ego-centric graph of this commoner
         c_graph = nx.Graph()
         c_graph.add_node(n,**c)
+        vals_to_delete = []
+        for val in c_graph.nodes[n]:
+            if val != 'kcore' and val != 'id' and val != 'date' and val != 'times_active' and val != 'binary_active':
+                vals_to_delete.append(val)
+        for val in vals_to_delete:
+            del c_graph.nodes[n][val]
+                #print 'val is ',val
         if 'name' in c_graph.nodes[n]:
             c_graph.nodes[n]['t'] = c_graph.nodes[n]['name']
         #Delete unnecessary info 
@@ -274,6 +283,14 @@ def filter_spells(G,window):
         nodemeta = []
         if 'spells' in c:
             del c['spells']
+        vals_to_delete = []
+        #Get rid of some unnecessaries that can clog the JSON files
+        for val in c:
+            if val != 'kcore' and val != 'id' and val != 'date' and val != 'times_active' and val != 'binary_active':
+                vals_to_delete.append(val)
+        for val in vals_to_delete:
+            del c[val]
+                #print 'val is ',val
         for action_key in cf.interaction_keys:
             if action_key in c:
                 actions_to_keep = []
@@ -297,11 +314,19 @@ def filter_spells(G,window):
     edgeiter = G.edges(data=True)
     for (u,v,c) in edgeiter:
         edgemeta = []
-        for action_key in cf.interaction_keys:
-            if action_key in c and len(c[action_key]) > 0:
+        #for action_key in cf.interaction_keys:
+        for action_key in c:
+            actions_to_keep = []       
+            #if action_key in c and len(c[action_key]) > 0:
+            if len(c[action_key]) > 0:
                 for action in c[action_key]:
+                    if len(action) == 1:
+                        actions_to_keep = action
+                        break
                     if cf.in_date(window,action[1]):
-                        edgemeta.append(cf.interaction_types[action_key])
+                        #edgemeta.append(cf.interaction_types[action_key])
+                        actions_to_keep.append(action)
+                c[action_key] = actions_to_keep
         c['edgemeta'] = edgemeta
     
     return G
