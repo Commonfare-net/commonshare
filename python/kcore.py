@@ -310,5 +310,6 @@ def weighted_core(G,window):
         G.nodes[n]['avg'] = {
         k:(v*c['kcore']) for k,v in c['avg'].items()
         }
-    return (G,colluders)
+    #return (G,colluders)
+    return colluders
  

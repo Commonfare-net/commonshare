@@ -6,7 +6,7 @@ import operator
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from dateutil.relativedelta import *
-
+from guppy import hpy 
 import community
 import pagerank
 import networkx as nx
@@ -14,6 +14,7 @@ from networkx.readwrite import json_graph
 
 import config as cf
 import kcore as dx
+import gc
 
 def make_all_graphs(G,startdate,enddate,spacing):     
     """Generate all JSON files from NetworkX graph
@@ -63,13 +64,15 @@ def make_all_graphs(G,startdate,enddate,spacing):
     index = 1
     #Makes the windowed graphs
     while(w_end > startdate):
-        print 'windowend is',cf.to_str(w_end)
-        (coms,c_Gs,json_G,G_new) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)
+    #while(index == 1):       
+        (coms,c_Gs,json_G) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
         json_G['absolute_max'] = cf.MAX_WEIGHT
         with open(graph_dir + str(index) + '.json', 'w') as outfile:
             outfile.write(json.dumps(json_G))
+        outfile.close()
+        del json_G
         w_end = w_start
         w_start = w_end + delta
         index += 1
@@ -81,11 +84,13 @@ def make_all_graphs(G,startdate,enddate,spacing):
         for k,v in c_Gs.items():
             if len(v) > 0:
                 with open(user_dir + str(k) + '.json', 'w') as outfile:
-                    outfile.write(json.dumps(v))   
+                    outfile.write(json.dumps(v))  
+                    outfile.close()                    
     
     #Make cumulative graph
-    (coms,c_Gs,json_G,G_new) = make_graphs(G,(startdate,enddate),0,coms,None)
+    (coms,c_Gs,json_G) = make_graphs(G,(startdate,enddate),0,coms,None)
     dynamic_communities = {}
+    
     for i in coms:
         if len(i) > 2:
             k_high = 0
@@ -93,7 +98,7 @@ def make_all_graphs(G,startdate,enddate,spacing):
             for nodes in i:
                 if type(nodes) is list:
                     for nodeid in nodes:
-                        n = G_new.nodes[nodeid]
+                        n = G.nodes[nodeid]
                         k = n['kcore']
                         if k >= k_high and n['type'] == 'commoner':
                             central_node = n['name']
@@ -101,9 +106,10 @@ def make_all_graphs(G,startdate,enddate,spacing):
             dynamic_communities[central_node + str(coms.index(i))] = i
     json_G['dynamic_comms'] = dynamic_communities 
     json_G['absolute_max'] = cf.MAX_WEIGHT    
+    
     with open(graph_dir + '0.json', 'w') as outfile:
             outfile.write(json.dumps(json_G))
-
+            outfile.close()
 
 
 def build_commoner_data(G,commoner_graphs,nodes_to_remove):
@@ -127,6 +133,8 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
         commoner_graphs[n].append(commoner_json)
+        del c_graph
+        del commoner_json
         
     nodeiter = copy.deepcopy(G.nodes(data=True))
     for (n,c) in nodeiter:
@@ -186,11 +194,13 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
                     del c_graph.edges[u,v]['label']
                 if 'maxweight' in c_graph.edges[u,v]:
                     del c_graph.edges[u,v]['maxweight']
-                
+        del all_edges       
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
         commoner_graphs[n].append(commoner_json)
+        del commoner_json
+        del c_graph
     
 def filter_spells(G,window):
     """Remove all attributes outside time window from nodes/edges
@@ -241,7 +251,7 @@ def filter_spells(G,window):
                         edgemeta.append(cf.interaction_types[action_key])
         c['edgemeta'] = edgemeta
     
-    return G
+    #return G
     
 def make_recommender_data(G,window,tag_edges):
     """Make the GEXF used for recommending stories
@@ -366,7 +376,10 @@ def make_dynamic_communities(core_G,communities,index):
                     communities[key].append(index)
                     communities[key].append(part)
     return partition
-                    
+
+def remove_nodes(graph_copy):
+    graph_copy.remove_nodes_from(list(nx.isolates(graph_copy)))
+
 def make_graphs(G,window,index,communities,commoner_graphs):
     """
     Generate JSON for NetworkX graph. Update commoner graphs.
@@ -399,8 +412,10 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     convo_count = 0
     trans_count = 0
     
-    graph_copy = copy.deepcopy(G) #To avoid screwing future iterations        
-
+    if index > 0:
+        graph_copy = copy.deepcopy(G) #To avoid screwing future iterations        
+    else:
+        graph_copy = G
     nodeiter = G.nodes(data=True)
     edgeiter = G.edges(data=True)   
 
@@ -480,32 +495,34 @@ def make_graphs(G,window,index,communities,commoner_graphs):
 
     
     #Get rid of spells and actions that fall outside the window range 
-    graph_copy = filter_spells(graph_copy,window)
+    #graph_copy = filter_spells(graph_copy,window)
+    filter_spells(graph_copy,window)
     
     #DO THE KCORE CALCULATIONS HERE
-    (core_G,colluders) = dx.weighted_core(graph_copy,window)
-
+    #(core_G,colluders) = dx.weighted_core(graph_copy,window)
+    colluders = dx.weighted_core(graph_copy,window)
+    #del graph_copy
     #Add the tags back in
-    core_G.add_edges_from(tag_edges)
+    graph_copy.add_edges_from(tag_edges)
 
-    nodeiter = core_G.nodes(data=True)
+    nodeiter = graph_copy.nodes(data=True)
     for (n,c) in nodeiter:
         if c['type'] == 'tag':
             tag_nodes[n] = c
     
     #Recommender data is built from the cumulative graph 
     if not cumulative:
-        build_commoner_data(core_G,commoner_graphs,zero_nodes)
+        build_commoner_data(graph_copy,commoner_graphs,zero_nodes)
     else:
         print 'making rec data HERE'
-        make_recommender_data(copy.deepcopy(core_G),window,tag_edges)
+        make_recommender_data(copy.deepcopy(graph_copy),window,tag_edges)
 
+    remove_nodes(graph_copy)
     #Remove isolated nodes that exist after removing Basic Income 
-    core_G.remove_nodes_from(list(nx.isolates(core_G)))
 
     #Give each edge the weight of its primary direction
     #TODO: Why not take into account other direction?
-    iter = core_G.edges(data=True)
+    iter = graph_copy.edges(data=True)
     for (u,v,c) in iter:
         if 'edgeweight' in c:
             c['edgeweight'] = c['edgeweight'][u]
@@ -524,9 +541,9 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         
     #Now compare fronts to previous partitions
     if not cumulative:
-        partition = make_dynamic_communities(core_G,communities,index)
+        partition = make_dynamic_communities(graph_copy,communities,index)
     else:
-        partition = community.best_partition(core_G,weight='edgeweight')      
+        partition = community.best_partition(graph_copy,weight='edgeweight')      
     #Add tag edges back in  
     #for u,v,c in tag_edges:
     #    if u in tag_based_isolates or v in tag_based_isolates:
@@ -543,7 +560,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     s_count = 0
     t_count = 0
     l_count = 0
-    nodeiter = core_G.nodes(data=True)
+    nodeiter = graph_copy.nodes(data=True)
     for n,c in nodeiter:
         if c['type'] == 'commoner':
             c_count += 1
@@ -557,10 +574,9 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         #if c['type'] != 'tag':
         c['cluster'] = partition[n] 
             
-    n_count = nx.number_of_nodes(core_G)
-    e_count = nx.number_of_edges(core_G)
-
-    core_graph_json = json_graph.node_link_data(core_G)
+    n_count = nx.number_of_nodes(graph_copy)
+    e_count = nx.number_of_edges(graph_copy)
+    core_graph_json = json_graph.node_link_data(graph_copy)
     tags = sorted(tag_counts.iteritems(),reverse=True,key=lambda (k,v):(v,k))
 
     #Additional info about the graph itself
@@ -570,13 +586,16 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     'trans':trans_count,'nodenum':n_count,'edge_num':e_count,
     'tagcount':tags,'date':cf.to_str(window[1]),'colluders':colluders
                 }
+                
+                
+    print 'count: ',sys.getrefcount(graph_copy)
     core_graph_json.update(meta_info)
-    return (communities,commoner_graphs,core_graph_json,core_G)
+    return (communities,commoner_graphs,core_graph_json)
 
     
 def init(filename):
     """Read GEXF file and initiate graph creation.
- 
+
     This reads and parses the GEXF data file, then 
     calls the 'make_all_graphs' method with three 
     different window lengths 
@@ -584,6 +603,7 @@ def init(filename):
     :param filename: Path to the GEXF graph file
 
     """
+    
     G_read = nx.read_gexf(filename)
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
