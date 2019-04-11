@@ -3,6 +3,7 @@ import json
 import copy
 import sys
 import operator
+import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from dateutil.relativedelta import *
@@ -16,6 +17,7 @@ import config as cf
 import kcore as dx
 import gc
 
+user_dir = 'data/output/userdata/'
 def make_all_graphs(G,startdate,enddate,spacing):     
     """Generate all JSON files from NetworkX graph
     
@@ -40,13 +42,9 @@ def make_all_graphs(G,startdate,enddate,spacing):
     (either 'weekly', 'biweekly' or 'monthly'
 
     """
-    c_Gs = {}
+    #c_Gs = {}
     coms = []
-    #Create dicts to hold the interaction data for each commoner    
-    for (n,c) in G.nodes(data=True):
-        if c['type'] == 'commoner':
-            c_Gs[n] = []
-        c["tags"] = []    
+ 
         
     if spacing == 'weekly':
         delta = relativedelta(weeks=-1)
@@ -55,40 +53,54 @@ def make_all_graphs(G,startdate,enddate,spacing):
     else:
         delta = relativedelta(months=-1)
     graph_dir = 'data/output/graphdata/'+spacing+'/'
-    user_dir = 'data/output/userdata/'
+    
     
     #Make dates for first interaction 'window'
     w_end = enddate
     w_start = w_end+delta
     
+    if not os.path.exists(user_dir):
+        os.makedirs(user_dir)    
+    else:
+        shutil.rmtree(user_dir)
+        for delay in 1,3,6,10: 
+            if not os.path.exists(user_dir): break 
+            sleep(delay)
+        os.makedirs(user_dir)
+    
+    #Create dicts to hold the interaction data for each commoner    
+    for (n,c) in G.nodes(data=True):
+        if c['type'] == 'commoner':
+             with open(user_dir + n + '.json', 'a') as outfile:
+                outfile.write('[')
+                outfile.close()
+        c["tags"] = []           
+    
     index = 1
     #Makes the windowed graphs
     while(w_end > startdate):
     #while(index == 1):       
-        (coms,c_Gs,json_G) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)
+        #(coms,c_Gs,json_G) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)
+        (coms,json_G) = make_graphs(G,(w_start,w_end),index,coms)
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
         json_G['absolute_max'] = cf.MAX_WEIGHT
         with open(graph_dir + str(index) + '.json', 'w') as outfile:
             outfile.write(json.dumps(json_G))
         outfile.close()
-        del json_G
+        del json_G     
         w_end = w_start
         w_start = w_end + delta
         index += 1
+    for (n,c) in G.nodes(data=True):
+        if c['type'] == 'commoner':
+             with open(user_dir + n + '.json', 'a') as outfile:
+                outfile.write(']')
+                outfile.close()
 
-    #Make individual historic files for each commoner
-    if not os.path.exists(user_dir):
-        os.makedirs(user_dir)
-    if spacing == 'biweekly':
-        for k,v in c_Gs.items():
-            if len(v) > 0:
-                with open(user_dir + str(k) + '.json', 'w') as outfile:
-                    outfile.write(json.dumps(v))  
-                    outfile.close()                    
-    
     #Make cumulative graph
-    (coms,c_Gs,json_G) = make_graphs(G,(startdate,enddate),0,coms,None)
+    #(coms,c_Gs,json_G) = make_graphs(G,(startdate,enddate),0,coms,None)
+    (coms,json_G) = make_graphs(G,(startdate,enddate),0,coms)
     dynamic_communities = {}
     
     for i in coms:
@@ -100,8 +112,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
                     for nodeid in nodes:
                         n = G.nodes[nodeid]
                         k = n['kcore']
-                        if k >= k_high and n['type'] == 'commoner':
-                            central_node = n['name']
+                        if k >= k_high:# and n['type'] == 'commoner':
+                            central_node = n['name'] if n['type'] == 'commoner' else n['title']
                             k_high = k
             dynamic_communities[central_node + str(coms.index(i))] = i
     json_G['dynamic_comms'] = dynamic_communities 
@@ -112,7 +124,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
             outfile.close()
 
 
-def build_commoner_data(G,commoner_graphs,nodes_to_remove):
+#def build_commoner_data(G,commoner_graphs,nodes_to_remove):
+def build_commoner_data(G,nodes_to_remove):
     """Extract commoners' interaction histories. 
 
     This extracts the individual interactions of each commoner
@@ -132,9 +145,16 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
-        commoner_graphs[n].append(commoner_json)
+        #commoner_graphs[n].append(commoner_json)
         del c_graph
-        del commoner_json
+        statinfo = os.stat(user_dir + n + '.json')
+        filesize = statinfo.st_size
+        with open(user_dir + n + '.json', 'a') as outfile:
+            if filesize == 1:
+                outfile.write(json.dumps(commoner_json))                 
+            else:
+                outfile.write(',' + json.dumps(commoner_json))  
+        del commoner_json            
         
     nodeiter = copy.deepcopy(G.nodes(data=True))
     for (n,c) in nodeiter:
@@ -198,10 +218,20 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
-        commoner_graphs[n].append(commoner_json)
+        statinfo = os.stat(user_dir + n + '.json')
+        filesize = statinfo.st_size
+        with open(user_dir + n + '.json', 'a') as outfile:
+            if filesize == 1:
+                outfile.write(json.dumps(commoner_json))                 
+            else:
+                outfile.write(',' + json.dumps(commoner_json))  
+            #outfile.close() 
+        #commoner_graphs[n].append(commoner_json)
         del commoner_json
         del c_graph
-    
+        
+
+        
 def filter_spells(G,window):
     """Remove all attributes outside time window from nodes/edges
     
@@ -380,7 +410,9 @@ def make_dynamic_communities(core_G,communities,index):
 def remove_nodes(graph_copy):
     graph_copy.remove_nodes_from(list(nx.isolates(graph_copy)))
 
-def make_graphs(G,window,index,communities,commoner_graphs):
+#def make_graphs(G,window,index,communities,commoner_graphs):
+
+def make_graphs(G,window,index,communities):
     """
     Generate JSON for NetworkX graph. Update commoner graphs.
     
@@ -512,7 +544,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     
     #Recommender data is built from the cumulative graph 
     if not cumulative:
-        build_commoner_data(graph_copy,commoner_graphs,zero_nodes)
+        #build_commoner_data(graph_copy,commoner_graphs,zero_nodes)
+        build_commoner_data(graph_copy,zero_nodes)
     else:
         print 'making rec data HERE'
         make_recommender_data(copy.deepcopy(graph_copy),window,tag_edges)
@@ -590,7 +623,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
                 
     print 'count: ',sys.getrefcount(graph_copy)
     core_graph_json.update(meta_info)
-    return (communities,commoner_graphs,core_graph_json)
+    #return (communities,commoner_graphs,core_graph_json)
+    return (communities,core_graph_json)
 
     
 def init(filename):

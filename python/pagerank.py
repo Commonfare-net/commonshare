@@ -14,10 +14,10 @@ import xml.etree.ElementTree as ET
 import config as cf
 
 #Make this a Flask web service
-from flask import Flask,jsonify,request,Blueprint
-app = Flask(__name__)
+#from flask import Flask,jsonify,request,Blueprint
+#app = Flask(__name__)
 #The 'Blueprint' allows app methods to be distributed across modules
-pagerank_api = Blueprint('pagerank_api',__name__)
+#pagerank_api = Blueprint('pagerank_api',__name__)
 
 def personalisedPageRank(core_graph,story,user):
     """Compute personalised PageRank of stories for given user
@@ -52,6 +52,8 @@ def personalisedPageRank(core_graph,story,user):
             user_id = n
             influence = c['kcore']
             break
+    if user_id == 0 and user != '0':
+        return ({},0)
     if story_id == 0:
         return ({},0)
     #Get the nodes surrounding both the story and the user, to use as
@@ -87,7 +89,9 @@ def personalisedPageRank(core_graph,story,user):
            del rank_values[k]
     return (rank_values,influence)
   
-@pagerank_api.route('/recommend/<storyid>/<userid>')
+#@pagerank_api.route('/recommend/<storyid>/<userid>')
+
+@profile
 def run(storyid,userid):
     """Return three recommended stories for user reading a story
     
@@ -101,13 +105,15 @@ def run(storyid,userid):
 
     """
     #This is initialised as a Docker environment variable
-    filename = os.environ['PAGERANK_FILE']
+    #filename = os.environ['PAGERANK_FILE']
+    filename = 'data/output/recommenderdata.gexf'
    
     G_read = nx.read_gexf(filename)
     (pr_vals,influence) = personalisedPageRank(G_read,storyid,userid)
 
     if len(pr_vals) == 0:
-        return jsonify([0,0,0])
+        print storyid,' ',userid,' ',[0,0,0]
+        return
     #Sort the recommended nodes by their PageRank value
     ranked = sorted(pr_vals.items(),key=operator.itemgetter(1),reverse=True)
     
@@ -138,10 +144,15 @@ def run(storyid,userid):
     returned_list = []
     for v in random.sample(range(0, len(recommended_list)),3):
         returned_list.append(recommended_list[v])
-    return jsonify(returned_list)
+    print storyid,' ',userid,' ',returned_list
 
 #Run as a Flask app
-if __name__ == "__main__":    
-    app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
-        port=int(os.environ.get('HTTP_PORT', '5001')))
+if __name__ == "__main__":
+    run(sys.argv[1],sys.argv[2])
+    #for i in range(450,550):
+    #    run(i,sys.argv[1])
+    #    for j in range(500):
+    #        run(i+1,j)
+    #app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
+    #    port=int(os.environ.get('HTTP_PORT', '5001')))
     
