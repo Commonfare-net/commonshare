@@ -38,12 +38,12 @@ function updateDonut(value) {
 function links_of_type(d, key) {
     var platform_uid;
     for (var n in d.nodes){
-        if(d.nodes[n].id == uid){
-            platform_uid = d.nodes[n].platform_id;
+        if(d.nodes[n].platform_id == uid){
+            platform_uid = d.nodes[n].id;
             console.log("platform_uid is " + platform_uid);
             break;
         }
-    }
+    }    
 	var linktypes = keytypes[key];
 	var type_links = [];
 	for (var link in d.links) {
