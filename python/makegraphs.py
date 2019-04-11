@@ -6,7 +6,6 @@ import operator
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from dateutil.relativedelta import *
-from guppy import hpy 
 import community
 import pagerank
 import networkx as nx
@@ -100,8 +99,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
                     for nodeid in nodes:
                         n = G.nodes[nodeid]
                         k = n['kcore']
-                        if k >= k_high and n['type'] == 'commoner':
-                            central_node = n['name']
+                        if k >= k_high:# and n['type'] == 'commoner':
+                            central_node = nodeid
                             k_high = k
             dynamic_communities[central_node + str(coms.index(i))] = i
     json_G['dynamic_comms'] = dynamic_communities 
