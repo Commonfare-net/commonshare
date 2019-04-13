@@ -29,17 +29,9 @@
      <div style="width:45%;display:block;float:left;" class="sectiontitle">
         Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
     </div>
-    <div style="width:45%;display:inline-block;" class="sectiontitle">
-    Tag filters <a id='cleartags' href='#'>(Clear)</a>
-    </div>
     <div class="list-group" id="comm-group" style="width:45%;display:inline-block; text-align: center;">
     </div>
-    
-    <div class="list-group" id="list-group" style="width:45%;display:inline-block; text-align: center">
-    </div>     
-     <div class="lineygraph" style="width:100%;">
-    <svg id="lgraph" width="650" height="300"></svg>
-    </div>
+     
     </div> 
     <div class="othershit" style="width:60%; position: absolute;top: 530px;">
      <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
@@ -47,17 +39,12 @@
        <b style="font-size:18px;text-align:center;" id="curdate"></b>      
      </div>   
     <!--Date slider-->
-     <svg id="myslider" class="myslider" style="width:90%;display:block;margin-top:-10px;overflow:visible" height="45"></svg>
-        <div style="margin:20px;width:90%;display:inline-block;text-align:left;" class="sectiontitle">
-            <p><pre><img src='icons/comm.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('commoners')">Commoners:</a></u>  <b id='commoners'></b>     <img src='icons/comms.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('stories')">Stories:</a></u> <b id='stories'></b>    <img src='icons/alisting.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('listings')">Listings:</a></u>  <b id='listings'></b>    <img src='icons/commt.PNG' height='14' width='14'/> <u><a href="#" onclick="newplot('tags')">Tags:</a></u> <b id='tags'></b></pre></p>
-            <p><pre><img src='icons/asoc.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('social');newplot('convo')">Conversations:</a></u> <b id='convos'></b>    <img src='icons/atran.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('transaction');newplot('trans')">Transactions:</a></u> <b id='transactions'></b>    <img src='icons/acreate.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('story');newplot('create')">Stories written:</a></u> <b id='written'></b>     <img src='icons/acomm.PNG' height='10' width='32'/> <u><a href="#" onclick="nwfilter('story');newplot('comment')">Story comments:</a></u> <b id='comments'></b>     <u><a href="#" onclick="nwfilter('all');newplot('')">All</a></u></pre></p>
-        </div>
-        
+     <svg id="myslider" class="myslider" style="width:90%;display:block;margin-top:-10px;overflow:visible" height="45"></svg>  
     </div>
    
 </body>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="../js/widgets.js"></script>
+<script src="../js/adminview/widgets.js"></script>
 <script src="../js/adminbasic.js"></script>
