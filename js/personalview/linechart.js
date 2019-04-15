@@ -413,7 +413,7 @@ function plotsimpleline() {
         }
         tooltip_div.html(toolTipText)
         .style("left", (xt(d1.date) + margin.left + 10 + chartpos.x) + "px")
-        .style("top", (y(d1.kcore) + margin.top - 20 + chartpos.y) + "px");
+        .style("top", (y(d1.kcore) + margin.top - 20 + chartpos.y + window.scrollY) + "px");
         //Update the commonshare circle position and text
         d3.select("#commonshare_circle")
         .attr("cx", xt(d1.date) + margin.left)

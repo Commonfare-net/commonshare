@@ -2,46 +2,42 @@
 <meta charset="utf-8">
 <head>
 <link rel="stylesheet" type="text/css" href="../css/buttons.css" />
-<link href="../css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="../css/commonfare.css"></head>
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="../css/commonfare.css">
+</head>
         
 <body>
     <!--Container for the network viz-->
   <svg id="bigvis" width="750" height="500"></svg>
-      <div id="loadingDiv">
-        <img src="icons/ajax-loader.gif" height="160" width="160"/>
-      </div>
+  <div id="loadingDiv">
+    <img src="icons/ajax-loader.gif" height="160" width="160"/>
+  </div>
     
   <div id="filterElements">
-       
     <div class="sectiontitle">
-        Minimum link strength: <b id="strength"></b>
+      Minimum link strength: <b id="strength"></b>
     </div>
-     <!--Date slider-->
-    <svg id="strengthslider" class="strengthslider" style="width:100%;display:block;" height="55"></svg>
-       <div class="sectiontitle">
-        <input type="checkbox" class="mybox" onchange="togglegroups(this)"/> Group by clusters
-       </div>
-        <div class="sectiontitle">
-           <input type="checkbox" onchange="toggletags(this)"/> Hide tags
-        </div>
-    
-     <div style="width:45%;display:block;float:left;" class="sectiontitle">
-        Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
+     <!--Link strength slider-->
+    <svg id="strengthslider" class="strengthslider" height="55"></svg>
+    <div class="sectiontitle">
+      <input type="checkbox" class="mybox" onchange="togglegroups(this)"/> Group by clusters
     </div>
-    <div class="list-group" id="comm-group" style="width:45%;display:inline-block; text-align: center;">
+    <div class="sectiontitle">
+      <input type="checkbox" onchange="toggletags(this)"/> Hide tags
     </div>
-     
-    </div> 
-    <div class="othershit" style="width:60%; position: absolute;top: 530px;">
-     <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
-     <input type="checkbox" class='myboxy' name="ee" value="sdf" onchange="toggledate(this)"/> Show all-time <br/>
-       <b style="font-size:18px;text-align:center;" id="curdate"></b>      
-     </div>   
+    <div style="width:45%;display:block;float:left;" class="sectiontitle">
+      Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
+    </div>
+    <div class="list-group" id="comm-group"></div>
+  </div> 
+  <div class="othershit" style="width:60%; position: absolute;top: 530px;">
+    <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
+      <input type="checkbox" onchange="toggledate(this)"/> Show all-time <br/>
+      <b style="font-size:18px;text-align:center;" id="curdate"></b>      
+    </div>   
     <!--Date slider-->
-     <svg id="myslider" class="myslider" style="width:90%;display:block;margin-top:-10px;overflow:visible" height="45"></svg>  
-    </div>
-   
+    <svg id="myslider" class="myslider" height="45"></svg>  
+  </div>
 </body>
 
 <script src="https://d3js.org/d3.v4.min.js"></script>

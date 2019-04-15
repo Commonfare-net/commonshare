@@ -153,7 +153,7 @@ def nodeweight(G,node_id,window,suspect_nodes):
             '''
             Reduce edgeweight based on its influence and
             weeks active of the node. Reduction value = 
-            (e^influence)-1 * square_root(weeks active) + 0.1
+            (1.3^influence)-1 * square_root(weeks active) + 0.1
             Minimum reduction = 0.1 when influence is 0
             '''
 
@@ -189,8 +189,6 @@ def nodeweight(G,node_id,window,suspect_nodes):
         
     if flagged: #High activity node, add it to dictionary 
         suspect_nodes[node_id] = sum(edgeweights)
-    #if len(active_weeks) > 52:
-    #    print 'edgeweight for node ',node_id,' is ',sum(edgeweights)
     return (G,action_weights,sum(edgeweights))
     
 
@@ -201,11 +199,12 @@ def weighted_core(G,window):
     by weighting each node based on its platform interactions, 
     performing a log-transformation and normalising the final value 
     to an integer between 1 and 10
+    It only returns a list of colluding nodes as the NetworkX graph
+    is passed by reference and updated anyway 
 
     :param G: NetworkX graph of all interactions in a time window
     :param window: 2-tuple of start and end dates of time window 
-    :returns: 2-tuple containing graph updated with k-core values for
-     each node, and a list of potential colluding nodes 
+    :returns: a list of potential colluding nodes 
     """
 
     neighbors=G.neighbors
