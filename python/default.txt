@@ -1,4 +1,0 @@
-nodetypes,
-weight=Weight
-granularity=hourly
-viz=false

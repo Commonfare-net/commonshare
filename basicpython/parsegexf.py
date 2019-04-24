@@ -77,8 +77,8 @@ def parse(gexffile):
 
     #The ElementTree API has no way to grab the namespace directly
     #so this resorts to manual file IO to change it to 1.2draft
-    newtext = '<gexf xmlns="http://www.gexf.net/1.2draft" version="1.2"'+
-    'xsi="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd">\n'
+    newtext = ('<gexf xmlns="http://www.gexf.net/1.2draft" version="1.2"'+
+    ' xsi="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd">\n')
     x = fileinput.FileInput(filename, inplace=1)
     for line in x:
         #Replace the initial line defining the namespaces
@@ -185,8 +185,8 @@ def parse(gexffile):
             for attval in attvalues[0]:
                 updateTimestamps(attval,timestamp)
                 #Append initiator node's ID to attvalue
-                attval.attrib['value'] = elem.attrib['source'] + 
-                "/" + attval.attrib['value']
+                attval.attrib['value'] = (elem.attrib['source'] + 
+                "/" + attval.attrib['value'])
 
         #Delete self-looping edge and continue
         if source == target:

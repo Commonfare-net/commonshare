@@ -15,6 +15,7 @@ from networkx.readwrite import json_graph
 
 import config as cf
 import kcore as dx
+import memory_profiler
 
 def make_all_graphs(G,startdate,enddate,spacing,filename):     
     """Generate all JSON files from NetworkX graph
@@ -67,8 +68,8 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
             delta = relativedelta(months=-1)
         else:
             delta = relativedelta(years=-1)
-        graph_dir = '../data/output/'+filename+'/graphdata/'
-        user_dir = '../data/output/'+filename+'userdata/'
+        graph_dir = '../data/output/graphdata/'
+        user_dir = '../data/output/userdata/'
         
         #Make dates for first interaction 'window'
         w_end = enddate
@@ -95,16 +96,16 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
             if len(v) > 0:
                 with open(user_dir + str(k) + '.json', 'w') as outfile:
                     outfile.write(json.dumps(v))   
+        
     else:
-        graph_dir = "../data/output/"+filename+"/graphdata/"
+        graph_dir = "../data/output/graphdata/"
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
+        
     #Make cumulative graph
     (coms,c_Gs,json_G,G_new) = make_graphs(G,(startdate,enddate),0,coms,None)
     
     #COMMENT OUT IF WE'RE NOT DOING BITCOIN
-    #Do the Bitcoin ground truth stuff
-    #Get all nanotube's trusted folks:
     '''
     trustedfolks = []
     untrustedfolks = []
@@ -145,6 +146,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
     #OKAY WE'RE DONE WITH BITCOIN
     
     dynamic_communities = {}
+    
     for i in coms:
         if len(i) > 2:
             k_high = 0
@@ -159,9 +161,11 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
                             central_node = nodeid#n['id']#['name']
                             k_high = k
             dynamic_communities[central_node + str(coms.index(i))] = i
+    
     json_G['dynamic_comms'] = dynamic_communities   
     with open(graph_dir + '0.json', 'w') as outfile:
-            outfile.write(json.dumps(json_G))
+            #outfile.write(json.dumps(json_G))
+            json.dump(json_G, outfile)
 
 
 
@@ -230,37 +234,6 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
                 c_graph.nodes[n][action_key] = [
                 i[0] for i in c_graph.nodes[n][action_key]
                 ] 
-        '''
-        #Add nodes these edges connect to with minimal info
-        for node in surrounding_nodes:
-            nodetype = None
-            name = None
-            if 'name' in G.nodes[node]:
-                name = G.nodes[node]['name']
-            if 'type' in G.nodes[node]:
-                nodetype = G.nodes[node]['type']
-            c_graph.add_node(node,type=nodetype,t=name)
-
-        #Other edges are drawn between added nodes
-        #Again with minimal information
-        
-        all_edges = copy.deepcopy(G.edges(c_graph.nodes,data=True))
-        for (u,v,x) in all_edges:
-            if u in c_graph.nodes and v in c_graph.nodes:
-                c_graph.add_edge(u,v,**x)
-                for action_key in cf.interaction_keys:
-                    if action_key in c_graph.edges[u,v]:
-                        c_graph.edges[u,v][action_key] = [
-                        i[0] for i in c_graph.edges[u,v][action_key]
-                        ]
-                #del c_graph.edges[u,v]['spells']
-                if 'weight'  in c_graph.edges[u,v]:
-                    del c_graph.edges[u,v]['weight']
-                if 'label' in c_graph.edges[u,v]:
-                    del c_graph.edges[u,v]['label']
-                if 'maxweight' in c_graph.edges[u,v]:
-                    del c_graph.edges[u,v]['maxweight']
-        '''        
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
             commoner_json['commoner_id'] = c['platform_id']
@@ -302,13 +275,7 @@ def filter_spells(G,window):
                     continue
                 #Add existing action to node's 'nodemeta'
                 nodemeta.append(cf.interaction_types[action_key])
-        #If node is a story, its nodemeta always contains 'story'
-        #But this is specific to commonfare of course
-        if cf.ADD_VIZ_STUFF:
-            if c['type'] == 'story':
-                nodemeta.append('story')
-            c['nodemeta'] = c['nodemeta'] + nodemeta
-    
+
     #Do the same for edges
     #TODO: Do edge spells need to be filtered too? 
     edgeiter = G.edges(data=True)
@@ -367,11 +334,6 @@ def make_recommender_data(G,window,tag_edges):
     for (u,v,c) in edgeiter:
         if 'edgemeta' in c:
             del c['edgemeta']
-        #Find most recent activation of this edge (used for PageRank)
-        #updated = cf.to_date(c['spells'][0][1])
-        #for spell in c['spells']:
-        #    if cf.to_date(spell[1]) > updated:
-        #        updated = cf.to_date(spell[1])
         if 'last_active' in c:
             c['last_date'] = c['last_active']                 
         else:
@@ -456,7 +418,8 @@ def make_dynamic_communities(core_G,communities,index):
                     communities[key].append(index)
                     communities[key].append(part)
     return partition
-                    
+ 
+
 def make_graphs(G,window,index,communities,commoner_graphs):
     """
     Generate JSON for NetworkX graph. Update commoner graphs.
@@ -514,45 +477,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
                 copy_edge['first_active'] = copy_edge['spells'][0][0]
                 copy_edge['last_active'] = copy_edge['spells'][len(copy_edge['spells'])-1][0]
             del graph_copy.edges[u,v]['spells']
-            if cf.ADD_VIZ_STUFF:
-                #Find node that wrote story, add it to their 'nodemeta'        
-                if G.nodes[u]["type"] == "story":
-                    if 'create_story' in G.nodes[u]:                        
-                        G.nodes[v]['nodemeta'] = ['story']
-                elif G.nodes[v]["type"] == "story":
-                    if 'create_story' in G.nodes[v]:
-                        G.nodes[u]['nodemeta'] = ['story']     
-                    
-                #Count how many different edge types there are 
-                if 'create_story' in c:
-                    if cf.in_date(window,c['create_story'][0][1]):
-                        create_count +=1
-                if 'comment_story' in c:
-                    for comment in c['comment_story']:
-                        if cf.in_date(window,comment[1]):
-                            comment_count += 1
-                if 'conversation' in c:
-                    for convo in c['conversation']:
-                        if cf.in_date(window,convo[1]):
-                            convo_count += 1
-                if 'transaction' in c:
-                    for trans in c['transaction']:
-                        if cf.in_date(window,trans[1]):
-                            trans_count += 1
 
-                #Special actions if the edge connects a node to a tag
-                if G.nodes[u]["type"] == "tag" or G.nodes[v]["type"] == "tag":
-                    tag_edges.append((u,v,c))
-                    if G.nodes[u]["type"] == "tag":
-                        tagname = G.nodes[u]["name"]
-                    else:
-                        tagname = G.nodes[v]["name"]
-                    graph_copy.nodes[u]["tags"].append(tagname)
-                    graph_copy.nodes[v]["tags"].append(tagname)
-                    if tagname not in tag_counts:
-                        tag_counts[tagname] = 0
-                    tag_counts[tagname] +=1  
-    
     #Remove non-existent edges
 
     graph_copy.remove_edges_from(edges_to_remove)
@@ -601,9 +526,6 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     #Recommender data is built from the cumulative graph 
     if not cumulative:
         build_commoner_data(core_G,commoner_graphs,zero_nodes)
-    elif cf.ADD_VIZ_STUFF:
-        #Only make the recommender data in the specific case of commonfare
-        make_recommender_data(copy.deepcopy(core_G),window,tag_edges)
 
     #Remove isolated nodes that exist after removing Basic Income 
     core_G.remove_nodes_from(list(nx.isolates(core_G)))
@@ -625,45 +547,11 @@ def make_graphs(G,window,index,communities,commoner_graphs):
             c['label'] = str(n)
     core_graph_json = json_graph.node_link_data(core_G)
 
-    #Some meta-info stuff
-    if cf.ADD_VIZ_STUFF:
-        #Simple counting of different node types
-        c_count = 0
-        s_count = 0
-        t_count = 0
-        l_count = 0
-        nodeiter = core_G.nodes(data=True)
-        for n,c in nodeiter:
-            if c['type'] == 'commoner':
-                c_count += 1
-            elif c['type'] == 'story':
-                s_count += 1
-            elif c['type'] == 'tag':
-                t_count += 1           
-            elif c['type'] == 'listing':
-                l_count += 1
-            #Also add node's cluster to JSON
-            #if c['type'] != 'tag':
-                
-        n_count = nx.number_of_nodes(core_G)
-        e_count = nx.number_of_edges(core_G)
-
-        tags = sorted(tag_counts.iteritems(),reverse=True,key=lambda (k,v):(v,k))
-
-        #Additional info about the graph itself
-        meta_info = {
-        'commoners':c_count,'stories':s_count,'listings':l_count,'tags':t_count,
-        'create':create_count,'comment':comment_count,'convo':convo_count,
-        'trans':trans_count,'nodenum':n_count,'edge_num':e_count,
-        'tagcount':tags,'date':cf.to_str(window[1]),'colluders':colluders
-                    }
-        core_graph_json.update(meta_info)
-    elif window[1] is not None:
+    if window[1] is not None:
         meta_info = {'date':cf.to_str(window[1]),'colluders':colluders}
         core_graph_json.update(meta_info)
     return (communities,commoner_graphs,core_graph_json,core_G)
 
-    
 def init(filename,configfile):
     """Read GEXF file and initiate graph creation.
     
@@ -678,34 +566,7 @@ def init(filename,configfile):
     with open(configfile, 'rb') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         row = spamreader.next()
-        while row[0] != 'nodetypes':
-            edge_type = row[0]
-            edge_meta = row[1]
-            in_weight = row[2]
-            out_weight = row[3]
-            cf.interaction_keys.append(edge_type)
-            if edge_meta not in cf.meta_networks:
-                cf.meta_networks.append(edge_meta)
-            cf.interaction_types[edge_type] = edge_meta
-            cf.weights[edge_type] = [int(in_weight),int(out_weight)]
-            print row
-            row = spamreader.next()
-        row = spamreader.next() #Skip over 'nodetypes'
         
-        while True:
-            print row
-            try:
-                
-                if len(row) == 1:
-                    break
-                if row[1] == '1':
-                    cf.user_type = row[0]
-                elif row[1] == '2':
-                    cf.tag_type = row[0]
-                row = spamreader.next()
-            except StopIteration as e:
-                break
-                
         if row[0].startswith('weight'):
             cf.WEIGHT_KEY = row[0].split("=")[1]
             print 'weight key is ',cf.WEIGHT_KEY
@@ -715,14 +576,10 @@ def init(filename,configfile):
             row = spamreader.next()
         if row[0].startswith('granularity'):
             granularity = row[0].split("=")[1]
-            row = spamreader.next()
-        if row[0].startswith('viz'):
-            viz = row[0].split("=")[1]
-            cf.ADD_VIZ_STUFF = True if viz == "true" else False
         try:
             row = spamreader.next()
             if row[0].startswith('directed'):
-                cf.DIRECTED = False
+                cf.DIRECTED = True
         except StopIteration as e:
             print 'finished'
     G_read = nx.read_gexf(filename)

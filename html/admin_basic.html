@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<link rel="stylesheet" type="text/css" href="../css/buttons.css" />
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="../css/commonfare.css">
+</head>
+        
+<body>
+    <!--Container for the network viz-->
+  <svg id="bigvis" width="750" height="500"></svg>
+  <div id="loadingDiv">
+    <img src="icons/ajax-loader.gif" height="160" width="160"/>
+  </div>
+    
+  <div id="filterElements">
+    <div class="sectiontitle">
+      Minimum link strength: <b id="strength"></b>
+    </div>
+     <!--Link strength slider-->
+    <svg id="strengthSlider" class="strengthslider" height="55"></svg>
+    <div style="display:block">
+      <input type="checkbox" class="mybox" onchange="togglegroups(this)"/> Group by clusters
+    </div>
+    <div>
+      Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
+    </div>
+    <div class="list-group" id="comm-group"></div>
+  </div> 
+  <div style="width:60%; position: absolute;top: 530px;">
+    <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
+      <input type="checkbox" onchange="toggledate(this)"/> Show all-time <br/>
+      <b style="font-size:18px;text-align:center;" id="curdate"></b>      
+    </div>   
+    <!--Date slider-->
+    <svg id="myslider" class="myslider" height="45"></svg>  
+  </div>
+</body>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="../js/adminview/adminbasic.js"></script>
+<script src="../js/adminview/widgets.js"></script>
+<script src="../js/adminview/forces.js"></script>

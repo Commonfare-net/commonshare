@@ -17,7 +17,7 @@ oneyear = 365*24*3600
 FREQUENCY_THRESHOLD = 5
 PERCENTAGE_THRESHOLD = 45
 
-ADD_VIZ_STUFF = False
+#ADD_VIZ_STUFF = False
 DIRECTED = False
 user_type = ""
 tag_type = ""
