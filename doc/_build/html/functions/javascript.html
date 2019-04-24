@@ -1,0 +1,579 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Javascript functions &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Python functions" href="python.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="python.html" title="Python functions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="javascript-functions">
+<h1>Javascript functions<a class="headerlink" href="#javascript-functions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="for-commonfare-net-data">
+<h2>…for commonfare.net data<a class="headerlink" href="#for-commonfare-net-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="forcegraph-js">
+<h3>forcegraph.js<a class="headerlink" href="#forcegraph-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="loadDataFiles">
+<code class="descname">loadDataFiles</code><span class="sig-paren">(</span><em>queue</em><span class="sig-paren">)</span><a class="headerlink" href="#loadDataFiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>This loops through the data files folder until it can’t find any more.
+It then queues them all up and after that begins rendering them one by one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>queue</strong> (<em>d3.queue</em>) – structure from D3 library containing queued JSON files</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="mouseOverNode">
+<code class="descname">mouseOverNode</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#mouseOverNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define what happens when the user mouses over a node on the graph…</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>d</strong> (<em>json</em>) – JSON data of the hovered node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="forces-js">
+<h3>forces.js<a class="headerlink" href="#forces-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="toggleGroups">
+<code class="descname">toggleGroups</code><span class="sig-paren">(</span><em>chk</em><span class="sig-paren">)</span><a class="headerlink" href="#toggleGroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Switches the simulation between force-directed layout and
+clustered layout based on ‘checked’ status of chk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chk</strong> (<em>checkbox</em>) – HTML checkbox element</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="forceCluster">
+<code class="descname">forceCluster</code><span class="sig-paren">(</span><em>alpha</em><span class="sig-paren">)</span><a class="headerlink" href="#forceCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clustering function to bunch nodes that are in the same cluster together</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>alpha</strong> (<em>float</em>) – Current alpha value of simulation (begins at 1.0)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="widgets-js">
+<h3>widgets.js<a class="headerlink" href="#widgets-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="toggleTags">
+<code class="descname">toggleTags</code><span class="sig-paren">(</span><em>chk</em><span class="sig-paren">)</span><a class="headerlink" href="#toggleTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle whether to show/hide tag nodes and edges</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chk</strong> (<em>checkbox</em>) – HTML checkbox element</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="toggleDate">
+<code class="descname">toggleDate</code><span class="sig-paren">(</span><em>chk</em><span class="sig-paren">)</span><a class="headerlink" href="#toggleDate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Toggle whether to show the cumulative graph or the slider</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chk</strong> (<em>checkbox</em>) – HTML checkbox element</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="populateListBoxes">
+<code class="descname">populateListBoxes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#populateListBoxes" title="Permalink to this definition">¶</a></dt>
+<dd><p>There are list boxes for both the dynamic communities and
+the tag names/counts. This function fills them with the
+data from the graph files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="addDateSlider">
+<code class="descname">addDateSlider</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#addDateSlider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the ‘date slider’ allowing the user to go back and forth through
+the graphs over time</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="addStrengthSlider">
+<code class="descname">addStrengthSlider</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#addStrengthSlider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the slider that allows graph to be filtered based on link strength. When
+the graph is updated, this slider’s scale is updated in <code class="xref py py-func docutils literal notranslate"><span class="pre">updateStrengthSlider()</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="updateStrengthSlider">
+<code class="descname">updateStrengthSlider</code><span class="sig-paren">(</span><em>currentpos</em>, <em>maxval</em><span class="sig-paren">)</span><a class="headerlink" href="#updateStrengthSlider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the strength slider with new maximum value. This involves changing
+the tick positions as well as the x-position of the handle on the updated scale</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>currentpos</strong> (<em>int</em>) – position of handle on strength slider before updating</li>
+<li><strong>maxval</strong> (<em>int</em>) – new maximum value of strength slider after updating</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="arrowgraphics-js">
+<h3>arrowgraphics.js<a class="headerlink" href="#arrowgraphics-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="drawArrowHeads">
+<code class="descname">drawArrowHeads</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drawArrowHeads" title="Permalink to this definition">¶</a></dt>
+<dd><p>This draws the arrows to be drawn on either end
+of each link to show directionality.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="addDashedArrowLines">
+<code class="descname">addDashedArrowLines</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#addDashedArrowLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>This allows the links between Commoners that have both transactions and
+conversations to have the blue-yellow dashed pattern.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="areachart-js">
+<h3>areachart.js<a class="headerlink" href="#areachart-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="drawAreaChart">
+<code class="descname">drawAreaChart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drawAreaChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws the area chart after loading all necessary data
+Defaults to show number of stories written over time</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="drawNewChart">
+<code class="descname">drawNewChart</code><span class="sig-paren">(</span><em>type</em><span class="sig-paren">)</span><a class="headerlink" href="#drawNewChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the area chart to show a different attribute plotted over time</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>type</strong> (<em>string</em>) – string representing type of attribute to plot (e.g., ‘listings’,’commoners’,’stories’ etc.)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="areazoomed">
+<code class="descname">areazoomed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#areazoomed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zooming and panning function for the area chart. Recalculates tick
+numbers and positions, and position of filled area itself</p>
+</dd></dl>
+
+</div>
+<div class="section" id="donut-js">
+<h3>donut.js<a class="headerlink" href="#donut-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="plotDonut">
+<code class="descname">plotDonut</code><span class="sig-paren">(</span><em>graphdata</em>, <em>mydata</em><span class="sig-paren">)</span><a class="headerlink" href="#plotDonut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called every time a new donut needs to be generated. Updates ‘graphdata’ to ensure links point to
+node data and not just node IDs, generates a JSON array of the Commoner’s interactions for each type,
+and positions the initial donut segments, labels, and commonshare value text</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>graphdata</strong> (<em>json</em>) – JSON representation of ego-centric graph of Commoner’s interactions</li>
+<li><strong>mydata</strong> (<em>json</em>) – JSON representation of node-specific data of the Commoner</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="updateDonut">
+<code class="descname">updateDonut</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#updateDonut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function tied to the arrows on the donut date picker; updates donut
+to show donut for earlier or later actions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> (<em>int</em>) – sets whether to show earlier (-1) or later (1) donut</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="calculateTextPath">
+<code class="descname">calculateTextPath</code><span class="sig-paren">(</span><em>d</em>, <em>index</em><span class="sig-paren">)</span><a class="headerlink" href="#calculateTextPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to create the path of a donut arc’s text, by inspecting
+and modifying the path of the arc itself.
+Code from <a class="reference external" href="https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html">https://www.visualcinnamon.com/2015/09/placing-text-on-arcs.html</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>d</strong> (<em>json</em>) – JSON representation of the arc path</li>
+<li><strong>index</strong> (<em>int</em>) – index of data being shown in the ‘data’ array</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="addInfoText">
+<code class="descname">addInfoText</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#addInfoText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates additional information text underneath the donut when user hovers over (desktop)
+or taps on (mobile) a donut segment. Text is dependent on type of data the segment represents</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>d</strong> (<em>json</em>) – Underlying JSON data of donut segment</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interactionsOfType">
+<code class="descname">interactionsOfType</code><span class="sig-paren">(</span><em>d</em>, <em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#interactionsOfType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds links in the interaction graph coming from the Commoner in question,
+filters based on the given interaction type (e.g., story, social) and returns
+these in a JSON array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first simple">
+<li><strong>d</strong> (<em>json</em>) – JSON representation of all graph data at this time</li>
+<li><strong>key</strong> (<em>string</em>) – string reprsenting interaction type to filter on</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>Array.&lt;json&gt;</strong> – - JSON array of interactions of type ‘key’</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="generateArcs">
+<code class="descname">generateArcs</code><span class="sig-paren">(</span><em>piesegments</em><span class="sig-paren">)</span><a class="headerlink" href="#generateArcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions the segments of the donut and their text labels based on a JSON array of
+interaction types, and adds all touch/hover/click listeners on the segments</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>piesegments</strong> (<em>Array.&lt;json&gt;</em>) – JSON array representing interaction types</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="generateBubbles">
+<code class="descname">generateBubbles</code><span class="sig-paren">(</span><em>piesegments</em><span class="sig-paren">)</span><a class="headerlink" href="#generateBubbles" title="Permalink to this definition">¶</a></dt>
+<dd><p>This generates the ‘bubble’ view of a Commoner’s interactions of a certain type,
+called when a donut segment is clicked or double-tapped on. Creates a bubble for
+each object interacted with (i.e., each story or each Commoner)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>piesegments</strong> (<em>Array.&lt;json&gt;</em>) – JSON array of interactions specific to clicked segment</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="positionCommonshareText">
+<code class="descname">positionCommonshareText</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#positionCommonshareText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positions commonshare value in the centre of the donut, which is dependent
+on its width</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="positionReturnText">
+<code class="descname">positionReturnText</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#positionReturnText" title="Permalink to this definition">¶</a></dt>
+<dd><p>Centres ‘return’ text, which is also dependent on its width in a
+given language</p>
+</dd></dl>
+
+</div>
+<div class="section" id="linechart-js">
+<h3>linechart.js<a class="headerlink" href="#linechart-js" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="populateCore">
+<code class="descname">populateCore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#populateCore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populatin’</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Array.&lt;json&gt;</strong> – a thing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="populateAvg">
+<code class="descname">populateAvg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#populateAvg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populatin’</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Array.&lt;json&gt;</strong> – a thing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="plotLine">
+<code class="descname">plotLine</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#plotLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plottin’ dat line</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="addLegend">
+<code class="descname">addLegend</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#addLegend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the legned</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="legendClick">
+<code class="descname">legendClick</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#legendClick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clickin dat legend</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="zoomed">
+<code class="descname">zoomed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zoomed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zooming and translation function
+Repositions lines and adjusts x-axis tick spacing</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mouseout">
+<code class="descname">mouseout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mouseout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dis what we do when de mouse moves out</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mousemove">
+<code class="descname">mousemove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mousemove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that shows/hides different information when
+moving the mouse over the chart</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="for-all-other-data">
+<h2>…for all other data<a class="headerlink" href="#for-all-other-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="adminbasic-js">
+<h3>adminbasic.js<a class="headerlink" href="#adminbasic-js" title="Permalink to this headline">¶</a></h3>
+<p>asdfasdf
+sdfasd
+ass</p>
+</div>
+<div class="section" id="donutbasic-js">
+<h3>donutbasic.js<a class="headerlink" href="#donutbasic-js" title="Permalink to this headline">¶</a></h3>
+<p>ewrwetwe
+werwww
+aasda</p>
+</div>
+<div class="section" id="linebasic-js">
+<h3>linebasic.js<a class="headerlink" href="#linebasic-js" title="Permalink to this headline">¶</a></h3>
+<p>trerte
+rwewww
+trery</p>
+</div>
+<div class="section" id="personalbasic-js">
+<h3>personalbasic.js<a class="headerlink" href="#personalbasic-js" title="Permalink to this headline">¶</a></h3>
+<p>asdfasdf
+sdfasd
+sdwe</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Javascript functions</a><ul>
+<li><a class="reference internal" href="#for-commonfare-net-data">…for commonfare.net data</a><ul>
+<li><a class="reference internal" href="#forcegraph-js">forcegraph.js</a></li>
+<li><a class="reference internal" href="#forces-js">forces.js</a></li>
+<li><a class="reference internal" href="#widgets-js">widgets.js</a></li>
+<li><a class="reference internal" href="#arrowgraphics-js">arrowgraphics.js</a></li>
+<li><a class="reference internal" href="#areachart-js">areachart.js</a></li>
+<li><a class="reference internal" href="#donut-js">donut.js</a></li>
+<li><a class="reference internal" href="#linechart-js">linechart.js</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#for-all-other-data">…for all other data</a><ul>
+<li><a class="reference internal" href="#adminbasic-js">adminbasic.js</a></li>
+<li><a class="reference internal" href="#donutbasic-js">donutbasic.js</a></li>
+<li><a class="reference internal" href="#linebasic-js">linebasic.js</a></li>
+<li><a class="reference internal" href="#personalbasic-js">personalbasic.js</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="python.html"
+                        title="previous chapter">Python functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/functions/javascript.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="python.html" title="Python functions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

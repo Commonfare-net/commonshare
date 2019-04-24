@@ -1,0 +1,524 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Python functions &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Javascript functions" href="quickstart.html" />
+    <link rel="prev" title="Commonshare documentation" href="../index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Javascript functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Commonshare documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="python-functions">
+<h1>Python functions<a class="headerlink" href="#python-functions" title="Permalink to this headline">¶</a></h1>
+<p>This is a normal text paragraph. The next paragraph is a code sample:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">It</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">processed</span> <span class="ow">in</span> <span class="nb">any</span> <span class="n">way</span><span class="p">,</span> <span class="k">except</span>
+<span class="n">that</span> <span class="n">the</span> <span class="n">indentation</span> <span class="ow">is</span> <span class="n">removed</span><span class="o">.</span>
+
+<span class="n">It</span> <span class="n">can</span> <span class="n">span</span> <span class="n">multiple</span> <span class="n">lines</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>This is a normal text paragraph again.</p>
+<div class="section" id="module-parsegexf">
+<span id="parsegexf-py"></span><h2>parsegexf.py<a class="headerlink" href="#module-parsegexf" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="parsegexf.addNodeSpell">
+<code class="descclassname">parsegexf.</code><code class="descname">addNodeSpell</code><span class="sig-paren">(</span><em>node</em>, <em>attrs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsegexf.html#addNodeSpell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsegexf.addNodeSpell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add spell element to a node element</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>node</strong> – string node ID to add spell to</li>
+<li><strong>attrs</strong> – dictionary of attributes of this spell</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="parsegexf.parse">
+<code class="descclassname">parsegexf.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>*gexffile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsegexf.html#parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsegexf.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Entry method to begin parsing the GEXF file</p>
+<p>This is the method called through the Flask API to begin parsing the
+GEXF file of all commonfare.net interactions. Once the GEXF is in the
+correct format, it is passed to methods in the makegraphs.py module to
+output JSON data for visualisation purposes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="parsegexf.parseLabel">
+<code class="descclassname">parsegexf.</code><code class="descname">parseLabel</code><span class="sig-paren">(</span><em>nodes</em>, <em>edges</em>, <em>edgeid</em>, <em>sourceid</em>, <em>targetid</em>, <em>label</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsegexf.html#parseLabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsegexf.parseLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get edge type, start and end dates from label</p>
+<p>This method:
+1) Adds edge spells to source and target nodes
+2) Finds the type, start and end date of edge from its label
+Labels have the following format:
+‘conversation_13+date_start=2018/06/23+date_end=2018/06/26’</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nodes</strong> – all nodes of the GEXF graph</li>
+<li><strong>edges</strong> – all edges of the GEXF grpah</li>
+<li><strong>edgeid</strong> – string ID of edge in GEXF</li>
+<li><strong>sourced</strong> – string ID of node that is source of this edge</li>
+<li><strong>targetid</strong> – string ID of node that is target of this edge</li>
+<li><strong>label</strong> – string label of edge in GEXF</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">3-tuple containing edge type, start and end date</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="parsegexf.replace_source">
+<code class="descclassname">parsegexf.</code><code class="descname">replace_source</code><span class="sig-paren">(</span><em>nodes</em>, <em>edges</em>, <em>edgeid</em>, <em>label</em>, <em>source</em>, <em>target</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsegexf.html#replace_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsegexf.replace_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace comment sender/receiver edge with story/writer edge</p>
+<p>When a commoner leaves a comment on a story, 2 edges exist:
+1) A comment sender - story edge
+2) A comment sender - comment receiver edge
+This replaces the sender-receiver with a story-receiver edge</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nodes</strong> – all nodes of the GEXF graph</li>
+<li><strong>edges</strong> – all edges of the GEXF grpah</li>
+<li><strong>edgeid</strong> – ID of comment sender/receiver edge in GEXF</li>
+<li><strong>label</strong> – label of comment sender/receiver edge in GEXF</li>
+<li><strong>source</strong> – Source node of edge</li>
+<li><strong>target</strong> – Target node of edge</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">string edge type (comment_story or comment_listing)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-makegraphs">
+<span id="makegraphs-py"></span><h2>makegraphs.py<a class="headerlink" href="#module-makegraphs" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="makegraphs.build_commoner_data">
+<code class="descclassname">makegraphs.</code><code class="descname">build_commoner_data</code><span class="sig-paren">(</span><em>G</em>, <em>commoner_graphs</em>, <em>nodes_to_remove</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#build_commoner_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.build_commoner_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract commoners’ interaction histories.</p>
+<p>This extracts the individual interactions of each commoner
+from the NetworkX graph, converts it to JSON and appends it 
+to their personal interaction history, represented in the 
+‘commoner_graphs’ dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> – NetworkX graph of all interactions in a time window</li>
+<li><strong>commoner_graphs</strong> – dictionary mapping each commoner ID to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>their personal interaction history in JSON format
+:param nodes_to_remove: list of nodes not present in this time
+window (so that 0 values can be added to their JSON)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.filter_spells">
+<code class="descclassname">makegraphs.</code><code class="descname">filter_spells</code><span class="sig-paren">(</span><em>G</em>, <em>window</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#filter_spells"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.filter_spells" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all attributes outside time window from nodes/edges</p>
+<p>This removes all the spells and actions from the nodes and edges
+where they fall outside of the window slot. This makes
+JSON files much less bulky and easier to read</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> – NetworkX graph</li>
+<li><strong>window</strong> – 2-tuple containing start date and end date</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.init">
+<code class="descclassname">makegraphs.</code><code class="descname">init</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read GEXF file and initiate graph creation.</p>
+<p>This reads and parses the GEXF data file, then 
+calls the ‘make_all_graphs’ method with three 
+different window lengths</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – Path to the GEXF graph file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.jaccard">
+<code class="descclassname">makegraphs.</code><code class="descname">jaccard</code><span class="sig-paren">(</span><em>front</em>, <em>stepcommunity</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#jaccard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.jaccard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Jaccard similarity coefficient of two node groups</p>
+<p>This uses the Jaccard index statistic to determine whether
+one node group is similar enough to a previous node group to
+be part of the same dynamic community</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>front</strong> – list of NetworkX nodes at time t-1</li>
+<li><strong>stepcommunity</strong> – list of NetworkX nodes at time t</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Jaccard similarity coefficient</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.make_all_graphs">
+<code class="descclassname">makegraphs.</code><code class="descname">make_all_graphs</code><span class="sig-paren">(</span><em>G</em>, <em>startdate</em>, <em>enddate</em>, <em>spacing</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#make_all_graphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.make_all_graphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all JSON files from NetworkX graph</p>
+<p>This method generates a JSON file for the cumulative
+graph of interactions, JSON files for interactions within
+each time window (determined by ‘spacing’ parameter) and 
+JSON files for each commoner that contains their interaction 
+history.
+Files are created in the ‘data/output/’ directory for each 
+‘spacing’ as follows:
+—————
+graphdata/<em>spacing</em>/0.json - JSON for all interaction data
+graphdata/<em>spacing</em>/1-X.json - JSON of interaction windows,
+with size dependent on the ‘spacing’ parameter
+userdata/1-X.json - JSON of each commoner’s interaction
+history (filename corresponds to their commoner ID)</p>
+<p>Note that the output directory is within this directory 
+(i.e., its path is python/data/output and not 
+commonshare/data/output). This is so that the Docker container
+can access the output files properly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> – NetworkX graph of all interactions across time</li>
+<li><strong>startdate</strong> – date of first interaction</li>
+<li><strong>enddate</strong> – date of most recent interaction</li>
+<li><strong>spacing</strong> – string representing size of each time window</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>(either ‘weekly’, ‘biweekly’ or ‘monthly’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.make_dynamic_communities">
+<code class="descclassname">makegraphs.</code><code class="descname">make_dynamic_communities</code><span class="sig-paren">(</span><em>core_G</em>, <em>communities</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#make_dynamic_communities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.make_dynamic_communities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute new dynamic communities at a given time step.</p>
+<p>Algorithm to find communities that exist in the network
+across multiple time steps. At each time window, ‘static’
+community detection is done with the Louvain algorithm from
+<a class="reference external" href="https://github.com/taynaud/python-louvain">https://github.com/taynaud/python-louvain</a>
+Then, the communities at this step are compared to those from
+the previous step. If they are similar enough, they become part
+of the same ‘dynamic community’. For more detail, see this paper:</p>
+<p>D. Greene, D. Doyle and P. Cunningham, “Tracking the Evolution of
+Communities in Dynamic Social Networks,” 2010 International 
+Conference on Advances in Social Networks Analysis and Mining, 
+Odense, 2010, pp. 176-183.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>core_G</strong> – NetworkX graph of all interactions in time window</li>
+<li><strong>communities</strong> – list of NetworkX node ‘dynamic communities’</li>
+<li><strong>index</strong> – integer representing time step</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary mapping each node to its Louvain community</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.make_graphs">
+<code class="descclassname">makegraphs.</code><code class="descname">make_graphs</code><span class="sig-paren">(</span><em>G</em>, <em>window</em>, <em>index</em>, <em>communities</em>, <em>commoner_graphs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#make_graphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.make_graphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate JSON for NetworkX graph. Update commoner graphs.</p>
+<p>This method generates all necessary information from a NetworkX
+graph representation and returns it in a JSON format. It also 
+updates the ‘dynamic communities’ and individual commoner graphs
+(using make_dynamic_communities and build_commoner_data methods)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> – NetworkX graph of interactions in time window</li>
+<li><strong>window</strong> – 2-tuple containing start and end dates</li>
+<li><strong>index</strong> – integer representing time step</li>
+<li><strong>communities</strong> – list holding NetworkX dynamic communities</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>(filled in by make_dynamic_communities method) 
+:param commoner_graphs: dictionary mapping each commoner node to
+its interaction history (filled in by build_commoner_data method)
+:returns: tuple containing:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Updated dynamic communities</li>
+<li>Updated commoner_graphs</li>
+<li>JSON representation of NetworkX graph</li>
+</ol>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="makegraphs.make_recommender_data">
+<code class="descclassname">makegraphs.</code><code class="descname">make_recommender_data</code><span class="sig-paren">(</span><em>G</em>, <em>window</em>, <em>tag_edges</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/makegraphs.html#make_recommender_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#makegraphs.make_recommender_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the GEXF used for recommending stories</p>
+<p>This takes the GEXF file containing every interaction over
+time and generates the ‘recommenderdata.gexf’ file, which
+is used by ‘pagerank.py’ to determine stories that should be
+recommended to users</p>
+<p>It also makes the ‘neglected_nodes’ list, consisting of nodes
+with a degree &lt; 2 and age &lt; 50 days</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> – NetworkX graph of all interactions across time</li>
+<li><strong>window</strong> – A 2-tuple containing the start and end dates
+of the graph actions</li>
+<li><strong>tag_edges</strong> – List of NetworkX edges to tag nodes</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kcore">
+<span id="kcore-py"></span><h2>kcore.py<a class="headerlink" href="#module-kcore" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="kcore.colluding">
+<code class="descclassname">kcore.</code><code class="descname">colluding</code><span class="sig-paren">(</span><em>G</em>, <em>n1</em>, <em>n2</em>, <em>n1_weight</em>, <em>n2_weight</em>, <em>window</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kcore.html#colluding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kcore.colluding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if two nodes are colluding</p>
+<p>Basic collusion checking algorithm. Determines if actions from
+one node are greater than a threshold of the recipient node’s
+overall weight. The threshold is defined in config.py</p>
+<p>Algorithm adapted from the following paper:
+H.Shen, Y.Lin, K.Sapra and Z.Li, “Enhancing Collusion Resilience
+in Reputation Systems,” in IEEE Transactions on Parallel and 
+Distributed Systems, vol.27, no.8, pp.2274-2287, 1 Aug. 2016.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>G</strong> – NetworkX graph of all interactions in a time window</li>
+<li><strong>n1</strong> – string representing Node 1 ID</li>
+<li><strong>n2</strong> – string representing Node 2 ID</li>
+<li><strong>n1_weight</strong> – float, sum of edge weights of Node 1</li>
+<li><strong>n2_weight</strong> – float, sum of edge weights of Node 2</li>
+<li><strong>window</strong> – 2-tuple of start and end dates of time window</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">bool, True if strong suspicion of collusion.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="kcore.nodeweight">
+<code class="descclassname">kcore.</code><code class="descname">nodeweight</code><span class="sig-paren">(</span><em>G</em>, <em>node_id</em>, <em>window</em>, <em>suspect_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kcore.html#nodeweight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kcore.nodeweight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate weight of a node in the interactions graph.</p>
+<p>This calculates a node’s ‘weight’ by looking at the 
+number, type, and date of interactions with other nodes 
+in the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>G</strong> – NetworkX graph of all interactions in a time window</li>
+<li><strong>node_id</strong> – string ID of node to determine weight of</li>
+<li><strong>window</strong> – 2-tuple with start and end dates of time window</li>
+<li><strong>suspect_nodes</strong> – dictionary mapping node ID’s of high</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>activity to their overall weight</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="kcore.weighted_core">
+<code class="descclassname">kcore.</code><code class="descname">weighted_core</code><span class="sig-paren">(</span><em>G</em>, <em>window</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/kcore.html#weighted_core"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kcore.weighted_core" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute weighted k-core for each node in a graph</p>
+<p>This extends the standard NetworkX k-core calculation method 
+by weighting each node based on its platform interactions, 
+performing a log-transformation and normalising the final value 
+to an integer between 1 and 10
+It only returns a list of colluding nodes as the NetworkX graph
+is passed by reference and updated anyway</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>G</strong> – NetworkX graph of all interactions in a time window</li>
+<li><strong>window</strong> – 2-tuple of start and end dates of time window</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of potential colluding nodes</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Python functions</a><ul>
+<li><a class="reference internal" href="#module-parsegexf">parsegexf.py</a></li>
+<li><a class="reference internal" href="#module-makegraphs">makegraphs.py</a></li>
+<li><a class="reference internal" href="#module-kcore">kcore.py</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Commonshare documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="next chapter">Javascript functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usage/installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Javascript functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Commonshare documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

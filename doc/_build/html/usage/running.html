@@ -1,0 +1,165 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Running commonshare &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Deploying commonshare" href="deployment.html" />
+    <link rel="prev" title="Setting up commonshare" href="setup.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="deployment.html" title="Deploying commonshare"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up commonshare"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-commonshare">
+<h1>Running commonshare<a class="headerlink" href="#running-commonshare" title="Permalink to this headline">¶</a></h1>
+<p>This section describes how to generate commonshare values for data of different types. Note that these all assume you are running from the command line.
+If you are instead running commonshare within a Docker container, refer to the section on building and running Docker.</p>
+<div class="section" id="commonfare-net-data">
+<h2>commonfare.net data<a class="headerlink" href="#commonfare-net-data" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic">
+<li><p class="first">Place your GEXF file in the <code class="docutils literal notranslate"><span class="pre">data/input</span></code> directory.</p>
+</li>
+<li><p class="first">From the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">parsegexf.py</span> <span class="pre">../data/input/&lt;YOUR_GEXF_FILENAME&gt;</span></code></p>
+</li>
+<li><p class="first">When this is completed, the following will appear in the <code class="docutils literal notranslate"><span class="pre">data/output</span></code> directory:</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><code class="docutils literal notranslate"><span class="pre">graphdata/</span></code> - Contains JSON files for every two weeks of commonfare.net interactions, with commonshare values (<code class="docutils literal notranslate"><span class="pre">1.json...X.json</span></code>). Also contains an aggregated file of all interactions (<code class="docutils literal notranslate"><span class="pre">0.json</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">userdata/x.json</span></code> - Contains a file for every Commoner, named <code class="docutils literal notranslate"><span class="pre">&lt;COMMONER_ID&gt;.json</span></code>, containing their interaction history</li>
+<li><code class="docutils literal notranslate"><span class="pre">recommenderdata.gexf</span></code> - Contains a trimmed version of the original GEXF, used for generating story recommendations</li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+<p>The next step is <a class="reference internal" href="deployment.html"><span class="doc">visualising the data</span></a></p>
+</div>
+<div class="section" id="simulated-data">
+<h2>simulated data<a class="headerlink" href="#simulated-data" title="Permalink to this headline">¶</a></h2>
+<p>Functions are also available to simulate commonfare.net data. These can be found in the <code class="docutils literal notranslate"><span class="pre">python/simulation</span></code> directory. You can make use of these as follows:</p>
+<ol class="arabic simple">
+<li>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">simulation.py</span></code> from the <code class="docutils literal notranslate"><span class="pre">python/simulation</span></code> directory</li>
+<li>This will leave the file <code class="docutils literal notranslate"><span class="pre">simulateddata.gexf</span></code> in the <code class="docutils literal notranslate"><span class="pre">data/input</span></code> directory.</li>
+<li>Switch back to the parent directory and run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">makegraphs.py</span> <span class="pre">../data/input/simulateddata.gexf</span></code></li>
+</ol>
+<p>This will generate the files and folders as described above.</p>
+<p>You can adjust simple parameters for the simulation from <code class="docutils literal notranslate"><span class="pre">config.py</span></code>, including the number of initial users, tags, simulation days, actions per day, and colluding users. See <a class="reference internal" href="parameters.html"><span class="doc">here</span></a> for information on adjusting parameters.</p>
+</div>
+<div class="section" id="other-gexf-graph-data">
+<h2>other GEXF graph data<a class="headerlink" href="#other-gexf-graph-data" title="Permalink to this headline">¶</a></h2>
+<p>sadfads
+sdfasd
+asda</p>
+</div>
+<div class="section" id="non-gexf-graph-data">
+<h2>non-GEXF graph data<a class="headerlink" href="#non-gexf-graph-data" title="Permalink to this headline">¶</a></h2>
+<p>Through the use of <a class="reference external" href="https://gephi.org/">Gephi</a>, graph data files in a variety of formats can be easily converted to GEXF.
+The file format must match one of <a class="reference external" href="https://gephi.org/users/supported-graph-formats/">Gephi’s supported formats</a>.
+Simply open the file with Gephi, then navigate to <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Export</span> <span class="pre">&gt;</span> <span class="pre">Graph</span> <span class="pre">file...</span></code> which presents a dialogue to save the file in .gexf format.</p>
+<a class="reference internal image-reference" href="../_images/geph.png"><img alt="../_images/geph.png" src="../_images/geph.png" style="width: 329.0px; height: 245.5px;" /></a>
+<p>The process is then exactly the same as above.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Running commonshare</a><ul>
+<li><a class="reference internal" href="#commonfare-net-data">commonfare.net data</a></li>
+<li><a class="reference internal" href="#simulated-data">simulated data</a></li>
+<li><a class="reference internal" href="#other-gexf-graph-data">other GEXF graph data</a></li>
+<li><a class="reference internal" href="#non-gexf-graph-data">non-GEXF graph data</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="setup.html"
+                        title="previous chapter">Setting up commonshare</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="deployment.html"
+                        title="next chapter">Deploying commonshare</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usage/running.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="deployment.html" title="Deploying commonshare"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="setup.html" title="Setting up commonshare"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

@@ -20,10 +20,10 @@
      <!--Link strength slider-->
     <svg id="strengthslider" class="strengthslider" height="55"></svg>
     <div class="sectiontitle">
-      <input type="checkbox" class="mybox" onchange="togglegroups(this)"/> Group by clusters
+      <input type="checkbox" class="mybox" onchange="toggleGroups(this)"/> Group by clusters
     </div>
     <div class="sectiontitle">
-      <input type="checkbox" onchange="toggletags(this)"/> Hide tags
+      <input type="checkbox" onchange="toggleTags(this)"/> Hide tags
     </div>
     <div style="width:45%;display:block;float:left;" class="sectiontitle">
       Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
@@ -32,7 +32,7 @@
   </div> 
   <div class="othershit" style="width:60%; position: absolute;top: 530px;">
     <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
-      <input type="checkbox" onchange="toggledate(this)"/> Show all-time <br/>
+      <input type="checkbox" onchange="toggleDate(this)"/> Show all-time <br/>
       <b style="font-size:18px;text-align:center;" id="curdate"></b>      
     </div>   
     <!--Date slider-->
@@ -42,5 +42,5 @@
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="../js/adminview/widgets.js"></script>
+<script src="../js/widgets.js"></script>
 <script src="../js/adminbasic.js"></script>

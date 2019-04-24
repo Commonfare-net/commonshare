@@ -1,0 +1,234 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Deploying commonshare &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adjusting parameters" href="parameters.html" />
+    <link rel="prev" title="Running commonshare" href="running.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="parameters.html" title="Adjusting parameters"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="running.html" title="Running commonshare"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="deploying-commonshare">
+<h1>Deploying commonshare<a class="headerlink" href="#deploying-commonshare" title="Permalink to this headline">¶</a></h1>
+<p>On commonfare.net, commonshare is deployed from within a Docker container. This section provides instructions on how to use commonshare in this way, but also how
+to deploy and test it with a simple free web server, courtesy of Google’s Firebase.</p>
+<p>(Of course, if you have your own server space, there is no requirement to use Firebase.)</p>
+<div class="section" id="running-from-firebase">
+<h2>Running from Firebase<a class="headerlink" href="#running-from-firebase" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Sign into <a class="reference external" href="https://firebase.google.com/">Firebase</a> (you’ll need a Google account) and click on the <strong>Add project</strong> button.</li>
+</ol>
+<a class="reference internal image-reference" href="../_images/fb1.png"><img alt="../_images/fb1.png" src="../_images/fb1.png" style="width: 374.8px; height: 242.8px;" /></a>
+<ol class="arabic simple" start="2">
+<li>Give your project a name, then click <strong>Hosting</strong> on the sidebar, and then <strong>Get started</strong> on the presented page.</li>
+</ol>
+<a class="reference internal image-reference" href="../_images/fb2.png"><img alt="../_images/fb2.png" src="../_images/fb2.png" style="width: 140.0px; height: 190.0px;" /></a>
+<a class="reference internal image-reference" href="../_images/fb7.png"><img alt="../_images/fb7.png" src="../_images/fb7.png" style="width: 387.5px; height: 189.1px;" /></a>
+<ol class="arabic simple" start="3">
+<li>Follow the presented instructions. If you don’t have the Node.js comand line tool installed on your system, follow the given link (or click <a class="reference external" href="https://nodejs.org/en/">here</a>) to download and install it.</li>
+</ol>
+<a class="reference internal image-reference" href="../_images/fb3.png"><img alt="../_images/fb3.png" src="../_images/fb3.png" style="width: 372.0px; height: 227.6px;" /></a>
+<a class="reference internal image-reference" href="../_images/fb4.png"><img alt="../_images/fb4.png" src="../_images/fb4.png" style="width: 371.6px; height: 236.4px;" /></a>
+<p>4. On entering <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">init</span></code> you will be presented with various options. When asked which features you want to setup, select
+<code class="docutils literal notranslate"><span class="pre">Hosting:</span> <span class="pre">Configure</span> <span class="pre">and</span> <span class="pre">deploy</span> <span class="pre">Firebase</span> <span class="pre">Hosting</span> <span class="pre">sites</span></code> using the down arrow and space bar, then press Enter.</p>
+<a class="reference internal image-reference" href="../_images/fb5.png"><img alt="../_images/fb5.png" src="../_images/fb5.png" style="width: 753.2px; height: 286.3px;" /></a>
+<ol class="arabic simple" start="5">
+<li>When asked what you want to use as your public directory, hit Enter to default to the directory <code class="docutils literal notranslate"><span class="pre">public</span></code>.</li>
+<li>When asked if you want to configure as a single-page app, enter ‘N’</li>
+<li>When it’s finished setting up, copy the directory containing the commonshare code into the generated <code class="docutils literal notranslate"><span class="pre">public</span></code> directory.</li>
+<li>Run <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">deploy</span></code>.</li>
+</ol>
+<a class="reference internal image-reference" href="../_images/fb6.png"><img alt="../_images/fb6.png" src="../_images/fb6.png" style="width: 535.5px; height: 224.7px;" /></a>
+<p>After a few minutes, you’ll have a deployed instance of commonshare for viewing the visualisations.</p>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">Hosting</span> <span class="pre">URL</span></code> provided on successful deployment. The main dashboard can be accessed from:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Hosting</span> <span class="n">URL</span><span class="o">&gt;/</span><span class="n">commonshare</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">admin_dashboard</span><span class="o">.</span><span class="n">html</span>
+</pre></div>
+</div>
+<p>From here, you can also access the individual visualisations for each Commoner, or manually from:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;Hosting URL&gt;/commonshare/html/personal_viz.html?userid=&lt;ID of your user&gt;
+</pre></div>
+</div>
+<p>You can also optionally add <code class="docutils literal notranslate"><span class="pre">&amp;lang=it</span></code> or <code class="docutils literal notranslate"><span class="pre">&amp;lang=hr</span></code> to this URL to view the Italian or Croatian version respectively.</p>
+</div>
+<div class="section" id="running-from-docker">
+<h2>Running from Docker<a class="headerlink" href="#running-from-docker" title="Permalink to this headline">¶</a></h2>
+<p>A very basic Docker image is available to run the Python scripts <code class="docutils literal notranslate"><span class="pre">parsegexf.py</span></code> and <code class="docutils literal notranslate"><span class="pre">pagerank.py</span></code>, the methods of which are exposed through a simple web API, as described below.</p>
+<p>Input and output data is exchanged through the files in <code class="docutils literal notranslate"><span class="pre">./data</span></code> directory which is mounted as a volume.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">To run from Docker, the <code class="docutils literal notranslate"><span class="pre">GRAPHDIR</span></code> and <code class="docutils literal notranslate"><span class="pre">USERDIR</span></code> directories in <code class="docutils literal notranslate"><span class="pre">config.py</span></code> must have the beginning of their paths changed from <code class="docutils literal notranslate"><span class="pre">../data/output</span></code> to <code class="docutils literal notranslate"><span class="pre">data/output</span></code>.</p>
+</div>
+<div class="section" id="building">
+<h3>Building<a class="headerlink" href="#building" title="Permalink to this headline">¶</a></h3>
+<p>To build this image, make sure you have <a class="reference external" href="https://www.docker.com/get-started">Docker</a> installed in your host.
+If that is the case, run the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker build -t commonfare/commonshare-python .
+</pre></div>
+</div>
+<p>Check the Docker images available in your host machine to confirm its creation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker images
+...
+commonfare/commonshare-python         latest              323a3b42764f        30 minutes ago      297MB
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="running">
+<h3>Running<a class="headerlink" href="#running" title="Permalink to this headline">¶</a></h3>
+<p>This Docker image runs the Flask app, which exposes a simple API for running the following two Python scripts:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">parsegexf.py</span></code> which takes as input a file in GEXF format and produces as output a series of files in <code class="docutils literal notranslate"><span class="pre">./data/output/</span></code> directory.</li>
+<li><code class="docutils literal notranslate"><span class="pre">pagerank.py</span></code> which takes as input a story id and a user id and calculates the recommended stories for such user based on the input story.</li>
+</ul>
+<p><strong>Parameters and environment variables</strong></p>
+<p>The following environment variables are used as parameters and can be set when calling the docker image:</p>
+<ul class="simple">
+<li><cite>TASK</cite> - can be either <cite>parse</cite> or <cite>pagerank</cite> depending on the task to be performed. (Default: <cite>parse</cite>)</li>
+<li><cite>GEXF_INPUT</cite> - GEXF input file to be parsed when running the <cite>parse</cite> task. (Default: <cite>./data/input/latest.gexf</cite>)</li>
+<li><cite>PAGERANK_FILE</cite> - GEXF output file for calculating recommendations through the <cite>pagerank</cite> task. (Default: <cite>./data/output/recommenderdata.gexf</cite>)</li>
+<li><cite>STORY_ID</cite> - input story ID used for the <cite>pagerank</cite> task</li>
+<li><cite>USER_ID</cite> - input user ID used for the <cite>pagerank</cite> task</li>
+</ul>
+<p>Some examples are provided in the sections below to clarify how to use this Docker image.</p>
+<p>The following command will start the service, connecting port 5000 of the Docker container (Flask default) to port 5000 of your machine:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker run -it --rm -p 5000:5000 -v &quot;$PWD/data&quot;:/usr/src/app/data commonfare/commonshare-python
+</pre></div>
+</div>
+<p>Specify a different input file via the <cite>GEXF_INPUT</cite> environment variable:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker run -it --rm -p 5000:5000 -v &quot;$PWD/data&quot;:/usr/src/app/data -e GEXF_INPUT=./data/input/input3.gexf commonfare/commonshare-python
+</pre></div>
+</div>
+</div>
+<div class="section" id="docker-compose">
+<h3>Docker compose<a class="headerlink" href="#docker-compose" title="Permalink to this headline">¶</a></h3>
+<p>If you like docker-compose, you can build and run using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ docker-compose build
+$ docker-compose up
+</pre></div>
+</div>
+</div>
+<div class="section" id="testing-running-status">
+<h3>Testing running status<a class="headerlink" href="#testing-running-status" title="Permalink to this headline">¶</a></h3>
+<p>To run parsegexf.py, use the following URL:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#This will return a simple JSON object {success: true} on successful completion (note this takes a few minutes)</span>
+<span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">parse</span>
+</pre></div>
+</div>
+<p>…and to run pagerank.py:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#This will return a JSON array of three IDs corresponding to stories that the user specified by *userid* should be recommended on reading story *storyid* If the story or user ID cannot be found, [0,0,0] will be returned instead.</span>
+<span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">5000</span><span class="o">/</span><span class="n">recommend</span><span class="o">/*</span><span class="n">storyid</span><span class="o">*/*</span><span class="n">userid</span><span class="o">*</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deploying commonshare</a><ul>
+<li><a class="reference internal" href="#running-from-firebase">Running from Firebase</a></li>
+<li><a class="reference internal" href="#running-from-docker">Running from Docker</a><ul>
+<li><a class="reference internal" href="#building">Building</a></li>
+<li><a class="reference internal" href="#running">Running</a></li>
+<li><a class="reference internal" href="#docker-compose">Docker compose</a></li>
+<li><a class="reference internal" href="#testing-running-status">Testing running status</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="running.html"
+                        title="previous chapter">Running commonshare</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="parameters.html"
+                        title="next chapter">Adjusting parameters</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usage/deployment.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="parameters.html" title="Adjusting parameters"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="running.html" title="Running commonshare"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

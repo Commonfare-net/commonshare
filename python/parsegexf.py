@@ -152,7 +152,7 @@ def parse(*gexffile):
     root[0].set('timeformat', 'date')  
 
     #Get the 'static' node attributes (those unchanging over time)
-    nodeattrs = root[0].find('xmlns:attributes',namespaces)
+    nodeattrs = root[0].find('xmlns:attributes/[@class=\'node\']',namespaces)
     nodeattrs.set('mode','static')
 
     #Remove ID attribute as it is already in the GEXF
@@ -209,12 +209,13 @@ def parse(*gexffile):
 
     d = {}
     #For each dynamic attribute in the config, add it to both nodes and edges
-    for key in cf.interaction_keys:
-        attrib = {'id':str(count),'type':'string','title':key} 
+    for k,v in cf.INTERACTIONS.iteritems():
+    #for key in cf.interaction_keys:
+        attrib = {'id':str(count),'type':'string','title':k} 
         attr = edgeattrs.makeelement('attribute',attrib)
         dnodeattrs.append(attr)
         edgeattrs.append(attr)
-        d[key] = str(count)
+        d[k] = str(count)
         count +=1
     d[None] = None
     #Here we figure out edges that need to be deleted

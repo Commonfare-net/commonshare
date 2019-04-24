@@ -163,9 +163,9 @@ def update(source,target,interaction):
         G.nodes[source][interaction] = []
     if interaction not in G.nodes[target]:
         G.nodes[target][interaction] = []
-    G[source][target][interaction].append((source,s_today,s_today))
-    G.nodes[source][interaction].append((source,s_today,s_today))    
-    G.nodes[target][interaction].append((source,s_today,s_today))  
+    G[source][target][interaction].append((str(source)+'-'+str(target),s_today,s_today))
+    G.nodes[source][interaction].append((str(source)+'-'+str(target),s_today,s_today))    
+    G.nodes[target][interaction].append((str(source)+'-'+str(target),s_today,s_today))  
     G.nodes[source]['spells'].append((s_today,s_today))
     G.nodes[target]['spells'].append((s_today,s_today))
 
@@ -193,11 +193,13 @@ def add_user():
     dict = {'type':'commoner','name':str(myuser)}
     nx.set_node_attributes(G,{user_node: dict})
     G.nodes[user_node]['spells'] = [(s_today,s_today)]
+    '''
     while True:
         tag = random.sample(G.nodes(),1)
         if G.nodes[tag[0]]['type'] == 'tag':
             break
     tag_assign(user_node,tag[0])
+    '''
     return G
 
 def do_random_thing():
@@ -221,59 +223,67 @@ def do_random_thing():
         user_interact('conversation')
     elif num == 8 or num == 9:
         user_interact('transaction')
-    
-cur_date = datetime.datetime(2016,6,1)
-start_date = cur_date
-G=nx.Graph()
-counter = 0
-
-if not os.path.exists("../../data/input"):
-    os.makedirs("../../data/input")
-
-#Loop for cf.DAYS days, doing cf.ACTIONS_PER_DAY actions each time
-while counter < cf.DAYS:
-    cur_date = cur_date + cf.one_day
-    s_today = cf.to_str(cur_date)
-    counter = counter + 1
-    G = nx.convert_node_labels_to_integers(G)
-
-    #Seed some tags and users to get things started
-    while len(G.nodes()) < cf.TAGS:
-        G = add_tag()
         
-    while len(G.nodes()) < cf.INITIAL_USERS:
-        G = add_user()
-
-    G = nx.convert_node_labels_to_integers(G)
-    
-    if len(G.nodes()) == cf.INITIAL_USERS:
-        #Pick some nodes to be the 'colluders' in the simulation 
-        cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS)
         
-        #Make each one write a story so that collusion is easier
-        for i in range(cf.NUM_COLLUDERS):
-            print 'colluder is ',cf.colluding_nodes[i]
-            create_object(cf.colluding_nodes[i],'story')
-
-              
-    for i in range(cf.ACTIONS_PER_DAY):
-        do_random_thing()
         
-    G = nx.convert_node_labels_to_integers(G)
+if __name__ == "__main__":   
+    cur_date = datetime.datetime(2016,6,1)
+    start_date = cur_date
+    G=nx.Graph()
+    counter = 0
 
-    if counter % 30 == 0:
-        print 'we are at ',counter
+    if not os.path.exists("../../data/input"):
+        os.makedirs("../../data/input")
 
-start_date = datetime.datetime(2016,6,1)
-end_date = start_date + cf.one_year
-ET.register_namespace("", "http://www.gexf.net/1.2draft")
-nx.write_gexf(G,"data360.gexf") 
+    #Loop for cf.DAYS days, doing cf.ACTIONS_PER_DAY actions each time
+    while counter < cf.DAYS:
+        cur_date = cur_date + datetime.timedelta(days=1)
+        s_today = cf.to_str(cur_date)
+        counter = counter + 1
+        G = nx.convert_node_labels_to_integers(G)
 
-#This seems to be the easiest way to add start/end attrs to the GEXF
-tree = ET.parse("data360.gexf")  
-namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
-root = tree.getroot()
-root[0].set('start',cf.to_str(start_date))
-root[0].set('end',cf.to_str(end_date))
-os.remove('data360.gexf')
-tree.write('../../data/input/simulateddata.gexf')  
+
+            
+        while len(G.nodes()) < cf.INITIAL_USERS:
+            G = add_user()
+
+        G = nx.convert_node_labels_to_integers(G)
+        
+        if len(G.nodes()) == cf.INITIAL_USERS:
+            #Pick some nodes to be the 'colluders' in the simulation 
+            cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS)
+            
+                #Seed some tags
+            print 'len is ', len(G.nodes())
+            while len(G.nodes()) < cf.TAGS + cf.INITIAL_USERS:
+                G = add_tag()
+                print 'len NOW is ', len(G.nodes())
+            
+            #Make each one write a story so that collusion is easier
+            for i in range(cf.NUM_COLLUDERS):
+                print 'colluder is ',cf.colluding_nodes[i]
+                create_object(cf.colluding_nodes[i],'story')
+
+
+            
+        for i in range(cf.ACTIONS_PER_DAY):
+            do_random_thing()
+            
+        G = nx.convert_node_labels_to_integers(G)
+
+        if counter % 30 == 0:
+            print 'we are at ',counter
+
+    start_date = datetime.datetime(2016,6,1)
+    end_date = start_date + datetime.timedelta(days=365)
+    ET.register_namespace("", "http://www.gexf.net/1.2draft")
+    nx.write_gexf(G,"data360.gexf") 
+
+    #This seems to be the easiest way to add start/end attrs to the GEXF
+    tree = ET.parse("data360.gexf")  
+    namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
+    root = tree.getroot()
+    root[0].set('start',cf.to_str(start_date))
+    root[0].set('end',cf.to_str(end_date))
+    os.remove('data360.gexf')
+    tree.write('../../data/input/simulateddata.gexf')  

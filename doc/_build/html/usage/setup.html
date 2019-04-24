@@ -1,0 +1,126 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Setting up commonshare &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Running commonshare" href="running.html" />
+    <link rel="prev" title="Commonshare documentation" href="../index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="running.html" title="Running commonshare"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Commonshare documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="setting-up-commonshare">
+<h1>Setting up commonshare<a class="headerlink" href="#setting-up-commonshare" title="Permalink to this headline">¶</a></h1>
+<p>All commonshare code is available from the GitHub repository. You can download the source directly from <a class="reference external" href="https://github.com/Commonfare-net/commonshare">here</a>
+or clone it from the command line with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/Commonfare-net/commonshare</span></code>.</p>
+<p>You will need <a class="reference external" href="https://www.python.org/downloads/">Python 2.7</a> on your system, as well as <strong>pip</strong> for installing external packages (pip should come with
+the latest version of Python. For instructions on installing it manually, see <a class="reference external" href="https://pip.pypa.io/en/stable/installing/">here</a>.</p>
+<p>To install the necessary packages, run the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">networkx</span><span class="o">==</span><span class="mf">2.2</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">scipy</span> <span class="n">names</span> <span class="n">python</span><span class="o">-</span><span class="n">dateutil</span> <span class="n">python</span><span class="o">-</span><span class="n">louvain</span> <span class="n">flask</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><a class="reference external" href="https://networkx.github.io/">networkx</a>- Python library for network analysis</li>
+<li><a class="reference external" href="https://www.scipy.org/">scipy</a>- Python library of scientific data analysis functions</li>
+<li><a class="reference external" href="https://pypi.org/project/names/">names</a>- Handy random name generator for running the network simulator</li>
+<li><a class="reference external" href="https://pypi.org/project/python-dateutil/">python-dateutil</a>- Package for providing extra date/time functions</li>
+<li><a class="reference external" href="https://pypi.org/project/python-louvain/">python-louvain</a>- Python implementation of the Louvain community detection algorithm</li>
+<li><a class="reference external" href="http://flask.pocoo.org/">flask</a>- Flask is a microframework for Python that allows its methods to be exposed through a web API</li>
+</ul>
+<p>Once these are installed, you are ready to <a class="reference internal" href="running.html"><span class="doc">run commonshare</span></a></p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Commonshare documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="running.html"
+                        title="next chapter">Running commonshare</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/usage/setup.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="running.html" title="Running commonshare"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Commonshare documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

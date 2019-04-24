@@ -32,6 +32,11 @@ def make_all_graphs(G,startdate,enddate,spacing):
     userdata/1-X.json - JSON of each commoner's interaction
     history (filename corresponds to their commoner ID)
 
+    Note that the output directory is within this directory 
+    (i.e., its path is python/data/output and not 
+    commonshare/data/output). This is so that the Docker container
+    can access the output files properly.
+    
     :param G: NetworkX graph of all interactions across time 
     :param startdate: date of first interaction
     :param enddate: date of most recent interaction  
@@ -53,8 +58,8 @@ def make_all_graphs(G,startdate,enddate,spacing):
         delta = relativedelta(weeks=-2)
     else:
         delta = relativedelta(months=-1)
-    graph_dir = 'data/output/graphdata/'+spacing+'/'
-    user_dir = 'data/output/userdata/'
+    graph_dir = cf.GRAPHDIR
+    user_dir = cf.USERDIR
     
     #Make dates for first interaction 'window'
     w_end = enddate
@@ -129,10 +134,14 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
     #Need to add 0 values in too
     for (n,c) in nodes_to_remove:
         c_graph = nx.Graph()
-        c_graph.add_node(n,date=c['date'],kcore=0,platform_id=c['platform_id'])
-        commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
-            commoner_json['commoner_id'] = c['platform_id']
+            pid = c['platform_id']
+        else:
+            pid = str(n)
+        c_graph.add_node(n,date=c['date'],kcore=0,platform_id=pid)
+        commoner_json = json_graph.node_link_data(c_graph)
+        #if 'platform_id' in c:
+        commoner_json['commoner_id'] = pid
         commoner_graphs[n].append(commoner_json)
         
     nodeiter = copy.deepcopy(G.nodes(data=True))
@@ -160,11 +169,12 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         #Add edges coming from this commoner
         #But remove specific interaction dates for efficiency
         c_graph.add_edges_from(edges)
-        for action_key in cf.interaction_keys:
-            if action_key in c_graph.nodes[n]:
+        for k,v in cf.INTERACTIONS.iteritems():
+        #for action_key in cf.interaction_keys:
+            if k in c_graph.nodes[n]:
                 #print c_graph.nodes[n][action_key]
-                c_graph.nodes[n][action_key] = [
-                i[0] for i in c_graph.nodes[n][action_key]
+                c_graph.nodes[n][k] = [
+                i[0] for i in c_graph.nodes[n][k]
                 ] 
 
         #Add nodes these edges connect to with minimal info
@@ -179,10 +189,11 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         for (u,v,x) in all_edges:
             if u in c_graph.nodes and v in c_graph.nodes:
                 c_graph.add_edge(u,v,**x)
-                for action_key in cf.interaction_keys:
-                    if action_key in c_graph.edges[u,v]:
-                        c_graph.edges[u,v][action_key] = [
-                        i[0] for i in c_graph.edges[u,v][action_key]
+                for k,val in cf.INTERACTIONS.iteritems():
+                #for action_key in cf.interaction_keys:
+                    if k in c_graph.edges[u,v]:
+                        c_graph.edges[u,v][k] = [
+                        i[0] for i in c_graph.edges[u,v][k]
                         ]
                 del c_graph.edges[u,v]['spells']
                 if 'weight'  in c_graph.edges[u,v]:
@@ -193,7 +204,11 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
                     del c_graph.edges[u,v]['maxweight']
         commoner_json = json_graph.node_link_data(c_graph)
         if 'platform_id' in c:
-            commoner_json['commoner_id'] = c['platform_id']
+            pid = c['platform_id']
+        else:
+            pid = str(n)
+        #if 'platform_id' in c:
+        commoner_json['commoner_id'] = pid
         commoner_graphs[n].append(commoner_json)
     
 def filter_spells(G,window):
@@ -216,17 +231,19 @@ def filter_spells(G,window):
                 spells_to_keep.append(spell)
         c['spells'] = spells_to_keep
         
-        for action_key in cf.interaction_keys:
-            if action_key in c:
+        for k,v in cf.INTERACTIONS.iteritems():
+        #for action_key in cf.interaction_keys:
+            if k in c:
                 actions_to_keep = []
-                for action in c[action_key]:
+                for action in c[k]:
                     if cf.in_date(window,action[1]):
                         actions_to_keep.append(action)
-                c[action_key] = actions_to_keep
+                c[k] = actions_to_keep
                 if len(actions_to_keep) == 0:
                     continue
                 #Add existing action to node's 'nodemeta'
-                nodemeta.append(cf.interaction_types[action_key])
+                #nodemeta.append(cf.interaction_types[action_key])
+                nodemeta.append(v[0])
         #If node is a story, its nodemeta always contains 'story'
         if c['type'] == 'story':
             nodemeta.append('story')
@@ -237,11 +254,13 @@ def filter_spells(G,window):
     edgeiter = G.edges(data=True)
     for (u,v,c) in edgeiter:
         edgemeta = []
-        for action_key in cf.interaction_keys:
-            if action_key in c and len(c[action_key]) > 0:
-                for action in c[action_key]:
+        for k,val in cf.INTERACTIONS.iteritems():
+        #for action_key in cf.interaction_keys:
+            if k in c and len(c[k]) > 0:
+                for action in c[k]:
                     if cf.in_date(window,action[1]):
-                        edgemeta.append(cf.interaction_types[action_key])
+                        #edgemeta.append(cf.interaction_types[action_key])
+                        edgemeta.append(val[0])
         c['edgemeta'] = edgemeta
     
 def make_recommender_data(G,window,tag_edges):
@@ -361,7 +380,7 @@ def make_dynamic_communities(core_G,communities,index):
             #Use Jaccard similarity to check for evolving communities
             for front in fronts:
                 similarity = jaccard(front,part)
-                if similarity >= 0.25: #Recommended threshold
+                if similarity >= cf.COMMUNITY_SIM: 
                     matches.append(fronts.index(front))
             if len(matches) == 0: #No match community? Make new one    
                 communities.append([index,part])
@@ -371,8 +390,6 @@ def make_dynamic_communities(core_G,communities,index):
                     communities[key].append(part)
     return partition
 
-def remove_nodes(graph_copy):
-    graph_copy.remove_nodes_from(list(nx.isolates(graph_copy)))
 
 def make_graphs(G,window,index,communities,commoner_graphs):
     """
@@ -425,26 +442,26 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         else:
             #Find node that wrote story, add it to their 'nodemeta'        
             if G.nodes[u]["type"] == "story":
-                if cf.create_story in G.nodes[u]:                        
+                if "create_story" in G.nodes[u]:                        
                     G.nodes[v]['nodemeta'] = ['story']
             elif G.nodes[v]["type"] == "story":
-                if cf.create_story in G.nodes[v]:
+                if "create_story" in G.nodes[v]:
                     G.nodes[u]['nodemeta'] = ['story']     
                     
             #Count how many different edge types there are 
-            if cf.create_story in c:
-                if cf.in_date(window,c[cf.create_story][0][1]):
+            if "create_story" in c:
+                if cf.in_date(window,c["create_story"][0][1]):
                     create_count +=1
-            if cf.comment_story in c:
-                for comment in c[cf.comment_story]:
+            if "comment_story" in c:
+                for comment in c["comment_story"]:
                     if cf.in_date(window,comment[1]):
                         comment_count += 1
-            if cf.conversation in c:
-                for convo in c[cf.conversation]:
+            if "conversation" in c:
+                for convo in c["conversation"]:
                     if cf.in_date(window,convo[1]):
                         convo_count += 1
-            if cf.transaction in c:
-                for trans in c[cf.transaction]:
+            if "transaction" in c:
+                for trans in c["transaction"]:
                     if cf.in_date(window,trans[1]):
                         trans_count += 1
 
@@ -508,8 +525,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         print 'making rec data HERE'
         make_recommender_data(copy.deepcopy(graph_copy),window,tag_edges)
 
-    remove_nodes(graph_copy)
-    #Remove isolated nodes that exist after removing Basic Income 
+    #Remove isolated nodes that exist after removing Basic Income
+    graph_copy.remove_nodes_from(list(nx.isolates(graph_copy)))
 
     #Give each edge the weight of its primary direction
     #TODO: Why not take into account other direction?
@@ -580,7 +597,7 @@ def init(filename):
     startdate = datetime.strptime(unparsed_startdate,"%Y/%m/%d")
     enddate = datetime.strptime(unparsed_enddate,"%Y/%m/%d")
     
-    make_all_graphs(G_read,startdate,enddate,'biweekly')  
+    make_all_graphs(G_read,startdate,enddate,cf.SPACING)  
     
 if __name__ == "__main__":
     if len(sys.argv) < 2:

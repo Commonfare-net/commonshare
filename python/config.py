@@ -1,115 +1,44 @@
 import datetime
 
+#Output directories
+GRAPHDIR = '../data/output/graphdata/'
+USERDIR = '../data/output/userdata/'
+
+#Constants for simulation
 DAYS = 365
 TAGS = 10
 INITIAL_USERS = 40
 ACTIONS_PER_DAY = 8
+SHOULD_COLLUDE = True
+NUM_COLLUDERS = 2
+colluding_nodes = []
+
+#Holds maximum edge weight for a given time step - do not adjust
+MAX_WEIGHT = 0
 
 #Collusion things
 FREQUENCY_THRESHOLD = 5
 PERCENTAGE_THRESHOLD = 33
 
-SHOULD_CLIQUE = True
-SHOULD_COLLUDE = True
-NUM_COLLUDERS = 2
-SPAMMERID = 22
-MAX_WEIGHT = 0
-colluding_nodes = []
-oneyear = 365*24*3600
-two_weeks = datetime.timedelta(days=14)
-one_day = datetime.timedelta(days=1)
-one_year = datetime.timedelta(days=365)
-epoch = datetime.datetime.utcfromtimestamp(0)
+SPACING = 'biweekly' #or use 'weekly' or 'monthly'
 
-comment_story="comment_story"
-rcomment_story="rcomment_story"
-comment_listing="comment_listing"
-rcomment_listing="rcomment_listing"
-create_story="create_story"
-rcreate_story="rcreate_story"
-create_listing="create_listing"
-rcreate_listing="rcreate_listing"
-conversation="conversation"
-rconversation="rconversation"
-transaction="transaction"
-rtransaction="rtransaction"
-tag_story="tag_story"
-tag_listing="tag_listing"
-tag_commoner="tag_commoner"
-mutual_interactions = [conversation,transaction]
+COMMUNITY_SIM = 0.25 #Jaccard similarity coefficient needed for two communities to be considered the same
 
-interaction_keys =[comment_story,rcomment_story,
-comment_listing,rcomment_listing,
-create_story,rcreate_story,
-create_listing,rcreate_listing,
-conversation,rconversation,
-transaction,rtransaction,
-tag_commoner,tag_story,tag_listing]
-indirect_interactions = [comment_story,comment_listing]
-meta_networks = ['story','listing','social','transaction']
+#Keys are interaction types, values are a list containing:
+#meta network, sender weight, receiver weight
+INTERACTIONS = {"comment_story":['story',2,2],
+"create_story": ['story',3,1],
+"tag_story": ['story',0,0],
+"comment_listing": ['listing',1,1],
+"create_listing": ['listing',2,1],
+"tag_listing": ['listing',0,0],
+"conversation": ['social',5,5],
+"transaction": ['transaction',4,4],
+"tag_commoner": ['',0,0]
+}
 
-#Meta-data to add to nodes and edges based on actions
-interaction_types = {
-        comment_story:'story',
-        rcomment_story:'story',
-        create_story:'story',
-        rcreate_story:'story',
-        tag_story:'story',
-        comment_listing:'listing',
-        rcomment_listing:'listing',
-        create_listing:'listing',
-        rcreate_listing:'listing',
-        tag_listing:'listing',
-        conversation:'social',
-        rconversation:'social',
-        transaction:'transaction',
-        rtransaction:'transaction',
-        tag_commoner:''
-        }
+TYPES = ['story','listing','social','transaction']
 
-#Story-based interactions
-weights = {
-           tag_commoner:0,
-           comment_story:2,
-           rcomment_story:2,
-           create_story:3,
-           rcreate_story:1,
-           tag_story:0,
-#Friendship-based interactions
-           conversation:5,
-           rconversation:5,
-#Transaction-based interactions
-           transaction:4,
-           rtransaction:4,
-#Forum-based interactions
-           create_listing:2,
-           rcreate_listing:1,
-           comment_listing:1,
-           rcomment_listing:2,
-           tag_listing:0
-           }
-          
-#Story-based interactions
-no_weights = {
-           tag_commoner:0,
-           comment_story:1,
-           rcomment_story:1,
-           create_story:1,
-           rcreate_story:1,
-           tag_story:0,
-#Friendship-based interactions
-           conversation:1,
-           rconversation:1,
-#Transaction-based interactions
-           transaction:1,
-           rtransaction:1,
-#Forum-based interactions
-           create_listing:1,
-           rcreate_listing:1,
-           comment_listing:1,
-           rcomment_listing:1,
-           tag_listing:0
-           }
 def to_str(date):
     """Convert datetime date to string
 

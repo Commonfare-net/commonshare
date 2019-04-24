@@ -11,7 +11,7 @@ def colluding(G,n1,n2,n1_weight,n2_weight,window):
     
     Basic collusion checking algorithm. Determines if actions from
     one node are greater than a threshold of the recipient node's
-    overall weight
+    overall weight. The threshold is defined in config.py
     
     Algorithm adapted from the following paper:
     H.Shen, Y.Lin, K.Sapra and Z.Li, "Enhancing Collusion Resilience
@@ -34,11 +34,12 @@ def colluding(G,n1,n2,n1_weight,n2_weight,window):
     edgeweight = 0
     frequency = 0
     print 'checking between ',n1,' and ',n2
-    for action_key in cf.interaction_keys:
-        if action_key in edge:
-            for action in edge[action_key]:
+    for k,v in cf.INTERACTIONS.iteritems():
+    #for action_key in cf.interaction_keys:
+        if k in edge:
+            for action in edge[k]:
                 if cf.in_date(window,action[1]):
-                    edgeweight = edgeweight + cf.weights[action_key]
+                    edgeweight = edgeweight + v[1]
                     frequency = frequency + 1
     n_weight = min(n1_weight,n2_weight)
     return ((edgeweight/n_weight)*100) > cf.PERCENTAGE_THRESHOLD
@@ -60,17 +61,17 @@ def nodeweight(G,node_id,window,suspect_nodes):
     #This holds the contribution of each type of action to
     #the node's overall weight 
     action_weights = {}
-    for meta in cf.meta_networks:
+    for meta in cf.TYPES:
         action_weights[meta] = 0
     edges = G.edges(node_id,data=True)
     edgeweights = []
     
     #'if len(active_weeks) > 52' is used throughout to check 
-    #if this is the cumulative graph
+    #if this is the aggregate graph
     
     #Find no. weeks this node is active from start of commonfare.net
     active_weeks = [0] * ((window[1]-window[0]).days / 7) 
-    if len(active_weeks) > 52: #If this is the cumulative graph...
+    if len(active_weeks) > 52: #If this is the aggregate graph...
         for spell in G.nodes[node_id]['spells']:
             nodespell = cf.to_date(spell[1])
             index = ((nodespell-window[0]).days / 7) -1
@@ -97,8 +98,7 @@ def nodeweight(G,node_id,window,suspect_nodes):
             after_weeks = [0]*((window[1] - spelldate).days / 7)
             for spell in G.nodes[v]['spells']:
                 nodespell = cf.to_date(spell[1])
-                #If this spell happened afterwards...
-                if (nodespell - spelldate).days >= 7: 
+                if (nodespell - spelldate).days >= 7: #If this spell happened afterwards... 
                     index = ((nodespell-spelldate).days / 7)-1
                     after_weeks[index] = 1
             if len(after_weeks) > 0:
@@ -109,18 +109,19 @@ def nodeweight(G,node_id,window,suspect_nodes):
         
         #Iterate over all actions between two nodes. Increment the 
         #overall edge weight based on the type and date of the action
-        for action_key in cf.interaction_keys:
+        for k,val in cf.INTERACTIONS.iteritems():
+        #for action_key in cf.interaction_keys:
             
-            if action_key not in c:
+            if k not in c:
                 continue 
             actions_to_keep = []
-            for action in c[action_key]:
+            for action in c[k]:
                 if not cf.in_date(window,action[1]):
                     continue 
                 if node_id == action[0].split("-")[0]: #Node initiated the action
-                    edge_weight = cf.weights[action_key]
+                    edge_weight = val[1]#cf.weights[action_key]
                 else: #This node was the recipient of the action
-                    edge_weight = cf.weights["r"+action_key]
+                    edge_weight = val[2]#cf.weights["r"+action_key]
                 actions_to_keep.append(action)
                 action_count += 1    
                 '''
@@ -141,27 +142,27 @@ def nodeweight(G,node_id,window,suspect_nodes):
                 Also store the contribution to this edge's weight of
                 each different action type involved
                 '''
-                action_weights[cf.interaction_types[action_key]] \
+                #action_weights[cf.interaction_types[action_key]] \
+                action_weights[val[0]] \
                 += round((edge_weight*agefraction*depreciating_constant),2)                          
                 
                 depreciating_constant = depreciating_constant*0.75
-            c[action_key] = actions_to_keep     
+            c[k] = actions_to_keep     
             
         if overallweight == 0:
             continue 
-        if len(active_weeks) > 52:
+        if len(active_weeks) > 52: #Aggregate graph
             '''
             Reduce edgeweight based on its influence and
             weeks active of the node. Reduction value = 
             (1.3^influence)-1 * square_root(weeks active) + 0.1
             Minimum reduction = 0.1 when influence is 0
             '''
-
             overallweight *= min(((pow(1.3,influence)-1)
             * math.sqrt(total_weeks_active) +0.1),1)
           
         else: #'flag' a node if it has been particularly active 
-            if action_count > 7: 
+            if action_count > cf.FREQUENCY_THRESHOLD: 
                 flagged = True
                 
         edgeweights.append(overallweight)
@@ -172,8 +173,8 @@ def nodeweight(G,node_id,window,suspect_nodes):
             c['maxweight'] = overallweight
         c['edgeweight'][node_id] = round(overallweight,2)
         c['maxweight'] = round(max(c['maxweight'],overallweight),2)
-        if overallweight > cf.MAX_WEIGHT:
-            cf.MAX_WEIGHT = overallweight
+        if overallweight > cf.MAX_WEIGHT: 
+            cf.MAX_WEIGHT = overallweight #Update max edge weight for this time step 
         maxweight = max(c['maxweight'],maxweight)
         
         if 'maxweight' not in G.nodes[u]:
@@ -309,6 +310,5 @@ def weighted_core(G,window):
         G.nodes[n]['avg'] = {
         k:(v*c['kcore']) for k,v in c['avg'].items()
         }
-    #return (G,colluders)
     return colluders
  

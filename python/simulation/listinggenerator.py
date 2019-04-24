@@ -154,5 +154,5 @@ adjectives = ['thoughtless',
 
 def random_listing():
     """Generate random listing name from adjectives and nouns"""
-    
-    return adjectives[random.randrange(0,len(adjectives))] + " " + nouns[random.randrange(0,len(nouns))]
+    return (adjectives[random.randrange(0,len(adjectives))] + 
+    " " + nouns[random.randrange(0,len(nouns))])
