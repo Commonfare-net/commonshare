@@ -1,0 +1,395 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>kcore &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for kcore</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+
+<span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">cf</span>
+
+<div class="viewcode-block" id="colluding"><a class="viewcode-back" href="../functions/python.html#kcore.colluding">[docs]</a><span class="k">def</span> <span class="nf">colluding</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">n1</span><span class="p">,</span><span class="n">n2</span><span class="p">,</span><span class="n">n1_weight</span><span class="p">,</span><span class="n">n2_weight</span><span class="p">,</span><span class="n">window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check if two nodes are colluding</span>
+<span class="sd">    </span>
+<span class="sd">    Basic collusion checking algorithm. Determines if actions from</span>
+<span class="sd">    one node are greater than a threshold of the recipient node&#39;s</span>
+<span class="sd">    overall weight. The threshold is defined in config.py</span>
+<span class="sd">    </span>
+<span class="sd">    Algorithm adapted from the following paper:</span>
+<span class="sd">    H.Shen, Y.Lin, K.Sapra and Z.Li, &quot;Enhancing Collusion Resilience</span>
+<span class="sd">    in Reputation Systems,&quot; in IEEE Transactions on Parallel and </span>
+<span class="sd">    Distributed Systems, vol.27, no.8, pp.2274-2287, 1 Aug. 2016.</span>
+<span class="sd">    </span>
+<span class="sd">    :param G: NetworkX graph of all interactions in a time window </span>
+<span class="sd">    :param n1: string representing Node 1 ID</span>
+<span class="sd">    :param n2: string representing Node 2 ID</span>
+<span class="sd">    :param n1_weight: float, sum of edge weights of Node 1</span>
+<span class="sd">    :param n2_weight: float, sum of edge weights of Node 2</span>
+<span class="sd">    :param window: 2-tuple of start and end dates of time window</span>
+<span class="sd">    :returns: bool, True if strong suspicion of collusion. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n1</span> <span class="o">==</span> <span class="n">n2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span><span class="n">n2</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">edge</span> <span class="o">=</span> <span class="n">G</span><span class="p">[</span><span class="n">n1</span><span class="p">][</span><span class="n">n2</span><span class="p">]</span>
+    <span class="n">edgeweight</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">frequency</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="nb">print</span> <span class="s1">&#39;checking between &#39;</span><span class="p">,</span><span class="n">n1</span><span class="p">,</span><span class="s1">&#39; and &#39;</span><span class="p">,</span><span class="n">n2</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+    <span class="c1">#for action_key in cf.interaction_keys:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">edge</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="n">edgeweight</span> <span class="o">=</span> <span class="n">edgeweight</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">frequency</span> <span class="o">=</span> <span class="n">frequency</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">n_weight</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">n1_weight</span><span class="p">,</span><span class="n">n2_weight</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">edgeweight</span><span class="o">/</span><span class="n">n_weight</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">PERCENTAGE_THRESHOLD</span></div>
+
+<div class="viewcode-block" id="nodeweight"><a class="viewcode-back" href="../functions/python.html#kcore.nodeweight">[docs]</a><span class="k">def</span> <span class="nf">nodeweight</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">node_id</span><span class="p">,</span><span class="n">window</span><span class="p">,</span><span class="n">suspect_nodes</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate weight of a node in the interactions graph.</span>
+<span class="sd">    </span>
+<span class="sd">    This calculates a node&#39;s &#39;weight&#39; by looking at the </span>
+<span class="sd">    number, type, and date of interactions with other nodes </span>
+<span class="sd">    in the graph. </span>
+
+<span class="sd">    :param G: NetworkX graph of all interactions in a time window </span>
+<span class="sd">    :param node_id: string ID of node to determine weight of </span>
+<span class="sd">    :param window: 2-tuple with start and end dates of time window </span>
+<span class="sd">    :param suspect_nodes: dictionary mapping node ID&#39;s of high</span>
+<span class="sd">    activity to their overall weight </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#This holds the contribution of each type of action to</span>
+    <span class="c1">#the node&#39;s overall weight </span>
+    <span class="n">action_weights</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">TYPES</span><span class="p">:</span>
+        <span class="n">action_weights</span><span class="p">[</span><span class="n">meta</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">edgeweights</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#&#39;if len(active_weeks) &gt; 52&#39; is used throughout to check </span>
+    <span class="c1">#if this is the aggregate graph</span>
+    
+    <span class="c1">#Find no. weeks this node is active from start of commonfare.net</span>
+    <span class="n">active_weeks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">((</span><span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span> 
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_weeks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">52</span><span class="p">:</span> <span class="c1">#If this is the aggregate graph...</span>
+        <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]:</span>
+            <span class="n">nodespell</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">spell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="p">((</span><span class="n">nodespell</span><span class="o">-</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">active_weeks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">total_weeks_active</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">active_weeks</span><span class="p">))</span>
+
+    <span class="n">maxweight</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">influence</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">flagged</span> <span class="o">=</span> <span class="kc">False</span>    
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
+    
+        <span class="c1">#Constant used to decrease the &#39;value&#39; of multiple interactions</span>
+        <span class="c1">#between the same two nodes</span>
+        <span class="n">depreciating_constant</span> <span class="o">=</span> <span class="mf">0.75</span> 
+        
+        <span class="n">overallweight</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_weeks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">52</span><span class="p">:</span>
+          
+          <span class="c1">#Estimate the &#39;influence&#39; of this node. </span>
+          <span class="c1">#For each neighbour node, determine its activity</span>
+          <span class="c1">#since connecting with this node</span>
+            <span class="n">spelldate</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">after_weeks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">((</span><span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">spelldate</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]:</span>
+                <span class="n">nodespell</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">spell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">nodespell</span> <span class="o">-</span> <span class="n">spelldate</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span> <span class="c1">#If this spell happened afterwards... </span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="p">((</span><span class="n">nodespell</span><span class="o">-</span><span class="n">spelldate</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+                    <span class="n">after_weeks</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">after_weeks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">influence</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">after_weeks</span><span class="p">))</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">after_weeks</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">influence</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">action_count</span> <span class="o">=</span> <span class="mi">0</span>   
+        
+        <span class="c1">#Iterate over all actions between two nodes. Increment the </span>
+        <span class="c1">#overall edge weight based on the type and date of the action</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="c1">#for action_key in cf.interaction_keys:</span>
+            
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">continue</span> 
+            <span class="n">actions_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">continue</span> 
+                <span class="k">if</span> <span class="n">node_id</span> <span class="o">==</span> <span class="n">action</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span> <span class="c1">#Node initiated the action</span>
+                    <span class="n">edge_weight</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="c1">#cf.weights[action_key]</span>
+                <span class="k">else</span><span class="p">:</span> <span class="c1">#This node was the recipient of the action</span>
+                    <span class="n">edge_weight</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="c1">#cf.weights[&quot;r&quot;+action_key]</span>
+                <span class="n">actions_to_keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="n">action_count</span> <span class="o">+=</span> <span class="mi">1</span>    
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                Depreciate weight of the edge as a function of </span>
+<span class="sd">                the number of days old it is. </span>
+<span class="sd">                e^(-days/100) seems to work well. </span>
+<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="n">tdelta</span> <span class="o">=</span> <span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">agefraction</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tdelta</span><span class="o">.</span><span class="n">days</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">))</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                Also depreciate the value of subsequent </span>
+<span class="sd">                interactions along the same edge by 25% each time</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="n">overallweight</span> <span class="o">=</span> <span class="p">(</span><span class="n">overallweight</span> 
+                <span class="o">+</span> <span class="p">(</span><span class="n">edge_weight</span><span class="o">*</span><span class="n">agefraction</span><span class="o">*</span><span class="n">depreciating_constant</span><span class="p">))</span> 
+              
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                Also store the contribution to this edge&#39;s weight of</span>
+<span class="sd">                each different action type involved</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="c1">#action_weights[cf.interaction_types[action_key]] \</span>
+                <span class="n">action_weights</span><span class="p">[</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> \
+                <span class="o">+=</span> <span class="nb">round</span><span class="p">((</span><span class="n">edge_weight</span><span class="o">*</span><span class="n">agefraction</span><span class="o">*</span><span class="n">depreciating_constant</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>                          
+                
+                <span class="n">depreciating_constant</span> <span class="o">=</span> <span class="n">depreciating_constant</span><span class="o">*</span><span class="mf">0.75</span>
+            <span class="n">c</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">actions_to_keep</span>     
+            
+        <span class="k">if</span> <span class="n">overallweight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span> 
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_weeks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">52</span><span class="p">:</span> <span class="c1">#Aggregate graph</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            Reduce edgeweight based on its influence and</span>
+<span class="sd">            weeks active of the node. Reduction value = </span>
+<span class="sd">            (1.3^influence)-1 * square_root(weeks active) + 0.1</span>
+<span class="sd">            Minimum reduction = 0.1 when influence is 0</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">overallweight</span> <span class="o">*=</span> <span class="nb">min</span><span class="p">(((</span><span class="nb">pow</span><span class="p">(</span><span class="mf">1.3</span><span class="p">,</span><span class="n">influence</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">total_weeks_active</span><span class="p">)</span> <span class="o">+</span><span class="mf">0.1</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+          
+        <span class="k">else</span><span class="p">:</span> <span class="c1">#&#39;flag&#39; a node if it has been particularly active </span>
+            <span class="k">if</span> <span class="n">action_count</span> <span class="o">&gt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">FREQUENCY_THRESHOLD</span><span class="p">:</span> 
+                <span class="n">flagged</span> <span class="o">=</span> <span class="kc">True</span>
+                
+        <span class="n">edgeweights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">overallweight</span><span class="p">)</span>
+        
+        <span class="c1">#Adds the edge&#39;s weight as an attribute</span>
+        <span class="k">if</span> <span class="s1">&#39;edgeweight&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">overallweight</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">][</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">overallweight</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">],</span><span class="n">overallweight</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">overallweight</span> <span class="o">&gt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">MAX_WEIGHT</span><span class="p">:</span> 
+            <span class="n">cf</span><span class="o">.</span><span class="n">MAX_WEIGHT</span> <span class="o">=</span> <span class="n">overallweight</span> <span class="c1">#Update max edge weight for this time step </span>
+        <span class="n">maxweight</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">],</span><span class="n">maxweight</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;maxweight&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">],</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="s1">&#39;maxweight&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">],</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;maxweight&#39;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edgeweights</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">action_weights</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">flagged</span><span class="p">:</span> <span class="c1">#High activity node, add it to dictionary </span>
+        <span class="n">suspect_nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">edgeweights</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">action_weights</span><span class="p">,</span><span class="nb">sum</span><span class="p">(</span><span class="n">edgeweights</span><span class="p">))</span></div>
+    
+
+<div class="viewcode-block" id="weighted_core"><a class="viewcode-back" href="../functions/python.html#kcore.weighted_core">[docs]</a><span class="k">def</span> <span class="nf">weighted_core</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute weighted k-core for each node in a graph</span>
+<span class="sd">    </span>
+<span class="sd">    This extends the standard NetworkX k-core calculation method </span>
+<span class="sd">    by weighting each node based on its platform interactions, </span>
+<span class="sd">    performing a log-transformation and normalising the final value </span>
+<span class="sd">    to an integer between 1 and 10</span>
+<span class="sd">    It only returns a list of colluding nodes as the NetworkX graph</span>
+<span class="sd">    is passed by reference and updated anyway </span>
+
+<span class="sd">    :param G: NetworkX graph of all interactions in a time window</span>
+<span class="sd">    :param window: 2-tuple of start and end dates of time window </span>
+<span class="sd">    :returns: a list of potential colluding nodes </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">neighbors</span><span class="o">=</span><span class="n">G</span><span class="o">.</span><span class="n">neighbors</span>
+    <span class="n">suspect_nodes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">sumofedges</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">colluders</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">degrees</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">degree</span><span class="p">())</span>
+    <span class="n">cf</span><span class="o">.</span><span class="n">MAX_WEIGHT</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">degrees</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1">#Compute the new node weight here</span>
+        <span class="c1">#Also return &#39;action_weights&#39; that holds node weight relevant</span>
+        <span class="c1">#to each different action type </span>
+        <span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">action_weights</span><span class="p">,</span><span class="n">weight</span><span class="p">)</span> <span class="o">=</span> <span class="n">nodeweight</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">window</span><span class="p">,</span><span class="n">suspect_nodes</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;edgetotals&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">action_weights</span>
+        <span class="n">e_sum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">action_weights</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">sumofedges</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_sum</span>                
+        <span class="n">e_avg</span> <span class="o">=</span> <span class="n">e_sum</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">action_weights</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        
+        <span class="c1">#Convert action weights to values with sum = node&#39;s weight </span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;cumu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:(</span><span class="nb">round</span><span class="p">((</span><span class="n">v</span><span class="o">/</span><span class="n">e_sum</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">e_sum</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> 
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;edgetotals&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        
+        <span class="c1">#Convert action weights to values with average = node&#39;s weight </span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;avg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:(</span><span class="nb">round</span><span class="p">((</span><span class="n">v</span><span class="o">/</span><span class="n">e_avg</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">e_avg</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> 
+        <span class="k">for</span> <span class="n">e</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;edgetotals&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        
+        <span class="c1">#Compute node&#39;s new &#39;degree&#39; as function of its computed weight</span>
+        <span class="n">degrees</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="o">*</span> <span class="n">weight</span><span class="p">)</span>
+
+    <span class="c1">#Do a collusion check</span>
+    <span class="n">activenodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">suspect_nodes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">activenodes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">activenodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">colluding</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">suspect_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">suspect_nodes</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">window</span><span class="p">):</span> 
+                <span class="nb">print</span> <span class="n">i</span><span class="p">,</span><span class="s1">&#39;and&#39;</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="s1">&#39;might be colluding&#39;</span>
+                <span class="n">colluders</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+    
+    <span class="c1">#This is the k-core algorithm verbatim from the networkx module</span>
+    <span class="n">nodes</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">degrees</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="n">degrees</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+    <span class="n">bin_boundaries</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">curr_degree</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">degrees</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">&gt;</span><span class="n">curr_degree</span><span class="p">:</span>
+            <span class="n">bin_boundaries</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">degrees</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">-</span><span class="n">curr_degree</span><span class="p">))</span>
+            <span class="n">curr_degree</span><span class="o">=</span><span class="n">degrees</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+    <span class="n">node_pos</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">v</span><span class="p">,</span><span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span>
+    <span class="c1"># initial guesses for core is degree</span>
+    <span class="n">core</span><span class="o">=</span><span class="n">degrees</span>
+    <span class="n">nbrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">((</span><span class="n">v</span><span class="p">,</span><span class="nb">set</span><span class="p">(</span><span class="n">neighbors</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">G</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">nbrs</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">core</span><span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">core</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+                <span class="n">nbrs</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">pos</span><span class="o">=</span><span class="n">node_pos</span><span class="p">[</span><span class="n">u</span><span class="p">]</span>
+                <span class="n">bin_start</span><span class="o">=</span><span class="n">bin_boundaries</span><span class="p">[</span><span class="n">core</span><span class="p">[</span><span class="n">u</span><span class="p">]]</span>
+                <span class="n">node_pos</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">=</span><span class="n">bin_start</span>
+                <span class="n">node_pos</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">bin_start</span><span class="p">]]</span><span class="o">=</span><span class="n">pos</span>
+                <span class="n">nodes</span><span class="p">[</span><span class="n">bin_start</span><span class="p">],</span><span class="n">nodes</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">=</span><span class="n">nodes</span><span class="p">[</span><span class="n">pos</span><span class="p">],</span><span class="n">nodes</span><span class="p">[</span><span class="n">bin_start</span><span class="p">]</span>
+                <span class="n">bin_boundaries</span><span class="p">[</span><span class="n">core</span><span class="p">[</span><span class="n">u</span><span class="p">]]</span><span class="o">+=</span><span class="mi">1</span>
+                <span class="n">core</span><span class="p">[</span><span class="n">u</span><span class="p">]</span><span class="o">-=</span><span class="mi">1</span>
+                
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Output of k-core algorithm is logarithmic distribution. </span>
+<span class="sd">    Use &#39;boxcox&#39; to do log transformation with lambda=0</span>
+<span class="sd">    First, 0 values need to be removed</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">log_core</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">core</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span><span class="mi">0</span><span class="p">}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">boxcox</span><span class="p">(</span><span class="n">log_core</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1">#Then we add 0 values back in</span>
+    <span class="n">loopcount</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">log_core</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">log_core</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">loopcount</span><span class="p">]</span>
+        <span class="n">loopcount</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">core</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">log_core</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        
+    <span class="c1">#Finally, normalise log-transform values on a scale of 1-10</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">log_core</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">k_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">log_core</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">k_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">log_core</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">k_max</span> <span class="o">==</span> <span class="n">k_min</span><span class="p">:</span>
+            <span class="n">k_max</span> <span class="o">=</span> <span class="n">k_max</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">log_core</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">sumofedges</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">log_core</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">continue</span>
+            <span class="n">log_core</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="o">-</span><span class="n">k_min</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">k_max</span><span class="o">-</span><span class="n">k_min</span><span class="p">))</span><span class="o">*</span><span class="mi">9</span><span class="p">))</span><span class="o">+</span><span class="mi">1</span>
+
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1">#Add k-core value to each node in the graph</span>
+    <span class="c1">#Also update the average and cumulative action weights</span>
+    <span class="c1">#by multiplying them by the node&#39;s k-core value</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;kcore&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_core</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;cumu&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:(</span><span class="n">v</span><span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;kcore&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;cumu&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>    
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;avg&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:(</span><span class="n">v</span><span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;kcore&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;avg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">colluders</span></div>
+ 
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

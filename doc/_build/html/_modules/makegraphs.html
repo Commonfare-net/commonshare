@@ -1,0 +1,688 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>makegraphs &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for makegraphs</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">community</span>
+<span class="kn">import</span> <span class="nn">pagerank</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">networkx.readwrite</span> <span class="k">import</span> <span class="n">json_graph</span>
+
+<span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">cf</span>
+<span class="kn">import</span> <span class="nn">kcore</span> <span class="k">as</span> <span class="nn">dx</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+
+<div class="viewcode-block" id="make_all_graphs"><a class="viewcode-back" href="../functions/python.html#makegraphs.make_all_graphs">[docs]</a><span class="k">def</span> <span class="nf">make_all_graphs</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">startdate</span><span class="p">,</span><span class="n">enddate</span><span class="p">,</span><span class="n">spacing</span><span class="p">):</span>     
+    <span class="sd">&quot;&quot;&quot;Generate all JSON files from NetworkX graph</span>
+<span class="sd">    </span>
+<span class="sd">    This method generates a JSON file for the cumulative</span>
+<span class="sd">    graph of interactions, JSON files for interactions within</span>
+<span class="sd">    each time window (determined by &#39;spacing&#39; parameter) and </span>
+<span class="sd">    JSON files for each commoner that contains their interaction </span>
+<span class="sd">    history.</span>
+<span class="sd">    Files are created in the &#39;data/output/&#39; directory for each </span>
+<span class="sd">    &#39;spacing&#39; as follows:</span>
+<span class="sd">    ---------------</span>
+<span class="sd">    graphdata/*spacing*/0.json - JSON for all interaction data</span>
+<span class="sd">    graphdata/*spacing*/1-X.json - JSON of interaction windows,</span>
+<span class="sd">    with size dependent on the &#39;spacing&#39; parameter</span>
+<span class="sd">    userdata/1-X.json - JSON of each commoner&#39;s interaction</span>
+<span class="sd">    history (filename corresponds to their commoner ID)</span>
+
+<span class="sd">    Note that the output directory is within this directory </span>
+<span class="sd">    (i.e., its path is python/data/output and not </span>
+<span class="sd">    commonshare/data/output). This is so that the Docker container</span>
+<span class="sd">    can access the output files properly.</span>
+<span class="sd">    </span>
+<span class="sd">    :param G: NetworkX graph of all interactions across time </span>
+<span class="sd">    :param startdate: date of first interaction</span>
+<span class="sd">    :param enddate: date of most recent interaction  </span>
+<span class="sd">    :param spacing: string representing size of each time window</span>
+<span class="sd">    (either &#39;weekly&#39;, &#39;biweekly&#39; or &#39;monthly&#39;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c_Gs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">coms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#Create dicts to hold the interaction data for each commoner    </span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;commoner&#39;</span><span class="p">:</span>
+            <span class="n">c_Gs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;tags&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>    
+        
+    <span class="k">if</span> <span class="n">spacing</span> <span class="o">==</span> <span class="s1">&#39;weekly&#39;</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">spacing</span> <span class="o">==</span> <span class="s1">&#39;biweekly&#39;</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">weeks</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">months</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">graph_dir</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">GRAPHDIR</span>
+    <span class="n">user_dir</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">USERDIR</span>
+    
+    <span class="c1">#Make dates for first interaction &#39;window&#39;</span>
+    <span class="n">w_end</span> <span class="o">=</span> <span class="n">enddate</span>
+    <span class="n">w_start</span> <span class="o">=</span> <span class="n">w_end</span><span class="o">+</span><span class="n">delta</span>
+    
+    <span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1">#Makes the windowed graphs</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">w_end</span> <span class="o">&gt;</span> <span class="n">startdate</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">coms</span><span class="p">,</span><span class="n">c_Gs</span><span class="p">,</span><span class="n">json_G</span><span class="p">)</span> <span class="o">=</span> <span class="n">make_graphs</span><span class="p">(</span><span class="n">G</span><span class="p">,(</span><span class="n">w_start</span><span class="p">,</span><span class="n">w_end</span><span class="p">),</span><span class="n">index</span><span class="p">,</span><span class="n">coms</span><span class="p">,</span><span class="n">c_Gs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">graph_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">graph_dir</span><span class="p">)</span>
+        <span class="n">json_G</span><span class="p">[</span><span class="s1">&#39;absolute_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">MAX_WEIGHT</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">graph_dir</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json_G</span><span class="p">))</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">del</span> <span class="n">json_G</span>
+        <span class="n">w_end</span> <span class="o">=</span> <span class="n">w_start</span>
+        <span class="n">w_start</span> <span class="o">=</span> <span class="n">w_end</span> <span class="o">+</span> <span class="n">delta</span>
+        <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1">#Make individual historic files for each commoner</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">user_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">user_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spacing</span> <span class="o">==</span> <span class="s1">&#39;biweekly&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">c_Gs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">user_dir</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+                    <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>  
+                    <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>                    
+    
+    <span class="c1">#Make cumulative graph</span>
+    <span class="p">(</span><span class="n">coms</span><span class="p">,</span><span class="n">c_Gs</span><span class="p">,</span><span class="n">json_G</span><span class="p">)</span> <span class="o">=</span> <span class="n">make_graphs</span><span class="p">(</span><span class="n">G</span><span class="p">,(</span><span class="n">startdate</span><span class="p">,</span><span class="n">enddate</span><span class="p">),</span><span class="mi">0</span><span class="p">,</span><span class="n">coms</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">dynamic_communities</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">coms</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">k_high</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1">#Give cluster a name based on its most influential node</span>
+            <span class="k">for</span> <span class="n">nodes</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">nodeid</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+                        <span class="n">n</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nodeid</span><span class="p">]</span>
+                        <span class="n">k</span> <span class="o">=</span> <span class="n">n</span><span class="p">[</span><span class="s1">&#39;kcore&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">k_high</span><span class="p">:</span><span class="c1"># and n[&#39;type&#39;] == &#39;commoner&#39;:</span>
+                            <span class="n">central_node</span> <span class="o">=</span> <span class="n">nodeid</span>
+                            <span class="n">k_high</span> <span class="o">=</span> <span class="n">k</span>
+            <span class="n">dynamic_communities</span><span class="p">[</span><span class="n">central_node</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">coms</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">))]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="n">json_G</span><span class="p">[</span><span class="s1">&#39;dynamic_comms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamic_communities</span> 
+    <span class="n">json_G</span><span class="p">[</span><span class="s1">&#39;absolute_max&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">MAX_WEIGHT</span>    
+    
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">graph_dir</span> <span class="o">+</span> <span class="s1">&#39;0.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json_G</span><span class="p">))</span>
+        <span class="n">outfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="build_commoner_data"><a class="viewcode-back" href="../functions/python.html#makegraphs.build_commoner_data">[docs]</a><span class="k">def</span> <span class="nf">build_commoner_data</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">commoner_graphs</span><span class="p">,</span><span class="n">nodes_to_remove</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract commoners&#39; interaction histories. </span>
+
+<span class="sd">    This extracts the individual interactions of each commoner</span>
+<span class="sd">    from the NetworkX graph, converts it to JSON and appends it </span>
+<span class="sd">    to their personal interaction history, represented in the </span>
+<span class="sd">    &#39;commoner_graphs&#39; dictionary </span>
+<span class="sd">    </span>
+<span class="sd">    :param G: NetworkX graph of all interactions in a time window </span>
+<span class="sd">    :param commoner_graphs: dictionary mapping each commoner ID to</span>
+<span class="sd">    their personal interaction history in JSON format</span>
+<span class="sd">    :param nodes_to_remove: list of nodes not present in this time</span>
+<span class="sd">    window (so that 0 values can be added to their JSON)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#Need to add 0 values in too</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodes_to_remove</span><span class="p">:</span>
+        <span class="n">c_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;platform_id&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;platform_id&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">c_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">date</span><span class="o">=</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span><span class="n">kcore</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">platform_id</span><span class="o">=</span><span class="n">pid</span><span class="p">)</span>
+        <span class="n">commoner_json</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_data</span><span class="p">(</span><span class="n">c_graph</span><span class="p">)</span>
+        <span class="c1">#if &#39;platform_id&#39; in c:</span>
+        <span class="n">commoner_json</span><span class="p">[</span><span class="s1">&#39;commoner_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pid</span>
+        <span class="n">commoner_graphs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">commoner_json</span><span class="p">)</span>
+        
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;commoner&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1">#Ignore commoners who have done nothing</span>
+        <span class="k">if</span> <span class="s1">&#39;kcore&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="ow">or</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;kcore&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+            
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">surrounding_nodes</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>    
+        
+        <span class="c1">#c_graph is the ego-centric graph of this commoner</span>
+        <span class="n">c_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+        <span class="n">c_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="o">**</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="c1">#Delete unnecessary info </span>
+        <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;maxweight&#39;</span>  <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span>
+        <span class="c1">#Add edges coming from this commoner</span>
+        <span class="c1">#But remove specific interaction dates for efficiency</span>
+        <span class="n">c_graph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="c1">#for action_key in cf.interaction_keys:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                <span class="c1">#print c_graph.nodes[n][action_key]</span>
+                <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                <span class="p">]</span> 
+
+        <span class="c1">#Add nodes these edges connect to with minimal info</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">surrounding_nodes</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;name&#39;</span> <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="k">else</span> <span class="s1">&#39;title&#39;</span>
+            <span class="n">nodetype</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+            <span class="n">c_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="n">nodetype</span><span class="p">,</span><span class="n">t</span><span class="o">=</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="n">name</span><span class="p">])</span>
+
+        <span class="c1">#Other edges are drawn between added nodes</span>
+        <span class="c1">#Again with minimal information</span>
+        <span class="n">all_edges</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">all_edges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                <span class="n">c_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="o">**</span><span class="n">x</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="c1">#for action_key in cf.interaction_keys:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">]:</span>
+                        <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+                        <span class="p">]</span>
+                <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;weight&#39;</span>  <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">]:</span>
+                    <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;label&#39;</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">]:</span>
+                    <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;maxweight&#39;</span> <span class="ow">in</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">]:</span>
+                    <span class="k">del</span> <span class="n">c_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;maxweight&#39;</span><span class="p">]</span>
+        <span class="n">commoner_json</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_data</span><span class="p">(</span><span class="n">c_graph</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;platform_id&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;platform_id&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="c1">#if &#39;platform_id&#39; in c:</span>
+        <span class="n">commoner_json</span><span class="p">[</span><span class="s1">&#39;commoner_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pid</span>
+        <span class="n">commoner_graphs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">commoner_json</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="filter_spells"><a class="viewcode-back" href="../functions/python.html#makegraphs.filter_spells">[docs]</a><span class="k">def</span> <span class="nf">filter_spells</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove all attributes outside time window from nodes/edges</span>
+<span class="sd">    </span>
+<span class="sd">    This removes all the spells and actions from the nodes and edges</span>
+<span class="sd">    where they fall outside of the window slot. This makes</span>
+<span class="sd">    JSON files much less bulky and easier to read</span>
+
+<span class="sd">    :param G: NetworkX graph  </span>
+<span class="sd">    :param window: 2-tuple containing start date and end date</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#First, filter node spells/actions</span>
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>      
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>
+        <span class="n">nodemeta</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">spells_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">spell</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">spells_to_keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spell</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spells_to_keep</span>
+        
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="c1">#for action_key in cf.interaction_keys:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="n">actions_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">actions_to_keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+                <span class="n">c</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">actions_to_keep</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">actions_to_keep</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1">#Add existing action to node&#39;s &#39;nodemeta&#39;</span>
+                <span class="c1">#nodemeta.append(cf.interaction_types[action_key])</span>
+                <span class="n">nodemeta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1">#If node is a story, its nodemeta always contains &#39;story&#39;</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;story&#39;</span><span class="p">:</span>
+            <span class="n">nodemeta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;story&#39;</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;nodemeta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;nodemeta&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">nodemeta</span>
+    
+    <span class="c1">#Do the same for edges</span>
+    <span class="c1">#TODO: Do edge spells need to be filtered too? </span>
+    <span class="n">edgeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edgeiter</span><span class="p">:</span>
+        <span class="n">edgemeta</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">val</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="c1">#for action_key in cf.interaction_keys:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="c1">#edgemeta.append(cf.interaction_types[action_key])</span>
+                        <span class="n">edgemeta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgemeta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edgemeta</span></div>
+    
+<div class="viewcode-block" id="make_recommender_data"><a class="viewcode-back" href="../functions/python.html#makegraphs.make_recommender_data">[docs]</a><span class="k">def</span> <span class="nf">make_recommender_data</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">window</span><span class="p">,</span><span class="n">tag_edges</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make the GEXF used for recommending stories</span>
+
+<span class="sd">    This takes the GEXF file containing every interaction over</span>
+<span class="sd">    time and generates the &#39;recommenderdata.gexf&#39; file, which</span>
+<span class="sd">    is used by &#39;pagerank.py&#39; to determine stories that should be</span>
+<span class="sd">    recommended to users </span>
+<span class="sd">    </span>
+<span class="sd">    It also makes the &#39;neglected_nodes&#39; list, consisting of nodes</span>
+<span class="sd">    with a degree &lt; 2 and age &lt; 50 days </span>
+<span class="sd">    </span>
+<span class="sd">    :param G: NetworkX graph of all interactions across time </span>
+<span class="sd">    :param window: A 2-tuple containing the start and end dates</span>
+<span class="sd">                   of the graph actions</span>
+<span class="sd">    :param tag_edges: List of NetworkX edges to tag nodes</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span> <span class="s1">&#39;making recommender data&#39;</span>
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">neglected_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#Find new stories that have not received any attention yet</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">(</span><span class="n">tag_edges</span><span class="p">)</span>        
+    
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>   
+        <span class="k">del</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;nodemeta&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span>
+        <span class="c1">#&#39;neglected_nodes&#39; = new stories with little interaction</span>
+        <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">degree</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;story&#39;</span> <span class="ow">and</span> <span class="s1">&#39;create_story&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">created</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;create_story&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">created</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+                <span class="n">neglected_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            
+    <span class="n">edgeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">tag_edges</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edgeiter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;edgemeta&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgemeta&#39;</span><span class="p">]</span>
+        <span class="c1">#Find most recent activation of this edge (used for PageRank)</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">spell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">updated</span><span class="p">:</span>
+                <span class="n">updated</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">spell</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;last_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>                 
+
+    <span class="c1">#create the &#39;recommenderdata.gexf&#39; file for use by pagerank.py</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">write_gexf</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="s2">&quot;newdata.gexf&quot;</span><span class="p">)</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;newdata.gexf&quot;</span><span class="p">)</span>  
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;neglected_nodes&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">neglected_nodes</span><span class="p">))</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;timeformat&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">)</span> 
+    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;data/output/recommenderdata.gexf&quot;</span><span class="p">)</span>      
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;newdata.gexf&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="jaccard"><a class="viewcode-back" href="../functions/python.html#makegraphs.jaccard">[docs]</a><span class="k">def</span> <span class="nf">jaccard</span><span class="p">(</span><span class="n">front</span><span class="p">,</span><span class="n">stepcommunity</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute Jaccard similarity coefficient of two node groups</span>
+<span class="sd">    </span>
+<span class="sd">    This uses the Jaccard index statistic to determine whether</span>
+<span class="sd">    one node group is similar enough to a previous node group to</span>
+<span class="sd">    be part of the same dynamic community </span>
+<span class="sd">    </span>
+<span class="sd">    :param front: list of NetworkX nodes at time t-1</span>
+<span class="sd">    :param stepcommunity: list of NetworkX nodes at time t</span>
+<span class="sd">    :returns: Jaccard similarity coefficient</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">intersection</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">stepcommunity</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">front</span><span class="p">))</span>
+    <span class="n">union</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">stepcommunity</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">front</span><span class="p">))</span>
+    <span class="n">similarity</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">))</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">union</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">similarity</span>    </div>
+
+<div class="viewcode-block" id="make_dynamic_communities"><a class="viewcode-back" href="../functions/python.html#makegraphs.make_dynamic_communities">[docs]</a><span class="k">def</span> <span class="nf">make_dynamic_communities</span><span class="p">(</span><span class="n">core_G</span><span class="p">,</span><span class="n">communities</span><span class="p">,</span><span class="n">index</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute new dynamic communities at a given time step.</span>
+<span class="sd">    </span>
+<span class="sd">    Algorithm to find communities that exist in the network</span>
+<span class="sd">    across multiple time steps. At each time window, &#39;static&#39;</span>
+<span class="sd">    community detection is done with the Louvain algorithm from</span>
+<span class="sd">    https://github.com/taynaud/python-louvain</span>
+<span class="sd">    Then, the communities at this step are compared to those from</span>
+<span class="sd">    the previous step. If they are similar enough, they become part</span>
+<span class="sd">    of the same &#39;dynamic community&#39;. For more detail, see this paper:</span>
+<span class="sd">    </span>
+<span class="sd">    D. Greene, D. Doyle and P. Cunningham, &quot;Tracking the Evolution of</span>
+<span class="sd">    Communities in Dynamic Social Networks,&quot; 2010 International </span>
+<span class="sd">    Conference on Advances in Social Networks Analysis and Mining, </span>
+<span class="sd">    Odense, 2010, pp. 176-183.  </span>
+
+<span class="sd">    :param core_G: NetworkX graph of all interactions in time window</span>
+<span class="sd">    :param communities: list of NetworkX node &#39;dynamic communities&#39; </span>
+<span class="sd">    :param index: integer representing time step </span>
+<span class="sd">    :returns: dictionary mapping each node to its Louvain community</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">partitions</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="c1">#Returns a dictionary pairing of node IDs to their community</span>
+    <span class="n">partition</span> <span class="o">=</span> <span class="n">community</span><span class="o">.</span><span class="n">best_partition</span><span class="p">(</span><span class="n">core_G</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">)</span>      
+    <span class="c1">#Swap node ID keys and community values around </span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">partition</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">partitions</span><span class="p">:</span>
+            <span class="n">partitions</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">partitions</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">communities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)):</span>
+            <span class="n">communities</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">index</span><span class="p">,</span><span class="n">partitions</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="n">i</span><span class="p">]])</span>
+        <span class="n">fronts</span> <span class="o">=</span> <span class="p">[</span><span class="n">com</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">com</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">com</span> <span class="ow">in</span> <span class="n">communities</span><span class="p">]</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">#Get most recent snapshot of each dynamic community</span>
+        <span class="n">fronts</span> <span class="o">=</span> <span class="p">[</span><span class="n">com</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">com</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">com</span> <span class="ow">in</span> <span class="n">communities</span><span class="p">]</span>
+        <span class="c1">#partitions are communities detected at this time step</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">partitions</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1">#Use Jaccard similarity to check for evolving communities</span>
+            <span class="k">for</span> <span class="n">front</span> <span class="ow">in</span> <span class="n">fronts</span><span class="p">:</span>
+                <span class="n">similarity</span> <span class="o">=</span> <span class="n">jaccard</span><span class="p">(</span><span class="n">front</span><span class="p">,</span><span class="n">part</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">similarity</span> <span class="o">&gt;=</span> <span class="n">cf</span><span class="o">.</span><span class="n">COMMUNITY_SIM</span><span class="p">:</span> 
+                    <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fronts</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">front</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1">#No match community? Make new one    </span>
+                <span class="n">communities</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">index</span><span class="p">,</span><span class="n">part</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1">#Append evolved community nodes</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+                    <span class="n">communities</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                    <span class="n">communities</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">partition</span></div>
+
+
+<div class="viewcode-block" id="make_graphs"><a class="viewcode-back" href="../functions/python.html#makegraphs.make_graphs">[docs]</a><span class="k">def</span> <span class="nf">make_graphs</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="n">window</span><span class="p">,</span><span class="n">index</span><span class="p">,</span><span class="n">communities</span><span class="p">,</span><span class="n">commoner_graphs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate JSON for NetworkX graph. Update commoner graphs.</span>
+<span class="sd">    </span>
+<span class="sd">    This method generates all necessary information from a NetworkX</span>
+<span class="sd">    graph representation and returns it in a JSON format. It also </span>
+<span class="sd">    updates the &#39;dynamic communities&#39; and individual commoner graphs</span>
+<span class="sd">    (using make_dynamic_communities and build_commoner_data methods)</span>
+<span class="sd">    </span>
+<span class="sd">    :param G: NetworkX graph of interactions in time window </span>
+<span class="sd">    :param window: 2-tuple containing start and end dates </span>
+<span class="sd">    :param index: integer representing time step</span>
+<span class="sd">    :param communities: list holding NetworkX dynamic communities </span>
+<span class="sd">    (filled in by make_dynamic_communities method) </span>
+<span class="sd">    :param commoner_graphs: dictionary mapping each commoner node to</span>
+<span class="sd">    its interaction history (filled in by build_commoner_data method)</span>
+<span class="sd">    :returns: tuple containing:</span>
+<span class="sd">              1. Updated dynamic communities</span>
+<span class="sd">              2. Updated commoner_graphs</span>
+<span class="sd">              3. JSON representation of NetworkX graph</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">edges_to_remove</span> <span class="o">=</span> <span class="p">[]</span>    
+    <span class="n">tag_edges</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tag_nodes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">tag_counts</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#Holds counts of each of the tags      </span>
+    <span class="n">cumulative</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">create_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">comment_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">convo_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">trans_count</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">graph_copy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">G</span><span class="p">)</span> <span class="c1">#To avoid screwing future iterations        </span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">graph_copy</span> <span class="o">=</span> <span class="n">G</span>
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">edgeiter</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   
+
+    <span class="c1">#Filter edges outside time window and add count stats </span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">edgeiter</span><span class="p">:</span>
+        <span class="n">edge_exists</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="k">for</span> <span class="n">intervals</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">edge_exists</span> <span class="o">=</span> <span class="kc">True</span>
+                        
+        <span class="k">if</span> <span class="n">edge_exists</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">edges_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#Find node that wrote story, add it to their &#39;nodemeta&#39;        </span>
+            <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;story&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;create_story&quot;</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">]:</span>                        
+                    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s1">&#39;nodemeta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;story&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;story&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;create_story&quot;</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+                    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s1">&#39;nodemeta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;story&#39;</span><span class="p">]</span>     
+                    
+            <span class="c1">#Count how many different edge types there are </span>
+            <span class="k">if</span> <span class="s2">&quot;create_story&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;create_story&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="n">create_count</span> <span class="o">+=</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="s2">&quot;comment_story&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;comment_story&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">comment</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">comment_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="s2">&quot;conversation&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">convo</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;conversation&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">convo</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">convo_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="s2">&quot;transaction&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;transaction&quot;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">trans</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">trans_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1">#Special actions if the edge connects a node to a tag</span>
+            <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;tag&quot;</span> <span class="ow">or</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;tag&quot;</span><span class="p">:</span>
+                <span class="n">tag_edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;tag&quot;</span><span class="p">:</span>
+                    <span class="n">tagname</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tagname</span> <span class="o">=</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="n">graph_copy</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">u</span><span class="p">][</span><span class="s2">&quot;tags&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tagname</span><span class="p">)</span>
+                <span class="n">graph_copy</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="s2">&quot;tags&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tagname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">tagname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tag_counts</span><span class="p">:</span>
+                    <span class="n">tag_counts</span><span class="p">[</span><span class="n">tagname</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">tag_counts</span><span class="p">[</span><span class="n">tagname</span><span class="p">]</span> <span class="o">+=</span><span class="mi">1</span>  
+    
+    <span class="c1">#Remove non-existent edges</span>
+    <span class="n">graph_copy</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">(</span><span class="n">edges_to_remove</span><span class="p">)</span>
+    
+    <span class="c1">#Also remove the tag edges so not to influence k-core calculation</span>
+    <span class="n">graph_copy</span><span class="o">.</span><span class="n">remove_edges_from</span><span class="p">((</span><span class="n">tag_edges</span><span class="p">))</span>
+    
+    <span class="c1">#Filter nodes outside the time window</span>
+    <span class="n">nodes_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">zero_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>
+        <span class="n">graph_copy</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;nodemeta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>    
+            
+        <span class="n">node_exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">graph_copy</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1">#TODO: Do both lines need to be here?</span>
+        <span class="k">if</span> <span class="s1">&#39;spells&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">intervals</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;spells&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">in_date</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="n">intervals</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="n">node_exists</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">node_exists</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">nodes_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> 
+            <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;commoner&#39;</span><span class="p">:</span>
+                <span class="n">zero_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">))</span>
+    <span class="n">graph_copy</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">nodes_to_remove</span><span class="p">)</span>
+
+    
+    <span class="c1">#Get rid of spells and actions that fall outside the window range </span>
+    <span class="n">filter_spells</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">,</span><span class="n">window</span><span class="p">)</span>
+    
+    <span class="c1">#DO THE KCORE CALCULATIONS HERE</span>
+    <span class="n">colluders</span> <span class="o">=</span> <span class="n">dx</span><span class="o">.</span><span class="n">weighted_core</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">,</span><span class="n">window</span><span class="p">)</span>
+
+    <span class="c1">#Add the tags back in</span>
+    <span class="n">graph_copy</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">tag_edges</span><span class="p">)</span>
+
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">graph_copy</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tag&#39;</span><span class="p">:</span>
+            <span class="n">tag_nodes</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+    
+    <span class="c1">#Recommender data is built from the cumulative graph </span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cumulative</span><span class="p">:</span>
+        <span class="n">build_commoner_data</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">,</span><span class="n">commoner_graphs</span><span class="p">,</span><span class="n">zero_nodes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;making rec data HERE&#39;</span>
+        <span class="n">make_recommender_data</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">),</span><span class="n">window</span><span class="p">,</span><span class="n">tag_edges</span><span class="p">)</span>
+
+    <span class="c1">#Remove isolated nodes that exist after removing Basic Income</span>
+    <span class="n">graph_copy</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">isolates</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">)))</span>
+
+    <span class="c1">#Give each edge the weight of its primary direction</span>
+    <span class="c1">#TODO: Why not take into account other direction?</span>
+    <span class="nb">iter</span> <span class="o">=</span> <span class="n">graph_copy</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;edgeweight&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">][</span><span class="n">u</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        
+    <span class="c1">#Now compare fronts to previous partitions</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cumulative</span><span class="p">:</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">make_dynamic_communities</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">,</span><span class="n">communities</span><span class="p">,</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">community</span><span class="o">.</span><span class="n">best_partition</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">)</span>      
+
+    <span class="c1">#Simple counting of different node types</span>
+    <span class="n">c_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">s_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">t_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">l_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">nodeiter</span> <span class="o">=</span> <span class="n">graph_copy</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="n">nodeiter</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;commoner&#39;</span><span class="p">:</span>
+            <span class="n">c_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;story&#39;</span><span class="p">:</span>
+            <span class="n">s_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tag&#39;</span><span class="p">:</span>
+            <span class="n">t_count</span> <span class="o">+=</span> <span class="mi">1</span>           
+        <span class="k">elif</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;listing&#39;</span><span class="p">:</span>
+            <span class="n">l_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">c</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> 
+            
+    <span class="n">n_count</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">)</span>
+    <span class="n">e_count</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">)</span>
+    <span class="n">core_graph_json</span> <span class="o">=</span> <span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_data</span><span class="p">(</span><span class="n">graph_copy</span><span class="p">)</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tag_counts</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(),</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">):(</span><span class="n">v</span><span class="p">,</span><span class="n">k</span><span class="p">))</span>
+
+    <span class="c1">#Additional info about the graph itself</span>
+    <span class="n">meta_info</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;commoners&#39;</span><span class="p">:</span><span class="n">c_count</span><span class="p">,</span><span class="s1">&#39;stories&#39;</span><span class="p">:</span><span class="n">s_count</span><span class="p">,</span><span class="s1">&#39;listings&#39;</span><span class="p">:</span><span class="n">l_count</span><span class="p">,</span><span class="s1">&#39;tags&#39;</span><span class="p">:</span><span class="n">t_count</span><span class="p">,</span>
+    <span class="s1">&#39;create&#39;</span><span class="p">:</span><span class="n">create_count</span><span class="p">,</span><span class="s1">&#39;comment&#39;</span><span class="p">:</span><span class="n">comment_count</span><span class="p">,</span><span class="s1">&#39;convo&#39;</span><span class="p">:</span><span class="n">convo_count</span><span class="p">,</span>
+    <span class="s1">&#39;trans&#39;</span><span class="p">:</span><span class="n">trans_count</span><span class="p">,</span><span class="s1">&#39;nodenum&#39;</span><span class="p">:</span><span class="n">n_count</span><span class="p">,</span><span class="s1">&#39;edge_num&#39;</span><span class="p">:</span><span class="n">e_count</span><span class="p">,</span>
+    <span class="s1">&#39;tagcount&#39;</span><span class="p">:</span><span class="n">tags</span><span class="p">,</span><span class="s1">&#39;date&#39;</span><span class="p">:</span><span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="s1">&#39;colluders&#39;</span><span class="p">:</span><span class="n">colluders</span>
+                <span class="p">}</span>            
+    <span class="n">core_graph_json</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">meta_info</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">communities</span><span class="p">,</span><span class="n">commoner_graphs</span><span class="p">,</span><span class="n">core_graph_json</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="init"><a class="viewcode-back" href="../functions/python.html#makegraphs.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read GEXF file and initiate graph creation.</span>
+
+<span class="sd">    This reads and parses the GEXF data file, then </span>
+<span class="sd">    calls the &#39;make_all_graphs&#39; method with three </span>
+<span class="sd">    different window lengths </span>
+<span class="sd">    </span>
+<span class="sd">    :param filename: Path to the GEXF graph file</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">G_read</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">read_gexf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.gexf.net/1.2draft&quot;</span><span class="p">)</span> 
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>  
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">unparsed_startdate</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span>
+    <span class="n">unparsed_enddate</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span>
+
+    <span class="n">startdate</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">unparsed_startdate</span><span class="p">,</span><span class="s2">&quot;%Y/%m/</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">enddate</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">unparsed_enddate</span><span class="p">,</span><span class="s2">&quot;%Y/%m/</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="n">make_all_graphs</span><span class="p">(</span><span class="n">G_read</span><span class="p">,</span><span class="n">startdate</span><span class="p">,</span><span class="n">enddate</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">SPACING</span><span class="p">)</span>  </div>
+    
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;Missing filename&#39;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">init</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

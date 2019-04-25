@@ -1,0 +1,370 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>simulation &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for simulation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+
+<span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">cf</span>
+<span class="kn">import</span> <span class="nn">kcore</span> <span class="k">as</span> <span class="nn">dx</span>
+<span class="kn">from</span> <span class="nn">graphclasses</span> <span class="k">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="str_to_class"><a class="viewcode-back" href="../functions/python.html#simulation.str_to_class">[docs]</a><span class="k">def</span> <span class="nf">str_to_class</span><span class="p">(</span><span class="n">classname</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a string to a class</span>
+
+<span class="sd">    :param classname: string name of class to access</span>
+<span class="sd">    :returns: class corresponding to name</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">getattr</span><span class="p">,</span> <span class="n">classname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">])</span>   </div>
+
+<div class="viewcode-block" id="get_users"><a class="viewcode-back" href="../functions/python.html#simulation.get_users">[docs]</a><span class="k">def</span> <span class="nf">get_users</span><span class="p">(</span><span class="n">need_two_users</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return two random user nodes from graph </span>
+
+<span class="sd">    :param need_two_users: bool, True if 2 users are needed</span>
+<span class="sd">    :returns: list containing one or two user IDs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+    <span class="n">name</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+
+    <span class="c1">#Randomly determine whether colluding nodes get detected</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">need_two_users</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cf</span><span class="o">.</span><span class="n">SHOULD_COLLUDE</span> <span class="ow">and</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">users</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">users</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">((</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">15</span> <span class="ow">and</span> <span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">)</span> <span class="ow">or</span> 
+                   <span class="p">(</span><span class="n">r</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">users</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">)):</span>
+                    <span class="k">continue</span> 
+            <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">[</span><span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="nb">type</span><span class="p">[</span><span class="n">users</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">==</span> <span class="s1">&#39;commoner&#39;</span> <span class="ow">and</span> 
+                <span class="n">name</span><span class="p">[</span><span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">[</span><span class="n">users</span><span class="p">[</span><span class="mi">1</span><span class="p">]]):</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>  
+            <span class="n">users</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">[</span><span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="s1">&#39;commoner&#39;</span> <span class="ow">and</span> 
+            <span class="p">(</span><span class="n">r</span> <span class="o">&gt;</span> <span class="mi">16</span> <span class="ow">or</span> <span class="n">users</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">)):</span>
+                <span class="k">break</span>     
+    <span class="k">return</span> <span class="n">users</span>    </div>
+
+
+
+<div class="viewcode-block" id="create_object"><a class="viewcode-back" href="../functions/python.html#simulation.create_object">[docs]</a><span class="k">def</span> <span class="nf">create_object</span><span class="p">(</span><span class="n">user</span><span class="p">,</span><span class="n">objtype</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create object and edge between it and its creating user</span>
+
+<span class="sd">    :param user: string ID of user who created object </span>
+<span class="sd">    :param objtype: string type of object</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">global</span> <span class="n">G</span>    
+    <span class="nb">object</span> <span class="o">=</span> <span class="n">str_to_class</span><span class="p">(</span><span class="n">objtype</span><span class="p">)()</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+    <span class="n">obj_node</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="n">objtype</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="n">unicode</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="p">))}</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,{</span><span class="n">obj_node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">})</span>
+    
+    <span class="c1">#Spells can be used to determine how long an action </span>
+    <span class="c1">#contributes to a user&#39;s commonfare for</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">obj_node</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">)]</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">user</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">user</span><span class="p">,</span><span class="n">obj_node</span><span class="p">)</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">user</span><span class="p">][</span><span class="n">obj_node</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">)]</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+      <span class="n">tag</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span><span class="mi">1</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;tag&#39;</span><span class="p">:</span>
+          <span class="k">break</span>
+    <span class="n">tag_assign</span><span class="p">(</span><span class="n">obj_node</span><span class="p">,</span><span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">update</span><span class="p">(</span><span class="n">user</span><span class="p">,</span><span class="n">obj_node</span><span class="p">,</span><span class="s1">&#39;create_&#39;</span><span class="o">+</span><span class="n">objtype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="tag_assign"><a class="viewcode-back" href="../functions/python.html#simulation.tag_assign">[docs]</a><span class="k">def</span> <span class="nf">tag_assign</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span><span class="n">tag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create edge between a tag node and a user/story/listing node</span>
+
+<span class="sd">    :param thing: string ID of a user, story or listing node</span>
+<span class="sd">    :param tag: string ID of a tag node</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span><span class="n">tag</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span><span class="n">tag</span><span class="p">)</span>
+        <span class="n">G</span><span class="p">[</span><span class="n">thing</span><span class="p">][</span><span class="n">tag</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#Add the spells</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">thing</span><span class="p">][</span><span class="n">tag</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+    <span class="n">update</span><span class="p">(</span><span class="n">thing</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="s1">&#39;tag_&#39;</span> <span class="o">+</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">thing</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>  </div>
+    
+
+<div class="viewcode-block" id="user_interact"><a class="viewcode-back" href="../functions/python.html#simulation.user_interact">[docs]</a><span class="k">def</span> <span class="nf">user_interact</span><span class="p">(</span><span class="n">interaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create edge between two user nodes</span>
+
+<span class="sd">    :param interaction: string type of interaction taking place </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pair</span> <span class="o">=</span> <span class="n">get_users</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1">#Add the spells</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+    <span class="n">update</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="n">interaction</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="object_interact"><a class="viewcode-back" href="../functions/python.html#simulation.object_interact">[docs]</a><span class="k">def</span> <span class="nf">object_interact</span><span class="p">(</span><span class="n">objtype</span><span class="p">,</span><span class="n">interaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create edge between user node and story/listing node</span>
+
+<span class="sd">    :param objtype: string type of object </span>
+<span class="sd">    :param interaction: string type of interaction</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">interaction</span> <span class="o">=</span> <span class="n">interaction</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">objtype</span>
+    <span class="n">pair</span> <span class="o">=</span> <span class="n">get_users</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">get_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nb">object</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+        <span class="c1">#Pick a random story of the target user</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">==</span> <span class="n">objtype</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;create_&#39;</span><span class="o">+</span><span class="n">objtype</span><span class="p">)</span> <span class="ow">in</span> <span class="n">G</span><span class="p">[</span><span class="n">target</span><span class="p">][</span><span class="nb">object</span><span class="p">]:</span>
+            
+            <span class="c1">#Is this the first time source user has interacted with this story?</span>
+            <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="nb">object</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="nb">object</span><span class="p">)</span>
+                <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="nb">object</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                
+            <span class="c1">#Is this the first time source user has interacted with the target user?</span>
+            <span class="k">if</span> <span class="n">G</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">target</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">target</span><span class="p">)</span>
+                <span class="n">G</span><span class="p">[</span><span class="nb">object</span><span class="p">][</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1">#add the spells</span>
+            
+            <span class="n">G</span><span class="p">[</span><span class="nb">object</span><span class="p">][</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+            <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="nb">object</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+          
+            <span class="n">update</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="nb">object</span><span class="p">,</span><span class="n">interaction</span><span class="p">)</span>
+            <span class="n">update</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="n">interaction</span><span class="p">)</span>
+            <span class="k">return</span></div>
+    
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../functions/python.html#simulation.update">[docs]</a><span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">,</span><span class="n">interaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update stats of nodes and edge between them with an interaction</span>
+
+<span class="sd">    :param source: string ID of interaction source node </span>
+<span class="sd">    :param target: string ID of interaction target node</span>
+<span class="sd">    :param interaction: string interaction type</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">interaction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">target</span><span class="p">]:</span>
+        <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">target</span><span class="p">][</span><span class="n">interaction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">interaction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">source</span><span class="p">]:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">interaction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">interaction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">target</span><span class="p">]:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">target</span><span class="p">][</span><span class="n">interaction</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">G</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">target</span><span class="p">][</span><span class="n">interaction</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="n">interaction</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>    
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">target</span><span class="p">][</span><span class="n">interaction</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">),</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>  
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">source</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">target</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="add_tag"><a class="viewcode-back" href="../functions/python.html#simulation.add_tag">[docs]</a><span class="k">def</span> <span class="nf">add_tag</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Add a tag node to the graph&quot;&quot;&quot;</span>
+    
+    <span class="k">global</span> <span class="n">G</span>
+    <span class="n">mytag</span> <span class="o">=</span> <span class="n">tag</span><span class="p">()</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">mytag</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>  
+    <span class="n">tag_node</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span>    
+    <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;tag&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">mytag</span><span class="p">)}</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,{</span><span class="n">tag_node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">})</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">tag_node</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">G</span></div>
+    
+<div class="viewcode-block" id="add_user"><a class="viewcode-back" href="../functions/python.html#simulation.add_user">[docs]</a><span class="k">def</span> <span class="nf">add_user</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Add a user node to the graph&quot;&quot;&quot;</span>
+    
+    <span class="k">global</span> <span class="n">G</span>
+    <span class="n">myuser</span> <span class="o">=</span> <span class="n">user</span><span class="p">()</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">myuser</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>  
+    <span class="n">user_node</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;commoner&#39;</span><span class="p">,</span><span class="s1">&#39;name&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">myuser</span><span class="p">)}</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,{</span><span class="n">user_node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">})</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">user_node</span><span class="p">][</span><span class="s1">&#39;spells&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s_today</span><span class="p">,</span><span class="n">s_today</span><span class="p">)]</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    while True:</span>
+<span class="sd">        tag = random.sample(G.nodes(),1)</span>
+<span class="sd">        if G.nodes[tag[0]][&#39;type&#39;] == &#39;tag&#39;:</span>
+<span class="sd">            break</span>
+<span class="sd">    tag_assign(user_node,tag[0])</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="do_random_thing"><a class="viewcode-back" href="../functions/python.html#simulation.do_random_thing">[docs]</a><span class="k">def</span> <span class="nf">do_random_thing</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Select a random interaction to perform this turn</span>
+<span class="sd">    </span>
+<span class="sd">    This uses a random number generator to determine an action to perform in</span>
+<span class="sd">    the simulation. Interactions can be made more likely simply by having </span>
+<span class="sd">    more result numbers correspond to them </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">num</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">9</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">create_object</span><span class="p">(</span><span class="n">get_users</span><span class="p">(</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span><span class="s1">&#39;story&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">create_object</span><span class="p">(</span><span class="n">get_users</span><span class="p">(</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span><span class="s1">&#39;listing&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">object_interact</span><span class="p">(</span><span class="s1">&#39;story&#39;</span><span class="p">,</span><span class="s1">&#39;comment&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="n">object_interact</span><span class="p">(</span><span class="s1">&#39;listing&#39;</span><span class="p">,</span><span class="s1">&#39;comment&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">6</span> <span class="ow">or</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+        <span class="n">user_interact</span><span class="p">(</span><span class="s1">&#39;conversation&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">8</span> <span class="ow">or</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+        <span class="n">user_interact</span><span class="p">(</span><span class="s1">&#39;transaction&#39;</span><span class="p">)</span></div>
+        
+        
+        
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>   
+    <span class="n">cur_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">cur_date</span>
+    <span class="n">G</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;../../data/input&quot;</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;../../data/input&quot;</span><span class="p">)</span>
+
+    <span class="c1">#Loop for cf.DAYS days, doing cf.ACTIONS_PER_DAY actions each time</span>
+    <span class="k">while</span> <span class="n">counter</span> <span class="o">&lt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">DAYS</span><span class="p">:</span>
+        <span class="n">cur_date</span> <span class="o">=</span> <span class="n">cur_date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">s_today</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">cur_date</span><span class="p">)</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+
+            
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span> <span class="o">&lt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">INITIAL_USERS</span><span class="p">:</span>
+            <span class="n">G</span> <span class="o">=</span> <span class="n">add_user</span><span class="p">()</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span> <span class="o">==</span> <span class="n">cf</span><span class="o">.</span><span class="n">INITIAL_USERS</span><span class="p">:</span>
+            <span class="c1">#Pick some nodes to be the &#39;colluders&#39; in the simulation </span>
+            <span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span><span class="n">cf</span><span class="o">.</span><span class="n">NUM_COLLUDERS</span><span class="p">)</span>
+            
+                <span class="c1">#Seed some tags</span>
+            <span class="nb">print</span> <span class="s1">&#39;len is &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span> <span class="o">&lt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">TAGS</span> <span class="o">+</span> <span class="n">cf</span><span class="o">.</span><span class="n">INITIAL_USERS</span><span class="p">:</span>
+                <span class="n">G</span> <span class="o">=</span> <span class="n">add_tag</span><span class="p">()</span>
+                <span class="nb">print</span> <span class="s1">&#39;len NOW is &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+            
+            <span class="c1">#Make each one write a story so that collusion is easier</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">NUM_COLLUDERS</span><span class="p">):</span>
+                <span class="nb">print</span> <span class="s1">&#39;colluder is &#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">create_object</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39;story&#39;</span><span class="p">)</span>
+
+
+            
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">ACTIONS_PER_DAY</span><span class="p">):</span>
+            <span class="n">do_random_thing</span><span class="p">()</span>
+            
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">counter</span> <span class="o">%</span> <span class="mi">30</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;we are at &#39;</span><span class="p">,</span><span class="n">counter</span>
+
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">end_date</span> <span class="o">=</span> <span class="n">start_date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">365</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.gexf.net/1.2draft&quot;</span><span class="p">)</span>
+    <span class="n">nx</span><span class="o">.</span><span class="n">write_gexf</span><span class="p">(</span><span class="n">G</span><span class="p">,</span><span class="s2">&quot;data360.gexf&quot;</span><span class="p">)</span> 
+
+    <span class="c1">#This seems to be the easiest way to add start/end attrs to the GEXF</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;data360.gexf&quot;</span><span class="p">)</span>  
+    <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;xmlns&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.gexf.net/1.2draft&#39;</span><span class="p">}</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">start_date</span><span class="p">))</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="n">end_date</span><span class="p">))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;data360.gexf&#39;</span><span class="p">)</span>
+    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;../../data/input/simulateddata.gexf&#39;</span><span class="p">)</span>  
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,32 @@
+=================
+ Python functions
+=================
+
+This is a normal text paragraph. The next paragraph is a code sample::
+
+   It is not processed in any way, except
+   that the indentation is removed.
+
+   It can span multiple lines.
+
+This is a normal text paragraph again.
+
+parsegexf.py
+===================
+.. automodule:: parsegexf
+   :members:
+   
+makegraphs.py
+===================
+.. automodule:: makegraphs
+   :members:
+   
+kcore.py
+===================
+.. automodule:: kcore
+   :members:
+
+simulation.py
+==============
+.. automodule:: simulation
+    :members:

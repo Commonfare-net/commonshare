@@ -43,6 +43,8 @@ def personalisedPageRank(core_graph,story,user):
     user_id = 0
     influence = 0
     now = datetime.now()
+    #Becuase the GEXF ID and commonfare.net ID are different, this finds
+    #the right story/user nodes 
     for (n,c) in core_graph.nodes(data=True):
         if c['platform_id']==str(story) and c['type']=='story':
             story_id = n
@@ -54,6 +56,7 @@ def personalisedPageRank(core_graph,story,user):
             break
     if story_id == 0:
         return ({},0)
+        
     #Get the nodes surrounding both the story and the user, to use as
     #the personalisation vector in the page-rank calculation 
     surrounding_nodes = {k:10 for k in core_graph.neighbors(story_id)}
@@ -119,14 +122,13 @@ def run(storyid,userid):
     tree = ET.parse(filename)  
     root = tree.getroot()
     #'neglected nodes'= new stories/listings with few interactions
-
     if len(root[0].attrib['neglected_nodes']) == 0:
         neglected_nodes = []
     else:
         neglected_nodes = root[0].attrib['neglected_nodes'].split(" ")
+        
     #If node is influential, connect them to unknown stories to increase 
     #density of the graph 
-
     for i in range(min(influence,len(neglected_nodes))):
         platform_id = G_untainted.nodes[neglected_nodes[i]]['platform_id']
         recommended_list.append(platform_id)

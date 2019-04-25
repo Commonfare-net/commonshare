@@ -54,7 +54,7 @@
 /*Line graph styling*/
 #commonshare_line {
 	stroke: var(--cf-orange);
-	stroke-width: 3px;
+	stroke-width: 5px;
 	fill: none;
 }
 #commonshare_circle {
@@ -144,10 +144,10 @@ div.tooltip {
   width:100%;
   margin: auto auto;
   /*height: 75%;*/
-  top:50;
+  top:10;
   left:0;
   pointer-events:none;
-  font-family: 'Asap';
+  font-family: 'Dosis';
   font-size:16px  
 }
 
