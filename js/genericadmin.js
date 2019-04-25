@@ -16,16 +16,19 @@ var c_nodes = [];
 var global_communities = {};
 var ids_to_titles = {};
 var parseTime = d3.timeParse("%Y/%m/%d %H:%M");
+var active_simulation;
 function zoomFunction() {
     var new_xScale = d3.event.transform.rescaleX(xScale);
     var new_yScale = d3.event.transform.rescaleY(yScale);
     g.attr("transform", d3.event.transform);
-}
+
+    }
 var zoom = d3.zoom().on("zoom", zoomFunction);
 var svg = d3.select("#bigvis");
 var width = +svg.attr("width");
 var height = +svg.attr("height");
 svg.call(zoom);
+var extralines;
 var g = svg.append("g").attr("transform", "translate(250,250) scale (.35,.35)");
 link = g.append("g")
        .attr("stroke", "#000")
@@ -34,6 +37,7 @@ node = g.append("g")
        .attr("stroke", "#fff")
        .attr("stroke-width", 1.5).selectAll(".node");
 svg.call(zoom.transform, d3.zoomIdentity.translate(250, 250).scale(0.35));
+/*
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function (d) {
             return d.id;
@@ -53,8 +57,7 @@ var community_sim = d3.forceSimulation()
     .force("center", d3.forceCenter(500 / 2, 600 / 2))
     .force("cluster", forceCluster)
     .force("collide", d3.forceCollide(22).strength(0.9))
-    .stop();
-var active_simulation = simulation;
+    .stop();*/
 var div = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
@@ -69,33 +72,7 @@ Array.prototype.unique = function () {
     }
     return a;
 };
-function clearDyn() {
-    d3.select(".hull").attr("d", 0);
-    d3.selectAll(".marker").remove();
-    c_nodes = [];
-    draw();
-}
-function toggledate(checkboxelem) {
-    clearDyn();
-    if (checkboxelem.checked) {
-        var len = Object.keys(data).length-1;
-        $("#curdate").text(df(parseTime(data[len].date)) +
-        " to " + df(parseTime(data[1].date)));
-        $("#myslider").css("opacity", 0.4);
-        $("#myslider").css("pointer-events", "none");
-        currentDate = data[1].date;
-        sliderhandle.attr("cx", dateslidex(len));
-        indexstart = 0;
-        draw();
-    } else {
-        $("#curdate").text(df(parseTime(data[1].date)) +
-        " to " + df(d3.utcDay.offset(parseTime(data[1].date),7)));
-        $("#myslider").css("opacity", 1);
-        $("#myslider").css("pointer-events", "auto");
-        indexstart = 1;
-        draw();
-    }
-}
+/*
 function togglegroups(checkboxelem) {
     if (checkboxelem.checked){
         active_simulation = community_sim;
@@ -124,9 +101,16 @@ function togglegroups(checkboxelem) {
     .attr("x2", function (d) {return d.target.x;})
     .attr("y2", function (d) {return d.target.y;});
 }
+*/
 
+function clearDyn() {
+    d3.select(".hull").style("opacity", 0);
+    d3.selectAll(".marker").remove();
+    c_nodes = [];
+    draw();
+}
 function loadDataFiles(queue) {
-    var data_url = "../data/output/graphdata/hourly/"+datafilecounter+".json";
+    var data_url = "../data/output/generic/graphdata/"+datafilecounter+".json";
     $.ajax({
         url: data_url,
         type: "HEAD",
@@ -141,6 +125,9 @@ function loadDataFiles(queue) {
                         datalist[d - 1] = results[d];
                     }
                     drawn[d] = false;
+                }
+                if(results.length > 1){
+                    datediff = parseTime(datalist[0].date).getTime() - parseTime(datalist[1].date).getTime();
                 }
                 datalist.reverse();
                 draw();
@@ -167,6 +154,7 @@ function loadDataFiles(queue) {
     });
 }
 loadDataFiles(q);
+/*
 function forceCluster(alpha) {
     node.each(function (d) {
         cluster = clusters[d.cluster];
@@ -186,6 +174,7 @@ function forceCluster(alpha) {
         }
     });
 }
+*/
 function draw() {
     $(".mybox").prop("checked", false);
     nodetypes = {};
@@ -382,7 +371,7 @@ function draw() {
     }
     function hs(d){
         return (
-        d.maxweight == undefined ? 2 : Math.min(8, d.maxweight+1));
+        d.maxweight == undefined ? 2 : d.maxweight < 0 ? 0 : Math.min(8, d.maxweight+1));
     }
 
     //Arrowheads that show the direction of the interaction
@@ -526,6 +515,9 @@ function draw() {
     function dragended(d) {
         d.fx = null;
         d.fy = null;
+    }
+    if(active_simulation == undefined){
+        active_simulation = simulation;
     }
     // Update and restart the simulation.
     active_simulation.nodes(graph.nodes);

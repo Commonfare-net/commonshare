@@ -9,7 +9,6 @@ from datetime import datetime
 from dateutil.relativedelta import *
 
 import community
-import pagerank
 import networkx as nx
 from networkx.readwrite import json_graph
 
@@ -68,8 +67,8 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
             delta = relativedelta(months=-1)
         else:
             delta = relativedelta(years=-1)
-        graph_dir = '../data/output/graphdata/'
-        user_dir = '../data/output/userdata/'
+        graph_dir = cf.GRAPHDIR
+        user_dir = cf.USERDIR
         
         #Make dates for first interaction 'window'
         w_end = enddate
@@ -281,8 +280,8 @@ def filter_spells(G,window):
     edgeiter = G.edges(data=True)
     for (u,v,c) in edgeiter:
         edgemeta = []
-        #for action_key in cf.interaction_keys:
-        for action_key in c:
+        for action_key in cf.interaction_keys:
+        #for action_key in c:
             actions_to_keep = []       
             #if action_key in c and len(c[action_key]) > 0:
             if len(c[action_key]) > 0:
@@ -295,60 +294,8 @@ def filter_spells(G,window):
                         actions_to_keep.append(action)
                 c[action_key] = actions_to_keep
         c['edgemeta'] = edgemeta
-    
     return G
     
-def make_recommender_data(G,window,tag_edges):
-    """Make the GEXF used for recommending stories
-
-    This takes the GEXF file containing every interaction over
-    time and generates the 'recommenderdata.gexf' file, which
-    is used by 'pagerank.py' to determine stories that should be
-    recommended to users 
-    
-    :param G: NetworkX graph of all interactions across time 
-    :param window: A 2-tuple containing the start and end dates
-                   of the graph actions
-    :param tag_edges: List of NetworkX edges to tag nodes
-    
-    """
-    print 'making recommender data'
-    nodeiter = G.nodes(data=True)
-    neglected_nodes = []
-    
-    #Find new stories that have not received any attention yet
-    G.remove_edges_from(tag_edges)        
-    
-    for (n,c) in nodeiter:   
-        del c['nodemeta']
-        del c['tags']
-        #'neglected_nodes' = new stories with little interaction
-        if G.degree[n] < 2 and c['type'] == 'story' and 'create_story' in c:
-            created = cf.to_date(c['create_story'][0][1])
-            if (datetime.now() - created).days < 50:
-                neglected_nodes.append(n)
-            
-    edgeiter = G.edges(data=True)
-    G.add_edges_from(tag_edges)
-    
-    for (u,v,c) in edgeiter:
-        if 'edgemeta' in c:
-            del c['edgemeta']
-        if 'last_active' in c:
-            c['last_date'] = c['last_active']                 
-        else:
-            c['last_date'] = c['spells'][0][1]
-    #create the 'recommenderdata.gexf' file for use by pagerank.py
-    nx.write_gexf(G,"newdata.gexf")
-    tree = ET.parse("newdata.gexf")  
-    root = tree.getroot()
-    root[0].set('neglected_nodes',' '.join(neglected_nodes))
-    root[0].set('start',cf.to_str(window[0]))
-    root[0].set('end',cf.to_str(window[1]))
-    root[0].set('timeformat', 'date') 
-    tree.write("../data/output/recommenderdata.gexf")      
-    os.remove("newdata.gexf")
-
 def jaccard(front,stepcommunity):
     """Compute Jaccard similarity coefficient of two node groups
     
@@ -471,7 +418,6 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         if edge_exists == False:
             edges_to_remove.append((u,v,c))
         else:
-            #Risky perhaps
             copy_edge = graph_copy.edges[u,v]
             if window[0] is not None:
                 copy_edge['first_active'] = copy_edge['spells'][0][0]
@@ -484,7 +430,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
        
     #Also remove the tag edges so not to influence k-core calculation
     graph_copy.remove_edges_from((tag_edges))
-    
+
+ 
     #Filter nodes outside the time window
     nodes_to_remove = []
     zero_nodes = []
@@ -507,9 +454,12 @@ def make_graphs(G,window,index,communities,commoner_graphs):
                 
         graph_copy.remove_nodes_from(nodes_to_remove)
 
+       
         #Get rid of spells and actions that fall outside the window range 
         graph_copy = filter_spells(graph_copy,window)
-   
+
+
+                
     #DO THE KCORE CALCULATIONS HERE
     (core_G,colluders) = dx.weighted_core(graph_copy.to_undirected(),window,cumulative)
 

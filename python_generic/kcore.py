@@ -85,7 +85,6 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
     flagged = False    
     for (u,v,c) in edges:
         initiated = 0
-
         #Constant used to decrease the 'value' of multiple interactions
         #between the same two nodes
         depreciating_constant = 0.75 
@@ -256,7 +255,10 @@ def weighted_core(G,window,cumulative):
     sumofedges = {}
     colluders = []
     degrees = dict(G.degree())
-    
+    edgeiter = G.edges(data=True)   
+
+    #Filter edges outside time window and add count stats 
+
     for k,v in degrees.items():
         #Compute the new node weight here
         #Also return 'action_weights' that holds node weight relevant

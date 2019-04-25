@@ -1,3 +1,0 @@
-weight=rating
-granularity=yearly
-directed

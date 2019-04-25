@@ -52,15 +52,16 @@ function toggleGroups(chk) {
     .attr("y1", function (d) {return d.source.y;})
     .attr("x2", function (d) {return d.target.x;})
     .attr("y2", function (d) {return d.target.y;});
-
-    extralines.selectAll(".extralines")
-    .transition()
-    .duration(2000)
-    .attr("x1", function (d) {return d.source.x;})
-    .attr("y1", function (d) {return d.source.y;})
-    .attr("x2", function (d) {return d.target.x;})
-    .attr("y2", function (d) {return d.target.y;});
     
+    if(extralines != undefined){
+        extralines.selectAll(".extralines")
+        .transition()
+        .duration(2000)
+        .attr("x1", function (d) {return d.source.x;})
+        .attr("y1", function (d) {return d.source.y;})
+        .attr("x2", function (d) {return d.target.x;})
+        .attr("y2", function (d) {return d.target.y;});
+    }
     //Changes the position of the 'convex hull' around the nodes
     if (indexstart == 0) {
         var hull = d3.polygonHull(c_nodes.map(function (d) {

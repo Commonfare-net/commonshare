@@ -1,5 +1,9 @@
 import datetime
 
+#Output directories
+GRAPHDIR = '../data/output/generic/graphdata/'
+USERDIR = '../data/output/generic/userdata/'
+
 #Simulation things
 DAYS = 365
 TAGS = 10
@@ -57,6 +61,7 @@ def to_date(str):
     :returns: a datetime date
 
     """
+    
     try:
         return datetime.datetime.strptime(str,"%Y/%m/%d %H:%M")
     except ValueError:

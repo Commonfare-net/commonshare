@@ -3,6 +3,7 @@ import datetime
 #Output directories
 GRAPHDIR = '../data/output/graphdata/'
 USERDIR = '../data/output/userdata/'
+RECOMMEND_FILE = '../data/output/recommenderdata.gexf'
 
 #Constants for simulation
 DAYS = 365

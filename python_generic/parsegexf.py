@@ -7,7 +7,6 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from io import StringIO
 from flask import Flask,jsonify,request
-from pagerank import pagerank_api
 
 import makegraphs
 import config as cf
@@ -15,9 +14,7 @@ import config as cf
 #This is a Flask web app
 app = Flask(__name__)
 
-#Also includes Flask methods from pagerank.py
-app.register_blueprint(pagerank_api)
-        
+
 def addNodeSpell(node,attrs):
     """Add spell element to a node element
 
