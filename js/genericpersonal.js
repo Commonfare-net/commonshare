@@ -7,6 +7,9 @@ var langindex = (
 var maxindex = 0;
 //Difference between timesteps in ms
 var timediff = 0;
+var spacingFunc;
+var tickf = d3.timeFormat("%H:%M");
+var ttf = d3.timeFormat("%b %d %H:%M");
 /**
 * Load all our files and then plot the donut and line charts
 **/
@@ -23,6 +26,32 @@ d3.json("../data/output/generic/userdata/" + uid + ".json").then((results) => {
     //Find the difference between timesteps (used for donut date picker)
     if(results.length > 1){
         timediff = (node_data[0].date).getTime() - (node_data[1].date).getTime();
+        timediff /= 1000; //Difference in time between two data points
+        if(timediff <= 3600){
+            spacingFunc = d3.timeHour;
+            tickf = d3.timeFormat("%H:%M");
+            ttf = d3.timeFormat("%b %d %H:%M");
+        }
+        else if(timediff <= 24*3600){
+            spacingFunc = d3.timeDay;
+            tickf = d3.timeFormat("%b/%d");
+            ttf = d3.timeFormat("%b %d");            
+        }
+        else if(timediff <= 24*3600*7){
+            spacingFunc = d3.timeWeek;
+            tickf = d3.timeFormat("%b/%d");
+            ttf = d3.timeFormat("%b %d");
+        }
+        else if(timediff <= 24*3600*31){
+            spacingFunc = d3.timeMonth;
+            tickf = d3.timeFormat("%b %y");
+            ttf = d3.timeFormat("%b %y");            
+        }
+        else{
+            spacingFunc = d3.timeYear;
+            tickf = d3.timeFormat("%Y");
+            ttf = d3.timeFormat("%Y");            
+        }
     }
     plotdonut(graph_data[0], node_data[0]);
     numticks = results.length;
@@ -45,8 +74,7 @@ var parseTime = d3.timeParse("%Y/%m/%d %H:%M");
 
 //Various date formats
 var formatDate = d3.timeFormat("%Y/%m/%d");
-var tickf = d3.timeFormat("%H:%M");
-var ttf = d3.timeFormat("%b %d %H:%M");
+
 var data = {};
 var node_data = [];
 var graph_data = {};

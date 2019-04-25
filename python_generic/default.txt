@@ -1,2 +1,3 @@
-weight=Weight
-granularity=hourly
+weight=rating
+granularity=monthly
+directed

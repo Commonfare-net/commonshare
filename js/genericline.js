@@ -9,6 +9,7 @@ $(window).resize(function () {
 });
 
 function plotsimpleline() {
+    
     $("#linechart").on("wheel mousewheel", function (e) {
         e.preventDefault();
     });
@@ -74,7 +75,9 @@ function plotsimpleline() {
         } else if (tickdistance > 100) {
             currentMonthGap = Math.max(1, --currentMonthGap);
         }
-        xAxis.ticks(d3.timeYear.every(Math.max(1, currentMonthGap)));
+        //Pick a sensible tick range based on timediff
+        xAxis.ticks(spacingFunc.every(Math.max(1, currentMonthGap)));
+        
         gX.call(xAxis);
 
         d3.selectAll("#simplelineaxis > .tick").attr("transform", function () {
@@ -129,7 +132,7 @@ function plotsimpleline() {
         .attr("y", -10);
 
     //X axis
-    var xAxis = d3.axisBottom(x).tickFormat(tickf).ticks(d3.timeYear.every(1));
+    var xAxis = d3.axisBottom(x).tickFormat(tickf).ticks(spacingFunc.every(1));
     var gX = chartg.append("g")
         .attr("transform", "translate(0," + chartheight + ")")
         .attr("class", "axis")

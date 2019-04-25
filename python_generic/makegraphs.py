@@ -4,6 +4,7 @@ import csv
 import copy
 import sys
 import operator
+import shutil
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from dateutil.relativedelta import *
@@ -75,21 +76,24 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
         w_start = w_end+delta
         
         index = 1
+        if os.path.exists(graph_dir):
+            shutil.rmtree(graph_dir)
+        #if not os.path.exists(graph_dir):
+        os.makedirs(graph_dir)
         #Makes the windowed graphs
         while(w_end > startdate):
             print 'windowend is',cf.to_str(w_end)
-            (coms,c_Gs,json_G,G_new) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)
-            if not os.path.exists(graph_dir):
-                os.makedirs(graph_dir)
+            (coms,c_Gs,json_G,G_new) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)    
             with open(graph_dir + str(index) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(json_G))
             w_end = w_start
             w_start = w_end + delta
             index += 1
-
+        
+        if os.path.exists(user_dir):
+            shutil.rmtree(user_dir)
         #Make individual historic files for each commoner
-        if not os.path.exists(user_dir):
-            os.makedirs(user_dir)
+        os.makedirs(user_dir)
         #if spacing == 'biweekly':
         for k,v in c_Gs.items():
             if len(v) > 0:
@@ -97,9 +101,11 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
                     outfile.write(json.dumps(v))   
         
     else:
-        graph_dir = "../data/output/graphdata/"
+        graph_dir = cf.GRAPHDIR
         if not os.path.exists(graph_dir):
-            os.makedirs(graph_dir)
+            shutil.rmtree(graph_dir)
+        #if not os.path.exists(graph_dir):
+        os.makedirs(graph_dir)
         
     #Make cumulative graph
     (coms,c_Gs,json_G,G_new) = make_graphs(G,(startdate,enddate),0,coms,None)
