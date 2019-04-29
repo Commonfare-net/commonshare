@@ -3,14 +3,14 @@ Python scripts for simulating Commonfare data, calculating commonshare, calculat
 
 Requirements:
 
-Python 2.x, NetworkX 2.2, Louvain community detection, dateutil (and the random names generator if running the simulation). Install with the following commands:
+Python 3.x, NetworkX 2.2, Louvain community detection, dateutil (and the random names generator if running the simulation). Install with the following commands:
 ```bash
 pip install networkx==2.2
 pip install scipy python-louvain python-dateutil names
 ```
 
 <h3>Important Contents:</h3>
-
+For detailed information on setting up, running and deploying commonshare, please <a href="https://fooby1-3adfb.firebaseapp.com/commonshare/doc/_build/html/index.html">read the documentation!</a>
 <b>python/</b>
 
 - parsegexf.py: Main class for parsing GEXF file, which then calls makegraphs.py to calculate commonshare and output JSON files.
