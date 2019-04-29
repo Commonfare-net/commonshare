@@ -11,6 +11,7 @@ pip install scipy python-louvain python-dateutil names
 
 <h3>Important Contents:</h3>
 For detailed information on setting up, running and deploying commonshare, please <a href="https://fooby1-3adfb.firebaseapp.com/commonshare/doc/_build/html/index.html">read the documentation!</a>
+
 <b>python/</b>
 
 - parsegexf.py: Main class for parsing GEXF file, which then calls makegraphs.py to calculate commonshare and output JSON files.
