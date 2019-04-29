@@ -5,6 +5,8 @@ import random
 import os
 import copy
 import sys
+import importlib
+
 sys.path.append("../")
 
 import networkx as nx
@@ -21,7 +23,10 @@ def str_to_class(classname):
     :returns: class corresponding to name
     
     """
-    return reduce(getattr, classname.split("."), sys.modules[__name__])   
+    # get the class, will raise AttributeError if class cannot be found
+    return getattr(sys.modules[__name__], classname)
+    
+    #return reduce(getattr, classname.split("."), sys.modules[__name__])   
 
 def get_users(need_two_users):
     """Return two random user nodes from graph 
@@ -68,7 +73,7 @@ def create_object(user,objtype):
     G.add_node(object)
     G = nx.convert_node_labels_to_integers(G)
     obj_node = nx.number_of_nodes(G) -1
-    dict = {'type':objtype,'title':unicode(str(object))}
+    dict = {'type':objtype,'title':str(object)}
     nx.set_node_attributes(G,{obj_node: dict})
     
     #Spells can be used to determine how long an action 
@@ -254,14 +259,12 @@ if __name__ == "__main__":
             cf.colluding_nodes = random.sample(G.nodes(),cf.NUM_COLLUDERS)
             
                 #Seed some tags
-            print 'len is ', len(G.nodes())
             while len(G.nodes()) < cf.TAGS + cf.INITIAL_USERS:
                 G = add_tag()
-                print 'len NOW is ', len(G.nodes())
             
             #Make each one write a story so that collusion is easier
             for i in range(cf.NUM_COLLUDERS):
-                print 'colluder is ',cf.colluding_nodes[i]
+                print ('colluder is ',cf.colluding_nodes[i])
                 create_object(cf.colluding_nodes[i],'story')
 
 
@@ -272,7 +275,7 @@ if __name__ == "__main__":
         G = nx.convert_node_labels_to_integers(G)
 
         if counter % 30 == 0:
-            print 'we are at ',counter
+            print ('we are at ',counter)
 
     start_date = datetime.datetime(2016,6,1)
     end_date = start_date + datetime.timedelta(days=365)

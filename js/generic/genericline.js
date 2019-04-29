@@ -196,27 +196,14 @@ function plotsimpleline() {
         }
         previousIndex = i;
         d1 = node_data[i];
-        //Auto-update the donut
-        currentdonut = i;
-        plotdonut(graph_data[i], node_data[i]);
-            chartpos = d3.select("#linechart").node().getBoundingClientRect();
+        chartpos = d3.select("#linechart").node().getBoundingClientRect();
 
        // console.log("Chartpos: " + chartpos.x + "," + chartpos.y);        
         tooltip_div.transition()
         .duration(200)
         .style("opacity", 1);
-        var toolTipText = "";
-        var interaction_types =
-            ["create_story", "create_listing",
-            "comment_story", "comment_listing",
-            "conversation", "transaction"];
-        for (i = 0; i < interaction_types.length; i++) {
-            var type = interaction_types[i];
-            if (type in d1 && d1[type].length > 0) {
-                toolTipText += tooltipTranslate(type) +
-                d1[type].length + "</br>";
-            }
-        }
+        var toolTipText = ttf(d1.date) + "</br> commonshare: " + d1.kcore;
+
         tooltip_div.html(toolTipText)
         .style("left", (xt(d1.date) + margin.left + 10 + chartpos.x) + "px")
         .style("top", (y(d1.kcore) + margin.top - 20) + chartpos.y + window.scrollY + "px");

@@ -52,7 +52,7 @@ def to_str(date):
     try:
         return datetime.datetime.strftime(date,"%Y/%m/%d %H:%M")
     except Exception as e:
-        print date
+        print (date)
         
 def to_date(str):
     """Convert date-formatted string to datetime date 

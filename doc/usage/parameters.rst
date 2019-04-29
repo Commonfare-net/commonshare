@@ -2,7 +2,7 @@
 Adjusting parameters
 ======================
 From ``config.py`` in the ``python`` directory, a number of parameters can be adjusted to determine users' commonshare, as well as thresholds for collusion and
-community detection. This section gives a brief overview of the parameters that can be adjusted.
+community detection. This section gives a brief overview of the parameters that can be adjusted (default values in parentheses).
 
 * Simulation constants
 

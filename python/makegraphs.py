@@ -169,7 +169,7 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         #Add edges coming from this commoner
         #But remove specific interaction dates for efficiency
         c_graph.add_edges_from(edges)
-        for k,v in cf.INTERACTIONS.iteritems():
+        for k,v in iter(cf.INTERACTIONS.items()):
         #for action_key in cf.interaction_keys:
             if k in c_graph.nodes[n]:
                 #print c_graph.nodes[n][action_key]
@@ -189,7 +189,7 @@ def build_commoner_data(G,commoner_graphs,nodes_to_remove):
         for (u,v,x) in all_edges:
             if u in c_graph.nodes and v in c_graph.nodes:
                 c_graph.add_edge(u,v,**x)
-                for k,val in cf.INTERACTIONS.iteritems():
+                for k,val in iter(cf.INTERACTIONS.items()):
                 #for action_key in cf.interaction_keys:
                     if k in c_graph.edges[u,v]:
                         c_graph.edges[u,v][k] = [
@@ -231,7 +231,7 @@ def filter_spells(G,window):
                 spells_to_keep.append(spell)
         c['spells'] = spells_to_keep
         
-        for k,v in cf.INTERACTIONS.iteritems():
+        for k,v in iter(cf.INTERACTIONS.items()):
         #for action_key in cf.interaction_keys:
             if k in c:
                 actions_to_keep = []
@@ -254,7 +254,7 @@ def filter_spells(G,window):
     edgeiter = G.edges(data=True)
     for (u,v,c) in edgeiter:
         edgemeta = []
-        for k,val in cf.INTERACTIONS.iteritems():
+        for k,val in iter(cf.INTERACTIONS.items()):
         #for action_key in cf.interaction_keys:
             if k in c and len(c[k]) > 0:
                 for action in c[k]:
@@ -280,7 +280,7 @@ def make_recommender_data(G,window,tag_edges):
     :param tag_edges: List of NetworkX edges to tag nodes
     
     """
-    print 'making recommender data'
+    print ('making recommender data')
     nodeiter = G.nodes(data=True)
     neglected_nodes = []
     
@@ -362,14 +362,14 @@ def make_dynamic_communities(core_G,communities,index):
     #Returns a dictionary pairing of node IDs to their community
     partition = community.best_partition(core_G,weight='edgeweight')      
     #Swap node ID keys and community values around 
-    for k,v in partition.iteritems():
+    for k,v in iter(partition.items()):
         if v not in partitions:
             partitions[v] = []
         partitions[v].append(k)
     
     if len(communities) == 0:
         for i in range(len(partitions)):
-            communities.append([index,partitions.values()[i]])
+            communities.append([index,list(partitions.values())[i]])
         fronts = [com[len(com)-1] for com in communities] 
     else:
         #Get most recent snapshot of each dynamic community
@@ -522,7 +522,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     if not cumulative:
         build_commoner_data(graph_copy,commoner_graphs,zero_nodes)
     else:
-        print 'making rec data HERE'
+        print ('making rec data HERE')
         make_recommender_data(copy.deepcopy(graph_copy),window,tag_edges)
 
     #Remove isolated nodes that exist after removing Basic Income
@@ -563,8 +563,8 @@ def make_graphs(G,window,index,communities,commoner_graphs):
     n_count = nx.number_of_nodes(graph_copy)
     e_count = nx.number_of_edges(graph_copy)
     core_graph_json = json_graph.node_link_data(graph_copy)
-    tags = sorted(tag_counts.iteritems(),reverse=True,key=lambda (k,v):(v,k))
-
+   # tags = sorted(iter(tag_counts.items()),reverse=True,key=lambda kv: (kv[1], kv[0]))
+    tags = [(k, tag_counts[k]) for k in sorted (tag_counts, key=tag_counts.get, reverse=True)]   
     #Additional info about the graph itself
     meta_info = {
     'commoners':c_count,'stories':s_count,'listings':l_count,'tags':t_count,
@@ -601,7 +601,7 @@ def init(filename):
     
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print 'Missing filename'
+        print ('Missing filename')
         sys.exit()
     filename = sys.argv[1]
     init(filename)

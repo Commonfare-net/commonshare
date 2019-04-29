@@ -14,6 +14,22 @@ app = Flask(__name__)
 #Also includes Flask methods from pagerank.py
 app.register_blueprint(pagerank_api)
 
+def addNodeSpell(node,attrs):
+    """Add spell element to a node element. A 'spell' is in the form ``<spell end="2019/02/20" start="2019/02/20" />``
+    and the spells of a node determine all points at which it has been active for time-based filtering.
+
+    :param node: string node ID to add spell to
+    :param attrs: dictionary of attributes of this spell  
+
+    """
+    if node.find("spells") == None:
+        spells = node.makeelement("spells",{})
+        node.append(spells)
+    else:
+        spells = node.find("spells")
+    spell = spells.makeelement("spell",attrs)
+    spells.append(spell)
+
 def replace_source(nodes,edges,edgeid,label,source,target):
     '''Replace comment sender/receiver edge with story/writer edge
     
@@ -21,6 +37,13 @@ def replace_source(nodes,edges,edgeid,label,source,target):
     1) A comment sender - story edge
     2) A comment sender - comment receiver edge
     This replaces the sender-receiver with a story-receiver edge
+    
+    .. image:: replacesource.png
+        :scale: 50 %
+        :align: center
+    
+    This is done to increase the strength of connection between users and their created stories when these stories receive comments. It also
+    distinguishes direct user-user interactions from indirect user-story-user interactions in the visualisation 
     
     :param nodes: all nodes of the GEXF graph
     :param edges: all edges of the GEXF grpah
@@ -53,32 +76,18 @@ def replace_source(nodes,edges,edgeid,label,source,target):
         commoner_commoner_edge.set('source',object_target)
 
     return edgetype
-        
-def addNodeSpell(node,attrs):
-    """Add spell element to a node element
-
-    :param node: string node ID to add spell to
-    :param attrs: dictionary of attributes of this spell  
-
-    """
-    if node.find("spells") == None:
-        spells = node.makeelement("spells",{})
-        node.append(spells)
-    else:
-        spells = node.find("spells")
-    spell = spells.makeelement("spell",attrs)
-    spells.append(spell)
-    
+       
     
 def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 
     """Get edge type, start and end dates from label
     
     This method:
-    1) Adds edge spells to source and target nodes
-    2) Finds the type, start and end date of edge from its label
+        1. Adds edge spells to source and target nodes
+        2. Finds the type, start and end date of edge from its label
+    
     Labels have the following format:
-    'conversation_13+date_start=2018/06/23+date_end=2018/06/26'
+    ``conversation_13+date_start=2018/06/23+date_end=2018/06/26``
     
     :param nodes: all nodes of the GEXF graph
     :param edges: all edges of the GEXF grpah
@@ -127,30 +136,7 @@ def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
 
     return (edgetype,start,end)
 
-
-@app.route('/parse')
-def parse(*gexffile):    
-
-    """Entry method to begin parsing the GEXF file
-
-    This is the method called through the Flask API to begin parsing the
-    GEXF file of all commonfare.net interactions. Once the GEXF is in the
-    correct format, it is passed to methods in the makegraphs.py module to
-    output JSON data for visualisation purposes
-    """
-    if len(gexffile) == 0:
-    #if gexffile is None:
-        filename = os.environ['GEXF_INPUT']
-    else:
-        filename = gexffile[0]
-        print 'filename is ',gexffile
-    ET.register_namespace("", "http://www.gexf.net/1.2draft") 
-    tree = ET.parse(filename)  
-    namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
-    root = tree.getroot()
-    root[0].set('mode', 'dynamic')  
-    root[0].set('timeformat', 'date')  
-
+def addNewAttributes(root,namespaces):
     #Get the 'static' node attributes (those unchanging over time)
     nodeattrs = root[0].find('xmlns:attributes/[@class=\'node\']',namespaces)
     nodeattrs.set('mode','static')
@@ -162,17 +148,42 @@ def parse(*gexffile):
         nodeid_id = nodeidattr.attrib['id']
         nodeattrs.remove(nodeidattr)
 
-    type_id = str(nodeattrs.find("*/[@title='type']").attrib['id'])
-    name_id = nodeattrs.find("*/[@title='name']").attrib['id']
-    title_id = nodeattrs.find("*/[@title='title']").attrib['id']
-
-    nodes = root[0].find('xmlns:nodes',namespaces)
 
     #Make new ID attribute - the node's ID in the Commonfare platform
     attrib = {'id':'5','type':'string','title':'platform_id'} 
     attr = nodeattrs.makeelement('attribute',attrib)
     nodeattrs.append(attr)
 
+        
+    #Add holders for dynamic node and edge attributes
+    attrib = {'class':'node','mode':'dynamic'}
+    dnodeattrs = root[0].makeelement('attributes',attrib)
+    attrib = {'class':'edge','mode':'dynamic'}
+    edgeattrs = root[0].makeelement('attributes',attrib)
+    root[0].insert(1,dnodeattrs)
+    root[0].insert(2,edgeattrs)
+
+    #New attribute IDs start at 6 because the platform ID attribute is 5
+    count = 6
+
+    d = {}
+    #For each dynamic attribute in the config, add it to both nodes and edges
+    for k,v in iter(cf.INTERACTIONS.items()):
+    #for key in cf.interaction_keys:
+        attrib = {'id':str(count),'type':'string','title':k} 
+        attr = edgeattrs.makeelement('attribute',attrib)
+        dnodeattrs.append(attr)
+        edgeattrs.append(attr)
+        d[k] = str(count)
+        count +=1
+    return (d,nodeid_id,nodeattrs)
+    
+def cleanNodes(root,namespaces,nodeattrs,nodeid_id):
+    nodes = root[0].find('xmlns:nodes',namespaces)
+
+    type_id = str(nodeattrs.find("*/[@title='type']").attrib['id'])
+    name_id = nodeattrs.find("*/[@title='name']").attrib['id']
+    title_id = nodeattrs.find("*/[@title='title']").attrib['id']
     #For each node, remove the old ID attribute and add the platform ID
     for n in nodes:
         platform_id = n.get('label').split('_')[1]
@@ -195,29 +206,10 @@ def parse(*gexffile):
         else:
             nodename = attvals.find("*/[@for='"+str(name_id)+"']")
             nodename.set('value',nodename.get('value').replace("'",""))
-        
-    #Add holders for dynamic node and edge attributes
-    attrib = {'class':'node','mode':'dynamic'}
-    dnodeattrs = root[0].makeelement('attributes',attrib)
-    attrib = {'class':'edge','mode':'dynamic'}
-    edgeattrs = root[0].makeelement('attributes',attrib)
-    root[0].insert(1,dnodeattrs)
-    root[0].insert(2,edgeattrs)
-
-    #New attribute IDs start at 6 because the platform ID attribute is 5
-    count = 6
-
-    d = {}
-    #For each dynamic attribute in the config, add it to both nodes and edges
-    for k,v in cf.INTERACTIONS.iteritems():
-    #for key in cf.interaction_keys:
-        attrib = {'id':str(count),'type':'string','title':k} 
-        attr = edgeattrs.makeelement('attribute',attrib)
-        dnodeattrs.append(attr)
-        edgeattrs.append(attr)
-        d[k] = str(count)
-        count +=1
+            
+def cleanEdges(root,d,namespaces):
     d[None] = None
+    nodes = root[0].find('xmlns:nodes',namespaces)    
     #Here we figure out edges that need to be deleted
     edges = root[0].find('xmlns:edges',namespaces)
     edgestodelete = []
@@ -293,6 +285,39 @@ def parse(*gexffile):
             existingedges[edgeid] = elem
         else: #Remove duplicate edges
             edgestodelete.append(elem)
+    return (edgestodelete,mindate,maxdate)
+    
+@app.route('/parse')
+def parse(*gexffile):    
+
+    """Entry method to begin parsing the GEXF file
+
+    This is the method called through the Flask API to begin parsing the
+    GEXF file of all commonfare.net interactions. Once the GEXF is in the
+    correct format, it is passed to methods in the makegraphs.py module to
+    output JSON data for visualisation purposes
+    """
+    if len(gexffile) == 0: #Use the default (when running from Docker)
+        filename = os.environ['GEXF_INPUT']
+    else:
+        filename = gexffile[0]
+        print ('filename is '),gexffile
+        
+    ET.register_namespace("", "http://www.gexf.net/1.2draft") 
+    tree = ET.parse(filename)  
+    namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
+    root = tree.getroot()
+    root[0].set('mode', 'dynamic')  
+    root[0].set('timeformat', 'date')  
+
+    #Add new ID and dynamic attributes
+    (d,nodeid_id,nodeattrs) = addNewAttributes(root,namespaces)
+ 
+    cleanNodes(root,namespaces,nodeattrs,nodeid_id)
+ 
+    #Find edges to delete, earliest start and end dates of actions
+    (edgestodelete,mindate,maxdate) = cleanEdges(root,d,namespaces)
+    edges = root[0].find('xmlns:edges',namespaces)
 
     for e in edgestodelete:
         if e in edges:
@@ -304,7 +329,7 @@ def parse(*gexffile):
     filename = os.path.splitext(filename)[0]
     parsedfilename = filename + "parsed.gexf"
     tree.write(parsedfilename)  
-    print 'done parsing'
+    print ('done parsing')
     
     #Now make the JSON graphs for visualisation
     makegraphs.init(parsedfilename)

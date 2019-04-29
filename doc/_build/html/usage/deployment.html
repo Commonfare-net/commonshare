@@ -51,30 +51,33 @@ to deploy and test it with a simple free web server, courtesy of Google’s Fire
 <div class="section" id="running-from-firebase">
 <h2>Running from Firebase<a class="headerlink" href="#running-from-firebase" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>Sign into <a class="reference external" href="https://firebase.google.com/">Firebase</a> (you’ll need a Google account) and click on the <strong>Add project</strong> button.</li>
+<li>Sign into <a class="reference external" href="https://firebase.google.com/">Firebase</a> (you’ll need a Google account), click on <strong>Go to console</strong> in the top-right of the screen, then click on the <strong>Add project</strong> button.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/fb1.png"><img alt="../_images/fb1.png" src="../_images/fb1.png" style="width: 374.8px; height: 242.8px;" /></a>
 <ol class="arabic simple" start="2">
-<li>Give your project a name, then click <strong>Hosting</strong> on the sidebar, and then <strong>Get started</strong> on the presented page.</li>
+<li>Give your project a name and tick the necessary permission boxes. Click <strong>Develop</strong> on the sidebar, then click <strong>Hosting</strong>, and finally <strong>Get started</strong> on the presented page.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/fb2.png"><img alt="../_images/fb2.png" src="../_images/fb2.png" style="width: 140.0px; height: 190.0px;" /></a>
 <a class="reference internal image-reference" href="../_images/fb7.png"><img alt="../_images/fb7.png" src="../_images/fb7.png" style="width: 387.5px; height: 189.1px;" /></a>
 <ol class="arabic simple" start="3">
-<li>Follow the presented instructions. If you don’t have the Node.js comand line tool installed on your system, follow the given link (or click <a class="reference external" href="https://nodejs.org/en/">here</a>) to download and install it.</li>
+<li>Follow the presented instructions. If you don’t have the Node.js comand line tool installed on your system, follow the given link (or click <a class="reference external" href="https://nodejs.org/en/">here</a>) to download and install it.
+Be sure to create a new directory in which the hosted files will live (its name doesn’t matter) and change to this directory in the command line before running the <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">init</span></code> command</li>
 </ol>
-<a class="reference internal image-reference" href="../_images/fb3.png"><img alt="../_images/fb3.png" src="../_images/fb3.png" style="width: 372.0px; height: 227.6px;" /></a>
+<a class="reference internal image-reference" href="../_images/fb3.png"><img alt="../_images/fb3.png" src="../_images/fb3.png" style="width: 372.0px; height: 227.60000000000002px;" /></a>
 <a class="reference internal image-reference" href="../_images/fb4.png"><img alt="../_images/fb4.png" src="../_images/fb4.png" style="width: 371.6px; height: 236.4px;" /></a>
 <p>4. On entering <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">init</span></code> you will be presented with various options. When asked which features you want to setup, select
 <code class="docutils literal notranslate"><span class="pre">Hosting:</span> <span class="pre">Configure</span> <span class="pre">and</span> <span class="pre">deploy</span> <span class="pre">Firebase</span> <span class="pre">Hosting</span> <span class="pre">sites</span></code> using the down arrow and space bar, then press Enter.</p>
-<a class="reference internal image-reference" href="../_images/fb5.png"><img alt="../_images/fb5.png" src="../_images/fb5.png" style="width: 753.2px; height: 286.3px;" /></a>
+<a class="reference internal image-reference" href="../_images/fb5.png"><img alt="../_images/fb5.png" src="../_images/fb5.png" style="width: 753.1999999999999px; height: 286.29999999999995px;" /></a>
 <ol class="arabic simple" start="5">
 <li>When asked what you want to use as your public directory, hit Enter to default to the directory <code class="docutils literal notranslate"><span class="pre">public</span></code>.</li>
 <li>When asked if you want to configure as a single-page app, enter ‘N’</li>
-<li>When it’s finished setting up, copy the directory containing the commonshare code into the generated <code class="docutils literal notranslate"><span class="pre">public</span></code> directory.</li>
-<li>Run <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">deploy</span></code>.</li>
+<li>When it’s finished setting up, copy the entire directory containing the commonshare code into the generated <code class="docutils literal notranslate"><span class="pre">public</span></code> directory.</li>
+<li>From the command line (still in the directory from which you ran <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">init</span></code>), run <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">deploy</span></code>.</li>
 </ol>
 <a class="reference internal image-reference" href="../_images/fb6.png"><img alt="../_images/fb6.png" src="../_images/fb6.png" style="width: 535.5px; height: 224.7px;" /></a>
-<p>After a few minutes, you’ll have a deployed instance of commonshare for viewing the visualisations.</p>
+<p>After a minute or two, you’ll have a deployed instance of commonshare for viewing the visualisations.</p>
+<div class="section" id="commonfare-visualisations">
+<h3>Commonfare visualisations<a class="headerlink" href="#commonfare-visualisations" title="Permalink to this headline">¶</a></h3>
 <p>Note the <code class="docutils literal notranslate"><span class="pre">Hosting</span> <span class="pre">URL</span></code> provided on successful deployment. The main dashboard can be accessed from:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Hosting</span> <span class="n">URL</span><span class="o">&gt;/</span><span class="n">commonshare</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">admin_dashboard</span><span class="o">.</span><span class="n">html</span>
 </pre></div>
@@ -84,6 +87,18 @@ to deploy and test it with a simple free web server, courtesy of Google’s Fire
 </pre></div>
 </div>
 <p>You can also optionally add <code class="docutils literal notranslate"><span class="pre">&amp;lang=it</span></code> or <code class="docutils literal notranslate"><span class="pre">&amp;lang=hr</span></code> to this URL to view the Italian or Croatian version respectively.</p>
+</div>
+<div class="section" id="other-data-visualisations">
+<h3>Other data visualisations<a class="headerlink" href="#other-data-visualisations" title="Permalink to this headline">¶</a></h3>
+<p>Likewise, for <strong>non-commonfare data</strong>, the generic dashboard can be accessed from:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">Hosting</span> <span class="n">URL</span><span class="o">&gt;/</span><span class="n">commonshare</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">admin_basic</span><span class="o">.</span><span class="n">html</span>
+</pre></div>
+</div>
+<p>…and the individual visualisations from:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;Hosting URL&gt;/commonshare/html/personal_basic.html?userid=&lt;ID of your user&gt;
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="running-from-docker">
 <h2>Running from Docker<a class="headerlink" href="#running-from-docker" title="Permalink to this headline">¶</a></h2>
@@ -167,7 +182,11 @@ $ docker-compose up
   <h3><a href="../index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Deploying commonshare</a><ul>
-<li><a class="reference internal" href="#running-from-firebase">Running from Firebase</a></li>
+<li><a class="reference internal" href="#running-from-firebase">Running from Firebase</a><ul>
+<li><a class="reference internal" href="#commonfare-visualisations">Commonfare visualisations</a></li>
+<li><a class="reference internal" href="#other-data-visualisations">Other data visualisations</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#running-from-docker">Running from Docker</a><ul>
 <li><a class="reference internal" href="#building">Building</a></li>
 <li><a class="reference internal" href="#running">Running</a></li>

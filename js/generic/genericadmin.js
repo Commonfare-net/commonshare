@@ -37,27 +37,7 @@ node = g.append("g")
        .attr("stroke", "#fff")
        .attr("stroke-width", 1.5).selectAll(".node");
 svg.call(zoom.transform, d3.zoomIdentity.translate(250, 250).scale(0.35));
-/*
-var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function (d) {
-            return d.id;
-        }))
-     .force("collision", d3.forceCollide().radius(function(d) {
-    return 20;
-  }))
-    .force("charge", d3.forceManyBody().strength(-300))
-    .force("x", d3.forceX().x(width / 2).strength(0.1))
-    .force("y", d3.forceY().y(height / 2).strength(0.1))
-    .stop();
-var community_sim = d3.forceSimulation()
-    .force("charge", d3.forceManyBody().strength(-10))
-    .force("link", d3.forceLink().id(function (d) {
-            return d.id;
-        }).strength(0))
-    .force("center", d3.forceCenter(500 / 2, 600 / 2))
-    .force("cluster", forceCluster)
-    .force("collide", d3.forceCollide(22).strength(0.9))
-    .stop();*/
+
 var div = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
@@ -72,36 +52,6 @@ Array.prototype.unique = function () {
     }
     return a;
 };
-/*
-function togglegroups(checkboxelem) {
-    if (checkboxelem.checked){
-        active_simulation = community_sim;
-    }
-    else{
-        active_simulation = simulation;
-    }
-    active_simulation.nodes(graph.nodes);
-    active_simulation.force("link").links(graph.links);
-    active_simulation.alpha(1);
-    n = Math.ceil(Math.log(active_simulation.alphaMin()) /
-    Math.log(1 - active_simulation.alphaDecay()));
-    for (i = 0; i < n; i+=1) {
-        active_simulation.tick();
-    }
-    node
-    .transition()
-    .duration(2000)
-    .attr("cx", function (d) {return d.x;})
-    .attr("cy", function (d) {return d.y;});
-    link
-    .transition()
-    .duration(2000)
-    .attr("x1", function (d) {return d.source.x;})
-    .attr("y1", function (d) {return d.source.y;})
-    .attr("x2", function (d) {return d.target.x;})
-    .attr("y2", function (d) {return d.target.y;});
-}
-*/
 
 function clearDyn() {
     d3.select(".hull").style("opacity", 0);
@@ -154,27 +104,7 @@ function loadDataFiles(queue) {
     });
 }
 loadDataFiles(q);
-/*
-function forceCluster(alpha) {
-    node.each(function (d) {
-        cluster = clusters[d.cluster];
-        if (cluster === d){
-            return;
-        }
-        var x = d.x - cluster.x;
-        var y = d.y - cluster.y;
-        var l = Math.sqrt(x * x + y * y);
-        var r = d.kcore + cluster.kcore;
-        if (l != r) {
-            l = (l - r) / l * alpha;
-            d.x -= x *= l;
-            d.y -= y *= l;
-            cluster.x += x;
-            cluster.y += y;
-        }
-    });
-}
-*/
+
 function draw() {
     $(".mybox").prop("checked", false);
     nodetypes = {};

@@ -3,34 +3,14 @@ var uid = urlParams.get("userid"); // "edit"
 var lang = urlParams.get("lang");
 var langindex = (
     (lang=="it") ? 1 : (lang=="hr") ? 2 : 0);
+    
 //Need maxindex to know how far to go with donut date picker
 var maxindex = 0;
-
-/**
-* Load all our files and then plot the donut and line charts
-**/
-d3.json("../data/output/userdata/" + uid + ".json").then((results) => {
-    data = results;
-    initDonutVars();
-    for (var i = 0; i < results.length; i+=1) {
-        node_data[i] = results[i]["nodes"].find(findNode);
-        node_data[i].date = parseTime(node_data[i].date);
-        graph_data[i] = results[i];
-        plotDonut(graph_data[i], node_data[i]);
-        maxindex+=1;
-    }
-    plotDonut(graph_data[0], node_data[0]);
-    numticks = results.length;
-    plotLine();
-}).catch(err => {
-    console.log(err);
-});
 
 var datafilecounter = 1;
 var drawn = {};
 
 //Colour scheme
-
 var keys = ["social", "story", "transaction", "listing"];
 var color = d3.scaleOrdinal() // D3 Version 4
     .domain(keys)
@@ -38,7 +18,6 @@ var color = d3.scaleOrdinal() // D3 Version 4
 var mykeys = [];
 
 var parseTime = d3.timeParse("%Y/%m/%d");
-
 //Various date formats
 var formatDate = d3.timeFormat("%Y/%m/%d");
 var tickf = d3.timeFormat("%b-%y");
@@ -62,8 +41,6 @@ if (lang == "hr") {
     noActivityText = "No visible activity";
 }
 
-var var1;
-var var2;
 var translations = {
     "social" : ["social","sociali","razgovori"],
     "transaction" : ["transaction","transazioni","transkacije"],
@@ -96,6 +73,28 @@ var translations = {
     "Nov": ["Nov","nov","stu"],
     "Dec": ["Dec","dic","pro"],
 }
+
+
+/**
+* Load all our files and then plot the donut and line charts
+**/
+d3.json("../data/output/userdata/" + uid + ".json").then((results) => {
+    data = results;
+    initDonutVars();
+    for (var i = 0; i < results.length; i+=1) {
+        node_data[i] = results[i]["nodes"].find(findNode);
+        node_data[i].date = parseTime(node_data[i].date);
+        graph_data[i] = results[i];
+        plotDonut(graph_data[i], node_data[i]);
+        maxindex+=1;
+    }
+    plotDonut(graph_data[0], node_data[0]);
+    numticks = results.length;
+    plotLine();
+}).catch(err => {
+    console.log(err);
+});
+
 function translate(label){
     return translations[label][langindex];
 }

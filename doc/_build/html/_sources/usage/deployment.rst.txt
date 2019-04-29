@@ -8,12 +8,12 @@ to deploy and test it with a simple free web server, courtesy of Google's Fireba
 
 Running from Firebase
 ----------------------
-1. Sign into `Firebase <https://firebase.google.com/>`_ (you'll need a Google account) and click on the **Add project** button.
+1. Sign into `Firebase <https://firebase.google.com/>`_ (you'll need a Google account), click on **Go to console** in the top-right of the screen, then click on the **Add project** button.
  
 .. image:: fb1.png
     :scale: 40 %
     
-2. Give your project a name, then click **Hosting** on the sidebar, and then **Get started** on the presented page. 
+2. Give your project a name and tick the necessary permission boxes. Click **Develop** on the sidebar, then click **Hosting**, and finally **Get started** on the presented page. 
 
 .. image:: fb2.png
     :scale: 40 %
@@ -21,6 +21,7 @@ Running from Firebase
     :scale: 62 %
     
 3. Follow the presented instructions. If you don't have the Node.js comand line tool installed on your system, follow the given link (or click `here <https://nodejs.org/en/>`_) to download and install it.
+   Be sure to create a new directory in which the hosted files will live (its name doesn't matter) and change to this directory in the command line before running the ``firebase init`` command
 
 .. image:: fb3.png
     :scale: 40 %  
@@ -36,14 +37,17 @@ Running from Firebase
 5. When asked what you want to use as your public directory, hit Enter to default to the directory ``public``.
 6. When asked if you want to configure as a single-page app, enter 'N'
 
-7. When it's finished setting up, copy the directory containing the commonshare code into the generated ``public`` directory.
+7. When it's finished setting up, copy the entire directory containing the commonshare code into the generated ``public`` directory.
 
-8. Run ``firebase deploy``.
+8. From the command line (still in the directory from which you ran ``firebase init``), run ``firebase deploy``.
 
 .. image:: fb6.png
     :scale: 70 % 
     
-After a few minutes, you'll have a deployed instance of commonshare for viewing the visualisations. 
+After a minute or two, you'll have a deployed instance of commonshare for viewing the visualisations. 
+
+Commonfare visualisations
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Note the ``Hosting URL`` provided on successful deployment. The main dashboard can be accessed from::
 
@@ -54,7 +58,17 @@ From here, you can also access the individual visualisations for each Commoner, 
     <Hosting URL>/commonshare/html/personal_viz.html?userid=<ID of your user>
 
 You can also optionally add ``&lang=it`` or ``&lang=hr`` to this URL to view the Italian or Croatian version respectively.
- 
+
+Other data visualisations
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Likewise, for **non-commonfare data**, the generic dashboard can be accessed from::
+
+    <Hosting URL>/commonshare/html/admin_basic.html
+
+...and the individual visualisations from::
+
+    <Hosting URL>/commonshare/html/personal_basic.html?userid=<ID of your user>
 Running from Docker
 --------------------
 A very basic Docker image is available to run the Python scripts ``parsegexf.py`` and ``pagerank.py``, the methods of which are exposed through a simple web API, as described below.  

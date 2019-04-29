@@ -10,7 +10,7 @@
  */
  
 @import url("basic.css");
- 
+
 /* -- page layout ----------------------------------------------------------- */
  
 body {
@@ -135,6 +135,7 @@ div.sphinxsidebar .searchformwrapper {
 a {
     color: #005B81;
     text-decoration: none;
+    text-decoration: underline;
 }
  
 a:hover {

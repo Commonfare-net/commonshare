@@ -46,13 +46,13 @@
   <div class="section" id="running-commonshare">
 <h1>Running commonshare<a class="headerlink" href="#running-commonshare" title="Permalink to this headline">¶</a></h1>
 <p>This section describes how to generate commonshare values for data of different types. Note that these all assume you are running from the command line.
-If you are instead running commonshare within a Docker container, refer to the section on building and running Docker.</p>
+If you are instead running commonshare within a Docker container, refer to the section on <a class="reference internal" href="deployment.html#running-from-docker"><span class="std std-ref">Running from Docker</span></a>.</p>
 <div class="section" id="commonfare-net-data">
 <h2>commonfare.net data<a class="headerlink" href="#commonfare-net-data" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic">
 <li><p class="first">Place your GEXF file in the <code class="docutils literal notranslate"><span class="pre">data/input</span></code> directory.</p>
 </li>
-<li><p class="first">From the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">parsegexf.py</span> <span class="pre">../data/input/&lt;YOUR_GEXF_FILENAME&gt;</span></code></p>
+<li><p class="first">On the command line, navigate to the <code class="docutils literal notranslate"><span class="pre">python</span></code> directory and run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">parsegexf.py</span> <span class="pre">../data/input/&lt;YOUR_GEXF_FILENAME&gt;</span></code></p>
 </li>
 <li><p class="first">When this is completed, the following will appear in the <code class="docutils literal notranslate"><span class="pre">data/output</span></code> directory:</p>
 <blockquote>
@@ -79,9 +79,24 @@ If you are instead running commonshare within a Docker container, refer to the s
 </div>
 <div class="section" id="other-gexf-graph-data">
 <h2>other GEXF graph data<a class="headerlink" href="#other-gexf-graph-data" title="Permalink to this headline">¶</a></h2>
-<p>sadfads
-sdfasd
-asda</p>
+<p>Since GEXF data from other sources does not include many of the features of commonfare.net data, functions to parse and generate
+JSON from such data exist in the <code class="docutils literal notranslate"><span class="pre">python_generic</span></code> directory. The process is very similar to that for commonfare.net</p>
+<ol class="arabic">
+<li><p class="first">Place your GEXF in the <code class="docutils literal notranslate"><span class="pre">data/input</span></code> directory as before.</p>
+</li>
+<li><p class="first">From the <code class="docutils literal notranslate"><span class="pre">python_generic</span></code> directory, run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">parsegexf.py</span> <span class="pre">../data/input/&lt;YOUR_GEXF_FILENAME&gt;</span></code></p>
+</li>
+<li><p class="first">When this is completed, the following will appear in the <code class="docutils literal notranslate"><span class="pre">data/output</span></code> directory (note that this time they are within the <code class="docutils literal notranslate"><span class="pre">generic</span></code> directory):</p>
+<blockquote>
+<div><ol class="loweralpha simple">
+<li><code class="docutils literal notranslate"><span class="pre">generic/graphdata/</span></code> - Contains JSON files for every two weeks of commonfare.net interactions, with commonshare values (<code class="docutils literal notranslate"><span class="pre">1.json...X.json</span></code>). Also contains an aggregated file of all interactions (<code class="docutils literal notranslate"><span class="pre">0.json</span></code>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">generic/userdata/x.json</span></code> - Contains a file for every Commoner, named <code class="docutils literal notranslate"><span class="pre">&lt;COMMONER_ID&gt;.json</span></code>, containing their interaction history</li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+<p>As the recommender works on the principle that there are both user and story nodes, this is not likely to be the case for generic data
+so the <code class="docutils literal notranslate"><span class="pre">recommenderdata.gexf</span></code> file is not generated in this case.</p>
 </div>
 <div class="section" id="non-gexf-graph-data">
 <h2>non-GEXF graph data<a class="headerlink" href="#non-gexf-graph-data" title="Permalink to this headline">¶</a></h2>

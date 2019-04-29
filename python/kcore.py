@@ -33,8 +33,8 @@ def colluding(G,n1,n2,n1_weight,n2_weight,window):
     edge = G[n1][n2]
     edgeweight = 0
     frequency = 0
-    print 'checking between ',n1,' and ',n2
-    for k,v in cf.INTERACTIONS.iteritems():
+    print ('checking between '),n1,(' and '),n2
+    for k,v in iter(cf.INTERACTIONS.items()):
     #for action_key in cf.interaction_keys:
         if k in edge:
             for action in edge[k]:
@@ -70,12 +70,12 @@ def nodeweight(G,node_id,window,suspect_nodes):
     #if this is the aggregate graph
     
     #Find no. weeks this node is active from start of commonfare.net
-    active_weeks = [0] * ((window[1]-window[0]).days / 7) 
+    active_weeks = [0] * int((window[1]-window[0]).days / 7) 
     if len(active_weeks) > 52: #If this is the aggregate graph...
         for spell in G.nodes[node_id]['spells']:
             nodespell = cf.to_date(spell[1])
             index = ((nodespell-window[0]).days / 7) -1
-            active_weeks[index] = 1
+            active_weeks[int(index)] = 1
         total_weeks_active = float(sum(active_weeks))
 
     maxweight = 0
@@ -95,12 +95,12 @@ def nodeweight(G,node_id,window,suspect_nodes):
           #For each neighbour node, determine its activity
           #since connecting with this node
             spelldate = cf.to_date(c['spells'][0][0])
-            after_weeks = [0]*((window[1] - spelldate).days / 7)
+            after_weeks = [0]*int(((window[1] - spelldate).days / 7))
             for spell in G.nodes[v]['spells']:
                 nodespell = cf.to_date(spell[1])
                 if (nodespell - spelldate).days >= 7: #If this spell happened afterwards... 
                     index = ((nodespell-spelldate).days / 7)-1
-                    after_weeks[index] = 1
+                    after_weeks[int(index)] = 1
             if len(after_weeks) > 0:
                 influence = float(sum(after_weeks))/len(after_weeks)
             else:
@@ -109,7 +109,7 @@ def nodeweight(G,node_id,window,suspect_nodes):
         
         #Iterate over all actions between two nodes. Increment the 
         #overall edge weight based on the type and date of the action
-        for k,val in cf.INTERACTIONS.iteritems():
+        for k,val in iter(cf.INTERACTIONS.items()):
         #for action_key in cf.interaction_keys:
             
             if k not in c:
@@ -241,7 +241,7 @@ def weighted_core(G,window):
     for i in activenodes:
         for j in activenodes:
             if colluding(G,i,j,suspect_nodes[i],suspect_nodes[j],window): 
-                print i,'and',j,'might be colluding'
+                print (i,('and'),j,('might be colluding'))
                 colluders.append([i,j])
     
     #This is the k-core algorithm verbatim from the networkx module
@@ -273,15 +273,15 @@ def weighted_core(G,window):
     Use 'boxcox' to do log transformation with lambda=0
     First, 0 values need to be removed
     '''
-    log_core = {k: v for k, v in core.iteritems() if v >0}
-    data = stats.boxcox(log_core.values(), 0)
+    log_core = {k: v for k, v in iter(core.items()) if v >0}
+    data = stats.boxcox(list(log_core.values()), 0)
 
     #Then we add 0 values back in
     loopcount = 0
-    for k,v in log_core.iteritems():
+    for k,v in iter(log_core.items()):
         log_core[k] = data[loopcount]
         loopcount += 1
-    for k,v in core.iteritems():
+    for k,v in iter(core.items()):
         if v == 0:
             log_core[k] = 0
         
@@ -291,7 +291,7 @@ def weighted_core(G,window):
         k_max = max(log_core.values())
         if k_max == k_min:
             k_max = k_max+1
-        for k,v in log_core.iteritems():
+        for k,v in iter(log_core.items()):
             if sumofedges[k] == 0:
                 log_core[k] = 0
                 continue

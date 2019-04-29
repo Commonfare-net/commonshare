@@ -3,7 +3,7 @@ from datetime import datetime
 import copy
 import networkx as nx
 from scipy import stats
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import config as cf
 
 def colluding(G,n1,n2,n1_weight,n2_weight,window):
@@ -116,7 +116,6 @@ def nodeweight(G,node_id,window,suspect_nodes,cumulative):
                         overallweight += float(sourceweight[0].split('/')[1])
                     break
             except TypeError:
-                print 'typeerror, overallweight now ',c[cf.WEIGHT_KEY]
                 overallweight = c[cf.WEIGHT_KEY]
             #So it has to be done like this. There is probably a better way
             #But I do not care right now.
@@ -327,22 +326,22 @@ def weighted_core(G,window,cumulative):
     '''
     if window[0] is None or cumulative:
        
-        log_core = {k: v for k, v in core.iteritems() if v >0}
-        data = stats.boxcox(log_core.values(), 0)
+        log_core = {k: v for k, v in iter(core.items()) if v >0}
+        data = stats.boxcox(list(log_core.values()), 0)
 
         #Then we add 0 values back in
         loopcount = 0
-        for k,v in log_core.iteritems():
+        for k,v in iter(log_core.items()):
             log_core[k] = data[loopcount]
             loopcount += 1
-        for k,v in core.iteritems():
+        for k,v in iter(core.items()):
             if v == 0:
                 log_core[k] = 0
         #These are just for plotting evidence histograms
-        outliers_removed_core = {k: v for k, v in log_core.iteritems() if v >0}
-        before_core = {k: v for k, v in core.iteritems() if v >0}
+        outliers_removed_core = {k: v for k, v in iter(log_core.items()) if v >0}
+        before_core = {k: v for k, v in iter(core.items()) if v >0}
     else:
-        outliers_removed_core = {k: v for k, v in core.iteritems() if v >0}
+        outliers_removed_core = {k: v for k, v in iter(core.items()) if v >0}
         log_core = before_core = core
     
     #I feel that this normalisation goes from one extreme to the other
@@ -352,19 +351,21 @@ def weighted_core(G,window,cumulative):
         k_max = max(outliers_removed_core.values())
         if k_max == k_min:
             k_max = k_max+1
-        for k,v in log_core.iteritems():
+        for k,v in iter(log_core.items()):
             if v == 0:
                 log_core[k] = 0
                 continue
             log_core[k] = int(math.ceil((float(v-k_min)/(k_max-k_min))*9))+1
-    normalised_outliers_removed = {k: v for k, v in log_core.iteritems() if v >0}
+    normalised_outliers_removed = {k: v for k, v in iter(log_core.items()) if v >0}
     #Normalize from a scale of 0-10 because otherwise people who have done perfectly fine don't look like they've done much
+    '''
     if cumulative:
+    
     #if window[0] is None or ((window[1]-window[0]).days) > 2:
         fig, axs = plt.subplots(1, 3, sharey=False, tight_layout=True)
-        axs[0].hist(before_core.values(), 20)
-        axs[1].hist(outliers_removed_core.values(), 20)
-        axs[2].hist(normalised_outliers_removed.values(),20)
+        axs[0].hist(list(before_core.values()), 20)
+        axs[1].hist(list(outliers_removed_core.values()), 20)
+        axs[2].hist(list(normalised_outliers_removed.values()),20)
         axs[0].set_xlabel('Commonshare (pre-BoxCox)')
         axs[1].set_xlabel('Commonshare (post-BoxCox)')
         axs[2].set_xlabel('Commonshare (normalised)')
@@ -372,6 +373,7 @@ def weighted_core(G,window,cumulative):
         axs[1].set_ylabel('number of Commoners')
         axs[2].set_ylabel('number of Commoners')
         plt.show()   
+    '''
     #Finally, normalise log-transform values on a scale of 1-10
     nodeiter = G.nodes(data=True)
     
@@ -393,6 +395,5 @@ def weighted_core(G,window,cumulative):
             G.nodes[n]['avg'] = {
             k:(v*c['kcore']) for k,v in c['avg'].items()
             }
-    print 'highcomm ',highcomm,' and lowcomm, ',lowcomm
     return (G,colluders)
  

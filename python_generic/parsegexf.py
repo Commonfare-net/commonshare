@@ -24,9 +24,9 @@ def addNodeSpell(node,attrs):
     """
     namespaces={'xmlns': 'http://www.gexf.net/1.2draft'}
     
-    if node.find('xmlns:spells',namespaces) != None:
+    if node.find('xmlns:spells',namespaces) is not None:
         spells = node.find('xmlns:spells',namespaces)        
-    elif node.find('spells') != None:
+    elif node.find('spells') is not None:
         spells = node.find('spells')
     else:
         spells = node.makeelement("spells",{})
@@ -198,7 +198,7 @@ def parse(gexffile):
         #This is an edge not seen before 
         if edgeid not in existingedges and altedgeid not in existingedges:
             #Add spells and attvalues if the edge doesn't have them
-            if elem.find('xmlns:spells') == None:
+            if elem.find('xmlns:spells') is None:
                 spells = elem.makeelement('spells',{})
                 elem.append(spells)
             else:
@@ -211,10 +211,15 @@ def parse(gexffile):
             alt_edge_attvalues = attvalues
             old_edge_id = edgeid if edgeid in existingedges else altedgeid
             spells = existingedges[old_edge_id].find('spells')
-            attvalues = existingedges[old_edge_id].find('xmlns:attvalues')
-            if attvalues == None:
+            #print ('old edge id is ',old_edge_id)
+            #print (existingedges[old_edge_id])
+            #xmlstr = ET.tostring(existingedges[old_edge_id], encoding='utf8', method='xml')
+            #print (xmlstr)
+            attvalues = existingedges[old_edge_id].find('xmlns:attvalues',namespaces)
+            if attvalues is None:
                 attvalues = existingedges[old_edge_id].find('attvalues')
-            if alt_edge_attvalues != None:
+                #print ('yup attvalues was none')
+            if alt_edge_attvalues is not None:
                 for att in alt_edge_attvalues:
                     attvalues.append(att)
                    
@@ -286,7 +291,7 @@ def parse(gexffile):
     filename = os.path.splitext(filename)[0]
     parsedfilename = filename + "parsed.gexf"
     tree.write(parsedfilename)  
-    print 'done parsing'
+    print ('done parsing')
     
     #Now make the JSON graphs for visualisation
     makegraphs.init(parsedfilename,'default.txt')

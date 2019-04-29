@@ -41,10 +41,15 @@
             
   <div class="section" id="javascript-functions">
 <h1>Javascript functions<a class="headerlink" href="#javascript-functions" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="for-commonfare-net-data">
-<h2>…for commonfare.net data<a class="headerlink" href="#for-commonfare-net-data" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="forcegraph-js">
-<h3>forcegraph.js<a class="headerlink" href="#forcegraph-js" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="commonfare-net-data">
+<h2>commonfare.net data<a class="headerlink" href="#commonfare-net-data" title="Permalink to this headline">¶</a></h2>
+<p>Two sets of Javascript files are needed for the admin dashboard and the personal commonshare visualisations respectively.</p>
+<div class="section" id="admin-dashboard-files">
+<h3>Admin dashboard files<a class="headerlink" href="#admin-dashboard-files" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="../_images/dashy.png"><img alt="../_images/dashy.png" class="align-center" src="../_images/dashy.png" style="width: 749.6px; height: 296.8px;" /></a>
+<div class="section" id="admin-js">
+<h4>admin.js<a class="headerlink" href="#admin-js" title="Permalink to this headline">¶</a></h4>
+<p>Main file containing functions for loading, drawing and interacting directly with the force-directed graph (<strong>A</strong>)</p>
 <dl class="function">
 <dt id="loadDataFiles">
 <code class="descname">loadDataFiles</code><span class="sig-paren">(</span><em>queue</em><span class="sig-paren">)</span><a class="headerlink" href="#loadDataFiles" title="Permalink to this definition">¶</a></dt>
@@ -82,7 +87,8 @@ It then queues them all up and after that begins rendering them one by one.</p>
 
 </div>
 <div class="section" id="forces-js">
-<h3>forces.js<a class="headerlink" href="#forces-js" title="Permalink to this headline">¶</a></h3>
+<h4>forces.js<a class="headerlink" href="#forces-js" title="Permalink to this headline">¶</a></h4>
+<p>Contains details of the two forces used to layout the network graph, and the functions to toggle between them.</p>
 <dl class="function">
 <dt id="toggleGroups">
 <code class="descname">toggleGroups</code><span class="sig-paren">(</span><em>chk</em><span class="sig-paren">)</span><a class="headerlink" href="#toggleGroups" title="Permalink to this definition">¶</a></dt>
@@ -120,7 +126,8 @@ clustered layout based on ‘checked’ status of chk</p>
 
 </div>
 <div class="section" id="widgets-js">
-<h3>widgets.js<a class="headerlink" href="#widgets-js" title="Permalink to this headline">¶</a></h3>
+<h4>widgets.js<a class="headerlink" href="#widgets-js" title="Permalink to this headline">¶</a></h4>
+<p>Functions that control the behaviour of the dashboard ‘widgets’ (e.g., sliders, list boxes, checkboxes) that adjust the graph in some way</p>
 <dl class="function">
 <dt id="toggleTags">
 <code class="descname">toggleTags</code><span class="sig-paren">(</span><em>chk</em><span class="sig-paren">)</span><a class="headerlink" href="#toggleTags" title="Permalink to this definition">¶</a></dt>
@@ -198,7 +205,8 @@ the tick positions as well as the x-position of the handle on the updated scale<
 
 </div>
 <div class="section" id="arrowgraphics-js">
-<h3>arrowgraphics.js<a class="headerlink" href="#arrowgraphics-js" title="Permalink to this headline">¶</a></h3>
+<h4>arrowgraphics.js<a class="headerlink" href="#arrowgraphics-js" title="Permalink to this headline">¶</a></h4>
+<p>Functions for additional graphical elements of graph links - specifically, the rendering of arrow heads and multi-coloured dashed arrow lines</p>
 <dl class="function">
 <dt id="drawArrowHeads">
 <code class="descname">drawArrowHeads</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drawArrowHeads" title="Permalink to this definition">¶</a></dt>
@@ -215,7 +223,8 @@ conversations to have the blue-yellow dashed pattern.</p>
 
 </div>
 <div class="section" id="areachart-js">
-<h3>areachart.js<a class="headerlink" href="#areachart-js" title="Permalink to this headline">¶</a></h3>
+<h4>areachart.js<a class="headerlink" href="#areachart-js" title="Permalink to this headline">¶</a></h4>
+<p>Functions that render and update the area chart tracking the number of nodes/edges of different types over time</p>
 <dl class="function">
 <dt id="drawAreaChart">
 <code class="descname">drawAreaChart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#drawAreaChart" title="Permalink to this definition">¶</a></dt>
@@ -248,11 +257,20 @@ numbers and positions, and position of filled area itself</p>
 </dd></dl>
 
 </div>
+</div>
+<div class="section" id="personal-visualisation-files">
+<h3>Personal visualisation files<a class="headerlink" href="#personal-visualisation-files" title="Permalink to this headline">¶</a></h3>
+<a class="reference internal image-reference" href="../_images/indiviz.png"><img alt="../_images/indiviz.png" class="align-center" src="../_images/indiviz.png" style="width: 551.6px; height: 182.4px;" /></a>
+<div class="section" id="personalvis-js">
+<h4>personalvis.js<a class="headerlink" href="#personalvis-js" title="Permalink to this headline">¶</a></h4>
+<p>Some stuff in here about the personal visualisation</p>
+</div>
 <div class="section" id="donut-js">
-<h3>donut.js<a class="headerlink" href="#donut-js" title="Permalink to this headline">¶</a></h3>
+<h4>donut.js<a class="headerlink" href="#donut-js" title="Permalink to this headline">¶</a></h4>
+<p>Everything for drawing and interacting with the donut representation</p>
 <dl class="function">
-<dt id="plotDonut">
-<code class="descname">plotDonut</code><span class="sig-paren">(</span><em>graphdata</em>, <em>mydata</em><span class="sig-paren">)</span><a class="headerlink" href="#plotDonut" title="Permalink to this definition">¶</a></dt>
+<dt id="donut.plotDonut">
+<code class="descclassname">donut.</code><code class="descname">plotDonut</code><span class="sig-paren">(</span><em>graphdata</em>, <em>mydata</em><span class="sig-paren">)</span><a class="headerlink" href="#donut.plotDonut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called every time a new donut needs to be generated. Updates ‘graphdata’ to ensure links point to
 node data and not just node IDs, generates a JSON array of the Commoner’s interactions for each type,
 and positions the initial donut segments, labels, and commonshare value text</p>
@@ -271,8 +289,8 @@ and positions the initial donut segments, labels, and commonshare value text</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="updateDonut">
-<code class="descname">updateDonut</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#updateDonut" title="Permalink to this definition">¶</a></dt>
+<dt id="donut.updateDonut">
+<code class="descclassname">donut.</code><code class="descname">updateDonut</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#donut.updateDonut" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function tied to the arrows on the donut date picker; updates donut
 to show donut for earlier or later actions</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -402,16 +420,18 @@ given language</p>
 
 </div>
 <div class="section" id="linechart-js">
-<h3>linechart.js<a class="headerlink" href="#linechart-js" title="Permalink to this headline">¶</a></h3>
+<h4>linechart.js<a class="headerlink" href="#linechart-js" title="Permalink to this headline">¶</a></h4>
+<p>Everything for drawing and interacting with the line chart representation</p>
 <dl class="function">
 <dt id="populateCore">
 <code class="descname">populateCore</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#populateCore" title="Permalink to this definition">¶</a></dt>
-<dd><p>Populatin’</p>
+<dd><p>Populates the ‘kcorelist’ array with Objects that contain a date and the commonshare value at that time
+so that the commonshare line can be plotted</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Array.&lt;json&gt;</strong> – a thing</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Array.&lt;Object&gt;</strong> – list of date/commonshare Objects</td>
 </tr>
 </tbody>
 </table>
@@ -420,12 +440,13 @@ given language</p>
 <dl class="function">
 <dt id="populateAvg">
 <code class="descname">populateAvg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#populateAvg" title="Permalink to this definition">¶</a></dt>
-<dd><p>Populatin’</p>
+<dd><p>For each interaction type (story/social/etc) maps its name to a nested object that contains both its name and
+its data values over time.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Array.&lt;json&gt;</strong> – a thing</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>Object</strong> – interaction types mapped to Objects containing their ID and data values over time</td>
 </tr>
 </tbody>
 </table>
@@ -434,19 +455,21 @@ given language</p>
 <dl class="function">
 <dt id="plotLine">
 <code class="descname">plotLine</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#plotLine" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plottin’ dat line</p>
+<dd><p>Main function for drawing the axes in the correct position and adding the various lines
+onto the chart.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="addLegend">
 <code class="descname">addLegend</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#addLegend" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the legned</p>
+<dd><p>Calculates the position of legend elements and adds them to the chart.
+Code mainly from <a class="reference external" href="http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend">http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend</a></p>
 </dd></dl>
 
 <dl class="function">
 <dt id="legendClick">
 <code class="descname">legendClick</code><span class="sig-paren">(</span><em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#legendClick" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clickin dat legend</p>
+<dd><p>Behaviour of legend items when they are clicked (i.e., hide/show their respective line and data points)</p>
 </dd></dl>
 
 <dl class="function">
@@ -457,46 +480,22 @@ Repositions lines and adjusts x-axis tick spacing</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="mouseout">
-<code class="descname">mouseout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mouseout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dis what we do when de mouse moves out</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="mousemove">
 <code class="descname">mousemove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mousemove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function that shows/hides different information when
-moving the mouse over the chart</p>
+moving the mouse over the chart. Also updates the donut chart to show the current
+point being hovered over</p>
 </dd></dl>
 
 </div>
 </div>
-<div class="section" id="for-all-other-data">
-<h2>…for all other data<a class="headerlink" href="#for-all-other-data" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="adminbasic-js">
-<h3>adminbasic.js<a class="headerlink" href="#adminbasic-js" title="Permalink to this headline">¶</a></h3>
-<p>asdfasdf
-sdfasd
-ass</p>
 </div>
-<div class="section" id="donutbasic-js">
-<h3>donutbasic.js<a class="headerlink" href="#donutbasic-js" title="Permalink to this headline">¶</a></h3>
-<p>ewrwetwe
-werwww
-aasda</p>
-</div>
-<div class="section" id="linebasic-js">
-<h3>linebasic.js<a class="headerlink" href="#linebasic-js" title="Permalink to this headline">¶</a></h3>
-<p>trerte
-rwewww
-trery</p>
-</div>
-<div class="section" id="personalbasic-js">
-<h3>personalbasic.js<a class="headerlink" href="#personalbasic-js" title="Permalink to this headline">¶</a></h3>
-<p>asdfasdf
-sdfasd
-sdwe</p>
-</div>
+<div class="section" id="all-other-data">
+<h2>All other data<a class="headerlink" href="#all-other-data" title="Permalink to this headline">¶</a></h2>
+<p>Non-commonfare data doesn’t make use of many features in the network and personal visualisations. Trimmed-down files used for visualising generic data
+are found in the <code class="docutils literal notranslate"><span class="pre">js/generic/</span></code> directory. For example, the admin dashboard does not contain an area chart or tag filtering. Also, the personal visualisation
+consists of only the line chart without the donut.</p>
+<p>These files are commented but not documented with JSDoc as the function names and purposes are generally the same.</p>
 </div>
 </div>
 
@@ -509,23 +508,24 @@ sdwe</p>
   <h3><a href="../index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Javascript functions</a><ul>
-<li><a class="reference internal" href="#for-commonfare-net-data">…for commonfare.net data</a><ul>
-<li><a class="reference internal" href="#forcegraph-js">forcegraph.js</a></li>
+<li><a class="reference internal" href="#commonfare-net-data">commonfare.net data</a><ul>
+<li><a class="reference internal" href="#admin-dashboard-files">Admin dashboard files</a><ul>
+<li><a class="reference internal" href="#admin-js">admin.js</a></li>
 <li><a class="reference internal" href="#forces-js">forces.js</a></li>
 <li><a class="reference internal" href="#widgets-js">widgets.js</a></li>
 <li><a class="reference internal" href="#arrowgraphics-js">arrowgraphics.js</a></li>
 <li><a class="reference internal" href="#areachart-js">areachart.js</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#personal-visualisation-files">Personal visualisation files</a><ul>
+<li><a class="reference internal" href="#personalvis-js">personalvis.js</a></li>
 <li><a class="reference internal" href="#donut-js">donut.js</a></li>
 <li><a class="reference internal" href="#linechart-js">linechart.js</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#for-all-other-data">…for all other data</a><ul>
-<li><a class="reference internal" href="#adminbasic-js">adminbasic.js</a></li>
-<li><a class="reference internal" href="#donutbasic-js">donutbasic.js</a></li>
-<li><a class="reference internal" href="#linebasic-js">linebasic.js</a></li>
-<li><a class="reference internal" href="#personalbasic-js">personalbasic.js</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#all-other-data">All other data</a></li>
 </ul>
 </li>
 </ul>

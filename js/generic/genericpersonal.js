@@ -15,12 +15,10 @@ var ttf = d3.timeFormat("%b %d %H:%M");
 **/
 d3.json("../data/output/generic/userdata/" + uid + ".json").then((results) => {
     data = results;
-    initDonutVars();
     for (var i = 0; i < results.length; i+=1) {
         node_data[i] = results[i]["nodes"].find(findNode);
         node_data[i].date = parseTime(node_data[i].date);
         graph_data[i] = results[i];
-        plotdonut(graph_data[i], node_data[i]);
         maxindex+=1;
     }
     //Find the difference between timesteps (used for donut date picker)
@@ -45,7 +43,7 @@ d3.json("../data/output/generic/userdata/" + uid + ".json").then((results) => {
         else if(timediff <= 24*3600*31){
             spacingFunc = d3.timeMonth;
             tickf = d3.timeFormat("%b %y");
-            ttf = d3.timeFormat("%b %y");            
+            ttf = d3.timeFormat("%B %Y");            
         }
         else{
             spacingFunc = d3.timeYear;
@@ -53,7 +51,6 @@ d3.json("../data/output/generic/userdata/" + uid + ".json").then((results) => {
             ttf = d3.timeFormat("%Y");            
         }
     }
-    plotdonut(graph_data[0], node_data[0]);
     numticks = results.length;
     plotsimpleline();
 }).catch(err => {
@@ -61,26 +58,15 @@ d3.json("../data/output/generic/userdata/" + uid + ".json").then((results) => {
 });
 
 var datafilecounter = 1;
-var drawn = {};
-
-//Colour scheme
-var keys = ["social", "story", "transaction", "listing"];
-var color = d3.scaleOrdinal() // D3 Version 4
-    .domain(keys)
-    .range(["#3ab2e3", "#7245ba", "#a2d733", "#e04776"]);
-var mykeys = [];
 
 var parseTime = d3.timeParse("%Y/%m/%d %H:%M");
 
 //Various date formats
 var formatDate = d3.timeFormat("%Y/%m/%d");
-
 var data = {};
 var node_data = [];
 var graph_data = {};
 var numticks = 0;
-var myReturnText = "return";
-var noActivityText = "No visible activity";
 
 function getDateText(d) {
     return ttf(d.date) + "-" + ttf(d.date.getTime()+timediff);//d3.timeWeek.offset(d.date, 2))

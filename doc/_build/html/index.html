@@ -41,8 +41,21 @@
             
   <div class="section" id="commonshare-documentation">
 <h1>Commonshare documentation<a class="headerlink" href="#commonshare-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This documentation provides a guide to the setup, running, deployment and customisation of the commonshare project.
+If you have any questions or issues, please <a class="reference external" href="mailto:danieljrough&#37;&#52;&#48;gmail&#46;com">contact me</a>.</p>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>The Python sub-project takes a GEXF representation of a dynamic or static social network, and computes an objective metric of reputation for each user at each
+instance of time, using Social Network Analysis algorithms included in the NetworkX Python library.
+Files representing the dynamic graph at different time steps, as well as files for each user’s contribution history, are output in JSON format.</p>
+<a class="reference internal image-reference" href="_images/overview1.png"><img alt="_images/overview1.png" class="align-center" src="_images/overview1.png" style="width: 497.0px; height: 137.0px;" /></a>
+<p>The Javascript sub-project takes these JSON files as input to information visualisations created with the D3 library. These visualisations aim to display
+the evolution of a dynamic social network over time, as well as the dynamics of individuals’ contributions.</p>
+<a class="reference internal image-reference" href="_images/overview2.png"><img alt="_images/overview2.png" class="align-center" src="_images/overview2.png" style="width: 512.0px; height: 194.0px;" /></a>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="usage/setup.html">Setting up commonshare</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage/running.html">Running commonshare</a><ul>
@@ -59,27 +72,21 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage/parameters.html">Adjusting parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="functions/python.html">Python functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="functions/python.html#module-parsegexf">parsegexf.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/python.html#parsegexf-py">parsegexf.py</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functions/python.html#module-makegraphs">makegraphs.py</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functions/python.html#module-kcore">kcore.py</a></li>
-<li class="toctree-l2"><a class="reference internal" href="functions/python.html#module-simulation">simulation.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/python.html#module-pagerank">pagerank.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/python.html#simulation-py">simulation.py</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="functions/javascript.html">Javascript functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="functions/javascript.html#for-commonfare-net-data">…for commonfare.net data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="functions/javascript.html#for-all-other-data">…for all other data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/javascript.html#commonfare-net-data">commonfare.net data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/javascript.html#all-other-data">All other data</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
@@ -90,8 +97,11 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Commonshare documentation</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">Commonshare documentation</a><ul>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Next topic</h4>

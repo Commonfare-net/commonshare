@@ -15,7 +15,6 @@ from networkx.readwrite import json_graph
 
 import config as cf
 import kcore as dx
-import memory_profiler
 
 def make_all_graphs(G,startdate,enddate,spacing,filename):     
     """Generate all JSON files from NetworkX graph
@@ -41,7 +40,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
     (either 'weekly', 'biweekly' or 'monthly'
 
     """
-    print 'filename is ',filename
+    print ('filename is ',filename)
     c_Gs = {}
     coms = []
     #Create dicts to hold the interaction data for each commoner    
@@ -53,7 +52,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
         c["times_active"] = 0
         c["binary_active"] = ""
     #Dynamic data
-    print 'spacing is ',spacing
+    print ('spacing is ',spacing)
     
     if startdate is not None:
         if spacing == 'hourly':
@@ -82,7 +81,7 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
         os.makedirs(graph_dir)
         #Makes the windowed graphs
         while(w_end > startdate):
-            print 'windowend is',cf.to_str(w_end)
+            print ('windowend is',cf.to_str(w_end))
             (coms,c_Gs,json_G,G_new) = make_graphs(G,(w_start,w_end),index,coms,c_Gs)    
             with open(graph_dir + str(index) + '.json', 'w') as outfile:
                 outfile.write(json.dumps(json_G))
@@ -109,46 +108,6 @@ def make_all_graphs(G,startdate,enddate,spacing,filename):
         
     #Make cumulative graph
     (coms,c_Gs,json_G,G_new) = make_graphs(G,(startdate,enddate),0,coms,None)
-    
-    #COMMENT OUT IF WE'RE NOT DOING BITCOIN
-    '''
-    trustedfolks = []
-    untrustedfolks = []
-    highsandlows = {}
-    edgeiter = G_new.edges('1',data=True)   
-    for (u,v,c) in edgeiter:
-        for rating in c['rating']:
-            ratingbits = rating[0].split('/')
-            if ratingbits[0] == '1' and int(ratingbits[1]) >= 3:
-                print 'nano tube high: ',u,'-',v
-                trustedfolks.append(v);
-                break
-    trustedfolks.append('1')
-    #Now get all the untrustworthy folks
-    for trusted in trustedfolks:
-        edgeiter = G_new.edges(trusted,data=True)
-        for (u,v,c) in edgeiter:
-            for rating in c['rating']:
-                ratingbits = rating[0].split('/')
-                if ratingbits[0] == trusted and int(ratingbits[1]) >= 4:
-                    if v not in highsandlows:
-                        highsandlows[v] = 1
-                    else:
-                        highsandlows[v] += 1
-                    break
-                elif ratingbits[0] == trusted and int(ratingbits[1]) <= -4:
-                    if v not in highsandlows:
-                        highsandlows[v] = -1
-                    else:
-                        highsandlows[v] -= 1
-                    break
-    for k,v in highsandlows.iteritems():
-        if v <= -2:
-            untrustedfolks.append(k)
-    json_G['trusted'] = trustedfolks
-    json_G['untrusted'] = untrustedfolks
-    '''
-    #OKAY WE'RE DONE WITH BITCOIN
     
     dynamic_communities = {}
     
@@ -342,16 +301,18 @@ def make_dynamic_communities(core_G,communities,index):
     partitions = {}
     
     #Returns a dictionary pairing of node IDs to their community
-    partition = community.best_partition(core_G,weight='maxweight')      
+    for (n,c) in core_G.nodes(data=True):
+        c['positivemax'] = max(c['maxweight'],0)
+    partition = community.best_partition(core_G,weight='positivemax')      
     #Swap node ID keys and community values around 
-    for k,v in partition.iteritems():
+    for k,v in iter(partition.items()):
         if v not in partitions:
             partitions[v] = []
         partitions[v].append(k)
     
     if len(communities) == 0:
         for i in range(len(partitions)):
-            communities.append([index,partitions.values()[i]])
+            communities.append([index,list(partitions.values())[i]])
         fronts = [com[len(com)-1] for com in communities] 
     else:
         #Get most recent snapshot of each dynamic community
@@ -491,7 +452,7 @@ def make_graphs(G,window,index,communities,commoner_graphs):
         partition = make_dynamic_communities(core_G,communities,index)
     else:
         undirectedGraph = core_G.to_undirected()
-        partition = community.best_partition(undirectedGraph,weight='maxweight') 
+        partition = community.best_partition(undirectedGraph,weight='positivemax') 
     
         
     nodeiter = core_G.nodes(data=True)
@@ -519,25 +480,25 @@ def init(filename,configfile):
 
     """
     
-    with open(configfile, 'rb') as csvfile:
+    with open(configfile, 'r') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        row = spamreader.next()
+        row = next(spamreader)
         
         if row[0].startswith('weight'):
             cf.WEIGHT_KEY = row[0].split("=")[1]
-            print 'weight key is ',cf.WEIGHT_KEY
-            row = spamreader.next()
+            print ('weight key is ',cf.WEIGHT_KEY)
+            row = next(spamreader)
         if row[0].startswith('label'):
             cf.LABEL_KEY = row[0].split("=")[1]
-            row = spamreader.next()
+            row = next(spamreader)
         if row[0].startswith('granularity'):
             granularity = row[0].split("=")[1]
         try:
-            row = spamreader.next()
+            row = next(spamreader)
             if row[0].startswith('directed'):
                 cf.DIRECTED = True
         except StopIteration as e:
-            print 'finished'
+            print ('finished')
     G_read = nx.read_gexf(filename)
     ET.register_namespace("", "http://www.gexf.net/1.2draft") 
     tree = ET.parse(filename)  
@@ -569,7 +530,7 @@ def init(filename,configfile):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print 'Missing filename'
+        print ('Missing filename')
         sys.exit()
     filename = sys.argv[1]
     if len(sys.argv) < 3:

@@ -1,0 +1,228 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pagerank &#8212; Commonshare 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pagerank</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
+
+<span class="kn">import</span> <span class="nn">config</span> <span class="k">as</span> <span class="nn">cf</span>
+
+<span class="c1">#Make this a Flask web service</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Flask</span><span class="p">,</span><span class="n">jsonify</span><span class="p">,</span><span class="n">request</span><span class="p">,</span><span class="n">Blueprint</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="c1">#The &#39;Blueprint&#39; allows app methods to be distributed across modules</span>
+<span class="n">pagerank_api</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;pagerank_api&#39;</span><span class="p">,</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="personalisedPageRank"><a class="viewcode-back" href="../functions/python.html#pagerank.personalisedPageRank">[docs]</a><span class="k">def</span> <span class="nf">personalisedPageRank</span><span class="p">(</span><span class="n">core_graph</span><span class="p">,</span><span class="n">story</span><span class="p">,</span><span class="n">user</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute personalised PageRank of stories for given user</span>
+<span class="sd">    </span>
+<span class="sd">    This uses NetworkX&#39;s built in Personalised PageRank algorithm</span>
+<span class="sd">    to compute PageRank value of other stories on the platform </span>
+<span class="sd">    for a given user reading a given story </span>
+
+<span class="sd">    More info on the algorithm and its personalisation in:</span>
+<span class="sd">    </span>
+<span class="sd">    Page, L., Brin, S., Motwani, R., &amp; Winograd, T. (1999). </span>
+<span class="sd">    The PageRank citation ranking: Bringing order to the web. </span>
+<span class="sd">    Stanford InfoLab.</span>
+<span class="sd">    </span>
+<span class="sd">    :param core_graph: NetworkX graph of platform interactions with additional data on neglected nodes and edge weights</span>
+<span class="sd">    :param story: string ID of story a user is reading </span>
+<span class="sd">    :param user: string ID of platform user (or 0 if not logged in)</span>
+<span class="sd">    :returns: dictionary of story IDs mapped to their PageRank value</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">story_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">user_id</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">influence</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="c1">#Becuase the GEXF ID and commonfare.net ID are different, this finds</span>
+    <span class="c1">#the right story/user nodes </span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;platform_id&#39;</span><span class="p">]</span><span class="o">==</span><span class="nb">str</span><span class="p">(</span><span class="n">story</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;story&#39;</span><span class="p">:</span>
+            <span class="n">story_id</span> <span class="o">=</span> <span class="n">n</span>
+            <span class="k">break</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;platform_id&#39;</span><span class="p">]</span><span class="o">==</span><span class="nb">str</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;commoner&#39;</span><span class="p">:</span>
+            <span class="n">user_id</span> <span class="o">=</span> <span class="n">n</span>
+            <span class="n">influence</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;kcore&#39;</span><span class="p">]</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="n">story_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">({},</span><span class="mi">0</span><span class="p">)</span>
+        
+    <span class="c1">#Get the nodes surrounding both the story and the user, to use as</span>
+    <span class="c1">#the personalisation vector in the page-rank calculation </span>
+    <span class="n">surrounding_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="mi">10</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">story_id</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="n">user_id</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">user_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="mi">10</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">user_id</span><span class="p">)}</span>
+        <span class="n">surrounding_nodes</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_nodes</span><span class="p">)</span>
+
+    <span class="n">core_graph</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">([</span><span class="n">story_id</span><span class="p">])</span> <span class="c1">#don&#39;t recommend story itself</span>
+    <span class="n">core_graph</span> <span class="o">=</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">to_directed</span><span class="p">()</span>
+    <span class="nb">iter</span> <span class="o">=</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="n">v</span><span class="p">,</span><span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">:</span>
+        <span class="c1">#Find last time each edge was &#39;active&#39; in the network </span>
+        <span class="n">last_time_activated</span> <span class="o">=</span> <span class="n">cf</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;last_date&#39;</span><span class="p">])</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="n">last_time_activated</span><span class="p">)</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mf">7.0</span>
+        
+        <span class="c1">#Edge weight depreciates by 5% every week        </span>
+        <span class="n">depreciation</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mf">0.95</span><span class="p">,</span><span class="n">delta</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="s1">&#39;edgeweight&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">])[</span><span class="n">v</span><span class="p">]</span> 
+            <span class="o">*</span> <span class="n">depreciation</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">[</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">depreciation</span>
+    
+    <span class="n">rank_values</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">pagerank</span><span class="p">(</span><span class="n">core_graph</span><span class="p">,</span><span class="n">personalization</span><span class="o">=</span><span class="n">surrounding_nodes</span><span class="p">,</span>
+                              <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span><span class="n">weight</span><span class="o">=</span><span class="s1">&#39;edgeweight&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">rank_values</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+       <span class="c1">#Only want to keep PageRank values of other stories </span>
+       <span class="k">if</span> <span class="n">core_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;story&quot;</span><span class="p">:</span>
+           <span class="k">del</span> <span class="n">rank_values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">rank_values</span><span class="p">,</span><span class="n">influence</span><span class="p">)</span></div>
+  
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../functions/python.html#pagerank.run">[docs]</a><span class="nd">@pagerank_api</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/recommend/&lt;storyid&gt;/&lt;userid&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">storyid</span><span class="p">,</span><span class="n">userid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return three recommended stories for user reading a story</span>
+<span class="sd">    </span>
+<span class="sd">    This uses the personalised pagerank algorithm to return the IDs</span>
+<span class="sd">    of three stories that a user should be recommended on reading a</span>
+<span class="sd">    particular story. The method is routed using the Flask API to </span>
+<span class="sd">    the &#39;/recommend&#39; URL, which also contains the parameters</span>
+
+<span class="sd">    :param storyid: string ID of story user is reading</span>
+<span class="sd">    :param userid: string ID of user</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#This is initialised as a Docker environment variable</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PAGERANK_FILE&#39;</span><span class="p">]</span>
+    <span class="n">G_read</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">read_gexf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">pr_vals</span><span class="p">,</span><span class="n">influence</span><span class="p">)</span> <span class="o">=</span> <span class="n">personalisedPageRank</span><span class="p">(</span><span class="n">G_read</span><span class="p">,</span><span class="n">storyid</span><span class="p">,</span><span class="n">userid</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pr_vals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+        
+    <span class="c1">#Sort the recommended nodes by their PageRank value</span>
+    <span class="n">ranked</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pr_vals</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">G_untainted</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">read_gexf</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">recommended_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    
+    <span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.gexf.net/1.2draft&quot;</span><span class="p">)</span> 
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>  
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="c1">#&#39;neglected nodes&#39;= new stories/listings with few interactions</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;neglected_nodes&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">neglected_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">neglected_nodes</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;neglected_nodes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        
+    <span class="c1">#If node is influential, connect them to unknown stories to increase </span>
+    <span class="c1">#density of the graph </span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">influence</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">neglected_nodes</span><span class="p">))):</span>
+        <span class="n">platform_id</span> <span class="o">=</span> <span class="n">G_untainted</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neglected_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;platform_id&#39;</span><span class="p">]</span>
+        <span class="n">recommended_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">platform_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="o">-</span><span class="nb">min</span><span class="p">(</span><span class="n">influence</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">neglected_nodes</span><span class="p">))):</span>
+        <span class="n">platform_id</span> <span class="o">=</span> <span class="n">G_untainted</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">ranked</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;platform_id&#39;</span><span class="p">]</span>
+        <span class="n">recommended_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">platform_id</span><span class="p">)</span>
+    
+    <span class="c1">#Return three at random</span>
+    <span class="n">returned_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">recommended_list</span><span class="p">)),</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">returned_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recommended_list</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">returned_list</span><span class="p">)</span></div>
+
+    <span class="c1">#Run as a Flask app</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>    
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;HTTP_HOST&#39;</span><span class="p">,</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">),</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;HTTP_PORT&#39;</span><span class="p">,</span> <span class="s1">&#39;5001&#39;</span><span class="p">)))</span>  
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Commonshare 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Daniel Rough.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>
