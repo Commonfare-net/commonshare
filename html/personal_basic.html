@@ -11,22 +11,6 @@
 
 <main style="width: 1080px; margin: 2em auto;">
 
-  <div class="row">
-    <div class="col col-lg-4">
-      <div class="box-wrap">
-        <h3>Two weeks</h3>
-        <div class="graph text-center" style="padding: 2em 0 0;">
-          <svg id="donut" width="240" height="280"></svg>
-          <div class="datepicker">
-            <i class="arrow arrow-left" onclick="updateBasicDonut(-1)"></i>
-            <p id="donutdate"></p>
-            <i class="arrow arrow-right" onclick="updateBasicDonut(1)"></i>
-          </div>   
-        </div>
-        <div id="donut_description"></div>
-      </div>
-    </div>
-    <div class="col col-lg-8">
       <div class="box-wrap">
         <h3>Over time</h3>
         <div class="graph">
@@ -35,15 +19,10 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
 </main>
 
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="../js/linebasic.js"></script>
-<script src="../js/donutbasic.js"></script>
-<script src="../js/personalbasic.js"></script>
-
+<script src="../js/generic/genericline.js"></script>
+<script src="../js/generic/genericpersonal.js"></script>

@@ -1,4 +1,4 @@
-// Calculate initialwidth
+// Calculate initial width
 var boxWidth = $("#linechartdiv").innerWidth();
 $("#linechart").attr("width", boxWidth);
 
@@ -9,6 +9,7 @@ $(window).resize(function () {
 });
 
 function plotsimpleline() {
+    
     $("#linechart").on("wheel mousewheel", function (e) {
         e.preventDefault();
     });
@@ -74,7 +75,9 @@ function plotsimpleline() {
         } else if (tickdistance > 100) {
             currentMonthGap = Math.max(1, --currentMonthGap);
         }
-        xAxis.ticks(d3.timeHour.every(Math.max(1, currentMonthGap)));
+        //Pick a sensible tick range based on timediff
+        xAxis.ticks(spacingFunc.every(Math.max(1, currentMonthGap)));
+        
         gX.call(xAxis);
 
         d3.selectAll("#simplelineaxis > .tick").attr("transform", function () {
@@ -87,18 +90,7 @@ function plotsimpleline() {
         });
 
         linepath.attr("d", kcoreline);
-        line.x(function (d) {
-            return xz(d.date);
-        });
     }
-
-    var line = d3.line()
-        .x(function (d) {
-            return x(d.date);
-        })
-        .y(function (d) {
-            return y(d.total);
-        });
 
     var kcoreline = d3.line()
         .x(function (d) {
@@ -140,7 +132,7 @@ function plotsimpleline() {
         .attr("y", -10);
 
     //X axis
-    var xAxis = d3.axisBottom(x).tickFormat(tickf).ticks(d3.timeHour.every(1));
+    var xAxis = d3.axisBottom(x).tickFormat(tickf).ticks(spacingFunc.every(1));
     var gX = chartg.append("g")
         .attr("transform", "translate(0," + chartheight + ")")
         .attr("class", "axis")
@@ -204,29 +196,17 @@ function plotsimpleline() {
         }
         previousIndex = i;
         d1 = node_data[i];
-        //Auto-update the donut
-        currentdonut = i;
-        plotdonut(graph_data[i], node_data[i]);
-        var chartpos = d3.select("#linechart").node().getBoundingClientRect();
+        chartpos = d3.select("#linechart").node().getBoundingClientRect();
+
+       // console.log("Chartpos: " + chartpos.x + "," + chartpos.y);        
         tooltip_div.transition()
         .duration(200)
         .style("opacity", 1);
-        console.log(d1);
-        var toolTipText = "";
-        var interaction_types =
-            ["create_story", "create_listing",
-            "comment_story", "comment_listing",
-            "conversation", "transaction"];
-        for (i = 0; i < interaction_types.length; i++) {
-            var type = interaction_types[i];
-            if (type in d1 && d1[type].length > 0) {
-                toolTipText += tooltipTranslate(type) +
-                d1[type].length + "</br>";
-            }
-        }
+        var toolTipText = ttf(d1.date) + "</br> commonshare: " + d1.kcore;
+
         tooltip_div.html(toolTipText)
         .style("left", (xt(d1.date) + margin.left + 10 + chartpos.x) + "px")
-        .style("top", (y(d1.kcore) + margin.top - 20 + chartpos.y) + "px");
+        .style("top", (y(d1.kcore) + margin.top - 20) + chartpos.y + window.scrollY + "px");
         //Update the commonshare circle position and text
         d3.select("#commonshare_circle")
         .attr("cx", xt(d1.date) + margin.left)

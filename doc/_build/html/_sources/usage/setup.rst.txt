@@ -3,9 +3,10 @@ Setting up commonshare
 ======================
 
 All commonshare code is available from the GitHub repository. You can download the source directly from `here <https://github.com/Commonfare-net/commonshare>`_
-or clone it from the command line with ``git clone https://github.com/Commonfare-net/commonshare``. 
+(make sure you have selected the branch **generify**) or clone it from the command line with ``git clone https://github.com/Commonfare-net/commonshare``.
+If you download it as a zip file, change the directory name from **commonshare-generify** to **commonshare**.   
 
-You will need `Python 2.7 <https://www.python.org/downloads/>`_ on your system, as well as **pip** for installing external packages (pip should come with 
+You will need the `latest version of Python <https://www.python.org/downloads/>`_ on your system, as well as **pip** for installing external packages (pip should come with 
 the latest version of Python. For instructions on installing it manually, see `here <https://pip.pypa.io/en/stable/installing/>`_.
 
 To install the necessary packages, run the following commands::

@@ -3,7 +3,6 @@ import random
 
 """
 Returns a "random" 4 word phrase from a list of words.
-
 """
 tags = [
     'welfare',

@@ -43,8 +43,9 @@ var bisectDate = d3.bisector(function (d, x) {
 var avg_total_object = [];
 
 /**
-* Populatin'
-* @returns {json[]} a thing
+* Populates the 'kcorelist' array with Objects that contain a date and the commonshare value at that time
+* so that the commonshare line can be plotted
+* @returns {Object[]} list of date/commonshare Objects
 */
 function populateCore(){
 	avg_total_object = [];
@@ -88,8 +89,9 @@ function populateCore(){
 }
 
 /**
-* Populatin'
-* @returns {json[]} a thing
+* For each interaction type (story/social/etc) maps its name to a nested object that contains both its name and 
+* its data values over time. 
+* @returns {Object} interaction types mapped to Objects containing their ID and data values over time
 */
 function populateAvg(){
     var avgdata_list = Object.keys(avg_total_object).map(function (k) {
@@ -102,8 +104,8 @@ function populateAvg(){
 }
 
 /**
-* Plottin' dat line 
-*
+* Main function for drawing the axes in the correct position and adding the various lines 
+* onto the chart. 
 */
 function plotLine() {
 	$("#linechart").on("wheel mousewheel", function (e) {
@@ -258,7 +260,7 @@ function plotLine() {
 var opacity = 0.5;
 
 /**
-* Clickin dat legend
+* Behaviour of legend items when they are clicked (i.e., hide/show their respective line and data points)
 */
 function legendClick(d) {
 	if (d3.selectAll("." + d).style("visibility") == "visible") {
@@ -323,9 +325,7 @@ function zoomed() {
 	});
 }
 
-/**
-* Dis what we do when de mouse moves out
-*/
+//Remove tooltip on mouse out
 function mouseout() {
 	tooltip_div.transition()
 	.duration(200)
@@ -333,8 +333,9 @@ function mouseout() {
 }
 
 /**
-*Function that shows/hides different information when
-*moving the mouse over the chart
+* Function that shows/hides different information when
+* moving the mouse over the chart. Also updates the donut chart to show the current
+* point being hovered over 
 */
 function mousemove() {
 	//Calculate the nearest date that the cursor is over
@@ -397,12 +398,11 @@ function mousemove() {
 }
 
 /**
-* Add the legned
-*
+* Calculates the position of legend elements and adds them to the chart.
+* Code mainly from http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
 */
 function addLegend() {
-	//Styling and positioning of the legend
-	//http://zeroviscosity.com/d3-js-step-by-step/step-3-adding-a-legend
+
 	var legendRectSize = 15;
 	var legendSpacing = 6;
 

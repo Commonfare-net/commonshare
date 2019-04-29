@@ -1,0 +1,3 @@
+weight=rating
+granularity=monthly
+directed

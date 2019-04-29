@@ -32,8 +32,7 @@ def personalisedPageRank(core_graph,story,user):
     The PageRank citation ranking: Bringing order to the web. 
     Stanford InfoLab.
     
-    :param core_graph: NetworkX graph of platform interactions with
-    additional data on neglected nodes and edge weights
+    :param core_graph: NetworkX graph of platform interactions with additional data on neglected nodes and edge weights
     :param story: string ID of story a user is reading 
     :param user: string ID of platform user (or 0 if not logged in)
     :returns: dictionary of story IDs mapped to their PageRank value
@@ -84,7 +83,7 @@ def personalisedPageRank(core_graph,story,user):
     rank_values = nx.pagerank(core_graph,personalization=surrounding_nodes,
                               alpha=0.85,weight='edgeweight')
     
-    for k in rank_values.keys():
+    for k in list(rank_values.keys()):
        #Only want to keep PageRank values of other stories 
        if core_graph.nodes[k]["type"] != "story":
            del rank_values[k]
@@ -105,12 +104,12 @@ def run(storyid,userid):
     """
     #This is initialised as a Docker environment variable
     filename = os.environ['PAGERANK_FILE']
-   
     G_read = nx.read_gexf(filename)
     (pr_vals,influence) = personalisedPageRank(G_read,storyid,userid)
 
     if len(pr_vals) == 0:
         return jsonify([0,0,0])
+        
     #Sort the recommended nodes by their PageRank value
     ranked = sorted(pr_vals.items(),key=operator.itemgetter(1),reverse=True)
     
@@ -142,8 +141,7 @@ def run(storyid,userid):
         returned_list.append(recommended_list[v])
     return jsonify(returned_list)
 
-#Run as a Flask app
+    #Run as a Flask app
 if __name__ == "__main__":    
     app.run(debug=True,host=os.environ.get('HTTP_HOST', '127.0.0.1'),
-        port=int(os.environ.get('HTTP_PORT', '5001')))
-    
+        port=int(os.environ.get('HTTP_PORT', '5001')))  

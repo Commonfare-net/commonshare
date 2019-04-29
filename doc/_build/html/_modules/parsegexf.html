@@ -53,6 +53,22 @@
 <span class="c1">#Also includes Flask methods from pagerank.py</span>
 <span class="n">app</span><span class="o">.</span><span class="n">register_blueprint</span><span class="p">(</span><span class="n">pagerank_api</span><span class="p">)</span>
 
+<div class="viewcode-block" id="addNodeSpell"><a class="viewcode-back" href="../functions/python.html#parsegexf.addNodeSpell">[docs]</a><span class="k">def</span> <span class="nf">addNodeSpell</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">attrs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add spell element to a node element. A &#39;spell&#39; is in the form ``&lt;spell end=&quot;2019/02/20&quot; start=&quot;2019/02/20&quot; /&gt;``</span>
+<span class="sd">    and the spells of a node determine all points at which it has been active for time-based filtering.</span>
+
+<span class="sd">    :param node: string node ID to add spell to</span>
+<span class="sd">    :param attrs: dictionary of attributes of this spell  </span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;spells&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">spells</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s2">&quot;spells&quot;</span><span class="p">,{})</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spells</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">spells</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;spells&quot;</span><span class="p">)</span>
+    <span class="n">spell</span> <span class="o">=</span> <span class="n">spells</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s2">&quot;spell&quot;</span><span class="p">,</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="n">spells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spell</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="replace_source"><a class="viewcode-back" href="../functions/python.html#parsegexf.replace_source">[docs]</a><span class="k">def</span> <span class="nf">replace_source</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span><span class="n">edges</span><span class="p">,</span><span class="n">edgeid</span><span class="p">,</span><span class="n">label</span><span class="p">,</span><span class="n">source</span><span class="p">,</span><span class="n">target</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Replace comment sender/receiver edge with story/writer edge</span>
 <span class="sd">    </span>
@@ -60,6 +76,13 @@
 <span class="sd">    1) A comment sender - story edge</span>
 <span class="sd">    2) A comment sender - comment receiver edge</span>
 <span class="sd">    This replaces the sender-receiver with a story-receiver edge</span>
+<span class="sd">    </span>
+<span class="sd">    .. image:: replacesource.png</span>
+<span class="sd">        :scale: 50 %</span>
+<span class="sd">        :align: center</span>
+<span class="sd">    </span>
+<span class="sd">    This is done to increase the strength of connection between users and their created stories when these stories receive comments. It also</span>
+<span class="sd">    distinguishes direct user-user interactions from indirect user-story-user interactions in the visualisation </span>
 <span class="sd">    </span>
 <span class="sd">    :param nodes: all nodes of the GEXF graph</span>
 <span class="sd">    :param edges: all edges of the GEXF grpah</span>
@@ -92,32 +115,18 @@
         <span class="n">commoner_commoner_edge</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="n">object_target</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">edgetype</span></div>
-        
-<div class="viewcode-block" id="addNodeSpell"><a class="viewcode-back" href="../functions/python.html#parsegexf.addNodeSpell">[docs]</a><span class="k">def</span> <span class="nf">addNodeSpell</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="n">attrs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Add spell element to a node element</span>
-
-<span class="sd">    :param node: string node ID to add spell to</span>
-<span class="sd">    :param attrs: dictionary of attributes of this spell  </span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;spells&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">spells</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s2">&quot;spells&quot;</span><span class="p">,{})</span>
-        <span class="n">node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spells</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">spells</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;spells&quot;</span><span class="p">)</span>
-    <span class="n">spell</span> <span class="o">=</span> <span class="n">spells</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s2">&quot;spell&quot;</span><span class="p">,</span><span class="n">attrs</span><span class="p">)</span>
-    <span class="n">spells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spell</span><span class="p">)</span></div>
-    
+       
     
 <div class="viewcode-block" id="parseLabel"><a class="viewcode-back" href="../functions/python.html#parsegexf.parseLabel">[docs]</a><span class="k">def</span> <span class="nf">parseLabel</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span><span class="n">edges</span><span class="p">,</span><span class="n">edgeid</span><span class="p">,</span><span class="n">sourceid</span><span class="p">,</span><span class="n">targetid</span><span class="p">,</span><span class="n">label</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Get edge type, start and end dates from label</span>
 <span class="sd">    </span>
 <span class="sd">    This method:</span>
-<span class="sd">    1) Adds edge spells to source and target nodes</span>
-<span class="sd">    2) Finds the type, start and end date of edge from its label</span>
+<span class="sd">        1. Adds edge spells to source and target nodes</span>
+<span class="sd">        2. Finds the type, start and end date of edge from its label</span>
+<span class="sd">    </span>
 <span class="sd">    Labels have the following format:</span>
-<span class="sd">    &#39;conversation_13+date_start=2018/06/23+date_end=2018/06/26&#39;</span>
+<span class="sd">    ``conversation_13+date_start=2018/06/23+date_end=2018/06/26``</span>
 <span class="sd">    </span>
 <span class="sd">    :param nodes: all nodes of the GEXF graph</span>
 <span class="sd">    :param edges: all edges of the GEXF grpah</span>
@@ -166,30 +175,7 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="n">edgetype</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../functions/python.html#parsegexf.parse">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/parse&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="o">*</span><span class="n">gexffile</span><span class="p">):</span>    
-
-    <span class="sd">&quot;&quot;&quot;Entry method to begin parsing the GEXF file</span>
-
-<span class="sd">    This is the method called through the Flask API to begin parsing the</span>
-<span class="sd">    GEXF file of all commonfare.net interactions. Once the GEXF is in the</span>
-<span class="sd">    correct format, it is passed to methods in the makegraphs.py module to</span>
-<span class="sd">    output JSON data for visualisation purposes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gexffile</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-    <span class="c1">#if gexffile is None:</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GEXF_INPUT&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">gexffile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="nb">print</span> <span class="s1">&#39;filename is &#39;</span><span class="p">,</span><span class="n">gexffile</span>
-    <span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.gexf.net/1.2draft&quot;</span><span class="p">)</span> 
-    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>  
-    <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;xmlns&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.gexf.net/1.2draft&#39;</span><span class="p">}</span>
-    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
-    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;dynamic&#39;</span><span class="p">)</span>  
-    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;timeformat&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">)</span>  
-
+<span class="k">def</span> <span class="nf">addNewAttributes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">):</span>
     <span class="c1">#Get the &#39;static&#39; node attributes (those unchanging over time)</span>
     <span class="n">nodeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:attributes/[@class=</span><span class="se">\&#39;</span><span class="s1">node</span><span class="se">\&#39;</span><span class="s1">]&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
     <span class="n">nodeattrs</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
@@ -201,17 +187,42 @@
         <span class="n">nodeid_id</span> <span class="o">=</span> <span class="n">nodeidattr</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
         <span class="n">nodeattrs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">nodeidattr</span><span class="p">)</span>
 
-    <span class="n">type_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;type&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
-    <span class="n">name_id</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;name&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-    <span class="n">title_id</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;title&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
-
-    <span class="n">nodes</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:nodes&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
 
     <span class="c1">#Make new ID attribute - the node&#39;s ID in the Commonfare platform</span>
     <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="s1">&#39;platform_id&#39;</span><span class="p">}</span> 
     <span class="n">attr</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
     <span class="n">nodeattrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
 
+        
+    <span class="c1">#Add holders for dynamic node and edge attributes</span>
+    <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;node&#39;</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;dynamic&#39;</span><span class="p">}</span>
+    <span class="n">dnodeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
+    <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;edge&#39;</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;dynamic&#39;</span><span class="p">}</span>
+    <span class="n">edgeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">dnodeattrs</span><span class="p">)</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">edgeattrs</span><span class="p">)</span>
+
+    <span class="c1">#New attribute IDs start at 6 because the platform ID attribute is 5</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="c1">#For each dynamic attribute in the config, add it to both nodes and edges</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="c1">#for key in cf.interaction_keys:</span>
+        <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">),</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="n">k</span><span class="p">}</span> 
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">edgeattrs</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
+        <span class="n">dnodeattrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="n">edgeattrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">cleanNodes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">):</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:nodes&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
+
+    <span class="n">type_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;type&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+    <span class="n">name_id</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;name&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="n">title_id</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;title&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
     <span class="c1">#For each node, remove the old ID attribute and add the platform ID</span>
     <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
         <span class="n">platform_id</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
@@ -234,29 +245,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">nodename</span> <span class="o">=</span> <span class="n">attvals</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@for=&#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">name_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;]&quot;</span><span class="p">)</span>
             <span class="n">nodename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="n">nodename</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
-        
-    <span class="c1">#Add holders for dynamic node and edge attributes</span>
-    <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;node&#39;</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;dynamic&#39;</span><span class="p">}</span>
-    <span class="n">dnodeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
-    <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span><span class="s1">&#39;edge&#39;</span><span class="p">,</span><span class="s1">&#39;mode&#39;</span><span class="p">:</span><span class="s1">&#39;dynamic&#39;</span><span class="p">}</span>
-    <span class="n">edgeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
-    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">dnodeattrs</span><span class="p">)</span>
-    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">edgeattrs</span><span class="p">)</span>
-
-    <span class="c1">#New attribute IDs start at 6 because the platform ID attribute is 5</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">6</span>
-
-    <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="c1">#For each dynamic attribute in the config, add it to both nodes and edges</span>
-    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">cf</span><span class="o">.</span><span class="n">INTERACTIONS</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-    <span class="c1">#for key in cf.interaction_keys:</span>
-        <span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">),</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;string&#39;</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="n">k</span><span class="p">}</span> 
-        <span class="n">attr</span> <span class="o">=</span> <span class="n">edgeattrs</span><span class="o">.</span><span class="n">makeelement</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span><span class="n">attrib</span><span class="p">)</span>
-        <span class="n">dnodeattrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
-        <span class="n">edgeattrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
-        <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
-        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+            
+<span class="k">def</span> <span class="nf">cleanEdges</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">namespaces</span><span class="p">):</span>
     <span class="n">d</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:nodes&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>    
     <span class="c1">#Here we figure out edges that need to be deleted</span>
     <span class="n">edges</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:edges&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
     <span class="n">edgestodelete</span> <span class="o">=</span> <span class="p">[]</span>
@@ -332,6 +324,39 @@
             <span class="n">existingedges</span><span class="p">[</span><span class="n">edgeid</span><span class="p">]</span> <span class="o">=</span> <span class="n">elem</span>
         <span class="k">else</span><span class="p">:</span> <span class="c1">#Remove duplicate edges</span>
             <span class="n">edgestodelete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">edgestodelete</span><span class="p">,</span><span class="n">mindate</span><span class="p">,</span><span class="n">maxdate</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../functions/python.html#parsegexf.parse">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/parse&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="o">*</span><span class="n">gexffile</span><span class="p">):</span>    
+
+    <span class="sd">&quot;&quot;&quot;Entry method to begin parsing the GEXF file</span>
+
+<span class="sd">    This is the method called through the Flask API to begin parsing the</span>
+<span class="sd">    GEXF file of all commonfare.net interactions. Once the GEXF is in the</span>
+<span class="sd">    correct format, it is passed to methods in the makegraphs.py module to</span>
+<span class="sd">    output JSON data for visualisation purposes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gexffile</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1">#Use the default (when running from Docker)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;GEXF_INPUT&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">gexffile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;filename is &#39;</span><span class="p">),</span><span class="n">gexffile</span>
+        
+    <span class="n">ET</span><span class="o">.</span><span class="n">register_namespace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;http://www.gexf.net/1.2draft&quot;</span><span class="p">)</span> 
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>  
+    <span class="n">namespaces</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;xmlns&#39;</span><span class="p">:</span> <span class="s1">&#39;http://www.gexf.net/1.2draft&#39;</span><span class="p">}</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;dynamic&#39;</span><span class="p">)</span>  
+    <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;timeformat&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">)</span>  
+
+    <span class="c1">#Add new ID and dynamic attributes</span>
+    <span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">)</span> <span class="o">=</span> <span class="n">addNewAttributes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
+ 
+    <span class="n">cleanNodes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">)</span>
+ 
+    <span class="c1">#Find edges to delete, earliest start and end dates of actions</span>
+    <span class="p">(</span><span class="n">edgestodelete</span><span class="p">,</span><span class="n">mindate</span><span class="p">,</span><span class="n">maxdate</span><span class="p">)</span> <span class="o">=</span> <span class="n">cleanEdges</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:edges&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edgestodelete</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">:</span>
@@ -343,7 +368,7 @@
     <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">parsedfilename</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;parsed.gexf&quot;</span>
     <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">parsedfilename</span><span class="p">)</span>  
-    <span class="nb">print</span> <span class="s1">&#39;done parsing&#39;</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;done parsing&#39;</span><span class="p">)</span>
     
     <span class="c1">#Now make the JSON graphs for visualisation</span>
     <span class="n">makegraphs</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">parsedfilename</span><span class="p">)</span>

@@ -51,5 +51,4 @@ class tag(object):
         return self.__name
 
     def __repr__(self):
-        return str(self)	
-          
+        return str(self)

@@ -18,19 +18,16 @@
       Minimum link strength: <b id="strength"></b>
     </div>
      <!--Link strength slider-->
-    <svg id="strengthslider" class="strengthslider" height="55"></svg>
-    <div class="sectiontitle">
+    <svg id="strengthSlider" class="strengthslider" height="55"></svg>
+    <div style="display:block">
       <input type="checkbox" class="mybox" onchange="toggleGroups(this)"/> Group by clusters
     </div>
-    <div class="sectiontitle">
-      <input type="checkbox" onchange="toggleTags(this)"/> Hide tags
-    </div>
-    <div style="width:45%;display:block;float:left;" class="sectiontitle">
+    <div>
       Dynamic clusters <a id='cleardyn' href='#'>(Clear)</a>
     </div>
     <div class="list-group" id="comm-group"></div>
   </div> 
-  <div class="othershit" style="width:60%; position: absolute;top: 530px;">
+  <div style="width:60%; position: absolute;top: 530px;">
     <div style="width:90%;display:inline-block;" id="datetitle" class="sectiontitle">
       <input type="checkbox" onchange="toggleDate(this)"/> Show all-time <br/>
       <b style="font-size:18px;text-align:center;" id="curdate"></b>      
@@ -42,5 +39,6 @@
 
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="../js/generic/genericadmin.js"></script>
 <script src="../js/widgets.js"></script>
-<script src="../js/adminbasic.js"></script>
+<script src="../js/forces.js"></script>

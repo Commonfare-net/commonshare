@@ -133,6 +133,7 @@ function drawNewChart(type) {
         .attr("stroke-width", 1.5)
         .attr("class", "plotline")
         .attr("d", valueline);
+    console.log(datalist);
     chartg.append("g")
     .attr("class", "yline")
     .attr("transform", "translate(40,0)")
