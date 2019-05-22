@@ -44,6 +44,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../&quot;</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
@@ -60,7 +62,10 @@
 <span class="sd">    :returns: class corresponding to name</span>
 <span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">getattr</span><span class="p">,</span> <span class="n">classname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">])</span>   </div>
+    <span class="c1"># get the class, will raise AttributeError if class cannot be found</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span> <span class="n">classname</span><span class="p">)</span></div>
+    
+    <span class="c1">#return reduce(getattr, classname.split(&quot;.&quot;), sys.modules[__name__])   </span>
 
 <div class="viewcode-block" id="get_users"><a class="viewcode-back" href="../functions/python.html#simulation.get_users">[docs]</a><span class="k">def</span> <span class="nf">get_users</span><span class="p">(</span><span class="n">need_two_users</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return two random user nodes from graph </span>
@@ -107,7 +112,7 @@
     <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
     <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
     <span class="n">obj_node</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="n">objtype</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="n">unicode</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="p">))}</span>
+    <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="n">objtype</span><span class="p">,</span><span class="s1">&#39;title&#39;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="nb">object</span><span class="p">)}</span>
     <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,{</span><span class="n">obj_node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">})</span>
     
     <span class="c1">#Spells can be used to determine how long an action </span>
@@ -293,14 +298,12 @@
             <span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">(),</span><span class="n">cf</span><span class="o">.</span><span class="n">NUM_COLLUDERS</span><span class="p">)</span>
             
                 <span class="c1">#Seed some tags</span>
-            <span class="nb">print</span> <span class="s1">&#39;len is &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
             <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span> <span class="o">&lt;</span> <span class="n">cf</span><span class="o">.</span><span class="n">TAGS</span> <span class="o">+</span> <span class="n">cf</span><span class="o">.</span><span class="n">INITIAL_USERS</span><span class="p">:</span>
                 <span class="n">G</span> <span class="o">=</span> <span class="n">add_tag</span><span class="p">()</span>
-                <span class="nb">print</span> <span class="s1">&#39;len NOW is &#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
             
             <span class="c1">#Make each one write a story so that collusion is easier</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">NUM_COLLUDERS</span><span class="p">):</span>
-                <span class="nb">print</span> <span class="s1">&#39;colluder is &#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;colluder is &#39;</span><span class="p">,</span><span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="n">create_object</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">colluding_nodes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39;story&#39;</span><span class="p">)</span>
 
 
@@ -311,7 +314,7 @@
         <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">convert_node_labels_to_integers</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">counter</span> <span class="o">%</span> <span class="mi">30</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span> <span class="s1">&#39;we are at &#39;</span><span class="p">,</span><span class="n">counter</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;we are at &#39;</span><span class="p">,</span><span class="n">counter</span><span class="p">)</span>
 
     <span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">end_date</span> <span class="o">=</span> <span class="n">start_date</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">365</span><span class="p">)</span>

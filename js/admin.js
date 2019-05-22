@@ -1,5 +1,5 @@
 var data = {};
-var datalist = []; //Adding this for the line graph, might not be necessary
+var datalist = []; 
 var drawn = {};
 var xScale = d3.scaleLinear()
     .domain([0, 500]).range([0, 500]);
@@ -49,7 +49,7 @@ var div = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-
+//Clear any markers on the graph showing dynamic communities
 function clearDyn() {
     d3.select(".hull").style("opacity", 0);
     d3.selectAll(".marker").remove();
@@ -213,6 +213,11 @@ function updateMetrics(){
     $("#written").text(graph.create);
     $("#comments").text(graph.comment);   
 }
+
+/**
+* Currently quite a monolithic method containing all necessary functions
+* for drawing the force-directed graph and adding its interactivity. 
+*/
 function draw() {
     $(".mybox").prop("checked", false);
     nodetypes = {};
@@ -239,6 +244,10 @@ function draw() {
     node.exit().transition()
     .attr("r", 0)
     .remove();
+    
+    //Add all the nodes, their styling and their interactivity
+    //Also logs the maximum strength of interaction so that the strength
+    //slider can be updated
     node = node.enter().append("circle")
         .call(d3.drag()
         .on("start", dragstarted)
@@ -301,7 +310,10 @@ function draw() {
         })
         .on("mouseover",mouseOverNode,this)
         .on("mouseout", mouseOutNode,this);
+        
     updateStrengthSlider(strengthslider, maxval);
+    
+    
     if (indexstart == 0){
         Object.keys(global_communities).forEach(function(comm){
             nodeids = global_communities[comm][0];
@@ -321,6 +333,8 @@ function draw() {
     
     link.exit()
     .remove();
+    
+    //Add links and all their styling (colour, thickness, arrowheads etc)
     link = link.enter().append("line")
         .attr("class", "line")
         .merge(link)
@@ -415,6 +429,9 @@ function draw() {
             clusters[clusterID] = d;
         }
     });
+    
+    //Manually tick through the simulation and stop when it reaches a certain 'alpha' value
+    //so it doesn't continue to waste processing power
     sim.force("link").links(graph.links);
     if (drawn[indexstart] == false) {
         drawn[indexstart] = true;
@@ -432,6 +449,8 @@ function draw() {
     }
     ticked();
 
+    //Once the simulation has stopped, can add the necessary extra lines needed
+    //for the 'dashed' arrow colour effect
     addDashedArrowLines();
     
     $("#loadingDiv").css("display", "none");

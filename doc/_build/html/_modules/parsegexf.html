@@ -175,16 +175,27 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="n">edgetype</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">)</span></div>
 
-<span class="k">def</span> <span class="nf">addNewAttributes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">):</span>
+<div class="viewcode-block" id="addNewAttributes"><a class="viewcode-back" href="../functions/python.html#parsegexf.addNewAttributes">[docs]</a><span class="k">def</span> <span class="nf">addNewAttributes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Adds all necessary node and edge attributes for use with commonfare.net</span>
+<span class="sd">    </span>
+<span class="sd">    First, this method removes the node &#39;id&#39; attribute (its ID is already in the GEXF)</span>
+<span class="sd">    and replaces it with a &#39;platform ID&#39; attribute (as node IDs on commonfare.net are different</span>
+<span class="sd">    to the GEXF IDs). It also adds edge attributes for all interaction types on commonfare.net.</span>
+<span class="sd">    </span>
+<span class="sd">    :param root: XML root element of the GEXF file</span>
+<span class="sd">    :param namespaces: string XML namespace used in the GEXF file</span>
+<span class="sd">    :returns: 2-tuple - (dict of edge attribute names mapped to their IDs, ID of removed node attribute)  </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
     <span class="c1">#Get the &#39;static&#39; node attributes (those unchanging over time)</span>
     <span class="n">nodeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:attributes/[@class=</span><span class="se">\&#39;</span><span class="s1">node</span><span class="se">\&#39;</span><span class="s1">]&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
     <span class="n">nodeattrs</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;mode&#39;</span><span class="p">,</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
 
     <span class="c1">#Remove ID attribute as it is already in the GEXF</span>
     <span class="n">nodeidattr</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;id&#39;]&quot;</span><span class="p">)</span>
-    <span class="n">nodeid_id</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gexf_id</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">nodeidattr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">nodeid_id</span> <span class="o">=</span> <span class="n">nodeidattr</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+        <span class="n">gexf_id</span> <span class="o">=</span> <span class="n">nodeidattr</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
         <span class="n">nodeattrs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">nodeidattr</span><span class="p">)</span>
 
 
@@ -215,10 +226,25 @@
         <span class="n">edgeattrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
         <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
         <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">gexf_id</span><span class="p">)</span></div>
     
-<span class="k">def</span> <span class="nf">cleanNodes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">):</span>
+<div class="viewcode-block" id="cleanNodes"><a class="viewcode-back" href="../functions/python.html#parsegexf.cleanNodes">[docs]</a><span class="k">def</span> <span class="nf">cleanNodes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">gexf_id</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Adds necessary attributes to nodes in the GEXF</span>
+<span class="sd">    </span>
+<span class="sd">    First, this method removes the GEXF ID attribute from each node. </span>
+<span class="sd">    </span>
+<span class="sd">    It then extracts the node&#39;s platform ID from its label and adds </span>
+<span class="sd">    this as the &#39;platform_id&#39; attribute created in ``addNewAttributes``.</span>
+<span class="sd">    </span>
+<span class="sd">    Finally, it removes apostrophes from node titles/names as this can </span>
+<span class="sd">    cause parsing errors</span>
+<span class="sd">    </span>
+<span class="sd">    :param root: XML root element of the GEXF file</span>
+<span class="sd">    :param namespaces: string XML namespace used in the GEXF file</span>
+<span class="sd">    :param gexf_id: string ID of old node ID attribute</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:nodes&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
+    <span class="n">nodeattrs</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:attributes/[@class=</span><span class="se">\&#39;</span><span class="s1">node</span><span class="se">\&#39;</span><span class="s1">]&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span> 
 
     <span class="n">type_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;type&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
     <span class="n">name_id</span> <span class="o">=</span> <span class="n">nodeattrs</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@title=&#39;name&#39;]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
@@ -228,8 +254,8 @@
         <span class="n">platform_id</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">attvals</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:attvalues&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
         
-        <span class="k">if</span> <span class="n">nodeid_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">idattr</span> <span class="o">=</span> <span class="n">attvals</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@for=&#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">nodeid_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gexf_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">idattr</span> <span class="o">=</span> <span class="n">attvals</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@for=&#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">gexf_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;]&quot;</span><span class="p">)</span>
             <span class="n">attvals</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">idattr</span><span class="p">)</span>
         
         <span class="c1">#Add the platform ID</span>
@@ -244,9 +270,27 @@
             <span class="n">nodetitle</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="n">nodetitle</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">nodename</span> <span class="o">=</span> <span class="n">attvals</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;*/[@for=&#39;&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">name_id</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&#39;]&quot;</span><span class="p">)</span>
-            <span class="n">nodename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="n">nodename</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="n">nodename</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="n">nodename</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">))</span></div>
             
-<span class="k">def</span> <span class="nf">cleanEdges</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">namespaces</span><span class="p">):</span>
+<div class="viewcode-block" id="cleanEdges"><a class="viewcode-back" href="../functions/python.html#parsegexf.cleanEdges">[docs]</a><span class="k">def</span> <span class="nf">cleanEdges</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Methods for cleaning and parsing edges in the GEXF</span>
+<span class="sd">    </span>
+<span class="sd">    This method does a few things: </span>
+<span class="sd">    It deletes self-looping edges and &#39;Basic Income&#39; transactions, as well as</span>
+<span class="sd">    those that for whatever reason do not have a recognised type. </span>
+<span class="sd">    </span>
+<span class="sd">    It parses the label of each edge to determine its type and date (using the ``parseLabel`` method.</span>
+<span class="sd">    It then merges all edges betwee two nodes into a single edge containing all interactions,</span>
+<span class="sd">    their type and the date they occurred. </span>
+<span class="sd">    </span>
+<span class="sd">    Finally, it keeps track of the earliest and latest edge occurrence, to get an overall time window</span>
+<span class="sd">    of platform interactions</span>
+<span class="sd">    </span>
+<span class="sd">    :param root: XML root element of the GEXF file</span>
+<span class="sd">    :param namespaces: string XML namespace used in the GEXF file</span>
+<span class="sd">    :param d: dict of edge attribute names mapped to their IDs</span>
+<span class="sd">    :returns: 3-tuple - edges to delete, earliest interaction date, latest interaciton date</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">d</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:nodes&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>    
     <span class="c1">#Here we figure out edges that need to be deleted</span>
@@ -324,7 +368,7 @@
             <span class="n">existingedges</span><span class="p">[</span><span class="n">edgeid</span><span class="p">]</span> <span class="o">=</span> <span class="n">elem</span>
         <span class="k">else</span><span class="p">:</span> <span class="c1">#Remove duplicate edges</span>
             <span class="n">edgestodelete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">edgestodelete</span><span class="p">,</span><span class="n">mindate</span><span class="p">,</span><span class="n">maxdate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">edgestodelete</span><span class="p">,</span><span class="n">mindate</span><span class="p">,</span><span class="n">maxdate</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="parse"><a class="viewcode-back" href="../functions/python.html#parsegexf.parse">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/parse&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="o">*</span><span class="n">gexffile</span><span class="p">):</span>    
@@ -350,12 +394,12 @@
     <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;timeformat&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">)</span>  
 
     <span class="c1">#Add new ID and dynamic attributes</span>
-    <span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">)</span> <span class="o">=</span> <span class="n">addNewAttributes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
- 
-    <span class="n">cleanNodes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">nodeattrs</span><span class="p">,</span><span class="n">nodeid_id</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">gexf_id</span><span class="p">)</span> <span class="o">=</span> <span class="n">addNewAttributes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
+
+    <span class="n">cleanNodes</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">gexf_id</span><span class="p">)</span>
  
     <span class="c1">#Find edges to delete, earliest start and end dates of actions</span>
-    <span class="p">(</span><span class="n">edgestodelete</span><span class="p">,</span><span class="n">mindate</span><span class="p">,</span><span class="n">maxdate</span><span class="p">)</span> <span class="o">=</span> <span class="n">cleanEdges</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">d</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">edgestodelete</span><span class="p">,</span><span class="n">mindate</span><span class="p">,</span><span class="n">maxdate</span><span class="p">)</span> <span class="o">=</span> <span class="n">cleanEdges</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="n">namespaces</span><span class="p">,</span><span class="n">d</span><span class="p">)</span>
     <span class="n">edges</span> <span class="o">=</span> <span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;xmlns:edges&#39;</span><span class="p">,</span><span class="n">namespaces</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edgestodelete</span><span class="p">:</span>

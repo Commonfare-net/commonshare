@@ -18,12 +18,12 @@ colluding_nodes = []
 MAX_WEIGHT = 0
 
 #Collusion things
-FREQUENCY_THRESHOLD = 5
-PERCENTAGE_THRESHOLD = 33
+FREQUENCY_THRESHOLD = 7
+PERCENTAGE_THRESHOLD = 40
 
 SPACING = 'biweekly' #or use 'weekly' or 'monthly'
 
-COMMUNITY_SIM = 0.25 #Jaccard similarity coefficient needed for two communities to be considered the same
+COMMUNITY_SIM = 0.33 #Jaccard similarity coefficient needed for two communities to be considered the same
 
 #Keys are interaction types, values are a list containing:
 #meta network, sender weight, receiver weight

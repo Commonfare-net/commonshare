@@ -56,6 +56,7 @@ $("#lgraph").bind("wheel mousewheel", function (e) {
 });
 chartg = chartsvg.append("g");
 
+//Allows for panning and zooming behaviour on the chart
 var areazoom = d3.zoom()
     .scaleExtent([0.33, 2])
     .translateExtent([[0, 0],
@@ -63,7 +64,8 @@ var areazoom = d3.zoom()
     .on("zoom", areazoomed);
 chartsvg.call(areazoom);
     
-var currentMonthGap = 1;
+    
+var tickDistanceGap = 1;
 
 /**
 * Draws the area chart after loading all necessary data
@@ -133,7 +135,6 @@ function drawNewChart(type) {
         .attr("stroke-width", 1.5)
         .attr("class", "plotline")
         .attr("d", valueline);
-    console.log(datalist);
     chartg.append("g")
     .attr("class", "yline")
     .attr("transform", "translate(40,0)")
@@ -195,12 +196,12 @@ function areazoomed() {
     }
     var tickdistance = t.eq(1).position().left - t.eq(0).position().left;
     if (tickdistance < 50){
-        currentMonthGap += 1;
+        tickDistanceGap += 1;
     }
     else if (tickdistance > 100){
-        currentMonthGap -= 1;
+        tickDistanceGap -= 1;
     }
-    xAxis.ticks(d3.timeMonth.every(Math.max(1, currentMonthGap)));
+    xAxis.ticks(d3.timeMonth.every(Math.max(1, tickDistanceGap)));
     d3.selectAll("#simplelineaxis > .tick").attr("transform", function () {
         return "translate(" +
         (getTranslation(d3.select(this).attr("transform"))[0]) +

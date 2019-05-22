@@ -137,15 +137,26 @@ def parseLabel(nodes,edges,edgeid,sourceid,targetid,label):
     return (edgetype,start,end)
 
 def addNewAttributes(root,namespaces):
+    """Adds all necessary node and edge attributes for use with commonfare.net
+    
+    First, this method removes the node 'id' attribute (its ID is already in the GEXF)
+    and replaces it with a 'platform ID' attribute (as node IDs on commonfare.net are different
+    to the GEXF IDs). It also adds edge attributes for all interaction types on commonfare.net.
+    
+    :param root: XML root element of the GEXF file
+    :param namespaces: string XML namespace used in the GEXF file
+    :returns: 2-tuple - (dict of edge attribute names mapped to their IDs, ID of removed node attribute)  
+    """
+    
     #Get the 'static' node attributes (those unchanging over time)
     nodeattrs = root[0].find('xmlns:attributes/[@class=\'node\']',namespaces)
     nodeattrs.set('mode','static')
 
     #Remove ID attribute as it is already in the GEXF
     nodeidattr = nodeattrs.find("*/[@title='id']")
-    nodeid_id = None
+    gexf_id = None
     if nodeidattr is not None:
-        nodeid_id = nodeidattr.attrib['id']
+        gexf_id = nodeidattr.attrib['id']
         nodeattrs.remove(nodeidattr)
 
 
@@ -176,10 +187,25 @@ def addNewAttributes(root,namespaces):
         edgeattrs.append(attr)
         d[k] = str(count)
         count +=1
-    return (d,nodeid_id,nodeattrs)
+    return (d,gexf_id)
     
-def cleanNodes(root,namespaces,nodeattrs,nodeid_id):
+def cleanNodes(root,namespaces,gexf_id):
+    '''Adds necessary attributes to nodes in the GEXF
+    
+    First, this method removes the GEXF ID attribute from each node. 
+    
+    It then extracts the node's platform ID from its label and adds 
+    this as the 'platform_id' attribute created in ``addNewAttributes``.
+    
+    Finally, it removes apostrophes from node titles/names as this can 
+    cause parsing errors
+    
+    :param root: XML root element of the GEXF file
+    :param namespaces: string XML namespace used in the GEXF file
+    :param gexf_id: string ID of old node ID attribute
+    '''
     nodes = root[0].find('xmlns:nodes',namespaces)
+    nodeattrs = root[0].find('xmlns:attributes/[@class=\'node\']',namespaces) 
 
     type_id = str(nodeattrs.find("*/[@title='type']").attrib['id'])
     name_id = nodeattrs.find("*/[@title='name']").attrib['id']
@@ -189,8 +215,8 @@ def cleanNodes(root,namespaces,nodeattrs,nodeid_id):
         platform_id = n.get('label').split('_')[1]
         attvals = n.find('xmlns:attvalues',namespaces)
         
-        if nodeid_id is not None:
-            idattr = attvals.find("*/[@for='"+str(nodeid_id)+"']")
+        if gexf_id is not None:
+            idattr = attvals.find("*/[@for='"+str(gexf_id)+"']")
             attvals.remove(idattr)
         
         #Add the platform ID
@@ -207,7 +233,25 @@ def cleanNodes(root,namespaces,nodeattrs,nodeid_id):
             nodename = attvals.find("*/[@for='"+str(name_id)+"']")
             nodename.set('value',nodename.get('value').replace("'",""))
             
-def cleanEdges(root,d,namespaces):
+def cleanEdges(root,namespaces,d):
+    '''Methods for cleaning and parsing edges in the GEXF
+    
+    This method does a few things: 
+    It deletes self-looping edges and 'Basic Income' transactions, as well as
+    those that for whatever reason do not have a recognised type. 
+    
+    It parses the label of each edge to determine its type and date (using the ``parseLabel`` method.
+    It then merges all edges betwee two nodes into a single edge containing all interactions,
+    their type and the date they occurred. 
+    
+    Finally, it keeps track of the earliest and latest edge occurrence, to get an overall time window
+    of platform interactions
+    
+    :param root: XML root element of the GEXF file
+    :param namespaces: string XML namespace used in the GEXF file
+    :param d: dict of edge attribute names mapped to their IDs
+    :returns: 3-tuple - edges to delete, earliest interaction date, latest interaciton date
+    '''
     d[None] = None
     nodes = root[0].find('xmlns:nodes',namespaces)    
     #Here we figure out edges that need to be deleted
@@ -311,12 +355,12 @@ def parse(*gexffile):
     root[0].set('timeformat', 'date')  
 
     #Add new ID and dynamic attributes
-    (d,nodeid_id,nodeattrs) = addNewAttributes(root,namespaces)
- 
-    cleanNodes(root,namespaces,nodeattrs,nodeid_id)
+    (d,gexf_id) = addNewAttributes(root,namespaces)
+
+    cleanNodes(root,namespaces,gexf_id)
  
     #Find edges to delete, earliest start and end dates of actions
-    (edgestodelete,mindate,maxdate) = cleanEdges(root,d,namespaces)
+    (edgestodelete,mindate,maxdate) = cleanEdges(root,namespaces,d)
     edges = root[0].find('xmlns:edges',namespaces)
 
     for e in edgestodelete:
