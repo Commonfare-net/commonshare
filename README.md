@@ -10,7 +10,7 @@ pip install scipy python-louvain python-dateutil names
 ```
 
 <h3>Important Contents:</h3>
-For detailed information on setting up, running and deploying commonshare, please <a href="https://fooby1-3adfb.firebaseapp.com/commonshare/doc/_build/html/index.html">read the documentation!</a>
+For detailed information on setting up, running and deploying commonshare, please <a href="https://cf-commonshare.firebaseapp.com/commonshare/doc/_build/html/index.html">read the documentation!</a>
 </br>
 <b>python/</b>
 

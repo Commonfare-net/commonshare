@@ -156,7 +156,7 @@ function plotDonut(graphdata, nodedata) {
             var degreeStart = (d.startAngle / (Math.PI / 180));
             return (d.endAngle > 90 * Math.PI / 180
                  && degreeStart > (180 - degreeEnd)
-                 && ((degreeEnd - degreeStart) % 360 != 0) ? 18 : -11);
+                 && (Math.round(degreeEnd - degreeStart) % 360 != 0) ? 18 : -11);
         });
 
     d3.selectAll(".textpath").remove();
@@ -263,7 +263,8 @@ function calculateTextPath(d, index) {
 
     if (d.endAngle > 90 * Math.PI / 180 &&
         start > (180 - end) &&
-        (end - start) % 360 != 0) {
+        Math.round(end - start) % 360 != 0) {
+        console.log("FLIPPING" + " start is " + start + " and end is " + end);
         var startLoc = /M(.*?)A/;
         var middleLoc;
         var endLoc;
@@ -284,6 +285,9 @@ function calculateTextPath(d, index) {
             numbers = "0 1 0 ";
         }
         newArc = "M" + newStart + "A" + middleSec + numbers + newEnd;
+    }
+    else{
+                console.log("nope" + " start is " + start + " and end is " + end);
     }
     chartg.append("path")
     .attr("class", "hiddenDonutArcs")
